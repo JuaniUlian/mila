@@ -20,7 +20,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${nunito.variable} font-sans antialiased`}>
+      {/* 
+        nunito.variable applies a class that defines the CSS variable --font-nunito.
+        The font-family is now explicitly set in globals.css using this variable.
+        The font-sans class is removed from here as it's no longer the primary mechanism.
+      */}
+      <body className={`${nunito.variable} antialiased`}>
         {children}
         <Toaster />
       </body>

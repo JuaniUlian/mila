@@ -3,14 +3,8 @@
 @tailwind utilities;
 
 /*
-  The Nunito font is applied via layout.tsx using nunito.variable (to set the CSS variable)
-  and the font-sans class (defined in tailwind.config.ts to use var(--font-nunito)).
-  So, this explicit rule is likely not needed here and might conflict.
-*/
-/*
-body {
-  font-family: var(--font-nunito), Arial, Helvetica, sans-serif;
-}
+  The Nunito font is applied via layout.tsx using nunito.variable (to set the CSS variable --font-nunito)
+  and then explicitly in the body rule within @layer base below.
 */
 
 @layer base {
@@ -151,10 +145,11 @@ body {
   body {
     @apply bg-background text-foreground;
     /*
-      The font-family is set by applying the `font-sans` class to the body in layout.tsx.
-      The `font-sans` utility is configured in tailwind.config.ts to use `var(--font-nunito)`.
-      The `--font-nunito` CSS variable is defined by the class from `nunito.variable` (also in layout.tsx).
+      The --font-nunito CSS variable is defined by the class from nunito.variable (applied in layout.tsx).
+      We explicitly use this variable here for the body's font-family.
+      Tailwind's font-sans utility in tailwind.config.ts also references this variable.
     */
+    font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
 
