@@ -1,12 +1,12 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock, AlertItem } from './types';
+import type { DocumentBlock } from './types'; // AlertItem removed as it's no longer directly used here
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, FileWarning } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// Badge related imports and functions (getSeverityBadgeVariant, getSeverityBadgeClass) are removed
+// ScrollArea might not be needed if content is less
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -14,47 +14,26 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { SeverityIndicator } from './severity-indicator';
+// SeverityIndicator is removed as alerts are no longer displayed here
 
 interface RisksPanelProps {
   block: DocumentBlock | null;
 }
 
-const getSeverityBadgeVariant = (severity: AlertItem['severity']) => {
-  switch (severity) {
-    case 'grave': return 'destructive';
-    case 'media': return 'default'; 
-    case 'leve': return 'secondary'; 
-    default: return 'outline';
-  }
-};
-
-const getSeverityBadgeClass = (severity: AlertItem['severity']) => {
-  switch (severity) {
-    case 'grave': return 'bg-custom-severity-high text-custom-severity-high-foreground';
-    case 'media': return 'bg-custom-severity-medium text-custom-severity-medium-foreground';
-    case 'leve': return 'bg-custom-severity-low text-custom-severity-low-foreground';
-    default: return '';
-  }
-};
-
-
 export function RisksPanel({ block }: RisksPanelProps) {
   const { toast } = useToast();
 
   if (!block) {
-    // This state should ideally be handled by the parent component (page.tsx)
-    // by not rendering RisksPanel if block is null.
-    // Adding a minimal fallback here for safety.
     return (
-      <Card className="shadow-md border">
+      <Card className="shadow-md border mt-6"> {/* Added mt-6 for spacing */}
         <CardHeader className="text-center">
+           <CardTitle>Información Adicional</CardTitle>
           <CardDescription className="text-base">
-            Seleccione un bloque para ver detalles de validación y riesgos.
+            Seleccione un bloque para ver detalles de conexiones, riesgos y normativa.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center items-center p-6">
-          <FileWarning size={48} className="text-muted-foreground mx-auto" />
+          <Info size={48} className="text-muted-foreground mx-auto" />
         </CardContent>
       </Card>
     );
@@ -67,65 +46,36 @@ export function RisksPanel({ block }: RisksPanelProps) {
     });
   };
 
+  // Default open for accordion items can be Connections, Legal Risk, Norms
+  // Alerts section is removed.
   const defaultAccordionValues: string[] = [];
-  if (block.alerts.length > 0) defaultAccordionValues.push("alerts");
   if (block.missingConnections.length > 0) defaultAccordionValues.push("connections");
   if (block.legalRisk) defaultAccordionValues.push("legal-risk");
   if (block.applicableNorms.length > 0) defaultAccordionValues.push("norms");
 
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg mt-6"> {/* Added mt-6 for spacing */}
       <CardHeader>
-        <div className="mb-2"> {/* Adjusted margin */}
+        <div className="mb-2">
           <h2 className="text-xl font-semibold text-foreground leading-tight">
-            Validaciones y Riesgos Adicionales
+            Información Adicional del Bloque
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Detalles para el bloque: <span className="font-medium text-primary">{block.name}</span>
+            Contexto normativo y riesgos para: <span className="font-medium text-primary">{block.name}</span>
           </p>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-3">
-          <AccordionItem value="alerts" className="border-b-0">
-            <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-base hover:no-underline">
-                <div className="flex items-center gap-2 w-full">
-                  <FileWarning size={18} className="text-accent" />
-                  <span className="flex-1 text-left font-medium">Alertas Activas ({block.alerts.length})</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                {block.alerts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pt-2">No hay alertas activas para este bloque.</p>
-                ) : (
-                  <ul className="space-y-3 pt-2">
-                    {block.alerts.map((alert) => (
-                      <li key={alert.id} className="p-3 border rounded-md bg-background/50 shadow-sm">
-                        <div className="flex items-start gap-2">
-                          <SeverityIndicator level={alert.severity} size={5} className="mt-0.5"/>
-                          <div>
-                            <p className="text-sm font-medium">{alert.description}</p>
-                            <Badge variant={getSeverityBadgeVariant(alert.severity)} className={`mt-1 text-xs ${getSeverityBadgeClass(alert.severity)}`}>
-                              Severidad: {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
-                            </Badge>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </AccordionContent>
-            </Card>
-          </AccordionItem>
+          {/* Alertas Activas AccordionItem is removed */}
 
           <AccordionItem value="connections" className="border-b-0">
             <Card className="shadow-md">
               <AccordionTrigger className="p-4 text-base hover:no-underline">
                  <div className="flex items-center gap-2 w-full">
                     <Link2Off size={18} className="text-accent" />
-                    <span className="flex-1 text-left font-medium">Conexiones Faltantes ({block.missingConnections.length})</span>
+                    <span className="flex-1 text-left font-medium">Conexiones Normativas Faltantes ({block.missingConnections.length})</span>
                   </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
@@ -165,12 +115,12 @@ export function RisksPanel({ block }: RisksPanelProps) {
               <AccordionTrigger className="p-4 text-base hover:no-underline">
                 <div className="flex items-center gap-2 w-full">
                   <BookOpen size={18} className="text-accent" />
-                  <span className="flex-1 text-left font-medium">Normativa Aplicable ({block.applicableNorms.length})</span>
+                  <span className="flex-1 text-left font-medium">Normativa Aplicable Directa ({block.applicableNorms.length})</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 {block.applicableNorms.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pt-2">No hay normativas específicas listadas.</p>
+                  <p className="text-sm text-muted-foreground pt-2">No hay normativas específicas listadas para este bloque.</p>
                 ) : (
                 <ul className="space-y-2 pt-2">
                   {block.applicableNorms.map((norm) => (
