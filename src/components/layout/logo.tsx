@@ -1,11 +1,19 @@
-
 import type React from 'react';
+import Image from 'next/image';
 
 export function Logo() {
+  // Instructions for the user:
+  // 1. Save your logo image (e.g., as 'my-logo.png') in the 'public' folder of your project.
+  // 2. Update the src attribute below from the placeholder to '/my-logo.png'.
+  // 3. Adjust width and height attributes as needed for your logo's aspect ratio.
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
-      <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M2 7L12 12M22 7L12 12M12 22V12M17 4.5L7 9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
+    <Image
+      src="https://placehold.co/32x32.png" // Replace this with the path to your logo, e.g., "/my-logo.png"
+      alt="App Logo"
+      width={32}
+      height={32}
+      data-ai-hint="logo" // This hint is for the placeholder
+      className="rounded-sm" // Added a slight rounding, adjust as needed
+    />
   );
 }
