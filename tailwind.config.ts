@@ -65,17 +65,30 @@ export default {
   				ring: 'hsl(var(--sidebar-ring))'
   			},
         // Custom colors from globals.css for Tailwind utility classes
-        'custom-validation-blue': 'hsl(var(--custom-validation-blue))',
-        'custom-alert-minor-error-bg': 'hsl(var(--custom-alert-minor-error-bg))',
-        'custom-alert-major-error-bg': 'hsl(var(--custom-alert-major-error-bg))',
-        'custom-warning-yellow-bg': 'hsl(var(--custom-warning-yellow-bg))',
+        'custom-technical-norm-blue': {
+          DEFAULT: 'hsl(var(--custom-technical-norm-blue))',
+          foreground: 'hsl(var(--custom-technical-norm-blue-foreground))',
+        },
+        'custom-alert-minor-error-bg': 'hsl(var(--custom-alert-minor-error-bg))', // May not be used if severity colors cover it
+        'custom-alert-major-error-bg': 'hsl(var(--custom-alert-major-error-bg))', // Should match destructive
+        'custom-warning-yellow': {
+          DEFAULT:'hsl(var(--custom-warning-yellow-bg))',
+          foreground: 'hsl(var(--custom-warning-yellow-fg))',
+        },
         'custom-technical-text-blue': 'hsl(var(--custom-technical-text-blue))',
-        'custom-severity-low-bg': 'hsl(var(--custom-severity-low-bg))',
-        'custom-severity-medium-bg': 'hsl(var(--custom-severity-medium-bg))',
-        'custom-severity-high-bg': 'hsl(var(--custom-severity-high-bg))',
-        'custom-severity-low-fg': 'hsl(var(--custom-severity-low-fg))',
-        'custom-severity-medium-fg': 'hsl(var(--custom-severity-medium-fg))',
-        'custom-severity-high-fg': 'hsl(var(--custom-severity-high-fg))',
+        
+        'custom-severity-low': {
+          DEFAULT: 'hsl(var(--custom-severity-low-bg))',
+          foreground: 'hsl(var(--custom-severity-low-fg))',
+        },
+        'custom-severity-medium':{
+          DEFAULT: 'hsl(var(--custom-severity-medium-bg))',
+          foreground: 'hsl(var(--custom-severity-medium-fg))',
+        },
+        'custom-severity-high': {
+          DEFAULT: 'hsl(var(--custom-severity-high-bg))',
+          foreground: 'hsl(var(--custom-severity-high-fg))',
+        },
   		}
     },
   	borderRadius: {

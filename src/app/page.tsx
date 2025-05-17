@@ -1,84 +1,81 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppShell } from '@/components/layout/app-shell';
 import { PageHeader } from '@/components/page-header';
-import { DocumentInputArea } from '@/components/document-input-area';
-import { SuggestionsDisplayArea } from '@/components/suggestions-display-area';
-import { ValidationSummaryPanel } from '@/components/validation-summary-panel';
-import { suggestNormativeDocumentImprovements, type SuggestNormativeDocumentImprovementsOutput } from '@/ai/flows/suggest-improvements';
+import { ContentPanel } from '@/components/mila/content-panel';
+import { RisksPanel } from '@/components/mila/risks-panel';
+import type { DocumentBlock, Suggestion } from '@/components/mila/types';
+import { mockData as initialMockData } from '@/components/mila/mock-data'; // Using mock data
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
 
 export default function HomePage() {
-  const [documentText, setDocumentText] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [aiOutput, setAiOutput] = useState<SuggestNormativeDocumentImprovementsOutput | null>(null);
+  const [documentTitle, setDocumentTitle] = useState<string>(initialMockData.documentTitle);
+  const [blocks, setBlocks] = useState<DocumentBlock[]>(initialMockData.blocks);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSuggestImprovements = async () => {
-    if (!documentText.trim()) {
-      toast({
-        title: 'Input Required',
-        description: 'Please enter some document text to analyze.',
-        variant: 'destructive',
-      });
-      return;
+  // Effect to select the first block by default if available
+  useEffect(() => {
+    if (blocks.length > 0 && !selectedBlockId) {
+      setSelectedBlockId(blocks[0].id);
     }
+  }, [blocks, selectedBlockId]);
 
-    setIsLoading(true);
-    setAiOutput(null); 
-    try {
-      const result = await suggestNormativeDocumentImprovements({ documentText });
-      setAiOutput(result);
-      toast({
-        title: 'Analysis Complete',
-        description: 'Suggestions and scores have been generated.',
-      });
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to fetch suggestions. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleSelectBlock = useCallback((id: string) => {
+    setSelectedBlockId(id);
+  }, []);
+
+  const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, status: Suggestion['status']) => {
+    setBlocks(prevBlocks =>
+      prevBlocks.map(block => {
+        if (block.id === blockId) {
+          return {
+            ...block,
+            suggestions: block.suggestions.map(suggestion =>
+              suggestion.id === suggestionId ? { ...suggestion, status } : suggestion
+            ),
+          };
+        }
+        return block;
+      })
+    );
+    toast({
+      title: "Sugerencia Actualizada",
+      description: `El estado de la sugerencia ha sido cambiado a ${status}.`,
+    });
+  }, [toast]);
+
+  const selectedBlock = blocks.find(block => block.id === selectedBlockId) || null;
 
   return (
-    <AppShell>
-      <PageHeader 
-        title="Normative Document Analysis" 
-        onValidate={handleSuggestImprovements}
-        isLoading={isLoading}
-      />
-      <main className="flex-1 overflow-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-          {/* Left Column: Document Input and Validation Summary */}
-          <div className="lg:col-span-1 flex flex-col gap-6">
-            <DocumentInputArea
-              documentText={documentText}
-              setDocumentText={setDocumentText}
-              isLoading={isLoading}
-            />
-            <ValidationSummaryPanel 
-              aiOutput={aiOutput}
-              isLoading={isLoading}
-            />
-          </div>
-
-          {/* Right Column: Suggestions Display Area */}
-          <div className="lg:col-span-2 h-full">
-            <SuggestionsDisplayArea 
-              originalText={documentText}
-              aiOutput={aiOutput}
-              isLoading={isLoading}
-            />
-          </div>
+    <AppShell 
+      blocks={blocks}
+      selectedBlockId={selectedBlockId}
+      onSelectBlock={handleSelectBlock}
+    >
+      <PageHeader title={documentTitle} />
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_auto] overflow-hidden h-[calc(100vh-4rem)]">
+        {/* Central Panel: Content Area */}
+        <div className="overflow-y-auto h-full">
+          <ContentPanel 
+            block={selectedBlock} 
+            onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
+          />
         </div>
+
+        {/* Right Panel: Risks and Validations Area */}
+        <div className="overflow-y-auto h-full hidden md:block">
+           <RisksPanel block={selectedBlock} />
+        </div>
+         {/* Mobile: RisksPanel could be a drawer/modal or conditionally rendered if screen is small and a block is selected */}
+         {selectedBlock && (
+          <div className="md:hidden fixed inset-x-0 bottom-0 z-20">
+            {/* Placeholder for a mobile-friendly way to show RisksPanel, e.g., a bottom sheet trigger */}
+            {/* Or integrate parts of it into ContentPanel for mobile */}
+          </div>
+        )}
       </main>
     </AppShell>
   );

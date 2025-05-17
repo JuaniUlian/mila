@@ -5,23 +5,28 @@ import {
   SidebarProvider,
   Sidebar,
   SidebarHeader,
-  SidebarContent,
+  // SidebarContent, // Replaced by specific Mila BlockNavigation
   SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { FileText, Settings, LayoutDashboard, Info } from 'lucide-react';
+import { Settings, LayoutDashboard } from 'lucide-react';
+import { BlockNavigation } from '@/components/mila/block-navigation'; // Import new component
+import type { DocumentBlock } from '@/components/mila/types'; // Import types
 
 interface AppShellProps {
   children: React.ReactNode;
+  blocks: DocumentBlock[]; // Pass blocks for navigation
+  selectedBlockId: string | null;
+  onSelectBlock: (id: string) => void;
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, blocks, selectedBlockId, onSelectBlock }: AppShellProps) {
   return (
-    <SidebarProvider defaultOpen>
+    // defaultOpen can be controlled by user preference later
+    <SidebarProvider defaultOpen={true}> 
       <Sidebar>
         <SidebarHeader className="p-4">
           <div className="flex items-center gap-2">
@@ -33,32 +38,33 @@ export function AppShell({ children }: AppShellProps) {
           </div>
           <p className="text-xs text-sidebar-foreground/80">Plantilla Viva</p>
         </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton href="#" isActive tooltip="Dashboard">
-                <LayoutDashboard />
-                <span>Dashboard</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-               <SidebarMenuButton href="#" tooltip="Section Overview (Future)">
-                <Info />
-                <span>Section Overview</span>
-              </SidebarMenuButton>
-              <div className="px-4 py-1 text-xs text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">
-                (Coming Soon) Displays navigable document sections with completeness scores and alerts.
-              </div>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
+        
+        {/* Replace existing SidebarContent with BlockNavigation */}
+        <BlockNavigation 
+          blocks={blocks} 
+          selectedBlockId={selectedBlockId} 
+          onSelectBlock={onSelectBlock} 
+        />
+
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton href="#" tooltip="Settings">
-                <Settings />
-                <span>Settings</span>
+              <SidebarMenuButton href="#" tooltip="Dashboard (Próximamente)">
+                <LayoutDashboard />
+                <span className="group-data-[collapsible=icon]:hidden">Dashboard</span>
               </SidebarMenuButton>
+               <div className="px-4 py-1 text-xs text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">
+                (Próximamente)
+              </div>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton href="#" tooltip="Configuración (Próximamente)">
+                <Settings />
+                <span className="group-data-[collapsible=icon]:hidden">Configuración</span>
+              </SidebarMenuButton>
+              <div className="px-4 py-1 text-xs text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">
+                (Próximamente)
+              </div>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>

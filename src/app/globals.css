@@ -17,19 +17,19 @@ body {
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 82 79% 62%; /* #A3E635 - active validation background, main containers */
+    --primary: 82 79% 62%; /* #A3E635 - Verde lima, fondos activos o positivos */
     --primary-foreground: 160 83% 10%; /* Dark green for contrast on light green */
 
-    --secondary: 160 83% 16%; /* #064E3B - institutional headers, can be used with sidebar */
+    --secondary: 160 83% 16%; /* #064E3B - Verde institucional, sidebar y encabezados */
     --secondary-foreground: 0 0% 98%; /* White/Light gray */
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20.2% 65.1%; /* slate-500 */
 
-    --accent: 202 90% 56%; /* #0EA5E9 (Validation/Norms Blue as general accent) */
+    --accent: 202 90% 56%; /* #0EA5E9 (General accent, can be used if #0284C7 is too specific) */
     --accent-foreground: 0 0% 98%; /* White for contrast */
 
-    --destructive: 0 72% 47%; /* #DC2626 (Major Error Red) */
+    --destructive: 0 84% 60%; /* Adjusted for #DC2626 - Rojo errores graves */
     --destructive-foreground: 0 0% 98%;
 
     --border: 215 30% 87%; /* #CBD5E1 (slate-300 for "Partial Results" box border) */
@@ -49,18 +49,24 @@ body {
     --sidebar-ring: 202 90% 56%;      /* Validation/Norms blue for focus inside sidebar */
 
     /* Custom Color Variables from User Request */
-    --custom-validation-blue: 202 90% 56%; /* #0EA5E9 */
-    --custom-alert-minor-error-bg: 0 90% 70%; /* #F87171 */
-    --custom-alert-major-error-bg: 0 72% 47%; /* #DC2626 */
-    --custom-warning-yellow-bg: 45 93% 55%;   /* #FACC15 */
-    --custom-technical-text-blue: 227 64% 33%; /* #1E3A8A */
+    --custom-technical-norm-blue: 200 98% 39%; /* #0284C7 - Azul técnico */
+    --custom-technical-norm-blue-foreground: 0 0% 100%; /* White for text on technical norm blue */
     
-    --custom-severity-low-bg: 185 88% 87%;    /* #A5F3FC */
-    --custom-severity-medium-bg: 45 93% 55%; /* #FACC15 */
-    --custom-severity-high-bg: 0 90% 70%;    /* #F87171 */
+    --custom-alert-minor-error-bg: 0 90% 70%; /* #F87171 (Original PRD mentioned #F87171 for minor error, but also for high severity. Let's align with severity labels.)*/
+    --custom-alert-major-error-bg: 0 84% 60%; /* #DC2626 (Matches --destructive) */
+    
+    --custom-warning-yellow-bg: 45 93% 55%;   /* #FACC15 - Amarillo advertencias leves / Medium severity */
+    --custom-warning-yellow-fg: 222 47% 11%; /* Dark text for yellow background */
 
-    --custom-severity-low-fg: 227 64% 20%;    /* Darker blue for contrast */
-    --custom-severity-medium-fg: 227 64% 20%; /* Darker blue/black for contrast */
+    --custom-technical-text-blue: 227 64% 33%; /* #1E3A8A - For normative quotes etc. */
+    
+    --custom-severity-low-bg: 185 88% 87%;    /* #A5F3FC - Leve */
+    --custom-severity-low-fg: 200 90% 30%;    /* Darker cyan/blue for contrast */
+    
+    --custom-severity-medium-bg: 45 93% 55%; /* #FACC15 - Media */
+    --custom-severity-medium-fg: 222 47% 11%; /* Dark text for yellow background */
+
+    --custom-severity-high-bg: 0 80% 67%;    /* #F87171 (Slightly lighter than #DC2626 for badge differentiation if needed) - Grave */
     --custom-severity-high-fg: 0 0% 100%;     /* White for contrast */
 
     --chart-1: 12 76% 61%;
@@ -109,20 +115,25 @@ body {
     --sidebar-border: 160 83% 10%;
     --sidebar-ring: 202 90% 56%;
 
-    /* Custom Color Variables from User Request - Dark mode adjustments if necessary */
-    --custom-validation-blue: 202 90% 56%;
-    --custom-alert-minor-error-bg: 0 90% 60%; 
-    --custom-alert-major-error-bg: 0 72% 50%; 
-    --custom-warning-yellow-bg: 45 93% 50%;   
-    --custom-technical-text-blue: 227 64% 53%; 
+    /* Custom Color Variables from User Request - Dark mode adjustments */
+    --custom-technical-norm-blue: 200 98% 49%; /* Lighter blue for dark mode */
+    --custom-technical-norm-blue-foreground: 0 0% 98%;
     
-    --custom-severity-low-bg: 185 88% 77%;    
-    --custom-severity-medium-bg: 45 93% 50%; 
-    --custom-severity-high-bg: 0 90% 60%;
+    --custom-alert-major-error-bg: 0 72% 50%; 
+    
+    --custom-warning-yellow-bg: 45 93% 50%;   
+    --custom-warning-yellow-fg: 0 0% 98%;
 
-    --custom-severity-low-fg: 227 64% 10%;    
-    --custom-severity-medium-fg: 227 64% 10%; 
-    --custom-severity-high-fg: 0 0% 100%;     
+    --custom-technical-text-blue: 227 64% 73%; 
+    
+    --custom-severity-low-bg: 185 88% 37%;    
+    --custom-severity-low-fg: 0 0% 98%;    
+    
+    --custom-severity-medium-bg: 45 93% 50%; 
+    --custom-severity-medium-fg: 0 0% 98%; 
+    
+    --custom-severity-high-bg: 0 80% 57%;    
+    --custom-severity-high-fg: 0 0% 98%;     
   }
 }
 
@@ -135,25 +146,57 @@ body {
   }
 }
 
-/* Custom utility classes if needed, e.g. for specific text colors */
-.text-technical-blue {
+/* Custom utility classes */
+.text-technical-blue { /* For general technical text, not the specific norm blue */
   color: hsl(var(--custom-technical-text-blue));
 }
-.bg-validation-blue {
-  background-color: hsl(var(--custom-validation-blue));
+.bg-technical-norm-blue {
+  background-color: hsl(var(--custom-technical-norm-blue));
+  color: hsl(var(--custom-technical-norm-blue-foreground));
 }
-.bg-alert-major-error {
-  background-color: hsl(var(--custom-alert-major-error-bg));
+.text-technical-norm-blue {
+  color: hsl(var(--custom-technical-norm-blue));
 }
+
+.bg-alert-major-error { /* Matches destructive */
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+}
+.bg-warning-yellow {
+  background-color: hsl(var(--custom-warning-yellow-bg));
+  color: hsl(var(--custom-warning-yellow-fg));
+}
+
 .bg-severity-low {
   background-color: hsl(var(--custom-severity-low-bg));
   color: hsl(var(--custom-severity-low-fg));
 }
+.text-severity-low-fg {
+  color: hsl(var(--custom-severity-low-fg));
+}
+.border-severity-low {
+  border-color: hsl(var(--custom-severity-low-fg)); /* Or a slightly darker shade of bg */
+}
+
+
 .bg-severity-medium {
   background-color: hsl(var(--custom-severity-medium-bg));
   color: hsl(var(--custom-severity-medium-fg));
 }
+.text-severity-medium-fg {
+  color: hsl(var(--custom-severity-medium-fg));
+}
+.border-severity-medium {
+  border-color: hsl(var(--custom-severity-medium-fg)); /* Or a slightly darker shade of bg */
+}
+
 .bg-severity-high {
   background-color: hsl(var(--custom-severity-high-bg));
   color: hsl(var(--custom-severity-high-fg));
+}
+.text-severity-high-fg {
+  color: hsl(var(--custom-severity-high-fg));
+}
+.border-severity-high {
+  border-color: hsl(var(--custom-severity-high-fg)); /* Or a slightly darker shade of bg */
 }
