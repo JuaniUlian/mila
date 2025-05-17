@@ -2,16 +2,15 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-// AppShell is no longer used for the main layout of this page
-// import { AppShell } from '@/components/layout/app-shell'; 
 import { PageHeader } from '@/components/page-header';
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
-import { BlockNavigation } from '@/components/mila/block-navigation'; // Import BlockNavigation
+import { BlockNavigation } from '@/components/mila/block-navigation';
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card'; // For placeholder message
+import { Card } from '@/components/ui/card';
+import { SidebarProvider, Sidebar } from '@/components/ui/sidebar'; // Keep SidebarProvider for PageHeader's trigger if needed
 
 export default function HomePage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
@@ -20,12 +19,9 @@ export default function HomePage() {
 
   const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
 
-  // Effect to select the first block by default if available
   useEffect(() => {
     if (blocks.length > 0 && !selectedBlockId) {
-      // For this new layout, let's not auto-select a block initially.
-      // User will see the navigation first.
-      // setSelectedBlockId(blocks[0].id); 
+      // setSelectedBlockId(blocks[0].id); // Optionally auto-select first block
     }
   }, [blocks, selectedBlockId]);
 
@@ -59,7 +55,6 @@ export default function HomePage() {
     };
   }, []);
 
-
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
       const blockToUpdate = prevData.blocks.find(b => b.id === blockId);
@@ -68,22 +63,23 @@ export default function HomePage() {
       if (!blockToUpdate || !suggestionToUpdate) return prevData;
 
       const previousStatus = suggestionToUpdate.status;
-      const completenessImpact = suggestionToUpdate.completenessImpact || 0;
+      let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
+      if (previousStatus === 'pending' && newStatus === 'applied') {
+        newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
+      } else if (previousStatus === 'applied' && (newStatus === 'pending' || newStatus === 'discarded')) {
+        // Optional: Logic to decrease score if an applied suggestion is reverted.
+        // For now, we assume applying is a one-way impact for score increase from pending.
+      }
+      
       const updatedBlocks = prevData.blocks.map(block => {
         if (block.id === blockId) {
-          let newCompletenessIndex = block.completenessIndex;
-
-          if (previousStatus === 'pending' && newStatus === 'applied') {
-            newCompletenessIndex = Math.min(block.maxCompleteness, block.completenessIndex + completenessImpact);
-          } 
-          
           return {
             ...block,
             suggestions: block.suggestions.map(suggestion =>
               suggestion.id === suggestionId ? { ...suggestion, status: newStatus } : suggestion
             ),
-            completenessIndex: newCompletenessIndex,
+            completenessIndex: newCompletenessIndexForBlock,
           };
         }
         return block;
@@ -129,44 +125,51 @@ export default function HomePage() {
   const selectedBlock = blocks.find(block => block.id === selectedBlockId) || null;
 
   return (
-    <div className="flex flex-col h-screen"> {/* Ensure full screen height for the page container */}
-      <PageHeader title={documentTitle} />
-      <div className="flex flex-1 overflow-hidden"> {/* Main content area with two columns */}
-        
-        {/* Left Column: Navigation and Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-          <BlockNavigation
-            blocks={blocks}
-            selectedBlockId={selectedBlockId}
-            onSelectBlock={handleSelectBlock}
-          />
-          {selectedBlock ? (
-            <ContentPanel
-              block={selectedBlock}
-              onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
-              onUpdateSuggestionText={handleUpdateSuggestionText}
+    // Wrap with SidebarProvider if PageHeader's SidebarTrigger is active and needs context
+    <SidebarProvider>
+      {/* This Sidebar is for the potential mobile menu triggered by PageHeader */}
+      <Sidebar>
+        {/* Placeholder for mobile navigation items if any */}
+      </Sidebar>
+      <div className="flex flex-col h-screen">
+        <PageHeader title={documentTitle} />
+        <div className="flex flex-1 overflow-hidden"> {/* Main content area with two columns */}
+          
+          {/* Left Column (Main Content): Navigation and Content Panel */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            <BlockNavigation
+              blocks={blocks}
+              selectedBlockId={selectedBlockId}
+              onSelectBlock={handleSelectBlock}
             />
-          ) : (
-            <div className="flex flex-col items-center justify-start pt-10">
-              <Card className="p-6 border rounded-lg shadow-md bg-card text-center max-w-md">
-                <h2 className="text-xl font-semibold mb-2">Bienvenido a Mila - Plantilla Viva</h2>
-                <p className="text-muted-foreground">
-                  Seleccione un bloque de la lista de arriba para ver su contenido, validaciones y sugerencias.
-                </p>
-              </Card>
-            </div>
-          )}
-        </main>
+            {selectedBlock ? (
+              <ContentPanel
+                block={selectedBlock}
+                onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
+                onUpdateSuggestionText={handleUpdateSuggestionText}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-start pt-10">
+                <Card className="p-6 border rounded-lg shadow-md bg-card text-center max-w-md">
+                  <h2 className="text-xl font-semibold mb-2">Bienvenido a Mila - Plantilla Viva</h2>
+                  <p className="text-muted-foreground">
+                    Seleccione un bloque de la lista de arriba para ver su contenido, validaciones y sugerencias.
+                  </p>
+                </Card>
+              </div>
+            )}
+          </main>
 
-        {/* Right Column: Risks Panel */}
-        <aside className="w-1/3 min-w-[350px] max-w-[450px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg">
-          <RisksPanel
-            selectedBlock={selectedBlock}
-            overallComplianceScore={overallComplianceScore}
-            overallCompletenessIndex={overallCompletenessIndex}
-          />
-        </aside>
+          {/* Right Column (Aside): Risks Panel */}
+          <aside className="w-1/3 min-w-[350px] max-w-[450px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg">
+            <RisksPanel
+              selectedBlock={selectedBlock}
+              overallComplianceScore={overallComplianceScore}
+              overallCompletenessIndex={overallCompletenessIndex}
+            />
+          </aside>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
