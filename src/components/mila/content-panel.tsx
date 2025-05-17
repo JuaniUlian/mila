@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils'; // Added import
 
 interface ContentPanelProps {
   block: DocumentBlock | null;
