@@ -1,14 +1,21 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock, AlertItem, MissingConnection, ApplicableNorm } from './types';
+import type { DocumentBlock, AlertItem } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, AlertTriangle, Link2Off, ShieldAlert, BookOpen, FileWarning } from 'lucide-react';
+import { Download, AlertTriangle, Link2Off, ShieldAlert, BookOpen, FileWarning, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { SeverityIndicator, SeverityDotIndicator } from './severity-indicator';
+import { SeverityIndicator } from './severity-indicator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { cn } from '@/lib/utils';
 
 interface RisksPanelProps {
   block: DocumentBlock | null;
@@ -17,8 +24,8 @@ interface RisksPanelProps {
 const getSeverityBadgeVariant = (severity: AlertItem['severity']) => {
   switch (severity) {
     case 'grave': return 'destructive';
-    case 'media': return 'default'; // Use default for orange/yellow, then style with custom class
-    case 'leve': return 'secondary'; // Use secondary for light blue/cyan, then style
+    case 'media': return 'default'; 
+    case 'leve': return 'secondary'; 
     default: return 'outline';
   }
 };
@@ -58,100 +65,123 @@ export function RisksPanel({ block }: RisksPanelProps) {
     });
   };
 
+  // Determine default open accordion items. For example, open "Alertas Activas" if there are alerts.
+  const defaultAccordionValues: string[] = [];
+  if (block.alerts.length > 0) {
+    defaultAccordionValues.push("alerts");
+  }
+  if (block.missingConnections.length > 0) {
+    defaultAccordionValues.push("connections");
+  }
+  if (block.legalRisk) {
+    defaultAccordionValues.push("legal-risk");
+  }
+   if (block.applicableNorms.length > 0) {
+    defaultAccordionValues.push("norms");
+  }
+
+
   return (
-    <ScrollArea className="h-full w-full md:w-96 p-4 md:p-6 bg-card border-l border-border flex-shrink-0">
-      <div className="space-y-6">
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <FileWarning size={20} className="text-primary" />
-              Alertas Activas ({block.alerts.length})
-            </CardTitle>
-            <CardDescription>Problemas detectados en este bloque.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {block.alerts.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No hay alertas activas para este bloque.</p>
-            ) : (
-              <ul className="space-y-3">
-                {block.alerts.map((alert) => (
-                  <li key={alert.id} className="p-3 border rounded-md bg-background/50 shadow-sm">
-                    <div className="flex items-start gap-2">
-                      <SeverityIndicator level={alert.severity} size={5} className="mt-0.5"/>
-                      <div>
-                        <p className="text-sm font-medium">{alert.description}</p>
-                        <Badge variant={getSeverityBadgeVariant(alert.severity)} className={`mt-1 text-xs ${getSeverityBadgeClass(alert.severity)}`}>
-                          Severidad: {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+    <ScrollArea className="h-full w-full md:w-96 flex-shrink-0">
+      <div className="p-4 md:p-6 space-y-3">
+        <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full">
+          <AccordionItem value="alerts" className="border-b-0 mb-3">
+            <Card className="shadow-md">
+              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+                <div className="flex items-center gap-2 w-full">
+                  <FileWarning size={20} className="text-primary" />
+                  <span className="flex-1 text-left">Alertas Activas ({block.alerts.length})</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                {block.alerts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground pt-2">No hay alertas activas para este bloque.</p>
+                ) : (
+                  <ul className="space-y-3 pt-2">
+                    {block.alerts.map((alert) => (
+                      <li key={alert.id} className="p-3 border rounded-md bg-background/50 shadow-sm">
+                        <div className="flex items-start gap-2">
+                          <SeverityIndicator level={alert.severity} size={5} className="mt-0.5"/>
+                          <div>
+                            <p className="text-sm font-medium">{alert.description}</p>
+                            <Badge variant={getSeverityBadgeVariant(alert.severity)} className={`mt-1 text-xs ${getSeverityBadgeClass(alert.severity)}`}>
+                              Severidad: {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
+                            </Badge>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
 
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Link2Off size={20} className="text-primary" />
-              Conexiones Normativas Faltantes ({block.missingConnections.length})
-            </CardTitle>
-            <CardDescription>Referencias a otras normativas que podrían ser necesarias.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {block.missingConnections.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No se identificaron conexiones faltantes.</p>
-            ) : (
-              <ul className="space-y-2">
-                {block.missingConnections.map((conn) => (
-                  <li key={conn.id} className="text-sm p-2 border-l-2 border-custom-technical-norm-blue-DEFAULT bg-background/30">
-                    {conn.description}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+          <AccordionItem value="connections" className="border-b-0 mb-3">
+            <Card className="shadow-md">
+              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+                 <div className="flex items-center gap-2 w-full">
+                    <Link2Off size={20} className="text-primary" />
+                    <span className="flex-1 text-left">Conexiones Normativas Faltantes ({block.missingConnections.length})</span>
+                  </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                {block.missingConnections.length === 0 ? (
+                  <p className="text-sm text-muted-foreground pt-2">No se identificaron conexiones faltantes.</p>
+                ) : (
+                  <ul className="space-y-2 pt-2">
+                    {block.missingConnections.map((conn) => (
+                      <li key={conn.id} className="text-sm p-2 border-l-2 border-custom-technical-norm-blue-DEFAULT bg-background/30">
+                        {conn.description}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
 
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ShieldAlert size={20} className="text-primary" />
-              Riesgo Jurídico
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm">
-              {block.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
-            </p>
-          </CardContent>
-        </Card>
+          <AccordionItem value="legal-risk" className="border-b-0 mb-3">
+            <Card className="shadow-md">
+              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+                <div className="flex items-center gap-2 w-full">
+                  <ShieldAlert size={20} className="text-primary" />
+                  <span className="flex-1 text-left">Riesgo Jurídico</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <p className="text-sm pt-2">
+                  {block.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
+                </p>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
 
-        <Card className="shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <BookOpen size={20} className="text-primary" />
-              Normativa Aplicable ({block.applicableNorms.length})
-            </CardTitle>
-            <CardDescription>Principales normas referenciadas o que aplican a este bloque.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {block.applicableNorms.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No hay normativas específicas listadas.</p>
-            ) : (
-            <ul className="space-y-2">
-              {block.applicableNorms.map((norm) => (
-                <li key={norm.id} className="text-sm p-2 border rounded-md bg-background/30">
-                  <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
-                  {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
-                </li>
-              ))}
-            </ul>
-            )}
-          </CardContent>
-        </Card>
+          <AccordionItem value="norms" className="border-b-0">
+            <Card className="shadow-md">
+              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+                <div className="flex items-center gap-2 w-full">
+                  <BookOpen size={20} className="text-primary" />
+                  <span className="flex-1 text-left">Normativa Aplicable ({block.applicableNorms.length})</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                {block.applicableNorms.length === 0 ? (
+                  <p className="text-sm text-muted-foreground pt-2">No hay normativas específicas listadas.</p>
+                ) : (
+                <ul className="space-y-2 pt-2">
+                  {block.applicableNorms.map((norm) => (
+                    <li key={norm.id} className="text-sm p-2 border rounded-md bg-background/30">
+                      <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
+                      {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
+                    </li>
+                  ))}
+                </ul>
+                )}
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
+        </Accordion>
 
         <div className="pt-4">
           <Button className="w-full bg-destructive hover:bg-destructive/90" onClick={handleExportPDF}>
@@ -163,3 +193,4 @@ export function RisksPanel({ block }: RisksPanelProps) {
     </ScrollArea>
   );
 }
+
