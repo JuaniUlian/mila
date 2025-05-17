@@ -20,7 +20,7 @@ import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare } fr
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-6">
-       <Card className="shadow-xl border rounded-xl">
+       <Card className="shadow-xl border rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl">
         <CardHeader className="p-6">
           <CardTitle className="text-2xl font-semibold flex items-center gap-3 text-foreground">
             <Target className="h-7 w-7 text-primary" />
@@ -35,7 +35,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
             {blocks.map((block) => (
               <Card
                 key={block.id}
-                className="hover:shadow-lg transition-shadow duration-200 ease-in-out cursor-pointer flex flex-col bg-card hover:bg-muted/50 rounded-lg border group"
+                className="hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col bg-card hover:bg-muted/50 rounded-lg border group"
                 onClick={() => onSelectBlock(block.id)}
               >
                 <CardHeader className="flex-grow pb-3 px-5 pt-5">
@@ -63,7 +63,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                   </div>
                 </CardContent>
                 <CardContent className="pt-0 pb-5 px-5">
-                   <Button variant="outline" size="sm" className="w-full mt-auto text-sm py-2 group-hover:border-primary group-hover:text-primary transition-colors">
+                   <Button variant="outline" size="sm" className="w-full mt-auto text-sm py-2 group-hover:border-primary group-hover:text-primary transition-colors duration-150">
                     Ver Detalles del Bloque
                   </Button>
                 </CardContent>
@@ -128,16 +128,10 @@ export default function HomePage() {
       const previousStatus = suggestionToUpdate.status;
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
-      // Only update score if moving from pending to applied
       if (previousStatus === 'pending' && newStatus === 'applied') {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       }
-      // If un-applying (future feature, not primary now)
-      // else if (previousStatus === 'applied' && (newStatus === 'pending' || newStatus === 'discarded')) {
-      //   newCompletenessIndexForBlock = Math.max(0, blockToUpdate.completenessIndex - (suggestionToUpdate.completenessImpact || 0));
-      // }
-
-
+      
       const updatedBlocks = prevData.blocks.map(block => {
         if (block.id === blockId) {
           return {
@@ -176,7 +170,7 @@ export default function HomePage() {
           return {
             ...block,
             suggestions: block.suggestions.map(suggestion =>
-              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion // Always reset to pending on edit
+              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion 
             ),
           };
         }
@@ -203,7 +197,7 @@ export default function HomePage() {
               <Button
                 variant="ghost"
                 onClick={handleGoHome}
-                className="w-[calc(100%-1rem)] mx-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground justify-start font-medium"
+                className="w-[calc(100%-1rem)] mx-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground justify-start font-medium transition-colors duration-150"
                 size="sm"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -219,7 +213,7 @@ export default function HomePage() {
           />
         </SidebarContent>
          <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
-            <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+            <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-150">
                 <Home className="mr-2 h-4 w-4" />
                 Dashboard Principal
             </Button>
@@ -229,7 +223,7 @@ export default function HomePage() {
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-muted/20">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-muted/30">
             {selectedBlock ? (
               <ContentPanel
                 block={selectedBlock}
@@ -241,7 +235,7 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-1/3 min-w-[400px] max-w-[520px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg p-1">
+          <aside className="w-1/3 min-w-[400px] max-w-[520px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg p-1 transition-all duration-200 ease-in-out">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}

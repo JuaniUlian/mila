@@ -27,15 +27,16 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20.2% 65.1%; /* slate-500 */
 
-    --accent: 202 90% 56%; /* #0EA5E9 (General accent, can be used if #0284C7 is too specific) */
-    --accent-foreground: 0 0% 98%; /* White for contrast */
+    /* --accent: 202 90% 56%; #0EA5E9 (Old Accent) */
+    --accent: 217 91% 59%; /* #3B82F6 - New Blue Accent */
+    --accent-foreground: 0 0% 98%; /* White for contrast on new blue accent */
 
     --destructive: 0 84% 60%; /* Adjusted for #DC2626 - Rojo errores graves */
     --destructive-foreground: 0 0% 98%;
 
     --border: 215 30% 87%; /* #CBD5E1 (slate-300 for "Partial Results" box border) */
     --input: 215 30% 87%;
-    --ring: 82 79% 62%; /* Primary color for focus rings */
+    --ring: 217 91% 59%; /* New Blue Accent for focus rings, matching accent */
 
     --radius: 0.5rem;
 
@@ -53,8 +54,8 @@
     --custom-technical-norm-blue: 200 98% 39%; /* #0284C7 - Azul técnico */
     --custom-technical-norm-blue-foreground: 0 0% 100%; /* White for text on technical norm blue */
     
-    --custom-alert-minor-error-bg: 0 90% 70%; /* #F87171 (Original PRD mentioned #F87171 for minor error, but also for high severity. Let's align with severity labels.)*/
-    --custom-alert-major-error-bg: 0 84% 60%; /* #DC2626 (Matches --destructive) */
+    --custom-alert-minor-error-bg: 0 90% 70%; 
+    --custom-alert-major-error-bg: 0 84% 60%; 
     
     --custom-warning-yellow-bg: 45 93% 55%;   /* #FACC15 - Amarillo advertencias leves / Medium severity */
     --custom-warning-yellow-fg: 222 47% 11%; /* Dark text for yellow background */
@@ -96,7 +97,8 @@
     --muted: 222 47% 20%;
     --muted-foreground: 215 20.2% 75.1%;
 
-    --accent: 202 90% 56%; 
+    /* --accent: 202 90% 56%; (Old Accent Dark) */
+    --accent: 217 91% 65%; /* Lighter blue for dark mode accent */
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 72% 57%; 
@@ -104,7 +106,7 @@
 
     --border: 215 30% 27%; 
     --input: 215 30% 27%;
-    --ring: 82 79% 62%;
+    --ring: 217 91% 65%; /* New Blue Accent for focus rings (dark mode) */
 
     /* Sidebar specific variables for dark theme - NAVY BLUE THEME */
     --sidebar-background: 225 40% 12%; /* Very Dark Navy */
@@ -117,7 +119,7 @@
     --sidebar-ring: 220 60% 60%;      /* Focus Ring Blue */
 
     /* Custom Color Variables from User Request - Dark mode adjustments */
-    --custom-technical-norm-blue: 200 98% 49%; /* Lighter blue for dark mode */
+    --custom-technical-norm-blue: 200 98% 49%; 
     --custom-technical-norm-blue-foreground: 0 0% 98%;
     
     --custom-alert-major-error-bg: 0 72% 50%; 
@@ -144,17 +146,12 @@
   }
   body {
     @apply bg-background text-foreground;
-    /*
-      The --font-nunito CSS variable is defined by the class from nunito.variable (applied in layout.tsx).
-      We explicitly use this variable here for the body's font-family.
-      Tailwind's font-sans utility in tailwind.config.ts also references this variable.
-    */
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
 
 /* Custom utility classes */
-.text-technical-blue { /* For general technical text, not the specific norm blue */
+.text-technical-blue { 
   color: hsl(var(--custom-technical-text-blue));
 }
 .bg-technical-norm-blue {
@@ -165,7 +162,7 @@
   color: hsl(var(--custom-technical-norm-blue));
 }
 
-.bg-alert-major-error { /* Matches destructive */
+.bg-alert-major-error { 
   background-color: hsl(var(--destructive));
   color: hsl(var(--destructive-foreground));
 }
@@ -182,7 +179,7 @@
   color: hsl(var(--custom-severity-low-fg));
 }
 .border-severity-low {
-  border-color: hsl(var(--custom-severity-low-fg)); /* Or a slightly darker shade of bg */
+  border-color: hsl(var(--custom-severity-low-fg)); 
 }
 
 
@@ -194,7 +191,7 @@
   color: hsl(var(--custom-severity-medium-fg));
 }
 .border-severity-medium {
-  border-color: hsl(var(--custom-severity-medium-fg)); /* Or a slightly darker shade of bg */
+  border-color: hsl(var(--custom-severity-medium-fg)); 
 }
 
 .bg-severity-high {
@@ -205,5 +202,5 @@
   color: hsl(var(--custom-severity-high-fg));
 }
 .border-severity-high {
-  border-color: hsl(var(--custom-severity-high-fg)); /* Or a slightly darker shade of bg */
+  border-color: hsl(var(--custom-severity-high-fg)); 
 }
