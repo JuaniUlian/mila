@@ -1,10 +1,10 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock } from './types';
+import type { DocumentBlock, MilaAppPData } from './types'; // MilaAppPData to get overall scores
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2 } from 'lucide-react';
+import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2, ListChecks } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -13,14 +13,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { BlockNavigation } from './block-navigation'; // Import BlockNavigation
 
 interface RisksPanelProps {
-  selectedBlock: DocumentBlock | null;
+  blocks: DocumentBlock[]; // For BlockNavigation
+  selectedBlockId: string | null; // For BlockNavigation
+  onSelectBlock: (id: string) => void; // For BlockNavigation
+  selectedBlockDetail: DocumentBlock | null; // For displaying details of the selected block
   overallComplianceScore: number;
   overallCompletenessIndex: number;
 }
 
-export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompletenessIndex }: RisksPanelProps) {
+export function RisksPanel({
+  blocks,
+  selectedBlockId,
+  onSelectBlock,
+  selectedBlockDetail,
+  overallComplianceScore,
+  overallCompletenessIndex,
+}: RisksPanelProps) {
   const { toast } = useToast();
   
   const handleExportPDF = (blockName?: string) => {
@@ -33,14 +44,20 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
   };
 
   const defaultAccordionValues: string[] = [];
-  if (selectedBlock?.missingConnections?.length > 0) defaultAccordionValues.push("connections");
-  if (selectedBlock?.legalRisk) defaultAccordionValues.push("legal-risk");
-  if (selectedBlock?.applicableNorms?.length > 0) defaultAccordionValues.push("norms");
-
+  if (selectedBlockDetail?.missingConnections?.length > 0) defaultAccordionValues.push("connections");
+  if (selectedBlockDetail?.legalRisk) defaultAccordionValues.push("legal-risk");
+  if (selectedBlockDetail?.applicableNorms?.length > 0) defaultAccordionValues.push("norms");
 
   return (
     <div className="p-4 md:p-6 space-y-6 h-full">
-      <Card className="shadow-lg">
+      {/* Block Navigation at the top of the right panel */}
+      <BlockNavigation
+        blocks={blocks}
+        selectedBlockId={selectedBlockId}
+        onSelectBlock={onSelectBlock}
+      />
+
+      <Card className="shadow-lg mt-6">
         <CardHeader>
           <div className="flex items-center gap-2 mb-1">
             <FileCheck2 className="h-6 w-6 text-primary" />
@@ -74,7 +91,7 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
         </CardContent>
       </Card>
 
-      {selectedBlock ? (
+      {selectedBlockDetail ? (
         <Card className="shadow-lg">
           <CardHeader>
             <div className="flex items-center gap-2 mb-1">
@@ -84,7 +101,7 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
               </CardTitle>
             </div>
             <CardDescription>
-              Contexto y riesgos para: <span className="font-medium text-primary">{selectedBlock.name}</span>
+              Contexto y riesgos para: <span className="font-medium text-primary">{selectedBlockDetail.name}</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -94,15 +111,15 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
                   <AccordionTrigger className="p-3 text-base hover:no-underline rounded-t-md data-[state=open]:rounded-b-none data-[state=open]:bg-muted/50">
                     <div className="flex items-center gap-2 w-full">
                         <Link2Off size={18} className="text-accent" />
-                        <span className="flex-1 text-left font-medium text-sm">Conexiones Normativas Faltantes ({selectedBlock.missingConnections.length})</span>
+                        <span className="flex-1 text-left font-medium text-sm">Conexiones Normativas Faltantes ({selectedBlockDetail.missingConnections.length})</span>
                       </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-3 pb-3 text-sm rounded-b-md data-[state=open]:bg-muted/50">
-                    {selectedBlock.missingConnections.length === 0 ? (
+                    {selectedBlockDetail.missingConnections.length === 0 ? (
                       <p className="text-xs text-muted-foreground pt-2">No se identificaron conexiones faltantes.</p>
                     ) : (
                       <ul className="space-y-1.5 pt-2">
-                        {selectedBlock.missingConnections.map((conn) => (
+                        {selectedBlockDetail.missingConnections.map((conn) => (
                           <li key={conn.id} className="text-xs p-2 border-l-2 border-custom-technical-norm-blue bg-background/30 rounded-r-sm">
                             {conn.description}
                           </li>
@@ -123,7 +140,7 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
                   </AccordionTrigger>
                   <AccordionContent className="px-3 pb-3 text-sm rounded-b-md data-[state=open]:bg-muted/50">
                     <p className="text-xs pt-2 text-foreground/90">
-                      {selectedBlock.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
+                      {selectedBlockDetail.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
                     </p>
                   </AccordionContent>
                 </Card>
@@ -134,15 +151,15 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
                   <AccordionTrigger className="p-3 text-base hover:no-underline rounded-t-md data-[state=open]:rounded-b-none data-[state=open]:bg-muted/50">
                     <div className="flex items-center gap-2 w-full">
                       <BookOpen size={18} className="text-accent" />
-                      <span className="flex-1 text-left font-medium text-sm">Normativa Aplicable Directa ({selectedBlock.applicableNorms.length})</span>
+                      <span className="flex-1 text-left font-medium text-sm">Normativa Aplicable Directa ({selectedBlockDetail.applicableNorms.length})</span>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-3 pb-3 text-sm rounded-b-md data-[state=open]:bg-muted/50">
-                    {selectedBlock.applicableNorms.length === 0 ? (
+                    {selectedBlockDetail.applicableNorms.length === 0 ? (
                       <p className="text-xs text-muted-foreground pt-2">No hay normativas específicas listadas para este bloque.</p>
                     ) : (
                     <ul className="space-y-1.5 pt-2">
-                      {selectedBlock.applicableNorms.map((norm) => (
+                      {selectedBlockDetail.applicableNorms.map((norm) => (
                         <li key={norm.id} className="text-xs p-2 border rounded-sm bg-background/30">
                           <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
                           {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
@@ -156,7 +173,7 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
             </Accordion>
 
             <div className="pt-3">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => handleExportPDF(selectedBlock.name)}>
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => handleExportPDF(selectedBlockDetail.name)}>
                 <Download className="mr-2 h-4 w-4" />
                 Exportar Bloque Corregido (PDF)
               </Button>
@@ -165,10 +182,10 @@ export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompl
         </Card>
       ) : (
         <Card className="shadow-md border mt-6 flex flex-col items-center justify-center p-6 min-h-[200px]">
-          <Info size={36} className="text-muted-foreground mb-3" />
+          <ListChecks size={36} className="text-muted-foreground mb-3" />
           <CardTitle className="text-lg text-center mb-1">Información Detallada del Bloque</CardTitle>
           <CardDescription className="text-sm text-center">
-            Seleccione un bloque del panel izquierdo para ver sus detalles específicos aquí.
+            Seleccione un bloque de la lista de arriba para ver sus detalles específicos aquí.
           </CardDescription>
         </Card>
       )}
