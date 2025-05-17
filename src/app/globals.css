@@ -20,7 +20,7 @@ body {
     --primary: 82 79% 62%; /* #A3E635 - Verde lima, fondos activos o positivos */
     --primary-foreground: 160 83% 10%; /* Dark green for contrast on light green */
 
-    --secondary: 160 83% 16%; /* #064E3B - Verde institucional, sidebar y encabezados */
+    --secondary: 160 83% 16%; /* #064E3B - Verde institucional, encabezados (sidebar is now navy) */
     --secondary-foreground: 0 0% 98%; /* White/Light gray */
 
     --muted: 210 40% 96.1%;
@@ -38,15 +38,15 @@ body {
 
     --radius: 0.5rem;
 
-    /* Sidebar specific variables */
-    --sidebar-background: 160 83% 16%; /* #064E3B */
-    --sidebar-foreground: 0 0% 100%;   /* White */
-    --sidebar-primary: 160 80% 42%;    /* #10B981 - For active/hover items */
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 80% 42%;     /* #10B981 - For hover states */
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 160 83% 20%;    /* Slightly darker/lighter than sidebar bg */
-    --sidebar-ring: 202 90% 56%;      /* Validation/Norms blue for focus inside sidebar */
+    /* Sidebar specific variables - NAVY BLUE THEME */
+    --sidebar-background: 225 40% 20%; /* Dark Navy Blue */
+    --sidebar-foreground: 225 20% 95%;   /* Very Light Off-White/Blueish */
+    --sidebar-primary: 220 60% 55%;    /* Brighter Active Blue */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 220 60% 60%;     /* Slightly Lighter Brighter Active Blue for hover */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 225 40% 25%;    /* Slightly Lighter Navy for borders */
+    --sidebar-ring: 220 70% 65%;      /* Focus Ring Blue */
 
     /* Custom Color Variables from User Request */
     --custom-technical-norm-blue: 200 98% 39%; /* #0284C7 - Azul técnico */
@@ -105,15 +105,15 @@ body {
     --input: 215 30% 27%;
     --ring: 82 79% 62%;
 
-    /* Sidebar specific variables for dark theme */
-    --sidebar-background: 160 83% 12%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 160 80% 42%; 
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 80% 38%; 
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 160 83% 10%;
-    --sidebar-ring: 202 90% 56%;
+    /* Sidebar specific variables for dark theme - NAVY BLUE THEME */
+    --sidebar-background: 225 40% 12%; /* Very Dark Navy */
+    --sidebar-foreground: 225 15% 85%;   /* Light Grayish Blue */
+    --sidebar-primary: 220 50% 50%;    /* Medium Active Blue */
+    --sidebar-primary-foreground: 220 20% 95%; /* Very Light Off-White/Blueish */
+    --sidebar-accent: 220 50% 45%;     /* Slightly Darker Medium Blue for hover */
+    --sidebar-accent-foreground: 220 20% 95%; /* Very Light Off-White/Blueish */
+    --sidebar-border: 225 40% 15%;    /* Subtle Border, slightly lighter than bg */
+    --sidebar-ring: 220 60% 60%;      /* Focus Ring Blue */
 
     /* Custom Color Variables from User Request - Dark mode adjustments */
     --custom-technical-norm-blue: 200 98% 49%; /* Lighter blue for dark mode */
