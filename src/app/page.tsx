@@ -47,6 +47,26 @@ export default function HomePage() {
     });
   }, [toast]);
 
+  const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
+    setBlocks(prevBlocks =>
+      prevBlocks.map(block => {
+        if (block.id === blockId) {
+          return {
+            ...block,
+            suggestions: block.suggestions.map(suggestion =>
+              suggestion.id === suggestionId ? { ...suggestion, text: newText } : suggestion
+            ),
+          };
+        }
+        return block;
+      })
+    );
+    toast({
+      title: "Sugerencia Modificada",
+      description: "El texto de la sugerencia ha sido actualizado.",
+    });
+  }, [toast]);
+
   const selectedBlock = blocks.find(block => block.id === selectedBlockId) || null;
 
   return (
@@ -62,6 +82,7 @@ export default function HomePage() {
           <ContentPanel 
             block={selectedBlock} 
             onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
+            onUpdateSuggestionText={handleUpdateSuggestionText}
           />
         </div>
 

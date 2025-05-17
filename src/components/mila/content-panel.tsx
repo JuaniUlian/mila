@@ -1,21 +1,22 @@
 
 "use client";
-import type React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react'; // Ensure React is imported for useState
 import type { DocumentBlock, Suggestion } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, ThumbsUp, ThumbsDown, MessageSquare, Copy } from 'lucide-react';
+import { Check, Edit3, Trash2, ThumbsUp, ThumbsDown, MessageSquare, Copy, Save, XCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils'; // Added import
+import { cn } from '@/lib/utils';
 
 interface ContentPanelProps {
   block: DocumentBlock | null;
   onUpdateSuggestionStatus: (blockId: string, suggestionId: string, status: Suggestion['status']) => void;
+  onUpdateSuggestionText: (blockId: string, suggestionId: string, newText: string) => void; // New prop
 }
 
 const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
@@ -56,8 +57,10 @@ const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
 };
 
 
-export function ContentPanel({ block, onUpdateSuggestionStatus }: ContentPanelProps) {
+export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggestionText }: ContentPanelProps) {
   const { toast } = useToast();
+  const [editingSuggestionId, setEditingSuggestionId] = useState<string | null>(null);
+  const [currentEditText, setCurrentEditText] = useState<string>('');
 
   if (!block) {
     return (
@@ -80,6 +83,25 @@ export function ContentPanel({ block, onUpdateSuggestionStatus }: ContentPanelPr
     navigator.clipboard.writeText(text);
     toast({ title: `${type} copiado`, description: "El texto ha sido copiado al portapapeles." });
   };
+
+  const handleEditSuggestion = (suggestion: Suggestion) => {
+    setEditingSuggestionId(suggestion.id);
+    setCurrentEditText(suggestion.text);
+  };
+
+  const handleSaveSuggestion = (suggestionId: string) => {
+    if (block) {
+      onUpdateSuggestionText(block.id, suggestionId, currentEditText);
+      setEditingSuggestionId(null);
+      setCurrentEditText('');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingSuggestionId(null);
+    setCurrentEditText('');
+  };
+
 
   return (
     <div className="flex-1 flex flex-col gap-6 p-4 md:p-6 overflow-y-auto h-full">
@@ -132,35 +154,71 @@ export function ContentPanel({ block, onUpdateSuggestionStatus }: ContentPanelPr
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="p-3 border rounded-md bg-background">
-                    <p className="text-sm">{suggestion.text}</p>
-                  </div>
+                  {editingSuggestionId === suggestion.id ? (
+                    <Textarea
+                      value={currentEditText}
+                      onChange={(e) => setCurrentEditText(e.target.value)}
+                      rows={4}
+                      className="w-full text-sm p-3 border rounded-md bg-background focus-visible:ring-primary"
+                    />
+                  ) : (
+                    <div className="p-3 border rounded-md bg-background">
+                      <p className="text-sm">{suggestion.text}</p>
+                    </div>
+                  )}
                   
                   <div className="flex flex-wrap gap-2 mt-3">
-                    <Button 
-                      size="sm" 
-                      variant={suggestion.status === 'applied' ? "default" : "outline"}
-                      onClick={() => onUpdateSuggestionStatus(block.id, suggestion.id, 'applied')}
-                      className={cn(suggestion.status === 'applied' && "bg-primary hover:bg-primary/90")}
-                      disabled={suggestion.status === 'applied'}
-                    >
-                      <Check className="mr-2 h-4 w-4" /> Aplicar
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => toast({title: "Función no implementada", description:"La edición de sugerencias estará disponible pronto."})}>
-                      <Edit3 className="mr-2 h-4 w-4" /> Editar
-                    </Button>
-                     <Button 
-                      size="sm" 
-                      variant={suggestion.status === 'discarded' ? "destructive" : "outline"}
-                      onClick={() => onUpdateSuggestionStatus(block.id, suggestion.id, 'discarded')}
-                       disabled={suggestion.status === 'discarded'}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" /> Descartar
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleCopyText(suggestion.text, 'Sugerencia')}>
+                    {editingSuggestionId === suggestion.id ? (
+                      <>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleSaveSuggestion(suggestion.id)}
+                          className="bg-primary hover:bg-primary/90"
+                        >
+                          <Save className="mr-2 h-4 w-4" /> Guardar Cambios
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={handleCancelEdit}
+                        >
+                          <XCircle className="mr-2 h-4 w-4" /> Cancelar
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button 
+                          size="sm" 
+                          variant={suggestion.status === 'applied' ? "default" : "outline"}
+                          onClick={() => onUpdateSuggestionStatus(block.id, suggestion.id, 'applied')}
+                          className={cn(suggestion.status === 'applied' && "bg-primary hover:bg-primary/90")}
+                          disabled={suggestion.status === 'applied' || suggestion.status === 'discarded'}
+                        >
+                          <Check className="mr-2 h-4 w-4" /> Aplicar
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => handleEditSuggestion(suggestion)}
+                          disabled={suggestion.status === 'applied' || suggestion.status === 'discarded'}
+                        >
+                          <Edit3 className="mr-2 h-4 w-4" /> Editar
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant={suggestion.status === 'discarded' ? "destructive" : "outline"}
+                          onClick={() => onUpdateSuggestionStatus(block.id, suggestion.id, 'discarded')}
+                          disabled={suggestion.status === 'applied' || suggestion.status === 'discarded'}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" /> Descartar
+                        </Button>
+                      </>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => handleCopyText(editingSuggestionId === suggestion.id ? currentEditText : suggestion.text, 'Sugerencia')}>
                       <Copy className="mr-2 h-4 w-4" /> Copiar
                     </Button>
                   </div>
+
                   <Separator className="my-3" />
                   <div>
                     <h4 className="text-sm font-semibold mb-1">Justificación Legal y Técnica</h4>
