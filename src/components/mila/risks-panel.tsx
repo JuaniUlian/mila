@@ -4,7 +4,7 @@ import type React from 'react';
 import type { DocumentBlock, AlertItem } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, AlertTriangle, Link2Off, ShieldAlert, BookOpen, FileWarning, ChevronDown } from 'lucide-react';
+import { Download, Link2Off, ShieldAlert, BookOpen, FileWarning } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SeverityIndicator } from './severity-indicator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -15,7 +15,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { cn } from '@/lib/utils';
 
 interface RisksPanelProps {
   block: DocumentBlock | null;
@@ -32,9 +31,9 @@ const getSeverityBadgeVariant = (severity: AlertItem['severity']) => {
 
 const getSeverityBadgeClass = (severity: AlertItem['severity']) => {
   switch (severity) {
-    case 'grave': return 'bg-custom-severity-high-DEFAULT text-custom-severity-high-foreground';
-    case 'media': return 'bg-custom-severity-medium-DEFAULT text-custom-severity-medium-foreground';
-    case 'leve': return 'bg-custom-severity-low-DEFAULT text-custom-severity-low-foreground';
+    case 'grave': return 'bg-custom-severity-high text-custom-severity-high-foreground';
+    case 'media': return 'bg-custom-severity-medium text-custom-severity-medium-foreground';
+    case 'leve': return 'bg-custom-severity-low text-custom-severity-low-foreground';
     default: return '';
   }
 };
@@ -45,13 +44,14 @@ export function RisksPanel({ block }: RisksPanelProps) {
 
   if (!block) {
     return (
-      <div className="w-full md:w-96 p-6 bg-card border-l border-border flex-shrink-0">
-        <Card className="shadow-none border-none">
-          <CardHeader>
-            <CardTitle>Validaciones y Riesgos</CardTitle>
+      <div className="w-full md:w-96 p-6 bg-card border-l border-border flex-shrink-0 h-full">
+        <Card className="shadow-none border-none h-full flex flex-col justify-center items-center">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl mb-2">Validaciones y Riesgos</CardTitle>
+            <CardDescription className="text-base">Seleccione un bloque del panel izquierdo para ver sus detalles de validación y riesgos asociados.</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">Seleccione un bloque para ver los detalles.</p>
+            <FileWarning size={48} className="text-muted-foreground mx-auto" />
           </CardContent>
         </Card>
       </div>
@@ -65,32 +65,33 @@ export function RisksPanel({ block }: RisksPanelProps) {
     });
   };
 
-  // Determine default open accordion items. For example, open "Alertas Activas" if there are alerts.
   const defaultAccordionValues: string[] = [];
-  if (block.alerts.length > 0) {
-    defaultAccordionValues.push("alerts");
-  }
-  if (block.missingConnections.length > 0) {
-    defaultAccordionValues.push("connections");
-  }
-  if (block.legalRisk) {
-    defaultAccordionValues.push("legal-risk");
-  }
-   if (block.applicableNorms.length > 0) {
-    defaultAccordionValues.push("norms");
-  }
+  if (block.alerts.length > 0) defaultAccordionValues.push("alerts");
+  if (block.missingConnections.length > 0) defaultAccordionValues.push("connections");
+  if (block.legalRisk) defaultAccordionValues.push("legal-risk");
+  if (block.applicableNorms.length > 0) defaultAccordionValues.push("norms");
 
 
   return (
-    <ScrollArea className="h-full w-full md:w-96 flex-shrink-0">
-      <div className="p-4 md:p-6 space-y-3">
-        <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full">
-          <AccordionItem value="alerts" className="border-b-0 mb-3">
+    <ScrollArea className="h-full w-full md:w-96 flex-shrink-0 bg-card border-l border-border">
+      <div className="p-4 md:p-6 space-y-4"> {/* Reduced general space-y from 6 to 4, header adds its own margin */}
+        
+        <div className="mb-6"> {/* Increased margin-bottom for header section */}
+          <h2 className="text-xl font-semibold text-foreground leading-tight">
+            Validaciones y Riesgos
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Detalles del bloque normativo: <span className="font-medium text-primary">{block.name}</span>
+          </p>
+        </div>
+
+        <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-3">
+          <AccordionItem value="alerts" className="border-b-0">
             <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+              <AccordionTrigger className="p-4 text-base hover:no-underline">
                 <div className="flex items-center gap-2 w-full">
-                  <FileWarning size={20} className="text-primary" />
-                  <span className="flex-1 text-left">Alertas Activas ({block.alerts.length})</span>
+                  <FileWarning size={18} className="text-accent" />
+                  <span className="flex-1 text-left font-medium">Alertas Activas ({block.alerts.length})</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
@@ -117,12 +118,12 @@ export function RisksPanel({ block }: RisksPanelProps) {
             </Card>
           </AccordionItem>
 
-          <AccordionItem value="connections" className="border-b-0 mb-3">
+          <AccordionItem value="connections" className="border-b-0">
             <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+              <AccordionTrigger className="p-4 text-base hover:no-underline">
                  <div className="flex items-center gap-2 w-full">
-                    <Link2Off size={20} className="text-primary" />
-                    <span className="flex-1 text-left">Conexiones Normativas Faltantes ({block.missingConnections.length})</span>
+                    <Link2Off size={18} className="text-accent" />
+                    <span className="flex-1 text-left font-medium">Conexiones Faltantes ({block.missingConnections.length})</span>
                   </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
@@ -131,7 +132,7 @@ export function RisksPanel({ block }: RisksPanelProps) {
                 ) : (
                   <ul className="space-y-2 pt-2">
                     {block.missingConnections.map((conn) => (
-                      <li key={conn.id} className="text-sm p-2 border-l-2 border-custom-technical-norm-blue-DEFAULT bg-background/30">
+                      <li key={conn.id} className="text-sm p-3 border-l-2 border-custom-technical-norm-blue bg-background/30 rounded-r-md">
                         {conn.description}
                       </li>
                     ))}
@@ -141,16 +142,16 @@ export function RisksPanel({ block }: RisksPanelProps) {
             </Card>
           </AccordionItem>
 
-          <AccordionItem value="legal-risk" className="border-b-0 mb-3">
+          <AccordionItem value="legal-risk" className="border-b-0">
             <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+              <AccordionTrigger className="p-4 text-base hover:no-underline">
                 <div className="flex items-center gap-2 w-full">
-                  <ShieldAlert size={20} className="text-primary" />
-                  <span className="flex-1 text-left">Riesgo Jurídico</span>
+                  <ShieldAlert size={18} className="text-accent" />
+                  <span className="flex-1 text-left font-medium">Riesgo Jurídico</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
-                <p className="text-sm pt-2">
+                <p className="text-sm pt-2 text-foreground/90">
                   {block.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
                 </p>
               </AccordionContent>
@@ -159,10 +160,10 @@ export function RisksPanel({ block }: RisksPanelProps) {
 
           <AccordionItem value="norms" className="border-b-0">
             <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-lg hover:no-underline">
+              <AccordionTrigger className="p-4 text-base hover:no-underline">
                 <div className="flex items-center gap-2 w-full">
-                  <BookOpen size={20} className="text-primary" />
-                  <span className="flex-1 text-left">Normativa Aplicable ({block.applicableNorms.length})</span>
+                  <BookOpen size={18} className="text-accent" />
+                  <span className="flex-1 text-left font-medium">Normativa Aplicable ({block.applicableNorms.length})</span>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
@@ -171,7 +172,7 @@ export function RisksPanel({ block }: RisksPanelProps) {
                 ) : (
                 <ul className="space-y-2 pt-2">
                   {block.applicableNorms.map((norm) => (
-                    <li key={norm.id} className="text-sm p-2 border rounded-md bg-background/30">
+                    <li key={norm.id} className="text-sm p-3 border rounded-md bg-background/30">
                       <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
                       {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
                     </li>
@@ -184,7 +185,7 @@ export function RisksPanel({ block }: RisksPanelProps) {
         </Accordion>
 
         <div className="pt-4">
-          <Button className="w-full bg-destructive hover:bg-destructive/90" onClick={handleExportPDF}>
+          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={handleExportPDF}>
             <Download className="mr-2 h-4 w-4" />
             Exportar Bloque Corregido (PDF)
           </Button>
@@ -193,4 +194,3 @@ export function RisksPanel({ block }: RisksPanelProps) {
     </ScrollArea>
   );
 }
-
