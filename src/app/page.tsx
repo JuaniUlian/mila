@@ -11,10 +11,10 @@ import { mockData as initialMockData } from '@/components/mila/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks, Home, ArrowLeft } from 'lucide-react';
+import { FileText, Layers, ListChecks, Home, ArrowLeft, Target } from 'lucide-react';
 
 
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
@@ -23,14 +23,14 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
        <Card className="shadow-xl border">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold flex items-center gap-3">
-            <Layers className="h-7 w-7 text-primary" />
+            <Target className="h-7 w-7 text-primary" /> {/* Changed icon for more relevance */}
             Resumen de Bloques del Documento
           </CardTitle>
+          <CardDescription className="text-base">
+            Seleccione un bloque de la cuadrícula para ver su contenido detallado y las sugerencias de mejora, o navegue usando el panel izquierdo.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-8 text-base">
-            Seleccione un bloque de la cuadrícula para ver su contenido detallado y las sugerencias de mejora, o navegue usando el panel izquierdo.
-          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blocks.map((block) => (
               <Card
@@ -44,7 +44,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                       <FileText size={22} className="text-primary" />
                       {block.name}
                     </span>
-                    <SeverityIndicator level={block.alertLevel} size={5}/>
+                    <SeverityIndicator level={block.alertLevel} size={6}/> {/* Increased size */}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-grow pt-2 pb-4">
@@ -52,10 +52,10 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                   <div className="mt-2">
                     <span className="text-sm font-semibold">Completitud: </span>
                     <span className={cn(
-                      "font-bold text-lg",
+                      "font-bold text-lg", // Made text-lg for better visibility
                       block.completenessIndex < 5 ? "text-destructive" :
                       block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" :
-                      "text-green-600"
+                      "text-green-600" // Using a more standard green
                     )}>
                       {block.completenessIndex} / {block.maxCompleteness}
                     </span>
@@ -195,11 +195,11 @@ export default function HomePage() {
               <Button
                 variant="ghost"
                 onClick={handleGoHome}
-                className="w-[calc(100%-1rem)] mx-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground justify-start"
+                className="w-[calc(100%-1rem)] mx-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground justify-start font-medium"
                 size="sm"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver al Inicio
+                Volver al Resumen
               </Button>
             )}
         </SidebarHeader>
@@ -221,8 +221,7 @@ export default function HomePage() {
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
-
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-muted/30"> {/* Added subtle background to main content */}
             {selectedBlock ? (
               <ContentPanel
                 block={selectedBlock}
