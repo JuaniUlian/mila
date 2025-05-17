@@ -11,13 +11,12 @@ import { mockData as initialMockData } from '@/components/mila/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/sidebar'; // Added Sidebar components
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks } from 'lucide-react';
+import { FileText, Layers, ListChecks, Home, ArrowLeft } from 'lucide-react';
 
 
-// New component for the grid of block summaries
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-6">
@@ -30,16 +29,16 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-6">
-            Seleccione un bloque de la cuadrícula para ver su contenido detallado y las sugerencias de mejora.
+            Seleccione un bloque de la cuadrícula para ver su contenido detallado y las sugerencias de mejora, o navegue usando el panel izquierdo.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {blocks.map((block) => (
               <Card 
                 key={block.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer"
+                className="hover:shadow-lg transition-shadow cursor-pointer flex flex-col"
                 onClick={() => onSelectBlock(block.id)}
               >
-                <CardHeader>
+                <CardHeader className="flex-grow">
                   <CardTitle className="text-lg flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <FileText size={20} className="text-primary" /> 
@@ -48,20 +47,22 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                     <SeverityIndicator level={block.alertLevel} size={5}/>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-grow">
                   <p className="text-sm text-muted-foreground">Categoría: {block.category}</p>
                   <div className="mt-2">
                     <span className="text-xs font-semibold">Completitud: </span>
                     <span className={cn(
                       "font-bold text-sm",
                       block.completenessIndex < 5 ? "text-destructive" :
-                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" :
+                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" : // Ensure this custom color is available
                       "text-green-600"
                     )}>
                       {block.completenessIndex} / {block.maxCompleteness}
                     </span>
                   </div>
-                   <Button variant="outline" size="sm" className="w-full mt-4">
+                </CardContent>
+                <CardContent className="pt-0">
+                   <Button variant="outline" size="sm" className="w-full mt-auto">
                     Ver Detalles
                   </Button>
                 </CardContent>
@@ -82,16 +83,12 @@ export default function HomePage() {
 
   const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
 
-  // Auto-select first block if needed, or implement logic for initial grid view.
-  // For now, let's keep it so user has to select from grid or nav.
-  // useEffect(() => {
-  //   if (blocks.length > 0 && !selectedBlockId) {
-  //     setSelectedBlockId(blocks[0].id); 
-  //   }
-  // }, [blocks, selectedBlockId]);
-
   const handleSelectBlock = useCallback((id: string) => {
     setSelectedBlockId(id);
+  }, []);
+
+  const handleGoHome = useCallback(() => {
+    setSelectedBlockId(null);
   }, []);
 
   const recalculateOverallScores = useCallback((updatedBlocks: DocumentBlock[]): { overallCompletenessIndex: number, overallComplianceScore: number } => {
@@ -132,9 +129,6 @@ export default function HomePage() {
 
       if (previousStatus === 'pending' && newStatus === 'applied') {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
-      } else if (previousStatus === 'applied' && (newStatus === 'pending' || newStatus === 'discarded')) {
-        // This logic might need adjustment if un-applying is implemented
-        // newCompletenessIndexForBlock = Math.max(0, blockToUpdate.completenessIndex - (suggestionToUpdate.completenessImpact || 0));
       }
       
       const updatedBlocks = prevData.blocks.map(block => {
@@ -192,27 +186,42 @@ export default function HomePage() {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="p-2 border-b border-sidebar-border">
+        <SidebarHeader className="p-2 border-b border-sidebar-border flex flex-col items-start">
            <div className="flex items-center gap-2 p-2">
              <ListChecks className="h-6 w-6 text-sidebar-primary" />
              <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación</h2>
            </div>
+            {selectedBlockId && (
+              <Button 
+                variant="ghost" 
+                onClick={handleGoHome} 
+                className="w-[calc(100%-1rem)] mx-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground justify-start"
+                size="sm"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver al Inicio
+              </Button>
+            )}
         </SidebarHeader>
-        <SidebarContent>
+        <SidebarContent className="p-0"> {/* Remove padding for full-width accordion */}
           <BlockNavigation
             blocks={blocks}
             selectedBlockId={selectedBlockId}
             onSelectBlock={handleSelectBlock}
           />
         </SidebarContent>
+         <SidebarFooter className="p-2 mt-auto border-t border-sidebar-border">
+            <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                <Home className="mr-2 h-4 w-4" />
+                Dashboard Principal
+            </Button>
+        </SidebarFooter>
       </Sidebar>
       
-      {/* Main content area (Center + Right) */}
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
           
-          {/* Center Panel: Content or Block Summary Grid */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
             {selectedBlock ? (
               <ContentPanel
@@ -225,7 +234,6 @@ export default function HomePage() {
             )}
           </main>
 
-          {/* Right Panel: Risks and Overall Scores */}
           <aside className="w-1/3 min-w-[380px] max-w-[480px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
