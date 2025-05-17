@@ -15,6 +15,7 @@ import {
 import { Settings, LayoutDashboard } from 'lucide-react';
 import { BlockNavigation } from '@/components/mila/block-navigation'; // Import new component
 import type { DocumentBlock } from '@/components/mila/types'; // Import types
+import { Logo } from './logo'; // Import the new Logo component
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -30,10 +31,7 @@ export function AppShell({ children, blocks, selectedBlockId, onSelectBlock }: A
       <Sidebar>
         <SidebarHeader className="p-4">
           <div className="flex items-center gap-2">
-             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary">
-                <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 7L12 12M22 7L12 12M12 22V12M17 4.5L7 9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-             </svg>
+            <Logo /> {/* Use the Logo component here */}
             <h1 className="text-xl font-semibold text-sidebar-foreground">Mila</h1>
           </div>
           <p className="text-xs text-sidebar-foreground/80">Plantilla Viva</p>
