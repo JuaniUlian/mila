@@ -3,78 +3,126 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-nunito), Arial, Helvetica, sans-serif;
 }
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 222 47% 11%; /* Default: #0F172A (slate-900 for readability) */
+
+    --card: 210 40% 98%; /* #F8FAFC - secondary containers, "Partial Results" box */
+    --card-foreground: 222 47% 11%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 82 79% 62%; /* #A3E635 - active validation background, main containers */
+    --primary-foreground: 160 83% 10%; /* Dark green for contrast on light green */
+
+    --secondary: 160 83% 16%; /* #064E3B - institutional headers, can be used with sidebar */
+    --secondary-foreground: 0 0% 98%; /* White/Light gray */
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 20.2% 65.1%; /* slate-500 */
+
+    --accent: 202 90% 56%; /* #0EA5E9 (Validation/Norms Blue as general accent) */
+    --accent-foreground: 0 0% 98%; /* White for contrast */
+
+    --destructive: 0 72% 47%; /* #DC2626 (Major Error Red) */
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+
+    --border: 215 30% 87%; /* #CBD5E1 (slate-300 for "Partial Results" box border) */
+    --input: 215 30% 87%;
+    --ring: 82 79% 62%; /* Primary color for focus rings */
+
+    --radius: 0.5rem;
+
+    /* Sidebar specific variables */
+    --sidebar-background: 160 83% 16%; /* #064E3B */
+    --sidebar-foreground: 0 0% 100%;   /* White */
+    --sidebar-primary: 160 80% 42%;    /* #10B981 - For active/hover items */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 160 80% 42%;     /* #10B981 - For hover states */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 160 83% 20%;    /* Slightly darker/lighter than sidebar bg */
+    --sidebar-ring: 202 90% 56%;      /* Validation/Norms blue for focus inside sidebar */
+
+    /* Custom Color Variables from User Request */
+    --custom-validation-blue: 202 90% 56%; /* #0EA5E9 */
+    --custom-alert-minor-error-bg: 0 90% 70%; /* #F87171 */
+    --custom-alert-major-error-bg: 0 72% 47%; /* #DC2626 */
+    --custom-warning-yellow-bg: 45 93% 55%;   /* #FACC15 */
+    --custom-technical-text-blue: 227 64% 33%; /* #1E3A8A */
+    
+    --custom-severity-low-bg: 185 88% 87%;    /* #A5F3FC */
+    --custom-severity-medium-bg: 45 93% 55%; /* #FACC15 */
+    --custom-severity-high-bg: 0 90% 70%;    /* #F87171 */
+
+    --custom-severity-low-fg: 227 64% 20%;    /* Darker blue for contrast */
+    --custom-severity-medium-fg: 227 64% 20%; /* Darker blue/black for contrast */
+    --custom-severity-high-fg: 0 0% 100%;     /* White for contrast */
+
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --background: 222 47% 11%; 
+    --foreground: 0 0% 98%; 
+
+    --card: 222 47% 15%; 
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+
+    --popover: 222 47% 11%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+
+    --primary: 82 79% 62%; 
+    --primary-foreground: 160 83% 10%;
+
+    --secondary: 160 83% 25%; 
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+
+    --muted: 222 47% 20%;
+    --muted-foreground: 215 20.2% 75.1%;
+
+    --accent: 202 90% 56%; 
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+
+    --destructive: 0 72% 57%; 
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+
+    --border: 215 30% 27%; 
+    --input: 215 30% 27%;
+    --ring: 82 79% 62%;
+
+    /* Sidebar specific variables for dark theme */
+    --sidebar-background: 160 83% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 160 80% 42%; 
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 160 80% 38%; 
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 160 83% 10%;
+    --sidebar-ring: 202 90% 56%;
+
+    /* Custom Color Variables from User Request - Dark mode adjustments if necessary */
+    --custom-validation-blue: 202 90% 56%;
+    --custom-alert-minor-error-bg: 0 90% 60%; 
+    --custom-alert-major-error-bg: 0 72% 50%; 
+    --custom-warning-yellow-bg: 45 93% 50%;   
+    --custom-technical-text-blue: 227 64% 53%; 
+    
+    --custom-severity-low-bg: 185 88% 77%;    
+    --custom-severity-medium-bg: 45 93% 50%; 
+    --custom-severity-high-bg: 0 90% 60%;
+
+    --custom-severity-low-fg: 227 64% 10%;    
+    --custom-severity-medium-fg: 227 64% 10%; 
+    --custom-severity-high-fg: 0 0% 100%;     
   }
 }
 
@@ -85,4 +133,27 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom utility classes if needed, e.g. for specific text colors */
+.text-technical-blue {
+  color: hsl(var(--custom-technical-text-blue));
+}
+.bg-validation-blue {
+  background-color: hsl(var(--custom-validation-blue));
+}
+.bg-alert-major-error {
+  background-color: hsl(var(--custom-alert-major-error-bg));
+}
+.bg-severity-low {
+  background-color: hsl(var(--custom-severity-low-bg));
+  color: hsl(var(--custom-severity-low-fg));
+}
+.bg-severity-medium {
+  background-color: hsl(var(--custom-severity-medium-bg));
+  color: hsl(var(--custom-severity-medium-fg));
+}
+.bg-severity-high {
+  background-color: hsl(var(--custom-severity-high-bg));
+  color: hsl(var(--custom-severity-high-fg));
 }

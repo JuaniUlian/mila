@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -8,7 +9,10 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	extend: {
+    extend: {
+      fontFamily: {
+        sans: ["var(--font-nunito)", "ui-sans-serif", "system-ui"],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -59,35 +63,47 @@ export default {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
-  			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
-  		keyframes: {
-  			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
   			},
-  			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
+        // Custom colors from globals.css for Tailwind utility classes
+        'custom-validation-blue': 'hsl(var(--custom-validation-blue))',
+        'custom-alert-minor-error-bg': 'hsl(var(--custom-alert-minor-error-bg))',
+        'custom-alert-major-error-bg': 'hsl(var(--custom-alert-major-error-bg))',
+        'custom-warning-yellow-bg': 'hsl(var(--custom-warning-yellow-bg))',
+        'custom-technical-text-blue': 'hsl(var(--custom-technical-text-blue))',
+        'custom-severity-low-bg': 'hsl(var(--custom-severity-low-bg))',
+        'custom-severity-medium-bg': 'hsl(var(--custom-severity-medium-bg))',
+        'custom-severity-high-bg': 'hsl(var(--custom-severity-high-bg))',
+        'custom-severity-low-fg': 'hsl(var(--custom-severity-low-fg))',
+        'custom-severity-medium-fg': 'hsl(var(--custom-severity-medium-fg))',
+        'custom-severity-high-fg': 'hsl(var(--custom-severity-high-fg))',
+  		}
+    },
+  	borderRadius: {
+  		lg: 'var(--radius)',
+  		md: 'calc(var(--radius) - 2px)',
+  		sm: 'calc(var(--radius) - 4px)'
+  	},
+  	keyframes: {
+  		'accordion-down': {
+  			from: {
+  				height: '0'
+  			},
+  			to: {
+  				height: 'var(--radix-accordion-content-height)'
   			}
   		},
-  		animation: {
-  			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  		'accordion-up': {
+  			from: {
+  				height: 'var(--radix-accordion-content-height)'
+  			},
+  			to: {
+  				height: '0'
+  			}
   		}
+  	},
+  	animation: {
+  		'accordion-down': 'accordion-down 0.2s ease-out',
+  		'accordion-up': 'accordion-up 0.2s ease-out'
   	}
   },
   plugins: [require("tailwindcss-animate")],
