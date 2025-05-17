@@ -5,7 +5,7 @@ import type { DocumentBlock, Suggestion, AlertItem } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Copy, Save, XCircle, MessageSquare, AlertTriangle, AlertOctagon, Info } from 'lucide-react';
+import { Check, Edit3, Trash2, Copy, Save, XCircle, MessageSquare, FileText, Lightbulb, ShieldAlert, Gavel, FlaskConical, ClipboardList } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -27,9 +27,14 @@ interface ContentPanelProps {
 }
 
 const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
-  const totalSuggestions = block.suggestions.length;
+  const totalSuggestions = block.suggestions.length; // Total original suggestions for the block
   const appliedSuggestionsCount = block.suggestions.filter(s => s.status === 'applied').length;
-  const correctionPercentage = totalSuggestions > 0 ? Math.round((appliedSuggestionsCount / totalSuggestions) * 100) : 100;
+  const discardedSuggestionsCount = block.suggestions.filter(s => s.status === 'discarded').length;
+  const pendingSuggestionsCount = totalSuggestions - appliedSuggestionsCount - discardedSuggestionsCount;
+  
+  const correctionPercentage = totalSuggestions > 0 
+    ? Math.round(((appliedSuggestionsCount + discardedSuggestionsCount) / totalSuggestions) * 100) 
+    : 100;
 
   return (
     <Card className="mb-6 shadow-md bg-card">
@@ -39,8 +44,8 @@ const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-muted-foreground">Total de Sugerencias</p>
-            <p className="font-semibold text-lg">{totalSuggestions}</p>
+            <p className="text-muted-foreground">Sugerencias Pendientes</p>
+            <p className="font-semibold text-lg">{pendingSuggestionsCount} / {totalSuggestions}</p>
           </div>
           <div>
             <p className="text-muted-foreground">Sugerencias Aplicadas</p>
@@ -53,7 +58,7 @@ const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
         </div>
         <div>
           <div className="flex justify-between mb-1">
-            <span className="text-sm font-medium">Progreso de Corrección</span>
+            <span className="text-sm font-medium">Progreso de Revisión</span>
             <span className="text-sm font-medium">{correctionPercentage}%</span>
           </div>
           <Progress value={correctionPercentage} className="w-full h-2.5" />
@@ -66,7 +71,7 @@ const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
 const getSeverityBadgeVariantForAlert = (severity: AlertItem['severity']) => {
   switch (severity) {
     case 'grave': return 'destructive';
-    case 'media': return 'default';
+    case 'media': return 'default'; // Using default for yellow as it's more prominent than outline
     case 'leve': return 'secondary';
     default: return 'outline';
   }
@@ -88,20 +93,8 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
   const [currentEditText, setCurrentEditText] = useState<string>('');
 
   if (!block) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-center">Planilla Viva</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-center">
-              Seleccione un bloque del panel de navegación para ver su contenido, validaciones y sugerencias.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    // This case should ideally be handled by the parent (page.tsx) showing a general placeholder
+    return null; 
   }
   
   const handleCopyText = (text: string, type: string) => {
@@ -127,7 +120,12 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
     setCurrentEditText('');
   };
 
-  const accordionDefaultValue = block.alerts.length > 0 || block.suggestions.length > 0 ? "alerts-suggestions" : undefined;
+  // Filter suggestions to only show 'pending' ones, or the one being edited
+  const visibleSuggestions = block.suggestions.filter(suggestion => 
+    suggestion.status === 'pending' || editingSuggestionId === suggestion.id
+  );
+
+  const accordionDefaultValue = block.alerts.length > 0 || visibleSuggestions.length > 0 ? "alerts-suggestions" : undefined;
 
   return (
     <div className="flex-1 flex flex-col gap-6">
@@ -135,9 +133,12 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
 
       <Card className="shadow-md">
         <CardHeader className="flex flex-row justify-between items-center">
-          <div>
-            <CardTitle>Texto Original del Pliego</CardTitle>
-            <CardDescription>Contenido original del bloque seleccionado.</CardDescription>
+          <div className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle>Texto Original del Pliego</CardTitle>
+              <CardDescription>Contenido original del bloque seleccionado.</CardDescription>
+            </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => handleCopyText(block.originalText, 'Texto Original')}>
             <Copy className="h-4 w-4" />
@@ -157,13 +158,14 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
               <div className="flex items-center gap-2 w-full">
                 <MessageSquare size={20} className="text-primary" />
                 <span className="flex-1 text-left font-semibold">
-                  Validaciones del Bloque: Alertas y Sugerencias
+                  Validaciones del Bloque: Alertas y Sugerencias Pendientes
                 </span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-6 py-4 bg-card rounded-b-lg space-y-6">
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-foreground">
+                <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+                  <ShieldAlert className="h-5 w-5 text-destructive" />
                   Alertas Detectadas ({block.alerts.length})
                 </h3>
                 {block.alerts.length === 0 ? (
@@ -193,21 +195,26 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
               <Separator />
 
               <div>
-                <h3 className="text-lg font-semibold mb-3 text-foreground">
-                  Sugerencias de la IA ({block.suggestions.length})
+                <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-yellow-500" />
+                  Sugerencias de la IA Pendientes ({visibleSuggestions.length})
                 </h3>
-                 {block.suggestions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground p-4 border rounded-md bg-background">No hay sugerencias para este bloque.</p>
+                 {visibleSuggestions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground p-4 border rounded-md bg-background">No hay sugerencias pendientes para este bloque o ya fueron procesadas.</p>
                 ) : (
                   <div className="space-y-4">
-                    {block.suggestions.map((suggestion) => (
+                    {visibleSuggestions.map((suggestion) => (
                       <Card key={suggestion.id} className="shadow-sm hover:shadow-md transition-shadow bg-background">
                         <CardHeader>
                           <div className="flex justify-between items-start">
-                            <CardTitle className="text-base">Sugerencia</CardTitle>
+                            <div className="flex items-center gap-2">
+                               <Edit3 className="h-5 w-5 text-primary" />
+                               <CardTitle className="text-base">Sugerencia de Redacción</CardTitle>
+                            </div>
                             <Badge 
                               variant={suggestion.status === 'applied' ? 'default' : suggestion.status === 'discarded' ? 'destructive' : 'secondary'}
                               className={cn(
+                                'text-xs',
                                 suggestion.status === 'applied' && 'bg-green-500 hover:bg-green-600 text-white',
                                 suggestion.status === 'discarded' && 'bg-red-500 hover:bg-red-600 text-white',
                                 suggestion.status === 'pending' && 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -216,7 +223,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                               {suggestion.status.charAt(0).toUpperCase() + suggestion.status.slice(1)}
                             </Badge>
                           </div>
-                          <CardDescription className="text-technical-norm-blue">
+                          <CardDescription className="text-technical-norm-blue ml-7">
                             Norma Aplicada: {suggestion.appliedNorm}
                           </CardDescription>
                         </CardHeader>
@@ -256,10 +263,9 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                               <>
                                 <Button 
                                   size="sm" 
-                                  variant={suggestion.status === 'applied' ? "default" : "outline"}
+                                  variant="outline"
                                   onClick={() => onUpdateSuggestionStatus(block.id, suggestion.id, 'applied')}
-                                  className={cn(suggestion.status === 'applied' && "bg-primary hover:bg-primary/90")}
-                                  disabled={suggestion.status === 'applied' || suggestion.status === 'discarded'}
+                                  className="bg-green-500 hover:bg-green-600 text-white"
                                 >
                                   <Check className="mr-2 h-4 w-4" /> Aplicar
                                 </Button>
@@ -267,15 +273,14 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                                   size="sm" 
                                   variant="outline" 
                                   onClick={() => handleEditSuggestion(suggestion)}
-                                  disabled={suggestion.status === 'applied' || suggestion.status === 'discarded'}
                                 >
                                   <Edit3 className="mr-2 h-4 w-4" /> Editar
                                 </Button>
                                 <Button 
                                   size="sm" 
-                                  variant={suggestion.status === 'discarded' ? "destructive" : "outline"}
+                                  variant="outline"
                                   onClick={() => onUpdateSuggestionStatus(block.id, suggestion.id, 'discarded')}
-                                  disabled={suggestion.status === 'applied' || suggestion.status === 'discarded'}
+                                  className="bg-red-500 hover:bg-red-600 text-white"
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" /> Descartar
                                 </Button>
@@ -288,9 +293,9 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
 
                           <Separator className="my-3" />
                           <div>
-                            <h4 className="text-sm font-semibold mb-1">Justificación Legal y Técnica</h4>
-                            <p className="text-xs text-muted-foreground mb-1"><strong className="text-technical-text-blue">Legal:</strong> {suggestion.justification.legal}</p>
-                            <p className="text-xs text-muted-foreground"><strong className="text-technical-text-blue">Técnica:</strong> {suggestion.justification.technical}</p>
+                            <h4 className="text-sm font-semibold mb-1 flex items-center gap-1"><ClipboardList size={16} /> Justificación Detallada</h4>
+                            <p className="text-xs text-muted-foreground mb-1"><Gavel size={12} className="inline mr-1 text-technical-text-blue" /> <strong className="text-technical-text-blue">Legal:</strong> {suggestion.justification.legal}</p>
+                            <p className="text-xs text-muted-foreground"><FlaskConical size={12} className="inline mr-1 text-technical-text-blue" /> <strong className="text-technical-text-blue">Técnica:</strong> {suggestion.justification.technical}</p>
                           </div>
                           <Separator className="my-3" />
                           <div>
@@ -313,3 +318,4 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
     </div>
   );
 }
+

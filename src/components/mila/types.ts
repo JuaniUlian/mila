@@ -50,6 +50,8 @@ export interface ApplicableNorm {
 // Mock data representing the entire analyzed document
 export interface MilaAppPData {
   documentTitle: string;
+  overallComplianceScore: number; // Added for overall document score
+  overallCompletenessIndex: number; // Added for overall document score
   blocks: DocumentBlock[];
-  // Global items can be added here if needed, but PRD focuses on per-block details
 }
+

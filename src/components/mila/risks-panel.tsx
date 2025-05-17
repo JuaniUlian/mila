@@ -1,12 +1,11 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock } from './types'; // AlertItem removed as it's no longer directly used here
+import type { DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Link2Off, ShieldAlert, BookOpen, FileWarning } from 'lucide-react';
-// Badge related imports and functions (getSeverityBadgeVariant, getSeverityBadgeClass) are removed
-// ScrollArea might not be needed if content is less
+import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -14,135 +13,165 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-// SeverityIndicator is removed as alerts are no longer displayed here
 
 interface RisksPanelProps {
-  block: DocumentBlock | null;
+  selectedBlock: DocumentBlock | null;
+  overallComplianceScore: number;
+  overallCompletenessIndex: number;
 }
 
-export function RisksPanel({ block }: RisksPanelProps) {
+export function RisksPanel({ selectedBlock, overallComplianceScore, overallCompletenessIndex }: RisksPanelProps) {
   const { toast } = useToast();
-
-  if (!block) {
-    return (
-      <Card className="shadow-md border mt-6"> {/* Added mt-6 for spacing */}
-        <CardHeader className="text-center">
-           <CardTitle>Información Adicional</CardTitle>
-          <CardDescription className="text-base">
-            Seleccione un bloque para ver detalles de conexiones, riesgos y normativa.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex justify-center items-center p-6">
-          <Info size={48} className="text-muted-foreground mx-auto" />
-        </CardContent>
-      </Card>
-    );
-  }
   
-  const handleExportPDF = () => {
+  const handleExportPDF = (blockName?: string) => {
     toast({
-      title: "Exportación PDF",
-      description: `La exportación del bloque "${block.name}" se iniciará pronto (función simulada).`,
+      title: "Exportación PDF (Simulada)",
+      description: blockName 
+        ? `La exportación del bloque "${blockName}" se iniciaría pronto.`
+        : "La exportación del reporte completo se iniciaría pronto.",
     });
   };
 
-  // Default open for accordion items can be Connections, Legal Risk, Norms
-  // Alerts section is removed.
   const defaultAccordionValues: string[] = [];
-  if (block.missingConnections.length > 0) defaultAccordionValues.push("connections");
-  if (block.legalRisk) defaultAccordionValues.push("legal-risk");
-  if (block.applicableNorms.length > 0) defaultAccordionValues.push("norms");
+  if (selectedBlock?.missingConnections?.length > 0) defaultAccordionValues.push("connections");
+  if (selectedBlock?.legalRisk) defaultAccordionValues.push("legal-risk");
+  if (selectedBlock?.applicableNorms?.length > 0) defaultAccordionValues.push("norms");
 
 
   return (
-    <Card className="shadow-lg mt-6"> {/* Added mt-6 for spacing */}
-      <CardHeader>
-        <div className="mb-2">
-          <h2 className="text-xl font-semibold text-foreground leading-tight">
-            Información Adicional del Bloque
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Contexto normativo y riesgos para: <span className="font-medium text-primary">{block.name}</span>
-          </p>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-3">
-          {/* Alertas Activas AccordionItem is removed */}
-
-          <AccordionItem value="connections" className="border-b-0">
-            <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-base hover:no-underline">
-                 <div className="flex items-center gap-2 w-full">
-                    <Link2Off size={18} className="text-accent" />
-                    <span className="flex-1 text-left font-medium">Conexiones Normativas Faltantes ({block.missingConnections.length})</span>
-                  </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                {block.missingConnections.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pt-2">No se identificaron conexiones faltantes.</p>
-                ) : (
-                  <ul className="space-y-2 pt-2">
-                    {block.missingConnections.map((conn) => (
-                      <li key={conn.id} className="text-sm p-3 border-l-2 border-custom-technical-norm-blue bg-background/30 rounded-r-md">
-                        {conn.description}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </AccordionContent>
-            </Card>
-          </AccordionItem>
-
-          <AccordionItem value="legal-risk" className="border-b-0">
-            <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-base hover:no-underline">
-                <div className="flex items-center gap-2 w-full">
-                  <ShieldAlert size={18} className="text-accent" />
-                  <span className="flex-1 text-left font-medium">Riesgo Jurídico</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                <p className="text-sm pt-2 text-foreground/90">
-                  {block.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
-                </p>
-              </AccordionContent>
-            </Card>
-          </AccordionItem>
-
-          <AccordionItem value="norms" className="border-b-0">
-            <Card className="shadow-md">
-              <AccordionTrigger className="p-4 text-base hover:no-underline">
-                <div className="flex items-center gap-2 w-full">
-                  <BookOpen size={18} className="text-accent" />
-                  <span className="flex-1 text-left font-medium">Normativa Aplicable Directa ({block.applicableNorms.length})</span>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4">
-                {block.applicableNorms.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pt-2">No hay normativas específicas listadas para este bloque.</p>
-                ) : (
-                <ul className="space-y-2 pt-2">
-                  {block.applicableNorms.map((norm) => (
-                    <li key={norm.id} className="text-sm p-3 border rounded-md bg-background/30">
-                      <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
-                      {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
-                    </li>
-                  ))}
-                </ul>
-                )}
-              </AccordionContent>
-            </Card>
-          </AccordionItem>
-        </Accordion>
-
-        <div className="pt-4">
-          <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={handleExportPDF}>
+    <div className="p-4 md:p-6 space-y-6 h-full">
+      <Card className="shadow-lg">
+        <CardHeader>
+          <div className="flex items-center gap-2 mb-1">
+            <FileCheck2 className="h-6 w-6 text-primary" />
+            <CardTitle className="text-xl">Resumen General del Documento</CardTitle>
+          </div>
+          <CardDescription>Puntajes globales de cumplimiento y completitud.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                <TrendingUp size={16} /> Cumplimiento Normativo General
+              </span>
+              <span className="text-sm font-semibold text-primary">{overallComplianceScore}%</span>
+            </div>
+            <Progress value={overallComplianceScore} className="h-2.5" />
+          </div>
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium text-muted-foreground flex items-center gap-1">
+                 <Gauge size={16} /> Índice de Completitud General
+              </span>
+              <span className="text-sm font-semibold text-primary">{overallCompletenessIndex}/10</span>
+            </div>
+            <Progress value={overallCompletenessIndex * 10} className="h-2.5" />
+          </div>
+           <Button className="w-full mt-4 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => handleExportPDF()}>
             <Download className="mr-2 h-4 w-4" />
-            Exportar Bloque Corregido (PDF)
+            Exportar Reporte Completo (PDF)
           </Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {selectedBlock ? (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <div className="flex items-center gap-2 mb-1">
+              <Info className="h-6 w-6 text-accent" />
+              <CardTitle className="text-xl">
+                Información Adicional del Bloque
+              </CardTitle>
+            </div>
+            <CardDescription>
+              Contexto y riesgos para: <span className="font-medium text-primary">{selectedBlock.name}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-2">
+              <AccordionItem value="connections" className="border-0">
+                <Card className="shadow-sm">
+                  <AccordionTrigger className="p-3 text-base hover:no-underline rounded-t-md data-[state=open]:rounded-b-none data-[state=open]:bg-muted/50">
+                    <div className="flex items-center gap-2 w-full">
+                        <Link2Off size={18} className="text-accent" />
+                        <span className="flex-1 text-left font-medium text-sm">Conexiones Normativas Faltantes ({selectedBlock.missingConnections.length})</span>
+                      </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-3 pb-3 text-sm rounded-b-md data-[state=open]:bg-muted/50">
+                    {selectedBlock.missingConnections.length === 0 ? (
+                      <p className="text-xs text-muted-foreground pt-2">No se identificaron conexiones faltantes.</p>
+                    ) : (
+                      <ul className="space-y-1.5 pt-2">
+                        {selectedBlock.missingConnections.map((conn) => (
+                          <li key={conn.id} className="text-xs p-2 border-l-2 border-custom-technical-norm-blue bg-background/30 rounded-r-sm">
+                            {conn.description}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+
+              <AccordionItem value="legal-risk" className="border-0">
+                <Card className="shadow-sm">
+                  <AccordionTrigger className="p-3 text-base hover:no-underline rounded-t-md data-[state=open]:rounded-b-none data-[state=open]:bg-muted/50">
+                    <div className="flex items-center gap-2 w-full">
+                      <ShieldAlert size={18} className="text-accent" />
+                      <span className="flex-1 text-left font-medium text-sm">Riesgo Jurídico</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-3 pb-3 text-sm rounded-b-md data-[state=open]:bg-muted/50">
+                    <p className="text-xs pt-2 text-foreground/90">
+                      {selectedBlock.legalRisk || "No se ha determinado un riesgo jurídico específico para este bloque o es bajo."}
+                    </p>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+
+              <AccordionItem value="norms" className="border-0">
+                <Card className="shadow-sm">
+                  <AccordionTrigger className="p-3 text-base hover:no-underline rounded-t-md data-[state=open]:rounded-b-none data-[state=open]:bg-muted/50">
+                    <div className="flex items-center gap-2 w-full">
+                      <BookOpen size={18} className="text-accent" />
+                      <span className="flex-1 text-left font-medium text-sm">Normativa Aplicable Directa ({selectedBlock.applicableNorms.length})</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-3 pb-3 text-sm rounded-b-md data-[state=open]:bg-muted/50">
+                    {selectedBlock.applicableNorms.length === 0 ? (
+                      <p className="text-xs text-muted-foreground pt-2">No hay normativas específicas listadas para este bloque.</p>
+                    ) : (
+                    <ul className="space-y-1.5 pt-2">
+                      {selectedBlock.applicableNorms.map((norm) => (
+                        <li key={norm.id} className="text-xs p-2 border rounded-sm bg-background/30">
+                          <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
+                          {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
+                        </li>
+                      ))}
+                    </ul>
+                    )}
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            </Accordion>
+
+            <div className="pt-3">
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" onClick={() => handleExportPDF(selectedBlock.name)}>
+                <Download className="mr-2 h-4 w-4" />
+                Exportar Bloque Corregido (PDF)
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="shadow-md border mt-6 flex flex-col items-center justify-center p-6 min-h-[200px]">
+          <Info size={36} className="text-muted-foreground mb-3" />
+          <CardTitle className="text-lg text-center mb-1">Información Detallada del Bloque</CardTitle>
+          <CardDescription className="text-sm text-center">
+            Seleccione un bloque del panel izquierdo para ver sus detalles específicos aquí.
+          </CardDescription>
+        </Card>
+      )}
+    </div>
   );
 }

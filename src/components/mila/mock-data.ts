@@ -85,6 +85,8 @@ const block2Suggestions = [ // For 'requisitos'
 
 export const mockData: MilaAppPData = {
   documentTitle: "Pliego Normativo XYZ-2024",
+  overallComplianceScore: 78, // Example overall score (percentage)
+  overallCompletenessIndex: 8.2, // Example overall score (index)
   blocks: [
     {
       id: 'objeto',
