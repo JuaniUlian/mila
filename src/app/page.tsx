@@ -39,9 +39,9 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                 onClick={() => onSelectBlock(block.id)}
               >
                 <CardHeader className="flex-grow pb-3 px-5 pt-5">
-                  <CardTitle className="text-lg font-semibold flex items-center justify-between text-foreground group-hover:text-primary transition-colors">
-                    <span className="flex items-center gap-2.5">
-                      <FileText size={20} className="text-primary group-hover:text-primary/90 transition-colors" />
+                  <CardTitle className="text-lg font-semibold flex items-center justify-between text-foreground group-hover:text-accent transition-colors">
+                    <span className="flex items-center gap-2.5 text-accent">
+                      <FileText size={20} className="group-hover:text-accent/90 transition-colors" />
                       {block.name}
                     </span>
                     <SeverityIndicator level={block.alertLevel} size={5}/>
@@ -63,7 +63,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                   </div>
                 </CardContent>
                 <CardContent className="pt-0 pb-5 px-5">
-                   <Button variant="outline" size="sm" className="w-full mt-auto text-sm py-2 group-hover:border-primary group-hover:text-primary transition-colors duration-150">
+                   <Button variant="outline" size="sm" className="w-full mt-auto text-sm py-2 group-hover:border-accent group-hover:text-accent transition-colors duration-150">
                     Ver Detalles del Bloque
                   </Button>
                 </CardContent>
