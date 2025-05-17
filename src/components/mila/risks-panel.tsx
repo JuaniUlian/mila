@@ -1,7 +1,7 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock, MilaAppPData } from './types'; // MilaAppPData to get overall scores
+import type { DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2, ListChecks } from 'lucide-react';
@@ -13,21 +13,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { BlockNavigation } from './block-navigation'; // Import BlockNavigation
+// BlockNavigation is no longer imported or used here
 
 interface RisksPanelProps {
-  blocks: DocumentBlock[]; // For BlockNavigation
-  selectedBlockId: string | null; // For BlockNavigation
-  onSelectBlock: (id: string) => void; // For BlockNavigation
-  selectedBlockDetail: DocumentBlock | null; // For displaying details of the selected block
+  // Removed props related to hosting BlockNavigation:
+  // blocks: DocumentBlock[]; 
+  // selectedBlockId: string | null;
+  // onSelectBlock: (id: string) => void; 
+  selectedBlockDetail: DocumentBlock | null;
   overallComplianceScore: number;
   overallCompletenessIndex: number;
 }
 
 export function RisksPanel({
-  blocks,
-  selectedBlockId,
-  onSelectBlock,
   selectedBlockDetail,
   overallComplianceScore,
   overallCompletenessIndex,
@@ -50,14 +48,9 @@ export function RisksPanel({
 
   return (
     <div className="p-4 md:p-6 space-y-6 h-full">
-      {/* Block Navigation at the top of the right panel */}
-      <BlockNavigation
-        blocks={blocks}
-        selectedBlockId={selectedBlockId}
-        onSelectBlock={onSelectBlock}
-      />
+      {/* BlockNavigation is no longer rendered here */}
 
-      <Card className="shadow-lg mt-6">
+      <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center gap-2 mb-1">
             <FileCheck2 className="h-6 w-6 text-primary" />
@@ -92,7 +85,7 @@ export function RisksPanel({
       </Card>
 
       {selectedBlockDetail ? (
-        <Card className="shadow-lg">
+        <Card className="shadow-lg mt-6"> {/* Ensure some margin if it follows another card */}
           <CardHeader>
             <div className="flex items-center gap-2 mb-1">
               <Info className="h-6 w-6 text-accent" />
@@ -185,7 +178,7 @@ export function RisksPanel({
           <ListChecks size={36} className="text-muted-foreground mb-3" />
           <CardTitle className="text-lg text-center mb-1">Información Detallada del Bloque</CardTitle>
           <CardDescription className="text-sm text-center">
-            Seleccione un bloque de la lista de arriba para ver sus detalles específicos aquí.
+            Seleccione un bloque de la lista de la izquierda para ver sus detalles específicos aquí.
           </CardDescription>
         </Card>
       )}

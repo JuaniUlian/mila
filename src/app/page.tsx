@@ -5,13 +5,75 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
-// BlockNavigation is now part of RisksPanel
-// import { BlockNavigation } from '@/components/mila/block-navigation'; 
+import { BlockNavigation } from '@/components/mila/block-navigation'; 
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import { useToast } from '@/hooks/use-toast';
-import { Card } from '@/components/ui/card';
-import { SidebarProvider, Sidebar } from '@/components/ui/sidebar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/sidebar'; // Added Sidebar components
+import { SeverityIndicator } from '@/components/mila/severity-indicator';
+import { cn } from '@/lib/utils';
+import { FileText, Layers, ListChecks } from 'lucide-react';
+
+
+// New component for the grid of block summaries
+const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
+  return (
+    <div className="space-y-6">
+       <Card className="shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Layers className="h-6 w-6 text-primary" />
+            Resumen de Bloques del Documento
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground mb-6">
+            Seleccione un bloque de la cuadrícula para ver su contenido detallado y las sugerencias de mejora.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {blocks.map((block) => (
+              <Card 
+                key={block.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => onSelectBlock(block.id)}
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <FileText size={20} className="text-primary" /> 
+                      {block.name}
+                    </span>
+                    <SeverityIndicator level={block.alertLevel} size={5}/>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Categoría: {block.category}</p>
+                  <div className="mt-2">
+                    <span className="text-xs font-semibold">Completitud: </span>
+                    <span className={cn(
+                      "font-bold text-sm",
+                      block.completenessIndex < 5 ? "text-destructive" :
+                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" :
+                      "text-green-600"
+                    )}>
+                      {block.completenessIndex} / {block.maxCompleteness}
+                    </span>
+                  </div>
+                   <Button variant="outline" size="sm" className="w-full mt-4">
+                    Ver Detalles
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 
 export default function HomePage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
@@ -20,12 +82,13 @@ export default function HomePage() {
 
   const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
 
-  useEffect(() => {
-    // No auto-selection to allow user to pick first
-    // if (blocks.length > 0 && !selectedBlockId) {
-    //   setSelectedBlockId(blocks[0].id); 
-    // }
-  }, [blocks, selectedBlockId]);
+  // Auto-select first block if needed, or implement logic for initial grid view.
+  // For now, let's keep it so user has to select from grid or nav.
+  // useEffect(() => {
+  //   if (blocks.length > 0 && !selectedBlockId) {
+  //     setSelectedBlockId(blocks[0].id); 
+  //   }
+  // }, [blocks, selectedBlockId]);
 
   const handleSelectBlock = useCallback((id: string) => {
     setSelectedBlockId(id);
@@ -70,7 +133,7 @@ export default function HomePage() {
       if (previousStatus === 'pending' && newStatus === 'applied') {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       } else if (previousStatus === 'applied' && (newStatus === 'pending' || newStatus === 'discarded')) {
-        // This logic path might need adjustment if un-applying is implemented, for now, not critical
+        // This logic might need adjustment if un-applying is implemented
         // newCompletenessIndexForBlock = Math.max(0, blockToUpdate.completenessIndex - (suggestionToUpdate.completenessImpact || 0));
       }
       
@@ -129,13 +192,27 @@ export default function HomePage() {
   return (
     <SidebarProvider>
       <Sidebar>
-        {/* Placeholder for mobile navigation items if any, e.g., a hamburger menu could list blocks here on mobile */}
+        <SidebarHeader className="p-2 border-b border-sidebar-border">
+           <div className="flex items-center gap-2 p-2">
+             <ListChecks className="h-6 w-6 text-sidebar-primary" />
+             <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación</h2>
+           </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <BlockNavigation
+            blocks={blocks}
+            selectedBlockId={selectedBlockId}
+            onSelectBlock={handleSelectBlock}
+          />
+        </SidebarContent>
       </Sidebar>
-      <div className="flex flex-col h-screen">
+      
+      {/* Main content area (Center + Right) */}
+      <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
-        <div className="flex flex-1 overflow-hidden"> {/* Main content area with two columns */}
+        <div className="flex flex-1 overflow-hidden">
           
-          {/* Left Column (Main Content): Content Panel */}
+          {/* Center Panel: Content or Block Summary Grid */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
             {selectedBlock ? (
               <ContentPanel
@@ -144,24 +221,14 @@ export default function HomePage() {
                 onUpdateSuggestionText={handleUpdateSuggestionText}
               />
             ) : (
-              <div className="flex flex-col items-center justify-start pt-10">
-                <Card className="p-6 border rounded-lg shadow-md bg-card text-center max-w-md">
-                  <h2 className="text-xl font-semibold mb-2">Bienvenido a Mila - Plantilla Viva</h2>
-                  <p className="text-muted-foreground">
-                    Seleccione un bloque de la lista en el panel derecho para ver su contenido y sugerencias.
-                  </p>
-                </Card>
-              </div>
+              <BlockSummaryGrid blocks={blocks} onSelectBlock={handleSelectBlock} />
             )}
           </main>
 
-          {/* Right Column (Aside): Block Navigation and Risks Panel */}
+          {/* Right Panel: Risks and Overall Scores */}
           <aside className="w-1/3 min-w-[380px] max-w-[480px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg">
             <RisksPanel
-              blocks={blocks} // Pass blocks for BlockNavigation
-              selectedBlockId={selectedBlockId} // Pass selectedBlockId for BlockNavigation
-              onSelectBlock={handleSelectBlock} // Pass onSelectBlock for BlockNavigation
-              selectedBlockDetail={selectedBlock} // Pass selected block for risk details
+              selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}
               overallCompletenessIndex={overallCompletenessIndex}
             />
