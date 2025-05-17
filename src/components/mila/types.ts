@@ -12,6 +12,7 @@ export interface Suggestion {
   errorType: string; 
   estimatedConsequence: string; 
   status: 'pending' | 'applied' | 'discarded';
+  completenessImpact: number; // How much applying this suggestion contributes to completeness
 }
 
 export interface DocumentBlock {
@@ -54,4 +55,3 @@ export interface MilaAppPData {
   overallCompletenessIndex: number; // Added for overall document score
   blocks: DocumentBlock[];
 }
-

@@ -28,26 +28,82 @@ export default function HomePage() {
     setSelectedBlockId(id);
   }, []);
 
-  const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, status: Suggestion['status']) => {
-    setDocumentData(prevData => ({
-      ...prevData,
-      blocks: prevData.blocks.map(block => {
+  const recalculateOverallScores = useCallback((updatedBlocks: DocumentBlock[]): { overallCompletenessIndex: number, overallComplianceScore: number } => {
+    let totalCompletenessAchieved = 0;
+    let totalMaxCompleteness = 0;
+    let sumOfBlockCompliancePercentages = 0;
+
+    updatedBlocks.forEach(block => {
+      totalCompletenessAchieved += block.completenessIndex;
+      totalMaxCompleteness += block.maxCompleteness;
+      const blockCompliance = block.maxCompleteness > 0 ? (block.completenessIndex / block.maxCompleteness) * 100 : 0;
+      sumOfBlockCompliancePercentages += blockCompliance;
+    });
+
+    const newOverallCompletenessIndex = totalMaxCompleteness > 0
+      ? parseFloat(((totalCompletenessAchieved / totalMaxCompleteness) * 10).toFixed(1))
+      : 0;
+
+    const newOverallComplianceScore = updatedBlocks.length > 0
+      ? Math.round(sumOfBlockCompliancePercentages / updatedBlocks.length)
+      : 0;
+    
+    return {
+      overallCompletenessIndex: Math.min(10, Math.max(0, newOverallCompletenessIndex)),
+      overallComplianceScore: Math.min(100, Math.max(0, newOverallComplianceScore)),
+    };
+  }, []);
+
+
+  const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
+    setDocumentData(prevData => {
+      const blockToUpdate = prevData.blocks.find(b => b.id === blockId);
+      const suggestionToUpdate = blockToUpdate?.suggestions.find(s => s.id === suggestionId);
+      
+      if (!blockToUpdate || !suggestionToUpdate) return prevData;
+
+      const previousStatus = suggestionToUpdate.status;
+      const completenessImpact = suggestionToUpdate.completenessImpact || 0;
+
+      const updatedBlocks = prevData.blocks.map(block => {
         if (block.id === blockId) {
+          let newCompletenessIndex = block.completenessIndex;
+
+          // Only add impact if moving from pending to applied
+          if (previousStatus === 'pending' && newStatus === 'applied') {
+            newCompletenessIndex = Math.min(block.maxCompleteness, block.completenessIndex + completenessImpact);
+          } 
+          // If an applied suggestion is somehow reverted (not primary flow here, but for robustness)
+          // else if (previousStatus === 'applied' && (newStatus === 'pending' || newStatus === 'discarded')) {
+          //   newCompletenessIndex = Math.max(0, block.completenessIndex - completenessImpact);
+          // }
+
           return {
             ...block,
             suggestions: block.suggestions.map(suggestion =>
-              suggestion.id === suggestionId ? { ...suggestion, status } : suggestion
+              suggestion.id === suggestionId ? { ...suggestion, status: newStatus } : suggestion
             ),
+            completenessIndex: newCompletenessIndex,
           };
         }
         return block;
-      }),
-    }));
+      });
+
+      const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
+
+      return {
+        ...prevData,
+        blocks: updatedBlocks,
+        overallCompletenessIndex: newOverallCompleteness,
+        overallComplianceScore: newOverallCompliance,
+      };
+    });
+
     toast({
       title: "Sugerencia Actualizada",
-      description: `El estado de la sugerencia ha sido cambiado a ${status}.`,
+      description: `El estado de la sugerencia ha sido cambiado a ${newStatus}.`,
     });
-  }, [toast]);
+  }, [toast, recalculateOverallScores]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
     setDocumentData(prevData => ({
@@ -57,7 +113,7 @@ export default function HomePage() {
           return {
             ...block,
             suggestions: block.suggestions.map(suggestion =>
-              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion // Ensure status is pending after edit
+              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion 
             ),
           };
         }
@@ -79,7 +135,7 @@ export default function HomePage() {
       onSelectBlock={handleSelectBlock}
     >
       <PageHeader title={documentTitle} />
-      <div className="flex flex-1 overflow-hidden h-[calc(100vh-4rem)]">
+      <div className="flex flex-1 overflow-hidden h-[calc(100vh-4rem)]"> {/* Full height minus header */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
           {selectedBlock ? (
             <ContentPanel
@@ -99,6 +155,7 @@ export default function HomePage() {
           )}
         </main>
         <aside className="w-1/3 min-w-[350px] max-w-[450px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg">
+           {/* RisksPanel now correctly receives overall scores and the selected block */}
           <RisksPanel
             selectedBlock={selectedBlock}
             overallComplianceScore={overallComplianceScore}
