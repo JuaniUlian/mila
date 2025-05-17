@@ -14,56 +14,57 @@ import { Button } from '@/components/ui/button';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks, Home, ArrowLeft, Target } from 'lucide-react';
+import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare } from 'lucide-react';
 
 
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-6">
-       <Card className="shadow-xl border">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold flex items-center gap-3">
-            <Target className="h-7 w-7 text-primary" /> {/* Changed icon for more relevance */}
+       <Card className="shadow-xl border rounded-xl">
+        <CardHeader className="p-6">
+          <CardTitle className="text-2xl font-semibold flex items-center gap-3 text-foreground">
+            <Target className="h-7 w-7 text-primary" />
             Resumen de Bloques del Documento
           </CardTitle>
-          <CardDescription className="text-base">
-            Seleccione un bloque de la cuadrícula para ver su contenido detallado y las sugerencias de mejora, o navegue usando el panel izquierdo.
+          <CardDescription className="text-base text-muted-foreground mt-1.5">
+            Seleccione un bloque para ver su contenido detallado y las sugerencias de mejora, o navegue usando el panel izquierdo.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blocks.map((block) => (
               <Card
                 key={block.id}
-                className="hover:shadow-xl transition-shadow duration-200 ease-in-out cursor-pointer flex flex-col bg-card/80 hover:bg-card rounded-lg border"
+                className="hover:shadow-lg transition-shadow duration-200 ease-in-out cursor-pointer flex flex-col bg-card hover:bg-muted/50 rounded-lg border group"
                 onClick={() => onSelectBlock(block.id)}
               >
-                <CardHeader className="flex-grow pb-3">
-                  <CardTitle className="text-xl font-medium flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <FileText size={22} className="text-primary" />
+                <CardHeader className="flex-grow pb-3 px-5 pt-5">
+                  <CardTitle className="text-lg font-semibold flex items-center justify-between text-foreground group-hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2.5">
+                      <FileText size={20} className="text-primary group-hover:text-primary/90 transition-colors" />
                       {block.name}
                     </span>
-                    <SeverityIndicator level={block.alertLevel} size={6}/> {/* Increased size */}
+                    <SeverityIndicator level={block.alertLevel} size={5}/>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex-grow pt-2 pb-4">
+                <CardContent className="flex-grow pt-2 pb-4 px-5">
                   <p className="text-sm text-muted-foreground mb-3">Categoría: {block.category}</p>
-                  <div className="mt-2">
-                    <span className="text-sm font-semibold">Completitud: </span>
+                  <div className="flex items-baseline gap-1.5 mt-2">
+                    <CheckSquare size={16} className="text-muted-foreground"/>
+                    <span className="text-sm font-medium text-muted-foreground">Completitud: </span>
                     <span className={cn(
-                      "font-bold text-lg", // Made text-lg for better visibility
+                      "font-bold text-base", 
                       block.completenessIndex < 5 ? "text-destructive" :
                       block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" :
-                      "text-green-600" // Using a more standard green
+                      "text-green-600" 
                     )}>
                       {block.completenessIndex} / {block.maxCompleteness}
                     </span>
                   </div>
                 </CardContent>
-                <CardContent className="pt-0 pb-5">
-                   <Button variant="outline" size="default" className="w-full mt-auto text-base py-2.5">
-                    Ver Detalles
+                <CardContent className="pt-0 pb-5 px-5">
+                   <Button variant="outline" size="sm" className="w-full mt-auto text-sm py-2 group-hover:border-primary group-hover:text-primary transition-colors">
+                    Ver Detalles del Bloque
                   </Button>
                 </CardContent>
               </Card>
@@ -127,9 +128,15 @@ export default function HomePage() {
       const previousStatus = suggestionToUpdate.status;
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
+      // Only update score if moving from pending to applied
       if (previousStatus === 'pending' && newStatus === 'applied') {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       }
+      // If un-applying (future feature, not primary now)
+      // else if (previousStatus === 'applied' && (newStatus === 'pending' || newStatus === 'discarded')) {
+      //   newCompletenessIndexForBlock = Math.max(0, blockToUpdate.completenessIndex - (suggestionToUpdate.completenessImpact || 0));
+      // }
+
 
       const updatedBlocks = prevData.blocks.map(block => {
         if (block.id === blockId) {
@@ -157,6 +164,7 @@ export default function HomePage() {
     toast({
       title: "Sugerencia Actualizada",
       description: `El estado de la sugerencia ha sido cambiado a ${newStatus}.`,
+      variant: newStatus === 'applied' ? 'default' : newStatus === 'discarded' ? 'destructive' : 'default',
     });
   }, [toast, recalculateOverallScores]);
 
@@ -168,7 +176,7 @@ export default function HomePage() {
           return {
             ...block,
             suggestions: block.suggestions.map(suggestion =>
-              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion
+              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion // Always reset to pending on edit
             ),
           };
         }
@@ -186,10 +194,10 @@ export default function HomePage() {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader className="p-2 border-b border-sidebar-border flex flex-col items-start">
-           <div className="flex items-center gap-2 p-2">
+        <SidebarHeader className="p-3 border-b border-sidebar-border flex flex-col items-start">
+           <div className="flex items-center gap-2.5 p-1 mb-1">
              <ListChecks className="h-6 w-6 text-sidebar-primary" />
-             <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación</h2>
+             <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación de Bloques</h2>
            </div>
             {selectedBlockId && (
               <Button
@@ -210,7 +218,7 @@ export default function HomePage() {
             onSelectBlock={handleSelectBlock}
           />
         </SidebarContent>
-         <SidebarFooter className="p-2 mt-auto border-t border-sidebar-border">
+         <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
             <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                 <Home className="mr-2 h-4 w-4" />
                 Dashboard Principal
@@ -221,7 +229,7 @@ export default function HomePage() {
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-muted/30"> {/* Added subtle background to main content */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-muted/20">
             {selectedBlock ? (
               <ContentPanel
                 block={selectedBlock}
@@ -233,7 +241,7 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-1/3 min-w-[380px] max-w-[480px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg">
+          <aside className="w-1/3 min-w-[400px] max-w-[520px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg p-1">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}
