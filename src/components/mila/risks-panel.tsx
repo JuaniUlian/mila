@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, FileWarning } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { SeverityIndicator } from './severity-indicator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -15,6 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { SeverityIndicator } from './severity-indicator';
 
 interface RisksPanelProps {
   block: DocumentBlock | null;
@@ -43,18 +43,20 @@ export function RisksPanel({ block }: RisksPanelProps) {
   const { toast } = useToast();
 
   if (!block) {
+    // This state should ideally be handled by the parent component (page.tsx)
+    // by not rendering RisksPanel if block is null.
+    // Adding a minimal fallback here for safety.
     return (
-      <div className="w-full md:w-96 p-6 bg-card border-l border-border flex-shrink-0 h-full">
-        <Card className="shadow-none border-none h-full flex flex-col justify-center items-center">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl mb-2">Validaciones y Riesgos</CardTitle>
-            <CardDescription className="text-base">Seleccione un bloque del panel izquierdo para ver sus detalles de validación y riesgos asociados.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FileWarning size={48} className="text-muted-foreground mx-auto" />
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="shadow-md border">
+        <CardHeader className="text-center">
+          <CardDescription className="text-base">
+            Seleccione un bloque para ver detalles de validación y riesgos.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center items-center p-6">
+          <FileWarning size={48} className="text-muted-foreground mx-auto" />
+        </CardContent>
+      </Card>
     );
   }
   
@@ -73,18 +75,18 @@ export function RisksPanel({ block }: RisksPanelProps) {
 
 
   return (
-    <ScrollArea className="h-full w-full md:w-96 flex-shrink-0 bg-card border-l border-border">
-      <div className="p-4 md:p-6 space-y-4"> {/* Reduced general space-y from 6 to 4, header adds its own margin */}
-        
-        <div className="mb-6"> {/* Increased margin-bottom for header section */}
+    <Card className="shadow-lg">
+      <CardHeader>
+        <div className="mb-2"> {/* Adjusted margin */}
           <h2 className="text-xl font-semibold text-foreground leading-tight">
-            Validaciones y Riesgos
+            Validaciones y Riesgos Adicionales
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Detalles del bloque normativo: <span className="font-medium text-primary">{block.name}</span>
+            Detalles para el bloque: <span className="font-medium text-primary">{block.name}</span>
           </p>
         </div>
-
+      </CardHeader>
+      <CardContent className="space-y-4">
         <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-3">
           <AccordionItem value="alerts" className="border-b-0">
             <Card className="shadow-md">
@@ -190,7 +192,7 @@ export function RisksPanel({ block }: RisksPanelProps) {
             Exportar Bloque Corregido (PDF)
           </Button>
         </div>
-      </div>
-    </ScrollArea>
+      </CardContent>
+    </Card>
   );
 }

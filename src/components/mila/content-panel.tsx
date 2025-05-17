@@ -64,7 +64,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
 
   if (!block) {
     return (
-      <div className="flex-1 flex items-center justify-center h-full p-6">
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader>
             <CardTitle className="text-center">Planilla Viva</CardTitle>
@@ -104,7 +104,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
 
 
   return (
-    <div className="flex-1 flex flex-col gap-6 p-4 md:p-6 overflow-y-auto h-full">
+    <div className="flex-1 flex flex-col gap-6">
       <BlockStatusDisplay block={block} />
 
       <Card className="shadow-md">

@@ -76,26 +76,23 @@ export default function HomePage() {
       onSelectBlock={handleSelectBlock}
     >
       <PageHeader title={documentTitle} />
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_auto] overflow-hidden h-[calc(100vh-4rem)]">
-        {/* Central Panel: Content Area */}
-        <div className="overflow-y-auto h-full">
+      <main className="flex-1 overflow-y-auto h-[calc(100vh-4rem)] p-4 md:p-6 space-y-6">
+        {/* Content Area: ContentPanel and RisksPanel will be stacked here */}
+        {selectedBlock ? (
+          <>
+            <ContentPanel
+              block={selectedBlock}
+              onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
+              onUpdateSuggestionText={handleUpdateSuggestionText}
+            />
+            <RisksPanel block={selectedBlock} />
+          </>
+        ) : (
           <ContentPanel 
-            block={selectedBlock} 
-            onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
-            onUpdateSuggestionText={handleUpdateSuggestionText}
+            block={null} 
+            onUpdateSuggestionStatus={() => { /* No-op */ }} 
+            onUpdateSuggestionText={() => { /* No-op */ }} 
           />
-        </div>
-
-        {/* Right Panel: Risks and Validations Area */}
-        <div className="overflow-y-auto h-full hidden md:block">
-           <RisksPanel block={selectedBlock} />
-        </div>
-         {/* Mobile: RisksPanel could be a drawer/modal or conditionally rendered if screen is small and a block is selected */}
-         {selectedBlock && (
-          <div className="md:hidden fixed inset-x-0 bottom-0 z-20">
-            {/* Placeholder for a mobile-friendly way to show RisksPanel, e.g., a bottom sheet trigger */}
-            {/* Or integrate parts of it into ContentPanel for mobile */}
-          </div>
         )}
       </main>
     </AppShell>
