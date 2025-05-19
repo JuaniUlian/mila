@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
@@ -12,11 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
 import { BlockNavigation } from '@/components/mila/block-navigation';
-import { FileText, CheckSquare, Target, Layers, ArrowLeft, ListChecks, ShieldAlert } from 'lucide-react';
+import { FileText, Layers, ShieldAlert, ArrowLeft, ListChecks, Settings, UserCircle, Bell } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { cn } from '@/lib/utils';
-import { SeverityIndicator } from '@/components/mila/severity-indicator';
-
+import { ThemeSwitcher } from '@/components/layout/theme-switcher'; // New Import
 
 const BlockSummaryGrid: React.FC<{
   blocks: DocumentBlock[];
@@ -39,11 +37,11 @@ const BlockSummaryGrid: React.FC<{
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           {blocks.map((block) => {
             const blockRiskPercentage = 100 - (block.completenessIndex / block.maxCompleteness) * 100;
-            let riskColorClass = 'text-green-400';
+            let riskColorClass = 'text-[rgb(var(--custom-severity-low-fg-rgb))]'; // Default to low risk color
             if (blockRiskPercentage > 50) {
-              riskColorClass = 'text-red-400';
+              riskColorClass = 'text-[rgb(var(--custom-severity-high-fg-rgb))]';
             } else if (blockRiskPercentage >= 25) {
-              riskColorClass = 'text-yellow-400';
+              riskColorClass = 'text-[rgb(var(--custom-severity-medium-fg-rgb))]';
             }
 
             return (
@@ -54,8 +52,8 @@ const BlockSummaryGrid: React.FC<{
               >
                 <CardHeader className="px-3 pt-3 pb-1 md:px-4 md:pt-4 md:pb-2">
                   <div className="flex items-center gap-2.5 mb-1">
-                    <FileText size={18} className="text-technical-text-blue group-hover:text-accent/90 transition-colors" />
-                    <CardTitle className="text-base font-semibold text-technical-text-blue group-hover:text-accent transition-colors">
+                    <FileText size={18} className="text-accent group-hover:text-accent/90 transition-colors" />
+                    <CardTitle className="text-base font-semibold text-accent group-hover:text-accent/90 transition-colors">
                       {block.name}
                     </CardTitle>
                   </div>
@@ -76,7 +74,7 @@ const BlockSummaryGrid: React.FC<{
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs py-1.5 h-8 text-technical-text-blue group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150"
+                    className="w-full text-xs py-1.5 h-8 text-accent group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150"
                   >
                     Ver Detalles
                   </Button>
@@ -94,13 +92,15 @@ const BlockSummaryGrid: React.FC<{
 export default function HomePage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const [theme, setTheme] = useState('light'); // State for theme
   const { toast } = useToast();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+    // Apply theme to HTML element
+    document.documentElement.setAttribute('data-theme', theme);
+    // Remove .dark class if it exists, as data-theme will handle dark mode
+    document.documentElement.classList.remove('dark');
+  }, [theme]);
 
   const { blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
 
@@ -150,14 +150,13 @@ export default function HomePage() {
 
       const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
 
-      if (suggestionToUpdate.status === newStatus) return prevData; // No change
+      if (suggestionToUpdate.status === newStatus) return prevData; 
 
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
       if (suggestionToUpdate.status === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       } else if (suggestionToUpdate.status === 'applied' && (newStatus === 'pending' || newStatus === 'discarded') && suggestionToUpdate.completenessImpact) {
-        // Reverting an applied suggestion
         newCompletenessIndexForBlock = Math.max(0, blockToUpdate.completenessIndex - (suggestionToUpdate.completenessImpact || 0));
       }
       
@@ -233,8 +232,6 @@ export default function HomePage() {
             blocks={blocks}
             selectedBlockId={selectedBlockId}
             onSelectBlock={handleSelectBlock}
-            onGoHome={handleGoHome}
-            isHomeActive={selectedBlockId === null}
           />
         </SidebarContent>
          <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border/30 glass-sidebar-header-footer">
@@ -246,6 +243,21 @@ export default function HomePage() {
       </Sidebar>
 
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
+        
+        {/* Top bar area for ThemeSwitcher and user profile (conceptual) */}
+        <header className="sticky top-0 z-10 flex items-center justify-end h-14 px-4 md:px-6 border-b bg-[rgba(var(--card-rgb),var(--card-alpha))] backdrop-blur-lg">
+          <div className="flex items-center gap-3">
+            <ThemeSwitcher currentTheme={theme} setTheme={setTheme} />
+            <Button variant="ghost" size="icon" className="text-foreground hover:bg-accent/20 rounded-full">
+              <Bell size={20} />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-foreground hover:bg-accent/20 rounded-full">
+              <Settings size={20} />
+            </Button>
+            <UserCircle size={28} className="text-foreground" /> {/* Placeholder for user avatar */}
+          </div>
+        </header>
+
         <div className="flex flex-1 overflow-hidden">
           <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 md:space-y-5 bg-transparent">
             {selectedBlock ? (
@@ -262,7 +274,7 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-full shrink-0 md:w-[320px] lg:w-[300px] xl:w-[340px] border-l border-[hsla(var(--border),0.2)] bg-card/60 backdrop-blur-lg text-card-foreground overflow-y-auto shadow-lg transition-all duration-200 ease-in-out">
+          <aside className="w-full shrink-0 md:w-[320px] lg:w-[300px] xl:w-[340px] border-l border-[rgba(var(--border-rgb),0.2)] bg-[rgba(var(--card-rgb),var(--card-alpha))] backdrop-blur-lg text-card-foreground overflow-y-auto shadow-lg transition-all duration-200 ease-in-out">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}

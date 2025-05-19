@@ -5,22 +5,19 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { DocumentBlock } from './types';
-import { Layers, FileText, ChevronDown, Home, FilePlus2, Briefcase, ShieldAlert } from 'lucide-react'; // Added ShieldAlert
+import { Layers, FileText, ChevronDown, ShieldAlert } from 'lucide-react';
 
 interface BlockNavigationProps {
   blocks: DocumentBlock[];
   selectedBlockId: string | null;
   onSelectBlock: (id: string) => void;
-  onGoHome: () => void;
-  isHomeActive: boolean;
+  // onGoHome and isHomeActive are no longer needed as this component reverts to block list
 }
 
 export function BlockNavigation({
   blocks,
   selectedBlockId,
   onSelectBlock,
-  onGoHome,
-  isHomeActive,
 }: BlockNavigationProps) {
   const categories = React.useMemo(() => {
     const grouped: { [key: string]: DocumentBlock[] } = {};
@@ -37,62 +34,13 @@ export function BlockNavigation({
   }, [blocks]);
 
   const defaultOpenCategories: string[] = React.useMemo(() => {
-    if (!selectedBlockId) return [];
+    if (!selectedBlockId) return []; // Start with all categories collapsed
     const selectedBlockDetails = blocks.find(b => b.id === selectedBlockId);
     return selectedBlockDetails ? [selectedBlockDetails.category] : [];
   }, [selectedBlockId, blocks]);
 
-  const mainNavItems = [
-    {
-      label: "Inicio",
-      icon: Home,
-      action: onGoHome,
-      isActive: isHomeActive,
-      isExternal: false,
-    },
-    {
-      label: "Nuevo Pliego",
-      icon: FilePlus2,
-      href: "https://plusbi.docufy.ar",
-      isExternal: true,
-    },
-    {
-      label: "PLUS BI",
-      icon: Briefcase,
-      href: "https://pluscompol.com",
-      isExternal: true,
-    },
-  ];
-
   return (
     <nav className="p-3 space-y-1.5">
-      {mainNavItems.map((item) => (
-        <Button
-          key={item.label}
-          variant="ghost"
-          onClick={item.action}
-          className={cn(
-            "w-full justify-start text-sm font-medium transition-colors duration-150 ease-in-out rounded-md h-10 px-3 py-2",
-            item.isActive
-              ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          )}
-          asChild={item.isExternal}
-        >
-          {item.isExternal ? (
-            <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
-              <item.icon size={18} />
-              {item.label}
-            </a>
-          ) : (
-            <>
-              <item.icon size={18} className="mr-3" />
-              {item.label}
-            </>
-          )}
-        </Button>
-      ))}
-
       <Accordion key={selectedBlockId} type="multiple" defaultValue={defaultOpenCategories} className="w-full space-y-1.5">
         {categories.map((category) => (
           <AccordionItem value={category.name} key={category.name} className="border-none">
@@ -111,11 +59,11 @@ export function BlockNavigation({
             <AccordionContent className="pt-1.5 pb-0 space-y-1 bg-transparent pl-3 pr-1">
               {category.blocks.map((block) => {
                 const blockRiskPercentage = 100 - ((block.completenessIndex / block.maxCompleteness) * 100);
-                let riskColorClass = 'text-green-400';
-                 if (blockRiskPercentage > 50) {
-                    riskColorClass = 'text-red-400';
+                let riskColorClass = 'text-[rgb(var(--custom-severity-low-fg-rgb))]'; 
+                if (blockRiskPercentage > 50) {
+                    riskColorClass = 'text-[rgb(var(--custom-severity-high-fg-rgb))]';
                 } else if (blockRiskPercentage >= 25) {
-                    riskColorClass = 'text-yellow-400';
+                    riskColorClass = 'text-[rgb(var(--custom-severity-medium-fg-rgb))]';
                 }
 
                 return (
@@ -146,4 +94,3 @@ export function BlockNavigation({
     </nav>
   );
 }
-
