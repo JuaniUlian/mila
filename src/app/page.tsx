@@ -55,7 +55,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                     <span className={cn(
                       "font-bold text-lg", 
                       block.completenessIndex < 5 ? "text-destructive" :
-                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" :
+                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" : // Ensure this custom color is defined in tailwind.config
                       "text-green-600" 
                     )}>
                       {block.completenessIndex} / {block.maxCompleteness}
@@ -128,6 +128,7 @@ export default function HomePage() {
       const previousStatus = suggestionToUpdate.status;
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
+      // Only update completeness if a 'pending' suggestion is 'applied'
       if (previousStatus === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       }
@@ -236,7 +237,7 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-1/3 min-w-[400px] max-w-[520px] border-l border-white/20 dark:border-slate-700/50 bg-white/10 dark:bg-slate-800/30 backdrop-blur-md text-card-foreground overflow-y-auto shadow-lg p-1 transition-all duration-200 ease-in-out">
+          <aside className="w-1/4 min-w-[360px] max-w-[440px] border-l border-white/20 dark:border-slate-700/50 bg-white/10 dark:bg-slate-800/30 backdrop-blur-md text-card-foreground overflow-y-auto shadow-lg p-1 transition-all duration-200 ease-in-out">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}
