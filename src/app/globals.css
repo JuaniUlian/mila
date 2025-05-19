@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -145,9 +146,17 @@
     @apply border-border;
   }
   body {
-    /* Updated background gradient to light blues */
-    @apply bg-gradient-to-br from-sky-300 via-cyan-400 to-blue-500 dark:from-sky-800/70 dark:via-cyan-900/70 dark:to-blue-950/70 text-foreground;
+    @apply text-foreground;
+    /* New background gradient with predominant dark purple and accents */
+    background-image: linear-gradient(145deg, hsl(270, 60%, 25%) 0%, hsl(265, 55%, 35%) 20%, hsl(25, 95%, 65%) 45%, hsl(330, 90%, 75%) 65%, hsl(195, 85%, 70%) 85%, hsl(240, 60%, 95%) 100%);
+    background-attachment: fixed; /* Ensures the gradient covers the full page and stays fixed during scroll */
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
+
+  .dark body {
+    /* New background gradient for dark mode with predominant dark purple and accents */
+    background-image: linear-gradient(145deg, hsl(270, 50%, 10%) 0%, hsl(265, 45%, 20%) 20%, hsl(25, 75%, 45%) 45%, hsl(330, 70%, 55%) 65%, hsl(195, 65%, 50%) 85%, hsl(270, 30%, 12%) 100%);
+    background-attachment: fixed; /* Ensure this is also set for dark mode */
   }
 }
 
@@ -233,4 +242,6 @@
 .glass-accordion-content {
    @apply bg-transparent;
 }
+    
+
     
