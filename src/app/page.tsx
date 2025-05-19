@@ -12,22 +12,81 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
 import { BlockNavigation } from '@/components/mila/block-navigation';
-import { Home, ListChecks, ArrowLeft, Zap } from 'lucide-react';
+import { FileText, CheckSquare, Target, Layers, ArrowLeft, ListChecks, ShieldAlert } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { cn } from '@/lib/utils';
+import { SeverityIndicator } from '@/components/mila/severity-indicator';
 
-const HeroBanner: React.FC = () => {
+
+const BlockSummaryGrid: React.FC<{
+  blocks: DocumentBlock[];
+  onSelectBlock: (id: string) => void;
+}> = ({ blocks, onSelectBlock }) => {
   return (
-    <div className="rounded-xl hero-gradient p-8 md:p-12 text-center shadow-2xl flex flex-col items-center justify-center min-h-[300px] md:min-h-[360px]">
-      <Zap size={48} className="text-white/90 mb-4" />
-      <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">Bienvenido a Mila - Planilla Viva</h1>
-      <p className="text-lg md:text-xl text-white/80 mb-6 max-w-2xl">
-        Optimiza tus documentos normativos con inteligencia artificial. Analiza, corrige y perfecciona tus pliegos de manera eficiente.
-      </p>
-      <p className="text-md text-white/70">
-        Selecciona una opción del panel izquierdo para comenzar.
-      </p>
-    </div>
+    <Card className="glass-card rounded-2xl shadow-xl border transition-all duration-200 ease-in-out w-full">
+      <CardHeader className="p-4 md:p-5 text-center">
+        <div className="flex flex-col items-center gap-2 mb-1">
+          <Layers size={32} className="text-primary mb-1" />
+          <CardTitle className="text-xl font-semibold flex items-center justify-center gap-2 text-foreground">
+            Resumen de Bloques del Documento
+          </CardTitle>
+        </div>
+        <CardDescription className="text-sm text-muted-foreground mt-1">
+          Seleccione un bloque para ver su análisis detallado y sugerencias de mejora.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-3 md:p-4 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+          {blocks.map((block) => {
+            const blockRiskPercentage = 100 - (block.completenessIndex / block.maxCompleteness) * 100;
+            let riskColorClass = 'text-green-400';
+            if (blockRiskPercentage > 50) {
+              riskColorClass = 'text-red-400';
+            } else if (blockRiskPercentage >= 25) {
+              riskColorClass = 'text-yellow-400';
+            }
+
+            return (
+              <Card
+                key={block.id}
+                className="glass-card rounded-2xl hover:shadow-2xl transition-all duration-200 ease-in-out cursor-pointer flex flex-col group"
+                onClick={() => onSelectBlock(block.id)}
+              >
+                <CardHeader className="px-3 pt-3 pb-1 md:px-4 md:pt-4 md:pb-2">
+                  <div className="flex items-center gap-2.5 mb-1">
+                    <FileText size={18} className="text-technical-text-blue group-hover:text-accent/90 transition-colors" />
+                    <CardTitle className="text-base font-semibold text-technical-text-blue group-hover:text-accent transition-colors">
+                      {block.name}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-1 pb-2 px-3 md:px-4 text-xs space-y-1.5 flex-grow">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Layers size={14} />
+                    <span>Categoría: {block.category}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                     <ShieldAlert size={14} className={riskColorClass} />
+                     <span className={cn("font-medium", riskColorClass)}>
+                       Riesgo: {blockRiskPercentage.toFixed(0)}%
+                     </span>
+                  </div>
+                </CardContent>
+                <CardContent className="pt-0 pb-3 px-3 md:px-4 md:pb-4 mt-auto">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs py-1.5 h-8 text-technical-text-blue group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150"
+                  >
+                    Ver Detalles
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -81,30 +140,33 @@ export default function HomePage() {
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
-      const blockToUpdate = prevData.blocks.find(b => b.id === blockId);
-      const suggestionToUpdate = blockToUpdate?.suggestions.find(s => s.id === suggestionId);
+      let updatedBlocks = [...prevData.blocks];
+      const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
+      if (blockIndex === -1) return prevData;
 
-      if (!blockToUpdate || !suggestionToUpdate) return prevData;
+      const blockToUpdate = { ...updatedBlocks[blockIndex] };
+      const suggestionIndex = blockToUpdate.suggestions.findIndex(s => s.id === suggestionId);
+      if (suggestionIndex === -1) return prevData;
 
-      const previousStatus = suggestionToUpdate.status;
+      const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
+
+      if (suggestionToUpdate.status === newStatus) return prevData; // No change
+
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
-      if (previousStatus === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
+      if (suggestionToUpdate.status === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
+      } else if (suggestionToUpdate.status === 'applied' && (newStatus === 'pending' || newStatus === 'discarded') && suggestionToUpdate.completenessImpact) {
+        // Reverting an applied suggestion
+        newCompletenessIndexForBlock = Math.max(0, blockToUpdate.completenessIndex - (suggestionToUpdate.completenessImpact || 0));
       }
       
-      const updatedBlocks = prevData.blocks.map(block => {
-        if (block.id === blockId) {
-          return {
-            ...block,
-            suggestions: block.suggestions.map(suggestion =>
-              suggestion.id === suggestionId ? { ...suggestion, status: newStatus } : suggestion
-            ),
-            completenessIndex: newCompletenessIndexForBlock,
-          };
-        }
-        return block;
-      });
+      suggestionToUpdate.status = newStatus;
+      blockToUpdate.suggestions = [...blockToUpdate.suggestions];
+      blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
+      blockToUpdate.completenessIndex = newCompletenessIndexForBlock;
+      
+      updatedBlocks[blockIndex] = blockToUpdate;
 
       const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
 
@@ -162,12 +224,15 @@ export default function HomePage() {
                 className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm font-medium mt-1 transition-colors duration-150 ease-in-out rounded-md h-9 px-3"
               >
                 <ArrowLeft size={16} className="mr-2" />
-                Volver al Inicio
+                Volver al Resumen
              </Button>
             )}
         </SidebarHeader>
         <SidebarContent className="p-0">
           <BlockNavigation
+            blocks={blocks}
+            selectedBlockId={selectedBlockId}
+            onSelectBlock={handleSelectBlock}
             onGoHome={handleGoHome}
             isHomeActive={selectedBlockId === null}
           />
@@ -182,10 +247,10 @@ export default function HomePage() {
 
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-4 md:p-5 lg:p-6 space-y-6 bg-transparent">
+          <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 md:space-y-5 bg-transparent">
             {selectedBlock ? (
               <>
-                <h1 className="text-2xl font-bold text-foreground mb-3">Detalle del Bloque: {selectedBlock.name}</h1>
+                <h1 className="text-2xl font-bold text-foreground mb-3 md:mb-4 px-1">Detalle del Bloque: {selectedBlock.name}</h1>
                 <ContentPanel
                   block={selectedBlock}
                   onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
@@ -193,7 +258,7 @@ export default function HomePage() {
                 />
               </>
             ) : (
-              <HeroBanner />
+              <BlockSummaryGrid blocks={blocks} onSelectBlock={handleSelectBlock} />
             )}
           </main>
 
