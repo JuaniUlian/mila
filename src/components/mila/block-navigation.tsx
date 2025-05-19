@@ -13,7 +13,7 @@ interface BlockNavigationProps {
 export function BlockNavigation({ onGoHome, isHomeActive }: BlockNavigationProps) {
   const navItems = [
     {
-      label: "Home (página principal)",
+      label: "Inicio",
       icon: Home,
       action: onGoHome,
       isActive: isHomeActive,
