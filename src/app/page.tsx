@@ -64,7 +64,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                 </CardContent>
                 <CardContent className="pt-0 pb-5 px-5">
                    <Button variant="outline" size="default" className="w-full mt-auto text-technical-text-blue text-base py-2.5 group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150">
-                    Ver Detalles del Bloque
+                    Ver Detalles
                   </Button>
                 </CardContent>
               </Card>
