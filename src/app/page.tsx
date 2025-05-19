@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-// import { PageHeader } from '@/components/page-header'; // No longer needed
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
@@ -27,7 +26,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
     <div className="space-y-4">
        <Card className="glass-card rounded-2xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-4">
-          <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
+          <CardTitle className="text-xl font-semibold flex items-center justify-center gap-2 text-foreground">
             <Target className="h-6 w-6 text-accent" />
             Resumen de Bloques del Documento
           </CardTitle>
@@ -229,7 +228,6 @@ export default function HomePage() {
       </Sidebar>
 
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
-        {/* <PageHeader title={documentTitle} />  Removed PageHeader */}
         <div className="flex flex-1 overflow-hidden">
           <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 bg-transparent">
             {selectedBlock ? (
