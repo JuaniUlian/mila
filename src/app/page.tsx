@@ -14,7 +14,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { BlockNavigation } from '@/components/mila/block-navigation';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, ShieldAlert, CheckSquare } from 'lucide-react';
+import { FileText, Target, ShieldAlert, Layers, Home, ListChecks } from 'lucide-react';
 
 const getBlockRiskColorClasses = (riskPercentage: number): string => {
   if (riskPercentage < 25) return 'text-green-600 dark:text-green-400';
@@ -197,32 +197,21 @@ export default function HomePage() {
         <SidebarHeader className="p-3 border-b border-sidebar-border flex flex-col items-start glass-sidebar-header-footer">
            <div className="flex items-center gap-2.5 p-1 mb-1">
              <SidebarTrigger className="md:hidden" /> 
-             <ListChecks className="h-6 w-6 text-sidebar-primary" />
-             <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación de Bloques</h2>
+             <Layers className="h-6 w-6 text-sidebar-primary" />
+             <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación</h2>
            </div>
-            {selectedBlockId && (
-              <Button
-                variant="ghost"
-                onClick={handleGoHome}
-                className="w-[calc(100%-1rem)] mx-2 mb-1 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground justify-start font-medium transition-colors duration-150"
-                size="sm"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver al Resumen
-              </Button>
-            )}
         </SidebarHeader>
         <SidebarContent className="p-0">
           <BlockNavigation
-            blocks={blocks}
-            selectedBlockId={selectedBlockId}
-            onSelectBlock={handleSelectBlock}
+            onGoHome={handleGoHome}
+            isHomeActive={selectedBlockId === null}
           />
         </SidebarContent>
          <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border glass-sidebar-header-footer">
+            {/* Placeholder for potential future sidebar footer items */}
             <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-150">
-                <Home className="mr-2 h-4 w-4" />
-                Dashboard Principal
+                <ListChecks className="mr-2 h-4 w-4" />
+                Opciones
             </Button>
         </SidebarFooter>
       </Sidebar>
@@ -254,5 +243,3 @@ export default function HomePage() {
     </SidebarProvider>
   );
 }
-
-    
