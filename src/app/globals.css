@@ -39,15 +39,16 @@
 
     --radius: 1rem; /* Increased for rounder cards */
 
-    /* Sidebar specific variables - MOSS GREEN THEME */
-    --sidebar-background: 90 25% 35%;        /* Moss Green */
-    --sidebar-foreground: 90 10% 85%;        /* Very Light Greenish Gray */
-    --sidebar-primary: 80 35% 45%;           /* Active Moss Green (slightly more vibrant) */
-    --sidebar-primary-foreground: 0 0% 100%;  /* White */
-    --sidebar-accent: 90 25% 40%;            /* Hover Moss Green (slightly lighter) */
-    --sidebar-accent-foreground: 90 10% 90%; /* Hover Text (lighter greenish gray) */
-    --sidebar-border: 90 25% 30%;            /* Darker Moss Green for borders */
-    --sidebar-ring: 80 40% 50%;              /* Focus Ring Moss Green */
+    /* Sidebar specific variables - DARK NAVY BLUE THEME */
+    --sidebar-background: 220 40% 15%;       /* Dark Navy Blue */
+    --sidebar-foreground: 210 20% 85%;       /* Very Light Bluish Gray */
+    --sidebar-primary: 210 50% 45%;          /* Active/Selected Item Blue (brighter) */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 220 40% 22%;           /* Hover Item Blue (slightly lighter navy) */
+    --sidebar-accent-foreground: 210 20% 90%;/* Hover Text (lighter bluish gray) */
+    --sidebar-border: 220 40% 10%;           /* Darker Navy Blue for borders */
+    --sidebar-ring: 210 55% 50%;             /* Focus Ring Blue */
+
 
     /* Custom Color Variables from User Request */
     --custom-technical-norm-blue: 200 98% 39%; /* #0284C7 - Azul técnico */
@@ -106,15 +107,16 @@
     --input: 215 30% 27%;
     --ring: 217 91% 65%; /* New Blue Accent for focus rings (dark mode) */
 
-    /* Sidebar specific variables for dark theme - MOSS GREEN THEME */
-    --sidebar-background: 90 20% 18%;       /* Dark Moss Green */
-    --sidebar-foreground: 90 10% 70%;       /* Muted Light Greenish Gray */
-    --sidebar-primary: 80 30% 30%;          /* Active Dark Moss (subtle, richer) */
-    --sidebar-primary-foreground: 90 10% 85%;/* Very Light Greenish Gray for text on active */
-    --sidebar-accent: 90 20% 22%;           /* Hover Dark Moss */
-    --sidebar-accent-foreground: 90 10% 75%;/* Hover Text */
-    --sidebar-border: 90 20% 15%;           /* Darker Moss Border */
-    --sidebar-ring: 80 35% 35%;             /* Focus Ring Dark Moss */
+    /* Sidebar specific variables for dark theme - DARK NAVY BLUE THEME */
+    --sidebar-background: 220 40% 10%;       /* Very Dark Navy Blue */
+    --sidebar-foreground: 210 20% 75%;       /* Muted Light Bluish Gray */
+    --sidebar-primary: 210 50% 40%;          /* Active/Selected Item Blue (slightly muted) */
+    --sidebar-primary-foreground: 210 20% 90%;/* Very Light Bluish Gray for text on active */
+    --sidebar-accent: 220 40% 18%;           /* Hover Item Dark Navy */
+    --sidebar-accent-foreground: 210 20% 80%;/* Hover Text */
+    --sidebar-border: 220 40% 8%;            /* Darker Navy Border */
+    --sidebar-ring: 210 55% 45%;             /* Focus Ring Blue */
+
 
     /* Custom Color Variables from User Request - Dark mode adjustments */
     --custom-technical-norm-blue: 200 98% 49%; 
@@ -143,8 +145,8 @@
     @apply border-border;
   }
   body {
-    /* Updated background gradient to vivid greens */
-    @apply bg-gradient-to-br from-lime-400 via-green-500 to-teal-600 dark:from-lime-700/70 dark:via-green-800/70 dark:to-teal-900/70 text-foreground;
+    /* Updated background gradient to light blues */
+    @apply bg-gradient-to-br from-sky-300 via-cyan-400 to-blue-500 dark:from-sky-800/70 dark:via-cyan-900/70 dark:to-blue-950/70 text-foreground;
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
@@ -232,5 +234,3 @@
    @apply bg-transparent;
 }
     
-
-
