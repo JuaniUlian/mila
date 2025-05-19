@@ -1,10 +1,10 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock, AlertItem } from './types'; 
+import type { DocumentBlock, AlertItem, ApplicableNorm, MissingConnection } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2, ListChecks, BarChart3, AlertTriangle } from 'lucide-react'; 
+import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Info, FileCheck2, ListChecks, BarChart3, AlertTriangle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 interface RisksPanelProps {
   selectedBlockDetail: DocumentBlock | null;
   overallComplianceScore: number;
-  overallCompletenessIndex: number;
+  overallCompletenessIndex: number; // This will be used to derive risk
 }
 
 export function RisksPanel({
@@ -29,27 +29,28 @@ export function RisksPanel({
   overallCompletenessIndex,
 }: RisksPanelProps) {
   const { toast } = useToast();
-  
+
   const handleExportPDF = (blockName?: string) => {
     toast({
       title: "Exportación PDF (Simulada)",
-      description: blockName 
+      description: blockName
         ? `La exportación del bloque "${blockName}" se iniciaría pronto.`
         : "La exportación del reporte completo se iniciaría pronto.",
     });
   };
 
-  const defaultAccordionValues: string[] = []; 
+  const defaultAccordionValues: string[] = [];
+  const riskValue = Math.max(0, Math.min(10, 10 - overallCompletenessIndex)); // Ensure risk is between 0 and 10
 
   return (
-    <div className="p-4 md:p-5 space-y-6 h-full">
+    <div className="p-4 md:p-5 space-y-4 h-full">
       <Card className="glass-card rounded-xl mt-0 transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-5">
           <div className="flex items-center gap-2.5 mb-0.5">
             <BarChart3 className="h-6 w-6 text-accent" />
             <CardTitle className="text-lg font-semibold text-foreground">Resumen General del Documento</CardTitle>
           </div>
-          <CardDescription className="text-sm text-muted-foreground mt-0.5">Puntajes globales de cumplimiento y completitud.</CardDescription>
+          <CardDescription className="text-sm text-muted-foreground mt-0.5">Puntajes globales de cumplimiento y riesgo.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3.5 pt-2 pb-5 px-5 glass-card-content">
           <div>
@@ -64,11 +65,12 @@ export function RisksPanel({
           <div>
             <div className="flex justify-between items-center mb-1">
               <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                 <Gauge size={15} /> Índice de Completitud
+                 <ShieldAlert size={15} /> Indice de Riesgo
               </span>
-              <span className="text-sm font-semibold text-accent">{overallCompletenessIndex}/10</span>
+              <span className="text-sm font-semibold text-accent">{riskValue.toFixed(1)}/10</span>
             </div>
-            <Progress value={overallCompletenessIndex * 10} className="h-2 rounded-full bg-muted/70 transition-all duration-300" />
+            {/* Lower bar is lower risk */}
+            <Progress value={riskValue * 10} className="h-2 rounded-full bg-muted/70 transition-all duration-300" />
           </div>
            <Button className="w-full mt-4 bg-accent hover:bg-accent/90 text-accent-foreground text-sm py-2 transition-colors duration-150" size="sm" onClick={() => handleExportPDF()}>
             <Download className="mr-2 h-4 w-4" />
@@ -78,7 +80,7 @@ export function RisksPanel({
       </Card>
 
       {selectedBlockDetail ? (
-        <Card className="glass-card mt-6 rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
+        <Card className="glass-card mt-4 rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
           <CardHeader className="p-5">
             <div className="flex items-center gap-2.5 mb-0.5">
               <Info className="h-6 w-6 text-accent" />
@@ -102,9 +104,9 @@ export function RisksPanel({
                     </AccordionTrigger>
                     <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
                        <ul className="space-y-3">
-                          {selectedBlockDetail.alerts.map(alert => (
-                            <li 
-                              key={alert.id} 
+                          {selectedBlockDetail.alerts.map((alert: AlertItem) => (
+                            <li
+                              key={alert.id}
                               className={cn(
                                 "p-3 border-l-4 rounded-md flex items-start gap-3 text-sm shadow-sm bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-all duration-150 ease-in-out",
                                 alert.severity === 'grave' && 'border-destructive',
@@ -138,7 +140,7 @@ export function RisksPanel({
                     </AccordionTrigger>
                     <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
                       <ul className="space-y-2">
-                          {selectedBlockDetail.missingConnections.map((conn) => (
+                          {selectedBlockDetail.missingConnections.map((conn: MissingConnection) => (
                             <li key={conn.id} className="text-xs p-2.5 border-l-2 border-accent bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm rounded-r-md text-foreground/90 transition-shadow duration-150 hover:shadow-sm">
                               {conn.description}
                             </li>
@@ -174,7 +176,7 @@ export function RisksPanel({
                     </AccordionTrigger>
                     <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
                       <ul className="space-y-2">
-                        {selectedBlockDetail.applicableNorms.map((norm) => (
+                        {selectedBlockDetail.applicableNorms.map((norm: ApplicableNorm) => (
                           <li key={norm.id} className="text-xs p-2.5 border rounded-md bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-shadow duration-150 hover:shadow-sm">
                             <strong className="text-technical-norm-blue">{norm.name}</strong> - <span className="text-muted-foreground">{norm.article}</span>
                             {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
@@ -201,7 +203,7 @@ export function RisksPanel({
           </CardContent>
         </Card>
       ) : (
-        <Card className="glass-card rounded-xl mt-6 flex flex-col items-center justify-center p-8 min-h-[250px] transition-all duration-200 ease-in-out border">
+        <Card className="glass-card rounded-xl mt-4 flex flex-col items-center justify-center p-8 min-h-[250px] transition-all duration-200 ease-in-out border">
           <ListChecks size={38} className="text-muted-foreground/70 mb-3.5" />
           <CardTitle className="text-lg text-center font-semibold text-foreground mb-1.5">Información Detallada del Bloque</CardTitle>
           <CardDescription className="text-sm text-center text-muted-foreground max-w-xs">
@@ -212,3 +214,4 @@ export function RisksPanel({
     </div>
   );
 }
+
