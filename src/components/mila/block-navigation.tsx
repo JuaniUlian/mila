@@ -37,20 +37,25 @@ export function BlockNavigation({ blocks, selectedBlockId, onSelectBlock }: Bloc
   }, [selectedBlockId, blocks]);
 
   return (
+    // Removed Card wrapper as this will be inside the Sidebar
     <Accordion 
       type="multiple" 
       defaultValue={defaultOpenCategories} 
-      className="w-full p-2 space-y-1"
+      className="w-full p-2 space-y-1" // Adjusted padding
       key={selectedBlockId} 
     >
       {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => (
-        <AccordionItem value={category} key={category} className="border-b border-sidebar-border last:border-b-0 rounded-md overflow-hidden transition-all duration-200 ease-in-out">
-          <AccordionTrigger className="text-sm font-medium text-sidebar-foreground/90 hover:no-underline hover:bg-sidebar-accent/80 px-3 py-2.5 data-[state=open]:bg-sidebar-accent/90 rounded-t-md data-[state=open]:text-sidebar-accent-foreground transition-colors duration-150 ease-in-out group">
+        <AccordionItem 
+          value={category} 
+          key={category} 
+          className="border-b-0 rounded-md overflow-hidden transition-all duration-200 ease-in-out" // Removed border-b, using space-y-1 on parent
+        >
+          <AccordionTrigger className="text-sm font-medium text-sidebar-foreground/90 hover:no-underline hover:bg-sidebar-accent/80 px-3 py-2.5 data-[state=open]:bg-sidebar-accent/90 rounded-md data-[state=open]:text-sidebar-accent-foreground transition-colors duration-150 ease-in-out group">
             <div className="flex items-center gap-2.5">
               <Layers size={18} className="text-sidebar-primary group-hover:text-sidebar-accent-foreground transition-colors"/> <span>{category} ({categoryBlocks.length})</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pt-1 pb-2 px-1.5 bg-sidebar-background/70 rounded-b-md data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+          <AccordionContent className="pt-1 pb-2 px-1.5 bg-transparent data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
             <div className="grid grid-cols-1 gap-1 py-1">
               {categoryBlocks.map((block) => (
                 <Button

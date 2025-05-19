@@ -27,7 +27,6 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20.2% 65.1%; /* slate-500 */
 
-    /* --accent: 202 90% 56%; #0EA5E9 (Old Accent) */
     --accent: 217 91% 59%; /* #3B82F6 - New Blue Accent */
     --accent-foreground: 0 0% 98%; /* White for contrast on new blue accent */
 
@@ -97,7 +96,6 @@
     --muted: 222 47% 20%;
     --muted-foreground: 215 20.2% 75.1%;
 
-    /* --accent: 202 90% 56%; (Old Accent Dark) */
     --accent: 217 91% 65%; /* Lighter blue for dark mode accent */
     --accent-foreground: 0 0% 98%;
 
@@ -145,7 +143,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-slate-50 to-sky-100 dark:from-slate-900 dark:to-sky-950 text-foreground;
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
@@ -203,4 +201,32 @@
 }
 .border-severity-high {
   border-color: hsl(var(--custom-severity-high-fg)); 
+}
+
+/* Glassmorphism related classes */
+.glass-card {
+  @apply bg-white/50 dark:bg-slate-800/50 backdrop-blur-lg shadow-xl border border-white/30 dark:border-slate-700/50;
+}
+.glass-sidebar {
+   background-color: hsla(var(--sidebar-background), 0.7) !important;
+   @apply backdrop-blur-lg border-r border-[hsla(var(--sidebar-border),0.5)] dark:border-[hsla(var(--sidebar-border),0.5)];
+}
+.glass-sidebar-header-footer {
+   background-color: transparent !important;
+   border-color: hsla(var(--sidebar-border),0.3) !important;
+}
+
+.glass-card-content {
+  @apply bg-transparent;
+}
+
+.glass-accordion-item {
+  @apply bg-white/30 dark:bg-slate-800/30 backdrop-blur-md shadow-md border border-white/20 dark:border-slate-700/40 rounded-xl overflow-hidden;
+}
+
+.glass-accordion-trigger {
+  @apply hover:bg-white/20 dark:hover:bg-slate-700/30;
+}
+.glass-accordion-content {
+   @apply bg-transparent;
 }

@@ -14,16 +14,16 @@ import { Button } from '@/components/ui/button';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare } from 'lucide-react';
+import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Info } from 'lucide-react';
 
 
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-6">
-       <Card className="shadow-xl border rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl">
+       <Card className="glass-card rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl">
         <CardHeader className="p-6">
           <CardTitle className="text-2xl font-semibold flex items-center gap-3 text-foreground">
-            <Target className="h-7 w-7 text-primary" />
+            <Target className="h-7 w-7 text-accent" />
             Resumen de Bloques del Documento
           </CardTitle>
           <CardDescription className="text-base text-muted-foreground mt-1.5">
@@ -35,7 +35,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
             {blocks.map((block) => (
               <Card
                 key={block.id}
-                className="hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col bg-card hover:bg-muted/50 rounded-lg border group"
+                className="glass-card hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col rounded-lg group"
                 onClick={() => onSelectBlock(block.id)}
               >
                 <CardHeader className="flex-grow pb-3 px-5 pt-5">
@@ -187,8 +187,8 @@ export default function HomePage() {
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="p-3 border-b border-sidebar-border flex flex-col items-start">
+      <Sidebar className="glass-sidebar">
+        <SidebarHeader className="p-3 border-b border-sidebar-border flex flex-col items-start glass-sidebar-header-footer">
            <div className="flex items-center gap-2.5 p-1 mb-1">
              <ListChecks className="h-6 w-6 text-sidebar-primary" />
              <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación de Bloques</h2>
@@ -212,7 +212,7 @@ export default function HomePage() {
             onSelectBlock={handleSelectBlock}
           />
         </SidebarContent>
-         <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border">
+         <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border glass-sidebar-header-footer">
             <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-150">
                 <Home className="mr-2 h-4 w-4" />
                 Dashboard Principal
@@ -223,7 +223,7 @@ export default function HomePage() {
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-muted/30">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-transparent"> {/* Changed bg-muted/30 to bg-transparent */}
             {selectedBlock ? (
               <ContentPanel
                 block={selectedBlock}
@@ -235,11 +235,14 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-1/3 min-w-[400px] max-w-[520px] border-l bg-card text-card-foreground overflow-y-auto shadow-lg p-1 transition-all duration-200 ease-in-out">
+          <aside className="w-1/3 min-w-[400px] max-w-[520px] border-l border-white/20 dark:border-slate-700/50 bg-white/10 dark:bg-slate-800/30 backdrop-blur-md text-card-foreground overflow-y-auto shadow-lg p-1 transition-all duration-200 ease-in-out">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}
               overallCompletenessIndex={overallCompletenessIndex}
+              blocks={blocks}
+              selectedBlockId={selectedBlockId}
+              onSelectBlock={handleSelectBlock}
             />
           </aside>
         </div>
