@@ -40,8 +40,8 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
               >
                 <CardHeader className="flex-grow pb-3 px-5 pt-5">
                   <CardTitle className="text-lg font-semibold flex items-center justify-between text-foreground group-hover:text-accent transition-colors">
-                    <span className="flex items-center gap-2.5 text-accent">
-                      <FileText size={22} className="group-hover:text-accent/90 transition-colors" />
+                    <span className="flex items-center gap-2.5 text-technical-text-blue">
+                      <FileText size={22} className="group-hover:text-technical-text-blue/90 transition-colors" />
                       {block.name}
                     </span>
                     <SeverityIndicator level={block.alertLevel} size={6}/>
@@ -55,7 +55,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                     <span className={cn(
                       "font-bold text-lg", 
                       block.completenessIndex < 5 ? "text-destructive" :
-                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" : // Ensure this custom color is defined in tailwind.config
+                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" : 
                       "text-green-600" 
                     )}>
                       {block.completenessIndex} / {block.maxCompleteness}
@@ -63,7 +63,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                   </div>
                 </CardContent>
                 <CardContent className="pt-0 pb-5 px-5">
-                   <Button variant="outline" size="default" className="w-full mt-auto text-accent text-base py-2.5 group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150">
+                   <Button variant="outline" size="default" className="w-full mt-auto text-technical-text-blue text-base py-2.5 group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150">
                     Ver Detalles del Bloque
                   </Button>
                 </CardContent>
@@ -249,3 +249,4 @@ export default function HomePage() {
     </SidebarProvider>
   );
 }
+
