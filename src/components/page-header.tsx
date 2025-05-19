@@ -1,6 +1,6 @@
 
 import type React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookCheck, Download, HelpCircle, Zap } from 'lucide-react';
 
@@ -12,7 +12,8 @@ export function PageHeader({ title }: PageHeaderProps) {
   return (
     <Card className="my-4 md:my-6 mx-auto max-w-4xl shadow-xl rounded-2xl glass-card">
       <CardHeader className="pb-2 md:pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        {/* Changed sm:justify-between to sm:justify-center here */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
           <div className="flex items-center gap-2 md:gap-3">
             <BookCheck className="h-6 w-6 md:h-7 md:w-7 text-accent flex-shrink-0" />
             <CardTitle className="text-xl md:text-2xl font-bold text-foreground leading-tight">
@@ -21,7 +22,7 @@ export function PageHeader({ title }: PageHeaderProps) {
           </div>
         </div>
       </CardHeader>
-      {/* CardContent removed as per request */}
+      {/* CardContent removed as per previous request */}
       <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-white/10 dark:bg-slate-900/20 p-3 md:p-4 rounded-b-2xl border-t border-white/20 dark:border-slate-700/40">
         <Button 
           variant="outline" 
