@@ -10,134 +10,134 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 222 47% 11%; /* Default: #0F172A (slate-900 for readability) */
+    /* Dark Theme Inspired by Image */
+    --background: 260 60% 8%; /* Very dark deep purple for page background */
+    --foreground: 240 10% 85%; /* Light grayish blue/lavender for text */
 
-    --card: 210 40% 98%; /* #F8FAFC - secondary containers, "Partial Results" box */
-    --card-foreground: 222 47% 11%;
+    --card: 260 40% 18%; /* Darker purple for card base - glass effect will lighten */
+    --card-foreground: 240 10% 85%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 260 40% 12%; /* Darker popover */
+    --popover-foreground: 240 10% 85%;
 
-    --primary: 82 79% 62%; /* #A3E635 - Verde lima, fondos activos o positivos (remains for other primary elements) */
-    --primary-foreground: 160 83% 10%; /* Dark green for contrast on light green */
+    --primary: 275 80% 65%; /* Vibrant Violet/Magenta for primary actions/active */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 160 83% 16%; /* #064E3B - Verde institucional (remains for other secondary elements) */
-    --secondary-foreground: 0 0% 98%; /* White/Light gray */
+    --secondary: 260 30% 30%; /* Muted purple for secondary elements */
+    --secondary-foreground: 240 10% 80%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 20.2% 65.1%; /* slate-500 */
+    --muted: 260 30% 22%; /* Muted purple for less emphasis */
+    --muted-foreground: 240 10% 65%; 
 
-    --accent: 217 91% 59%; /* #3B82F6 - New Blue Accent */
-    --accent-foreground: 0 0% 98%; /* White for contrast on new blue accent */
+    --accent: 275 80% 70%; /* Vibrant Violet/Magenta - can be same as primary or slightly lighter */
+    --accent-foreground: 0 0% 100%; /* White */
 
-    --destructive: 0 84% 60%; /* Adjusted for #DC2626 - Rojo errores graves */
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 70% 55%; /* A clear red for errors */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 30% 87%; /* #CBD5E1 (slate-300 for "Partial Results" box border) */
-    --input: 215 30% 87%;
-    --ring: 217 91% 59%; /* New Blue Accent for focus rings, matching accent */
+    --border: 260 30% 25%; /* Subtle border for glass edges */
+    --input: 260 30% 25%;
+    --ring: 275 80% 70%; /* Ring color matches accent */
 
     --radius: 1rem; /* Increased for rounder cards */
 
-    /* Sidebar specific variables - DARK NAVY BLUE THEME */
-    --sidebar-background: 220 40% 15%;       /* Dark Navy Blue */
-    --sidebar-foreground: 210 20% 85%;       /* Very Light Bluish Gray */
-    --sidebar-primary: 210 50% 45%;          /* Active/Selected Item Blue (brighter) */
+    /* Sidebar specific variables - Dark Purple Theme */
+    --sidebar-background: 260 45% 15%;       /* Dark Purple for sidebar base */
+    --sidebar-foreground: 240 15% 88%;       /* Light Lavender/White for text */
+    --sidebar-primary: 275 80% 60%;          /* Active/Selected Item Violet/Magenta */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 220 40% 22%;           /* Hover Item Blue (slightly lighter navy) */
-    --sidebar-accent-foreground: 210 20% 90%;/* Hover Text (lighter bluish gray) */
-    --sidebar-border: 220 40% 10%;           /* Darker Navy Blue for borders */
-    --sidebar-ring: 210 55% 50%;             /* Focus Ring Blue */
+    --sidebar-accent: 260 40% 25%;           /* Hover Item Darker Purple (subtle) */
+    --sidebar-accent-foreground: 240 15% 90%;/* Hover Text */
+    --sidebar-border: 260 40% 10%;           /* Darker Purple for borders if needed */
+    --sidebar-ring: 275 80% 65%;             /* Focus Ring Violet/Magenta */
 
 
-    /* Custom Color Variables from User Request */
-    --custom-technical-norm-blue: 200 98% 39%; /* #0284C7 - Azul técnico */
-    --custom-technical-norm-blue-foreground: 0 0% 100%; /* White for text on technical norm blue */
+    /* Custom Color Variables */
+    --custom-technical-norm-blue: 220 80% 75%; /* Lighter blue for technical norms on dark bg */
+    --custom-technical-norm-blue-foreground: 260 50% 15%; 
     
     --custom-alert-minor-error-bg: 0 90% 70%; 
     --custom-alert-major-error-bg: 0 84% 60%; 
     
-    --custom-warning-yellow-bg: 45 93% 55%;   /* #FACC15 - Amarillo advertencias leves / Medium severity */
-    --custom-warning-yellow-fg: 222 47% 11%; /* Dark text for yellow background */
+    --custom-warning-yellow-bg: 45 80% 60%;   
+    --custom-warning-yellow-fg: 260 50% 10%; 
 
-    --custom-technical-text-blue: 227 64% 33%; /* #1E3A8A - For normative quotes etc. */
+    --custom-technical-text-blue: 220 70% 80%; 
     
-    --custom-severity-low-bg: 185 88% 87%;    /* #A5F3FC - Leve */
-    --custom-severity-low-fg: 200 90% 30%;    /* Darker cyan/blue for contrast */
+    --custom-severity-low-bg: 185 70% 50%;    /* Cyan/Teal for low severity */
+    --custom-severity-low-fg: 0 0% 100%;
     
-    --custom-severity-medium-bg: 45 93% 55%; /* #FACC15 - Media */
-    --custom-severity-medium-fg: 222 47% 11%; /* Dark text for yellow background */
+    --custom-severity-medium-bg: 45 80% 60%; /* Yellow for medium */
+    --custom-severity-medium-fg: 260 50% 10%; 
 
-    --custom-severity-high-bg: 0 80% 67%;    /* #F87171 (Slightly lighter than #DC2626 for badge differentiation if needed) - Grave */
-    --custom-severity-high-fg: 0 0% 100%;     /* White for contrast */
+    --custom-severity-high-bg: 0 70% 55%;    /* Red for high */
+    --custom-severity-high-fg: 0 0% 100%;
 
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 275 80% 70%; /* Primary Accent */
+    --chart-2: 200 80% 65%; /* Teal/Cyan */
+    --chart-3: 300 75% 70%; /* Pink/Magenta */
+    --chart-4: 30 80% 65%;  /* Orange */
+    --chart-5: 240 70% 75%; /* Blue */
   }
 
-  .dark {
-    --background: 222 47% 11%; 
-    --foreground: 0 0% 98%; 
+  /* Apply dark theme by default for this design */
+  html.dark { /* Applied to html tag for immediate effect */
+    /* Same as :root for a dark-by-default theme */
+    --background: 260 60% 8%; 
+    --foreground: 240 10% 85%;
 
-    --card: 222 47% 15%; 
-    --card-foreground: 0 0% 98%;
+    --card: 260 40% 18%; 
+    --card-foreground: 240 10% 85%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 260 40% 12%;
+    --popover-foreground: 240 10% 85%;
 
-    --primary: 82 79% 62%; 
-    --primary-foreground: 160 83% 10%;
+    --primary: 275 80% 65%; 
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 83% 25%; 
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 260 30% 30%; 
+    --secondary-foreground: 240 10% 80%;
 
-    --muted: 222 47% 20%;
-    --muted-foreground: 215 20.2% 75.1%;
+    --muted: 260 30% 22%;
+    --muted-foreground: 240 10% 65%;
 
-    --accent: 217 91% 65%; /* Lighter blue for dark mode accent */
-    --accent-foreground: 0 0% 98%;
+    --accent: 275 80% 70%; 
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 57%; 
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 70% 55%; 
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 30% 27%; 
-    --input: 215 30% 27%;
-    --ring: 217 91% 65%; /* New Blue Accent for focus rings (dark mode) */
+    --border: 260 30% 25%; 
+    --input: 260 30% 25%;
+    --ring: 275 80% 70%;
 
-    /* Sidebar specific variables for dark theme - DARK NAVY BLUE THEME */
-    --sidebar-background: 220 40% 10%;       /* Very Dark Navy Blue */
-    --sidebar-foreground: 210 20% 75%;       /* Muted Light Bluish Gray */
-    --sidebar-primary: 210 50% 40%;          /* Active/Selected Item Blue (slightly muted) */
-    --sidebar-primary-foreground: 210 20% 90%;/* Very Light Bluish Gray for text on active */
-    --sidebar-accent: 220 40% 18%;           /* Hover Item Dark Navy */
-    --sidebar-accent-foreground: 210 20% 80%;/* Hover Text */
-    --sidebar-border: 220 40% 8%;            /* Darker Navy Border */
-    --sidebar-ring: 210 55% 45%;             /* Focus Ring Blue */
+    /* Sidebar specific variables - Dark Purple Theme */
+    --sidebar-background: 260 45% 15%;       
+    --sidebar-foreground: 240 15% 88%;       
+    --sidebar-primary: 275 80% 60%;          
+    --sidebar-primary-foreground: 0 0% 100%; 
+    --sidebar-accent: 260 40% 25%;           
+    --sidebar-accent-foreground: 240 15% 90%;
+    --sidebar-border: 260 40% 10%;           
+    --sidebar-ring: 275 80% 65%;      
 
+    /* Custom Color Variables - Dark mode adjustments if needed, but should be fine */
+    --custom-technical-norm-blue: 220 80% 75%; 
+    --custom-technical-norm-blue-foreground: 260 50% 15%;
+        
+    --custom-warning-yellow-bg: 45 80% 60%;   
+    --custom-warning-yellow-fg: 260 50% 10%; 
 
-    /* Custom Color Variables from User Request - Dark mode adjustments */
-    --custom-technical-norm-blue: 200 98% 49%; 
-    --custom-technical-norm-blue-foreground: 0 0% 98%;
+    --custom-technical-text-blue: 220 70% 80%; 
     
-    --custom-alert-major-error-bg: 0 72% 50%; 
+    --custom-severity-low-bg: 185 70% 50%;    
+    --custom-severity-low-fg: 0 0% 100%;    
     
-    --custom-warning-yellow-bg: 45 93% 50%;   
-    --custom-warning-yellow-fg: 0 0% 98%;
-
-    --custom-technical-text-blue: 227 64% 73%; 
+    --custom-severity-medium-bg: 45 80% 60%; 
+    --custom-severity-medium-fg: 260 50% 10%; 
     
-    --custom-severity-low-bg: 185 88% 37%;    
-    --custom-severity-low-fg: 0 0% 98%;    
-    
-    --custom-severity-medium-bg: 45 93% 50%; 
-    --custom-severity-medium-fg: 0 0% 98%; 
-    
-    --custom-severity-high-bg: 0 80% 57%;    
-    --custom-severity-high-fg: 0 0% 98%;     
+    --custom-severity-high-bg: 0 70% 55%;    
+    --custom-severity-high-fg: 0 0% 100%;   
   }
 }
 
@@ -146,17 +146,11 @@
     @apply border-border;
   }
   body {
-    @apply text-foreground;
-    /* Purples gradient */
-    background-image: linear-gradient(145deg, hsl(270, 50%, 25%) 0%, hsl(260, 60%, 45%) 30%, hsl(280, 65%, 65%) 70%, hsl(290, 70%, 85%) 100%);
+    /* Dark Purple Gradient Background */
+    background-image: linear-gradient(145deg, hsl(260, 50%, 10%) 0%, hsl(265, 55%, 15%) 30%, hsl(270, 60%, 20%) 70%, hsl(275, 65%, 25%) 100%);
     background-attachment: fixed; /* Ensures the gradient covers the full page and stays fixed during scroll */
+    @apply bg-background text-foreground; /* Ensure base bg/fg for elements not explicitly styled */
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  }
-
-  .dark body {
-    /* Darker purples gradient for dark mode */
-    background-image: linear-gradient(145deg, hsl(270, 40%, 10%) 0%, hsl(265, 35%, 18%) 30%, hsl(275, 30%, 28%) 70%, hsl(285, 25%, 38%) 100%);
-    background-attachment: fixed; /* Ensure this is also set for dark mode */
   }
 }
 
@@ -215,13 +209,14 @@
   border-color: hsl(var(--custom-severity-high-fg)); 
 }
 
-/* Glassmorphism related classes */
+/* Glassmorphism related classes - Dark Purple Theme */
 .glass-card {
-  @apply bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg shadow-xl border border-white/30 dark:border-slate-700/50 rounded-2xl; /* Increased rounding */
+  background-color: hsla(var(--card), 0.65); /* Using HSL for card base with alpha */
+  @apply backdrop-blur-lg shadow-xl border border-[hsla(var(--border),0.3)] rounded-2xl;
 }
 .glass-sidebar {
-   background-color: hsla(var(--sidebar-background), 0.65) !important; /* Adjusted transparency */
-   @apply backdrop-blur-lg border-r border-[hsla(var(--sidebar-border),0.4)] dark:border-[hsla(var(--sidebar-border),0.4)] rounded-r-2xl; /* Added rounding to right edge */
+   background-color: hsla(var(--sidebar-background), 0.75) !important; /* More opaque sidebar base */
+   @apply backdrop-blur-xl border-r border-[hsla(var(--sidebar-border),0.4)] rounded-r-md; /* Changed to rounded-r-md from 2xl */
 }
 .glass-sidebar-header-footer {
    background-color: transparent !important;
@@ -233,19 +228,14 @@
 }
 
 .glass-accordion-item {
-  @apply bg-white/40 dark:bg-slate-800/40 backdrop-blur-md shadow-md border border-white/20 dark:border-slate-700/40 rounded-2xl overflow-hidden; /* Increased rounding */
+  background-color: hsla(var(--card), 0.5); /* Slightly more transparent accordion items */
+  @apply backdrop-blur-md shadow-md border border-[hsla(var(--border),0.25)] rounded-xl overflow-hidden; /* Changed to rounded-xl */
 }
 
 .glass-accordion-trigger {
-  @apply hover:bg-white/20 dark:hover:bg-slate-700/30;
+  @apply hover:bg-[hsla(var(--card),0.7)]; /* Hover effect for accordion trigger */
 }
 .glass-accordion-content {
    @apply bg-transparent;
 }
-    
-
-    
-
-
-
     

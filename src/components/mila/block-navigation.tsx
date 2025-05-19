@@ -34,14 +34,14 @@ export function BlockNavigation({ onGoHome, isHomeActive }: BlockNavigationProps
   ];
 
   return (
-    <nav className="p-3 space-y-2">
+    <nav className="p-3 space-y-1.5"> {/* Reduced space-y */}
       {navItems.map((item) => (
         <Button
           key={item.label}
           variant="ghost"
           onClick={item.action}
           className={cn(
-            "w-full justify-start text-sm font-medium transition-colors duration-150 ease-in-out",
+            "w-full justify-start text-sm font-medium transition-colors duration-150 ease-in-out rounded-lg h-10 px-3 py-2", // Added rounded-lg and specific padding/height
             item.isActive
               ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -49,7 +49,7 @@ export function BlockNavigation({ onGoHome, isHomeActive }: BlockNavigationProps
           asChild={item.isExternal}
         >
           {item.isExternal ? (
-            <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-3 py-2">
+            <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
               <item.icon size={18} />
               {item.label}
             </a>
