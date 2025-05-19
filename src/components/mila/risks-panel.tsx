@@ -56,7 +56,7 @@ export function RisksPanel({
     });
   };
 
-  const defaultAccordionValues: string[] = [];
+  const defaultAccordionValues: string[] = []; // Alertas y otros comienzan cerrados
   
   const overallRiskPercentage = Math.max(0, Math.min(100, (10 - overallCompletenessIndex) * 10));
   const overallRiskTextColor = getRiskColorClasses(overallRiskPercentage);
@@ -68,7 +68,7 @@ export function RisksPanel({
         <CardHeader className="p-4">
           <div className="flex items-center gap-2 mb-0.5">
             <BarChart3 className="h-5 w-5 text-accent" />
-            <CardTitle className="text-lg font-semibold text-foreground">Resumen General del Documento</CardTitle>
+            <CardTitle className="text-lg font-semibold text-foreground">Resumen General del Documento: Pliego XYZ-2025</CardTitle>
           </div>
           <CardDescription className="text-xs text-muted-foreground mt-0.5">Puntajes globales de cumplimiento y riesgo.</CardDescription>
         </CardHeader>
@@ -249,5 +249,7 @@ export function RisksPanel({
     </div>
   );
 }
+
+    
 
     
