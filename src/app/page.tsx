@@ -45,7 +45,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
               return (
                 <Card
                   key={block.id}
-                  className="glass-card rounded-2xl hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col group bg-card/80 border"
+                  className="glass-card rounded-2xl hover:shadow-2xl transition-all duration-200 ease-in-out cursor-pointer flex flex-col group"
                   onClick={() => onSelectBlock(block.id)}
                 >
                   <CardHeader className="flex-grow pb-1 px-3 pt-3">
