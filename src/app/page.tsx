@@ -5,13 +5,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
-import { BlockNavigation } from '@/components/mila/block-navigation';
+// import { BlockNavigation } from '@/components/mila/block-navigation'; // No longer used here, moved to Sidebar
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
+import { BlockNavigation } from '@/components/mila/block-navigation';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
 import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Info } from 'lucide-react';
@@ -40,8 +41,8 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
               >
                 <CardHeader className="flex-grow pb-1 px-3 pt-3">
                   <CardTitle className="text-base font-semibold flex items-center justify-between text-foreground group-hover:text-accent transition-colors">
-                    <span className="flex items-center gap-1.5 text-technical-text-blue">
-                      <FileText size={18} className="group-hover:text-technical-text-blue/90 transition-colors" />
+                    <span className="flex items-center gap-1.5 text-technical-text-blue group-hover:text-accent">
+                      <FileText size={18} className="group-hover:text-accent/90 transition-colors" />
                       {block.name}
                     </span>
                     <SeverityIndicator level={block.alertLevel} size={4}/>
@@ -191,6 +192,7 @@ export default function HomePage() {
       <Sidebar className="glass-sidebar">
         <SidebarHeader className="p-3 border-b border-sidebar-border flex flex-col items-start glass-sidebar-header-footer">
            <div className="flex items-center gap-2.5 p-1 mb-1">
+             <SidebarTrigger className="md:hidden" /> {/* For mobile toggle */}
              <ListChecks className="h-6 w-6 text-sidebar-primary" />
              <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación de Bloques</h2>
            </div>
