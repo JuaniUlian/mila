@@ -10,134 +10,113 @@
 
 @layer base {
   :root {
-    /* Dark Theme Inspired by Image */
-    --background: 260 60% 8%; /* Very dark deep purple for page background */
-    --foreground: 240 10% 85%; /* Light grayish blue/lavender for text */
+    /* New Dark Theme based on Reference Image */
+    --background: 225 15% 12%; /* Very dark desaturated blue for page background */
+    --foreground: 220 20% 95%; /* Light gray/off-white for text */
 
-    --card: 260 40% 18%; /* Darker purple for card base - glass effect will lighten */
-    --card-foreground: 240 10% 85%;
+    --card: 230 18% 15%; /* Darker, more opaque desaturated blue/purple for main content cards */
+    --card-foreground: 220 20% 95%;
 
-    --popover: 260 40% 12%; /* Darker popover */
-    --popover-foreground: 240 10% 85%;
+    --popover: 230 15% 10%; /* Darker popover */
+    --popover-foreground: 220 20% 95%;
 
-    --primary: 275 80% 65%; /* Vibrant Violet/Magenta for primary actions/active */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 217 91% 59%; /* Bright blue for primary actions */
+    --primary-foreground: 220 20% 98%; /* White/very light gray */
 
-    --secondary: 260 30% 30%; /* Muted purple for secondary elements */
-    --secondary-foreground: 240 10% 80%;
+    --secondary: 230 15% 25%; /* Muted darker blue for secondary elements */
+    --secondary-foreground: 220 20% 85%;
 
-    --muted: 260 30% 22%; /* Muted purple for less emphasis */
-    --muted-foreground: 240 10% 65%; 
+    --muted: 230 15% 20%; /* Muted darker blue for less emphasis */
+    --muted-foreground: 220 15% 70%; 
 
-    --accent: 275 80% 70%; /* Vibrant Violet/Magenta - can be same as primary or slightly lighter */
-    --accent-foreground: 0 0% 100%; /* White */
+    --accent: 217 91% 65%; /* Slightly lighter bright blue for accents/hovers */
+    --accent-foreground: 220 20% 98%;
 
-    --destructive: 0 70% 55%; /* A clear red for errors */
+    --destructive: 0 70% 55%; 
     --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%; /* Subtle border for glass edges */
-    --input: 260 30% 25%;
-    --ring: 275 80% 70%; /* Ring color matches accent */
+    --border: 230 15% 25%; /* Subtle border for elements if needed */
+    --input: 230 15% 25%;
+    --ring: 217 91% 65%; 
 
-    --radius: 1rem; /* Increased for rounder cards */
+    --radius: 0.75rem; /* Standardized radius, can be overridden */
 
-    /* Sidebar specific variables - Dark Purple Theme */
-    --sidebar-background: 260 45% 15%;       /* Dark Purple for sidebar base */
-    --sidebar-foreground: 240 15% 88%;       /* Light Lavender/White for text */
-    --sidebar-primary: 275 80% 60%;          /* Active/Selected Item Violet/Magenta */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 260 40% 25%;           /* Hover Item Darker Purple (subtle) */
-    --sidebar-accent-foreground: 240 15% 90%;/* Hover Text */
-    --sidebar-border: 260 40% 10%;           /* Darker Purple for borders if needed */
-    --sidebar-ring: 275 80% 65%;             /* Focus Ring Violet/Magenta */
+    /* Sidebar specific variables - Dark Desaturated Blue/Purple Theme */
+    --sidebar-background: 230 20% 18%;       
+    --sidebar-foreground: 220 20% 90%;       
+    --sidebar-primary: 217 91% 59%;          /* Active/Selected Item Bright Blue */
+    --sidebar-primary-foreground: 220 20% 98%; 
+    --sidebar-accent: 230 20% 28%;           /* Hover Item Darker (subtle contrast) */
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 230 20% 12%;           
+    --sidebar-ring: 217 91% 65%;             
 
-
-    /* Custom Color Variables */
-    --custom-technical-norm-blue: 220 80% 75%; /* Lighter blue for technical norms on dark bg */
-    --custom-technical-norm-blue-foreground: 260 50% 15%; 
+    /* Custom Colors from previous theme, re-evaluate if needed or remove */
+    --custom-technical-norm-blue: 220 80% 75%; 
+    --custom-technical-norm-blue-foreground: 230 20% 15%; 
     
     --custom-alert-minor-error-bg: 0 90% 70%; 
     --custom-alert-major-error-bg: 0 84% 60%; 
     
     --custom-warning-yellow-bg: 45 80% 60%;   
-    --custom-warning-yellow-fg: 260 50% 10%; 
+    --custom-warning-yellow-fg: 230 20% 10%; 
 
-    --custom-technical-text-blue: 227 64% 33%; /* Dark navy/indigo for strong text */
+    --custom-technical-text-blue: 220 85% 70%; /* Adjusted for dark theme legibility */
     
-    --custom-severity-low-bg: 185 70% 50%;    /* Cyan/Teal for low severity */
+    --custom-severity-low-bg: 185 70% 50%;    
     --custom-severity-low-fg: 0 0% 100%;
     
-    --custom-severity-medium-bg: 45 80% 60%; /* Yellow for medium */
-    --custom-severity-medium-fg: 260 50% 10%; 
+    --custom-severity-medium-bg: 45 80% 60%; 
+    --custom-severity-medium-fg: 230 20% 10%; 
 
-    --custom-severity-high-bg: 0 70% 55%;    /* Red for high */
+    --custom-severity-high-bg: 0 70% 55%;    
     --custom-severity-high-fg: 0 0% 100%;
 
-    --chart-1: 275 80% 70%; /* Primary Accent */
-    --chart-2: 200 80% 65%; /* Teal/Cyan */
-    --chart-3: 300 75% 70%; /* Pink/Magenta */
-    --chart-4: 30 80% 65%;  /* Orange */
-    --chart-5: 240 70% 75%; /* Blue */
+    --chart-1: 217 91% 65%; 
+    --chart-2: 200 80% 65%; 
+    --chart-3: 300 75% 70%; 
+    --chart-4: 30 80% 65%;  
+    --chart-5: 240 70% 75%; 
   }
 
-  /* Apply dark theme by default for this design */
-  html.dark { /* Applied to html tag for immediate effect */
-    /* Same as :root for a dark-by-default theme */
-    --background: 260 60% 8%; 
-    --foreground: 240 10% 85%;
+  html.dark { 
+    /* These are the same as :root for a dark-by-default theme */
+    --background: 225 15% 12%; 
+    --foreground: 220 20% 95%;
 
-    --card: 260 40% 18%; 
-    --card-foreground: 240 10% 85%;
+    --card: 230 18% 15%; 
+    --card-foreground: 220 20% 95%;
 
-    --popover: 260 40% 12%;
-    --popover-foreground: 240 10% 85%;
+    --popover: 230 15% 10%;
+    --popover-foreground: 220 20% 95%;
 
-    --primary: 275 80% 65%; 
-    --primary-foreground: 0 0% 100%;
+    --primary: 217 91% 59%; 
+    --primary-foreground: 220 20% 98%;
 
-    --secondary: 260 30% 30%; 
-    --secondary-foreground: 240 10% 80%;
+    --secondary: 230 15% 25%; 
+    --secondary-foreground: 220 20% 85%;
 
-    --muted: 260 30% 22%;
-    --muted-foreground: 240 10% 65%;
+    --muted: 230 15% 20%;
+    --muted-foreground: 220 15% 70%;
 
-    --accent: 275 80% 70%; 
-    --accent-foreground: 0 0% 100%;
+    --accent: 217 91% 65%; 
+    --accent-foreground: 220 20% 98%;
 
     --destructive: 0 70% 55%; 
     --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%; 
-    --input: 260 30% 25%;
-    --ring: 275 80% 70%;
+    --border: 230 15% 25%; 
+    --input: 230 15% 25%;
+    --ring: 217 91% 65%;
 
-    /* Sidebar specific variables - Dark Purple Theme */
-    --sidebar-background: 260 45% 15%;       
-    --sidebar-foreground: 240 15% 88%;       
-    --sidebar-primary: 275 80% 60%;          
-    --sidebar-primary-foreground: 0 0% 100%; 
-    --sidebar-accent: 260 40% 25%;           
-    --sidebar-accent-foreground: 240 15% 90%;
-    --sidebar-border: 260 40% 10%;           
-    --sidebar-ring: 275 80% 65%;      
-
-    /* Custom Color Variables - Dark mode adjustments if needed, but should be fine */
-    --custom-technical-norm-blue: 220 80% 75%; 
-    --custom-technical-norm-blue-foreground: 260 50% 15%;
-        
-    --custom-warning-yellow-bg: 45 80% 60%;   
-    --custom-warning-yellow-fg: 260 50% 10%; 
-
-    --custom-technical-text-blue: 210 70% 75%; /* Lighter version of dark navy for dark mode */
-    
-    --custom-severity-low-bg: 185 70% 50%;    
-    --custom-severity-low-fg: 0 0% 100%;    
-    
-    --custom-severity-medium-bg: 45 80% 60%; 
-    --custom-severity-medium-fg: 260 50% 10%; 
-    
-    --custom-severity-high-bg: 0 70% 55%;    
-    --custom-severity-high-fg: 0 0% 100%;   
+    --sidebar-background: 230 20% 18%;       
+    --sidebar-foreground: 220 20% 90%;       
+    --sidebar-primary: 217 91% 59%;          
+    --sidebar-primary-foreground: 220 20% 98%; 
+    --sidebar-accent: 230 20% 28%;           
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 230 20% 12%;           
+    --sidebar-ring: 217 91% 65%;      
   }
 }
 
@@ -146,15 +125,14 @@
     @apply border-border;
   }
   body {
-    /* Dark Purple Gradient Background - matching reference image */
-    background-image: linear-gradient(145deg, hsl(260, 50%, 10%) 0%, hsl(265, 55%, 15%) 30%, hsl(270, 60%, 20%) 70%, hsl(275, 65%, 25%) 100%);
-    background-attachment: fixed; /* Ensures the gradient covers the full page and stays fixed during scroll */
-    @apply bg-background text-foreground; /* Ensure base bg/fg for elements not explicitly styled */
+    /* New dark background */
+    background-color: hsl(var(--background));
+    @apply text-foreground; 
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
 
-/* Custom utility classes */
+/* Custom utility classes - adjust if needed for new dark theme */
 .text-technical-blue { 
   color: hsl(var(--custom-technical-text-blue));
 }
@@ -209,14 +187,14 @@
   border-color: hsl(var(--custom-severity-high-fg)); 
 }
 
-/* Glassmorphism related classes - Dark Purple Theme */
+/* Glassmorphism related classes - Adjusted for new dark theme */
 .glass-card {
-  background-color: hsla(var(--card), 0.65); /* Using HSL for card base with alpha */
-  @apply backdrop-blur-lg shadow-xl border border-[hsla(var(--border),0.3)] rounded-2xl;
+  background-color: hsla(var(--card), 0.75); /* More opaque for content cards */
+  @apply backdrop-blur-md shadow-lg border border-[hsla(var(--border),0.3)] rounded-xl; /* Using rounded-xl for consistency */
 }
 .glass-sidebar {
-   background-color: hsla(var(--sidebar-background), 0.75) !important; /* More opaque sidebar base */
-   @apply backdrop-blur-xl border-r border-[hsla(var(--sidebar-border),0.4)] rounded-r-md; /* Changed to rounded-r-md from 2xl */
+   background-color: hsla(var(--sidebar-background), 0.80) !important; /* Subtle glass for sidebar */
+   @apply backdrop-blur-lg border-r border-[hsla(var(--sidebar-border),0.4)] rounded-none; /* Sidebar usually not rounded on inner edges */
 }
 .glass-sidebar-header-footer {
    background-color: transparent !important;
@@ -224,18 +202,23 @@
 }
 
 .glass-card-content {
-  @apply bg-transparent; /* Content area of cards is transparent */
+  @apply bg-transparent; 
 }
 
 .glass-accordion-item {
-  background-color: hsla(var(--card), 0.5); /* Slightly more transparent accordion items */
-  @apply backdrop-blur-md shadow-md border border-[hsla(var(--border),0.25)] rounded-xl overflow-hidden; /* Changed to rounded-xl */
+  background-color: hsla(var(--card), 0.6); 
+  @apply backdrop-blur-sm shadow-md border border-[hsla(var(--border),0.25)] rounded-lg; /* Slightly less rounded than cards */
 }
 
 .glass-accordion-trigger {
-  @apply hover:bg-[hsla(var(--card),0.7)]; /* Hover effect for accordion trigger */
+  @apply hover:bg-[hsla(var(--muted),0.4)]; 
 }
 .glass-accordion-content {
    @apply bg-transparent;
+}
+
+/* Hero Banner Specific Gradient */
+.hero-gradient {
+  background-image: linear-gradient(105deg, hsl(300, 85%, 60%), hsl(25, 95%, 55%), hsl(330, 90%, 65%));
 }
     

@@ -1,7 +1,7 @@
 
 "use client";
 import React from 'react';
-import { Home, FilePlus2, Briefcase } from 'lucide-react';
+import { Home, FilePlus2, Briefcase, CheckSquare, Layers, ChevronDown, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -34,14 +34,14 @@ export function BlockNavigation({ onGoHome, isHomeActive }: BlockNavigationProps
   ];
 
   return (
-    <nav className="p-3 space-y-1.5"> {/* Reduced space-y */}
+    <nav className="p-3 space-y-1.5">
       {navItems.map((item) => (
         <Button
           key={item.label}
           variant="ghost"
           onClick={item.action}
           className={cn(
-            "w-full justify-start text-sm font-medium transition-colors duration-150 ease-in-out rounded-lg h-10 px-3 py-2", // Added rounded-lg and specific padding/height
+            "w-full justify-start text-sm font-medium transition-colors duration-150 ease-in-out rounded-md h-10 px-3 py-2", 
             item.isActive
               ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
