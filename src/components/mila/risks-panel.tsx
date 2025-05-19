@@ -1,7 +1,7 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock, AlertItem } from './types'; // Removed MilaAppPData
+import type { DocumentBlock, AlertItem } from './types'; 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2, ListChecks, BarChart3, AlertTriangle } from 'lucide-react'; 
@@ -15,13 +15,12 @@ import {
 } from "@/components/ui/accordion";
 import { SeverityIndicator } from './severity-indicator';
 import { cn } from '@/lib/utils';
-// Removed BlockNavigation import
+
 
 interface RisksPanelProps {
   selectedBlockDetail: DocumentBlock | null;
   overallComplianceScore: number;
   overallCompletenessIndex: number;
-  // Removed props: blocks, selectedBlockId, onSelectBlock
 }
 
 export function RisksPanel({
@@ -44,8 +43,6 @@ export function RisksPanel({
 
   return (
     <div className="p-4 md:p-5 space-y-6 h-full">
-      {/* BlockNavigation is no longer rendered here */}
-
       <Card className="glass-card rounded-xl mt-0 transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-5">
           <div className="flex items-center gap-2.5 mb-0.5">
@@ -179,7 +176,7 @@ export function RisksPanel({
                       <ul className="space-y-2">
                         {selectedBlockDetail.applicableNorms.map((norm) => (
                           <li key={norm.id} className="text-xs p-2.5 border rounded-md bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-shadow duration-150 hover:shadow-sm">
-                            <strong className="text-technical-norm-blue">{norm.name}</strong> - {norm.article}
+                            <strong className="text-technical-norm-blue">{norm.name}</strong> - <span className="text-muted-foreground">{norm.article}</span>
                             {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
                           </li>
                         ))}

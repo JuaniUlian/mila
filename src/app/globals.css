@@ -125,7 +125,7 @@
     --custom-warning-yellow-bg: 45 93% 50%;   
     --custom-warning-yellow-fg: 0 0% 98%;
 
-    --custom-technical-text-blue: 227 64% 73%; 
+    --custom-technical-text-blue: 227 64% 73%; /* #1E3A8A dark mode equivalent */
     
     --custom-severity-low-bg: 185 88% 37%;    
     --custom-severity-low-fg: 0 0% 98%;    

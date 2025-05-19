@@ -160,7 +160,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                       Contexto del Texto Original (Bloque Completo: {block.name})
                     </h4>
                     <div className="flex justify-end items-center mb-1.5">
-                      <Button variant="ghost" size="sm" onClick={() => handleCopyText(block.originalText, 'Texto Original del Bloque')} className="transition-colors duration-150 hover:text-accent">
+                      <Button variant="ghost" size="sm" onClick={() => handleCopyText(block.originalText, 'Texto Original del Bloque')} className="transition-colors duration-150 text-muted-foreground hover:text-accent">
                         <Copy className="h-3.5 w-3.5 mr-1.5" /> Copiar Texto del Bloque
                       </Button>
                     </div>
@@ -184,7 +184,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                         value={currentEditText}
                         onChange={(e) => setCurrentEditText(e.target.value)}
                         rows={5}
-                        className="w-full text-sm p-3 border border-white/30 dark:border-slate-700/50 rounded-md bg-white/5 dark:bg-slate-800/20 backdrop-blur-sm focus-visible:ring-accent mb-3.5"
+                        className="w-full text-sm p-3 border border-white/30 dark:border-slate-700/50 rounded-md bg-white/5 dark:bg-slate-800/20 backdrop-blur-sm focus-visible:ring-accent mb-3.5 text-foreground"
                         aria-label="Editar sugerencia"
                       />
                     ) : (
@@ -207,7 +207,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                             size="sm" 
                             variant="outline" 
                             onClick={handleCancelEdit}
-                            className="hover:border-destructive hover:text-destructive transition-colors duration-150 border-white/30 dark:border-slate-700/50"
+                            className="text-muted-foreground hover:border-destructive hover:text-destructive transition-colors duration-150 border-white/30 dark:border-slate-700/50"
                           >
                             <XCircle className="mr-2 h-4 w-4" /> Cancelar
                           </Button>
@@ -227,7 +227,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                             variant="outline" 
                             onClick={() => handleEditSuggestion(suggestion)}
                             disabled={suggestion.status !== 'pending'}
-                            className="hover:border-accent hover:text-accent transition-colors duration-150 border-white/30 dark:border-slate-700/50"
+                            className="text-accent hover:border-accent hover:text-accent hover:bg-accent/10 transition-colors duration-150 border-white/30 dark:border-slate-700/50"
                           >
                             <Edit3 className="mr-2 h-4 w-4" /> Editar Texto
                           </Button>
@@ -250,11 +250,11 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                     <Separator className="my-5 bg-white/20 dark:bg-slate-700/40" />
                     <div>
                       <h5 className="text-sm font-semibold mb-2.5 flex items-center gap-2 text-foreground"><ClipboardList size={16} /> Justificación y Detalles Técnicos</h5>
-                      <div className="space-y-2 text-xs text-muted-foreground pl-1">
-                        <p className="flex items-start gap-2"><Gavel size={14} className="inline text-technical-text-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Justificación Legal:</strong> {suggestion.justification.legal}</p>
-                        <p className="flex items-start gap-2"><FlaskConical size={14} className="inline text-technical-text-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Justificación Técnica:</strong> {suggestion.justification.technical}</p>
-                        <p className="mt-1.5 flex items-start gap-2"><AlertCircle size={14} className="inline text-technical-text-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Tipo de Error Identificado:</strong> {suggestion.errorType}</p>
-                        <p className="flex items-start gap-2"><AlertTriangle size={14} className="inline text-technical-text-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Consecuencia Estimada:</strong> {suggestion.estimatedConsequence}</p>
+                      <div className="space-y-2 text-xs pl-1">
+                        <p className="flex items-start gap-2"><Gavel size={14} className="inline text-technical-norm-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Justificación Legal:</strong> <span className="text-muted-foreground">{suggestion.justification.legal}</span></p>
+                        <p className="flex items-start gap-2"><FlaskConical size={14} className="inline text-technical-norm-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Justificación Técnica:</strong> <span className="text-muted-foreground">{suggestion.justification.technical}</span></p>
+                        <p className="mt-1.5 flex items-start gap-2"><AlertCircle size={14} className="inline text-technical-norm-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Tipo de Error Identificado:</strong> <span className="text-technical-text-blue">{suggestion.errorType}</span></p>
+                        <p className="flex items-start gap-2"><AlertTriangle size={14} className="inline text-technical-norm-blue flex-shrink-0 mt-0.5" /> <strong className="text-foreground/90 font-medium">Consecuencia Estimada:</strong> <span className="text-muted-foreground">{suggestion.estimatedConsequence}</span></p>
                       </div>
                     </div>
                   </div>
