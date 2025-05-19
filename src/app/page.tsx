@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
-// import { BlockNavigation } from '@/components/mila/block-navigation'; // No longer used here, moved to Sidebar
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import { useToast } from '@/hooks/use-toast';
@@ -15,15 +14,20 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { BlockNavigation } from '@/components/mila/block-navigation';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Info } from 'lucide-react';
+import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Info, ShieldAlert } from 'lucide-react';
 
+const getBlockRiskColorClasses = (riskPercentage: number): string => {
+  if (riskPercentage < 25) return 'text-green-600';
+  if (riskPercentage <= 50) return 'text-custom-warning-yellow-DEFAULT';
+  return 'text-destructive';
+};
 
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-4">
        <Card className="glass-card rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-4">
-          <CardTitle className="text-xl font-semibold flex items-center gap-2.5 text-foreground">
+          <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
             <Target className="h-6 w-6 text-accent" />
             Resumen de Bloques del Documento
           </CardTitle>
@@ -33,43 +37,44 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
         </CardHeader>
         <CardContent className="p-4 pt-1">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {blocks.map((block) => (
-              <Card
-                key={block.id}
-                className="glass-card hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col rounded-lg group bg-card/80 border"
-                onClick={() => onSelectBlock(block.id)}
-              >
-                <CardHeader className="flex-grow pb-1 px-3 pt-3">
-                  <CardTitle className="text-base font-semibold flex items-center justify-between text-foreground group-hover:text-accent transition-colors">
-                    <span className="flex items-center gap-1.5 text-technical-text-blue group-hover:text-accent">
-                      <FileText size={18} className="group-hover:text-accent/90 transition-colors" />
-                      {block.name}
-                    </span>
-                    <SeverityIndicator level={block.alertLevel} size={4}/>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow pt-1 pb-2 px-3">
-                  <p className="text-xs text-muted-foreground mb-1.5">Categoría: {block.category}</p>
-                  <div className="flex items-baseline gap-1 mt-0.5">
-                    <CheckSquare size={14} className="text-muted-foreground"/>
-                    <span className="text-xs font-medium text-muted-foreground">Completitud: </span>
-                    <span className={cn(
-                      "font-bold text-sm", 
-                      block.completenessIndex < 5 ? "text-destructive" :
-                      block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" : 
-                      "text-green-600" 
-                    )}>
-                      {block.completenessIndex} / {block.maxCompleteness}
-                    </span>
-                  </div>
-                </CardContent>
-                <CardContent className="pt-0 pb-3 px-3">
-                   <Button variant="outline" size="sm" className="w-full mt-auto text-technical-text-blue text-xs py-1.5 h-8 group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150">
-                    Ver Detalles
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+            {blocks.map((block) => {
+              const compliancePercentage = block.maxCompleteness > 0 ? (block.completenessIndex / block.maxCompleteness) * 100 : 0;
+              const blockRiskPercentage = parseFloat((100 - compliancePercentage).toFixed(0));
+              const riskColorClass = getBlockRiskColorClasses(blockRiskPercentage);
+
+              return (
+                <Card
+                  key={block.id}
+                  className="glass-card hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col rounded-lg group bg-card/80 border"
+                  onClick={() => onSelectBlock(block.id)}
+                >
+                  <CardHeader className="flex-grow pb-1 px-3 pt-3">
+                    <CardTitle className="text-base font-semibold flex items-center justify-between text-foreground group-hover:text-accent transition-colors">
+                      <span className="flex items-center gap-1.5 text-technical-text-blue group-hover:text-accent">
+                        <FileText size={18} className="group-hover:text-accent/90 transition-colors" />
+                        {block.name}
+                      </span>
+                      <SeverityIndicator level={block.alertLevel} size={4}/>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-grow pt-1 pb-2 px-3">
+                    <p className="text-xs text-muted-foreground mb-1.5">Categoría: {block.category}</p>
+                    <div className="flex items-baseline gap-1 mt-0.5">
+                      <ShieldAlert size={14} className={cn("transition-colors", riskColorClass)}/>
+                      <span className="text-xs font-medium text-muted-foreground">Riesgo: </span>
+                      <span className={cn("font-bold text-sm transition-colors", riskColorClass)}>
+                        {blockRiskPercentage}%
+                      </span>
+                    </div>
+                  </CardContent>
+                  <CardContent className="pt-0 pb-3 px-3">
+                     <Button variant="outline" size="sm" className="w-full mt-auto text-technical-text-blue text-xs py-1.5 h-8 group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150">
+                      Ver Detalles
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -110,7 +115,7 @@ export default function HomePage() {
       : 0;
 
     const newOverallComplianceScore = updatedBlocks.length > 0
-      ? Math.round(sumOfBlockCompliancePercentages / updatedBlocks.length)
+      ? parseFloat((sumOfBlockCompliancePercentages / updatedBlocks.length).toFixed(0))
       : 0;
 
     return {
@@ -129,7 +134,6 @@ export default function HomePage() {
       const previousStatus = suggestionToUpdate.status;
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
-      // Only update completeness if a 'pending' suggestion is 'applied'
       if (previousStatus === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       }
@@ -192,7 +196,7 @@ export default function HomePage() {
       <Sidebar className="glass-sidebar">
         <SidebarHeader className="p-3 border-b border-sidebar-border flex flex-col items-start glass-sidebar-header-footer">
            <div className="flex items-center gap-2.5 p-1 mb-1">
-             <SidebarTrigger className="md:hidden" /> {/* For mobile toggle */}
+             <SidebarTrigger className="md:hidden" /> 
              <ListChecks className="h-6 w-6 text-sidebar-primary" />
              <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación de Bloques</h2>
            </div>
@@ -238,7 +242,7 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-full shrink-0 md:w-[320px] lg:w-[300px] xl:w-[340px] border-l border-white/20 dark:border-slate-700/50 bg-white/10 dark:bg-slate-800/30 backdrop-blur-md text-card-foreground overflow-y-auto shadow-lg p-1 transition-all duration-200 ease-in-out">
+          <aside className="w-full shrink-0 md:w-[320px] lg:w-[300px] xl:w-[340px] border-l border-white/20 dark:border-slate-700/50 bg-white/10 dark:bg-slate-800/30 backdrop-blur-md text-card-foreground overflow-y-auto shadow-lg transition-all duration-200 ease-in-out">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}

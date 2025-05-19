@@ -5,7 +5,7 @@ import type { DocumentBlock, AlertItem, ApplicableNorm, MissingConnection } from
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Info, FileCheck2, ListChecks, BarChart3, AlertTriangle } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import * as ProgressPrimitive from "@radix-ui/react-progress"; // Corrected import
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -20,8 +20,15 @@ import { cn } from '@/lib/utils';
 interface RisksPanelProps {
   selectedBlockDetail: DocumentBlock | null;
   overallComplianceScore: number;
-  overallCompletenessIndex: number; // This will be used to derive risk
+  overallCompletenessIndex: number; 
 }
+
+const getRiskColorClasses = (riskPercentage: number, type: 'text' | 'bg' = 'text'): string => {
+  if (riskPercentage < 25) return type === 'text' ? 'text-green-600' : 'bg-green-600';
+  if (riskPercentage <= 50) return type === 'text' ? 'text-custom-warning-yellow-DEFAULT' : 'bg-custom-warning-yellow-DEFAULT';
+  return type === 'text' ? 'text-destructive' : 'bg-destructive';
+};
+
 
 export function RisksPanel({
   selectedBlockDetail,
@@ -40,40 +47,58 @@ export function RisksPanel({
   };
 
   const defaultAccordionValues: string[] = [];
-  const riskValue = Math.max(0, Math.min(10, 10 - overallCompletenessIndex)); // Ensure risk is between 0 and 10
+  
+  const overallRiskPercentage = Math.max(0, Math.min(100, (10 - overallCompletenessIndex) * 10));
+  const overallRiskTextColor = getRiskColorClasses(overallRiskPercentage);
+  const overallRiskBgColor = getRiskColorClasses(overallRiskPercentage, 'bg');
 
   return (
-    <div className="p-4 md:p-5 space-y-4 h-full">
+    <div className="p-1 md:p-2 h-full">
       <Card className="glass-card rounded-xl mt-0 transition-all duration-200 ease-in-out hover:shadow-2xl border">
-        <CardHeader className="p-5">
-          <div className="flex items-center gap-2.5 mb-0.5">
-            <BarChart3 className="h-6 w-6 text-accent" />
+        <CardHeader className="p-4">
+          <div className="flex items-center gap-2 mb-0.5">
+            <BarChart3 className="h-5 w-5 text-accent" />
             <CardTitle className="text-lg font-semibold text-foreground">Resumen General del Documento</CardTitle>
           </div>
-          <CardDescription className="text-sm text-muted-foreground mt-0.5">Puntajes globales de cumplimiento y riesgo.</CardDescription>
+          <CardDescription className="text-xs text-muted-foreground mt-0.5">Puntajes globales de cumplimiento y riesgo.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3.5 pt-2 pb-5 px-5 glass-card-content">
+        <CardContent className="space-y-3 pt-1 pb-4 px-4 glass-card-content">
           <div>
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                <TrendingUp size={15} /> Cumplimiento Normativo
+            <div className="flex justify-between items-center mb-0.5">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <TrendingUp size={14} /> Cumplimiento Normativo
               </span>
-              <span className="text-sm font-semibold text-accent">{overallComplianceScore}%</span>
+              <span className="text-sm font-semibold text-accent">{overallComplianceScore.toFixed(0)}%</span>
             </div>
-            <Progress value={overallComplianceScore} className="h-2 rounded-full bg-muted/70 transition-all duration-300" />
+             <ProgressPrimitive.Root 
+                value={overallComplianceScore}
+                className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/70 transition-all duration-300"
+              >
+                <ProgressPrimitive.Indicator
+                  className={cn("h-full w-full flex-1 bg-accent transition-all")}
+                  style={{ transform: `translateX(-${100 - (overallComplianceScore || 0)}%)` }}
+                />
+              </ProgressPrimitive.Root>
           </div>
           <div>
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                 <ShieldAlert size={15} /> Indice de Riesgo
+            <div className="flex justify-between items-center mb-0.5">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                 <ShieldAlert size={14} className={overallRiskTextColor} /> Indice de Riesgo
               </span>
-              <span className="text-sm font-semibold text-accent">{riskValue.toFixed(1)}/10</span>
+              <span className={cn("text-sm font-semibold", overallRiskTextColor)}>{overallRiskPercentage.toFixed(0)}%</span>
             </div>
-            {/* Lower bar is lower risk */}
-            <Progress value={riskValue * 10} className="h-2 rounded-full bg-muted/70 transition-all duration-300" />
+            <ProgressPrimitive.Root
+              value={overallRiskPercentage}
+              className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/70 transition-all duration-300"
+            >
+              <ProgressPrimitive.Indicator
+                className={cn("h-full w-full flex-1 transition-all", overallRiskBgColor)}
+                style={{ transform: `translateX(-${100 - (overallRiskPercentage || 0)}%)` }}
+              />
+            </ProgressPrimitive.Root>
           </div>
-           <Button className="w-full mt-4 bg-accent hover:bg-accent/90 text-accent-foreground text-sm py-2 transition-colors duration-150" size="sm" onClick={() => handleExportPDF()}>
-            <Download className="mr-2 h-4 w-4" />
+           <Button className="w-full mt-3 bg-accent hover:bg-accent/90 text-accent-foreground text-xs py-1.5 h-8 transition-colors duration-150" size="sm" onClick={() => handleExportPDF()}>
+            <Download className="mr-1.5 h-3.5 w-3.5" />
             Exportar Informe (PDF)
           </Button>
         </CardContent>
@@ -81,40 +106,40 @@ export function RisksPanel({
 
       {selectedBlockDetail ? (
         <Card className="glass-card mt-4 rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
-          <CardHeader className="p-5">
-            <div className="flex items-center gap-2.5 mb-0.5">
-              <Info className="h-6 w-6 text-accent" />
+          <CardHeader className="p-4">
+            <div className="flex items-center gap-2 mb-0.5">
+              <Info className="h-5 w-5 text-accent" />
               <CardTitle className="text-lg font-semibold text-foreground">
                 Información Adicional del Bloque
               </CardTitle>
             </div>
-            <CardDescription className="text-sm text-muted-foreground mt-0.5">
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
               Contexto y riesgos para: <span className="font-medium text-accent">{selectedBlockDetail.name}</span>
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-2 pb-5 px-5 space-y-1.5 glass-card-content">
-            <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-2">
+          <CardContent className="pt-1 pb-4 px-4 space-y-1.5 glass-card-content">
+            <Accordion type="multiple" defaultValue={defaultAccordionValues} className="w-full space-y-1.5">
               {selectedBlockDetail.alerts && selectedBlockDetail.alerts.length > 0 && (
                 <AccordionItem value="block-alerts" className="glass-accordion-item">
-                  <AccordionTrigger className="p-3 text-sm hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
-                      <div className="flex items-center gap-2 w-full">
-                          <ShieldAlert size={16} className="text-accent group-hover:text-accent/80 transition-colors" />
+                  <AccordionTrigger className="p-2.5 text-xs hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
+                      <div className="flex items-center gap-1.5 w-full">
+                          <ShieldAlert size={15} className="text-accent group-hover:text-accent/80 transition-colors" />
                           <span className="flex-1">Alertas Generales del Bloque ({selectedBlockDetail.alerts.length})</span>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
-                       <ul className="space-y-3">
+                    <AccordionContent className="px-3 py-3 text-xs data-[state=open]:bg-transparent glass-accordion-content">
+                       <ul className="space-y-2.5">
                           {selectedBlockDetail.alerts.map((alert: AlertItem) => (
                             <li
                               key={alert.id}
                               className={cn(
-                                "p-3 border-l-4 rounded-md flex items-start gap-3 text-sm shadow-sm bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-all duration-150 ease-in-out",
+                                "p-2.5 border-l-4 rounded-r-md flex items-start gap-2 text-sm shadow-sm bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-all duration-150 ease-in-out",
                                 alert.severity === 'grave' && 'border-destructive',
                                 alert.severity === 'media' && 'border-custom-warning-yellow-DEFAULT',
                                 alert.severity === 'leve' && 'border-custom-severity-low-DEFAULT',
                               )}
                             >
-                              <SeverityIndicator level={alert.severity} size={5} className={cn(
+                              <SeverityIndicator level={alert.severity} size={5} className={cn( // size 5 for larger icon
                                   "mt-0.5 flex-shrink-0",
                                   alert.severity === 'grave' && 'text-destructive',
                                   alert.severity === 'media' && 'text-custom-warning-yellow-DEFAULT',
@@ -132,16 +157,16 @@ export function RisksPanel({
 
               {selectedBlockDetail.missingConnections && selectedBlockDetail.missingConnections.length > 0 && (
                 <AccordionItem value="connections" className="glass-accordion-item">
-                  <AccordionTrigger className="p-3 text-sm hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
-                      <div className="flex items-center gap-2 w-full">
-                          <Link2Off size={16} className="text-accent group-hover:text-accent/80 transition-colors" />
+                  <AccordionTrigger className="p-2.5 text-xs hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
+                      <div className="flex items-center gap-1.5 w-full">
+                          <Link2Off size={15} className="text-accent group-hover:text-accent/80 transition-colors" />
                           <span className="flex-1">Conexiones Normativas Faltantes ({selectedBlockDetail.missingConnections.length})</span>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
-                      <ul className="space-y-2">
+                    <AccordionContent className="px-3 py-3 text-xs data-[state=open]:bg-transparent glass-accordion-content">
+                      <ul className="space-y-1.5">
                           {selectedBlockDetail.missingConnections.map((conn: MissingConnection) => (
-                            <li key={conn.id} className="text-xs p-2.5 border-l-2 border-accent bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm rounded-r-md text-foreground/90 transition-shadow duration-150 hover:shadow-sm">
+                            <li key={conn.id} className="text-[0.7rem] p-2 border-l-2 border-accent bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm rounded-r-md text-foreground/90 transition-shadow duration-150 hover:shadow-sm">
                               {conn.description}
                             </li>
                           ))}
@@ -152,14 +177,14 @@ export function RisksPanel({
 
               {selectedBlockDetail.legalRisk && (
                 <AccordionItem value="legal-risk" className="glass-accordion-item">
-                  <AccordionTrigger className="p-3 text-sm hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
-                      <div className="flex items-center gap-2 w-full">
-                        <AlertTriangle size={16} className="text-accent group-hover:text-accent/80 transition-colors" />
+                  <AccordionTrigger className="p-2.5 text-xs hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
+                      <div className="flex items-center gap-1.5 w-full">
+                        <AlertTriangle size={15} className="text-accent group-hover:text-accent/80 transition-colors" />
                         <span className="flex-1">Riesgo Jurídico Identificado</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
-                      <p className="text-xs text-foreground/90 leading-relaxed">
+                    <AccordionContent className="px-3 py-3 text-xs data-[state=open]:bg-transparent glass-accordion-content">
+                      <p className="text-[0.7rem] text-foreground/90 leading-relaxed">
                         {selectedBlockDetail.legalRisk}
                       </p>
                     </AccordionContent>
@@ -168,16 +193,16 @@ export function RisksPanel({
 
               {selectedBlockDetail.applicableNorms && selectedBlockDetail.applicableNorms.length > 0 && (
                 <AccordionItem value="norms" className="glass-accordion-item">
-                  <AccordionTrigger className="p-3 text-sm hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
-                      <div className="flex items-center gap-2 w-full">
-                        <BookOpen size={16} className="text-accent group-hover:text-accent/80 transition-colors" />
+                  <AccordionTrigger className="p-2.5 text-xs hover:no-underline data-[state=open]:bg-white/20 dark:data-[state=open]:bg-slate-700/30 data-[state=open]:border-b data-[state=open]:border-white/20 dark:data-[state=open]:border-slate-700/40 text-left font-medium text-foreground/90 transition-colors duration-150 ease-in-out group glass-accordion-trigger">
+                      <div className="flex items-center gap-1.5 w-full">
+                        <BookOpen size={15} className="text-accent group-hover:text-accent/80 transition-colors" />
                         <span className="flex-1">Normativa Aplicable Directa ({selectedBlockDetail.applicableNorms.length})</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3.5 pb-3.5 pt-2.5 text-sm data-[state=open]:bg-transparent glass-accordion-content">
-                      <ul className="space-y-2">
+                    <AccordionContent className="px-3 py-3 text-xs data-[state=open]:bg-transparent glass-accordion-content">
+                      <ul className="space-y-1.5">
                         {selectedBlockDetail.applicableNorms.map((norm: ApplicableNorm) => (
-                          <li key={norm.id} className="text-xs p-2.5 border rounded-md bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-shadow duration-150 hover:shadow-sm">
+                          <li key={norm.id} className="text-[0.7rem] p-2 border rounded-md bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-shadow duration-150 hover:shadow-sm">
                             <strong className="text-technical-norm-blue">{norm.name}</strong> - <span className="text-muted-foreground">{norm.article}</span>
                             {norm.details && <p className="text-xs text-muted-foreground mt-0.5">{norm.details}</p>}
                           </li>
@@ -189,24 +214,24 @@ export function RisksPanel({
             </Accordion>
 
             {(selectedBlockDetail.alerts?.length === 0 && selectedBlockDetail.missingConnections?.length === 0 && !selectedBlockDetail.legalRisk && selectedBlockDetail.applicableNorms?.length === 0) && (
-                 <p className="text-sm text-muted-foreground p-4 border border-white/20 dark:border-slate-700/40 rounded-lg bg-white/10 dark:bg-slate-700/20 backdrop-blur-sm mt-2">
+                 <p className="text-xs text-muted-foreground p-3 border border-white/20 dark:border-slate-700/40 rounded-lg bg-white/10 dark:bg-slate-700/20 backdrop-blur-sm mt-2">
                     No hay información adicional (alertas, conexiones, riesgos o normativas directas) para este bloque.
                 </p>
             )}
 
-            <div className="pt-4">
-              <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-sm py-2 transition-colors duration-150" size="sm" onClick={() => handleExportPDF(selectedBlockDetail.name)}>
-                <Download className="mr-2 h-4 w-4" />
+            <div className="pt-3">
+              <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-xs py-1.5 h-8 transition-colors duration-150" size="sm" onClick={() => handleExportPDF(selectedBlockDetail.name)}>
+                <Download className="mr-1.5 h-3.5 w-3.5" />
                 Exportar Bloque Corregido (PDF)
               </Button>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <Card className="glass-card rounded-xl mt-4 flex flex-col items-center justify-center p-8 min-h-[250px] transition-all duration-200 ease-in-out border">
-          <ListChecks size={38} className="text-muted-foreground/70 mb-3.5" />
-          <CardTitle className="text-lg text-center font-semibold text-foreground mb-1.5">Información Detallada del Bloque</CardTitle>
-          <CardDescription className="text-sm text-center text-muted-foreground max-w-xs">
+        <Card className="glass-card rounded-xl mt-4 flex flex-col items-center justify-center p-6 min-h-[200px] transition-all duration-200 ease-in-out border">
+          <ListChecks size={32} className="text-muted-foreground/70 mb-3" />
+          <CardTitle className="text-base text-center font-semibold text-foreground mb-1">Información Detallada del Bloque</CardTitle>
+          <CardDescription className="text-xs text-center text-muted-foreground max-w-xs">
             Seleccione un bloque de la navegación izquierda para ver sus detalles, alertas, y sugerencias específicas aquí.
           </CardDescription>
         </Card>
@@ -214,4 +239,3 @@ export function RisksPanel({
     </div>
   );
 }
-

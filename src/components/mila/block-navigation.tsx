@@ -7,7 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { FileText, Layers } from 'lucide-react';
+import { FileText, Layers, ShieldAlert } from 'lucide-react';
 import type { DocumentBlock } from './types';
 import { SeverityIndicator } from './severity-indicator';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,12 @@ interface BlockNavigationProps {
   selectedBlockId: string | null;
   onSelectBlock: (id: string) => void;
 }
+
+const getBlockRiskColorClasses = (riskPercentage: number): string => {
+  if (riskPercentage < 25) return 'text-green-600';
+  if (riskPercentage <= 50) return 'text-custom-warning-yellow-DEFAULT';
+  return 'text-destructive';
+};
 
 export function BlockNavigation({ blocks, selectedBlockId, onSelectBlock }: BlockNavigationProps) {
   const blocksByCategory: Record<string, DocumentBlock[]> = blocks.reduce((acc, block) => {
@@ -57,33 +63,39 @@ export function BlockNavigation({ blocks, selectedBlockId, onSelectBlock }: Bloc
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-2 px-1.5 bg-transparent data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
             <div className="grid grid-cols-1 gap-1 py-1">
-              {categoryBlocks.map((block) => (
-                <Button
-                  key={block.id}
-                  variant="ghost"
-                  onClick={() => onSelectBlock(block.id)}
-                  className={cn(
-                    "justify-between items-center w-full h-auto py-2 px-2.5 text-left text-xs rounded-md font-normal transition-colors duration-150 ease-in-out",
-                    selectedBlockId === block.id
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  )}
-                  title={`Bloque: ${block.name}\nCategoría: ${block.category}\nCompletitud: ${block.completenessIndex}/${block.maxCompleteness}\nAlertas: ${block.alertLevel !== 'none' ? block.alertLevel.toUpperCase() : 'Ninguna'}`}
-                >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <FileText size={15} className={cn("flex-shrink-0 transition-colors", selectedBlockId === block.id ? "text-sidebar-primary-foreground/90" : "text-sidebar-primary" )}/>
-                    <span className="truncate">{block.name}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <SeverityIndicator level={block.alertLevel} size={3} />
-                    <span className={cn("text-xs tabular-nums font-medium transition-colors",
-                      selectedBlockId === block.id ? "text-sidebar-primary-foreground/90" : "text-sidebar-foreground/70"
-                    )}>
-                      {block.completenessIndex}/{block.maxCompleteness}
-                    </span>
-                  </div>
-                </Button>
-              ))}
+              {categoryBlocks.map((block) => {
+                const compliancePercentage = block.maxCompleteness > 0 ? (block.completenessIndex / block.maxCompleteness) * 100 : 0;
+                const blockRiskPercentage = parseFloat((100 - compliancePercentage).toFixed(0));
+                const riskColorClass = getBlockRiskColorClasses(blockRiskPercentage);
+
+                return (
+                  <Button
+                    key={block.id}
+                    variant="ghost"
+                    onClick={() => onSelectBlock(block.id)}
+                    className={cn(
+                      "justify-between items-center w-full h-auto py-2 px-2.5 text-left text-xs rounded-md font-normal transition-colors duration-150 ease-in-out",
+                      selectedBlockId === block.id
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    )}
+                    title={`Bloque: ${block.name}\nCategoría: ${block.category}\nRiesgo: ${blockRiskPercentage}%\nAlertas: ${block.alertLevel !== 'none' ? block.alertLevel.toUpperCase() : 'Ninguna'}`}
+                  >
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <FileText size={15} className={cn("flex-shrink-0 transition-colors", selectedBlockId === block.id ? "text-sidebar-primary-foreground/90" : "text-sidebar-primary" )}/>
+                      <span className="truncate">{block.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <SeverityIndicator level={block.alertLevel} size={3} />
+                      <span className={cn("text-xs tabular-nums font-medium transition-colors",
+                        selectedBlockId === block.id ? "text-sidebar-primary-foreground/90" : riskColorClass
+                      )}>
+                        {blockRiskPercentage}%
+                      </span>
+                    </div>
+                  </Button>
+                );
+              })}
             </div>
           </AccordionContent>
         </AccordionItem>
