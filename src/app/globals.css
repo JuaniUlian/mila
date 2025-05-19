@@ -18,10 +18,10 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 82 79% 62%; /* #A3E635 - Verde lima, fondos activos o positivos */
+    --primary: 82 79% 62%; /* #A3E635 - Verde lima, fondos activos o positivos (remains for other primary elements) */
     --primary-foreground: 160 83% 10%; /* Dark green for contrast on light green */
 
-    --secondary: 160 83% 16%; /* #064E3B - Verde institucional, encabezados (sidebar is now navy) */
+    --secondary: 160 83% 16%; /* #064E3B - Verde institucional (remains for other secondary elements) */
     --secondary-foreground: 0 0% 98%; /* White/Light gray */
 
     --muted: 210 40% 96.1%;
@@ -39,15 +39,15 @@
 
     --radius: 1rem; /* Increased for rounder cards */
 
-    /* Sidebar specific variables - NAVY BLUE THEME */
-    --sidebar-background: 225 40% 20%; /* Dark Navy Blue */
-    --sidebar-foreground: 225 20% 95%;   /* Very Light Off-White/Blueish */
-    --sidebar-primary: 220 60% 55%;    /* Brighter Active Blue */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 220 60% 60%;     /* Slightly Lighter Brighter Active Blue for hover */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 225 40% 25%;    /* Slightly Lighter Navy for borders */
-    --sidebar-ring: 220 70% 65%;      /* Focus Ring Blue */
+    /* Sidebar specific variables - MOSS GREEN THEME */
+    --sidebar-background: 90 25% 35%;        /* Moss Green */
+    --sidebar-foreground: 90 10% 85%;        /* Very Light Greenish Gray */
+    --sidebar-primary: 80 35% 45%;           /* Active Moss Green (slightly more vibrant) */
+    --sidebar-primary-foreground: 0 0% 100%;  /* White */
+    --sidebar-accent: 90 25% 40%;            /* Hover Moss Green (slightly lighter) */
+    --sidebar-accent-foreground: 90 10% 90%; /* Hover Text (lighter greenish gray) */
+    --sidebar-border: 90 25% 30%;            /* Darker Moss Green for borders */
+    --sidebar-ring: 80 40% 50%;              /* Focus Ring Moss Green */
 
     /* Custom Color Variables from User Request */
     --custom-technical-norm-blue: 200 98% 39%; /* #0284C7 - Azul técnico */
@@ -106,15 +106,15 @@
     --input: 215 30% 27%;
     --ring: 217 91% 65%; /* New Blue Accent for focus rings (dark mode) */
 
-    /* Sidebar specific variables for dark theme - NAVY BLUE THEME */
-    --sidebar-background: 225 40% 12%; /* Very Dark Navy */
-    --sidebar-foreground: 225 15% 85%;   /* Light Grayish Blue */
-    --sidebar-primary: 220 50% 50%;    /* Medium Active Blue */
-    --sidebar-primary-foreground: 220 20% 95%; /* Very Light Off-White/Blueish */
-    --sidebar-accent: 220 50% 45%;     /* Slightly Darker Medium Blue for hover */
-    --sidebar-accent-foreground: 220 20% 95%; /* Very Light Off-White/Blueish */
-    --sidebar-border: 225 40% 15%;    /* Subtle Border, slightly lighter than bg */
-    --sidebar-ring: 220 60% 60%;      /* Focus Ring Blue */
+    /* Sidebar specific variables for dark theme - MOSS GREEN THEME */
+    --sidebar-background: 90 20% 18%;       /* Dark Moss Green */
+    --sidebar-foreground: 90 10% 70%;       /* Muted Light Greenish Gray */
+    --sidebar-primary: 80 30% 30%;          /* Active Dark Moss (subtle, richer) */
+    --sidebar-primary-foreground: 90 10% 85%;/* Very Light Greenish Gray for text on active */
+    --sidebar-accent: 90 20% 22%;           /* Hover Dark Moss */
+    --sidebar-accent-foreground: 90 10% 75%;/* Hover Text */
+    --sidebar-border: 90 20% 15%;           /* Darker Moss Border */
+    --sidebar-ring: 80 35% 35%;             /* Focus Ring Dark Moss */
 
     /* Custom Color Variables from User Request - Dark mode adjustments */
     --custom-technical-norm-blue: 200 98% 49%; 
@@ -143,8 +143,8 @@
     @apply border-border;
   }
   body {
-    /* Updated background gradient to shades of green */
-    @apply bg-gradient-to-br from-green-300 via-teal-400 to-emerald-500 dark:from-green-800/70 dark:via-teal-700/70 dark:to-emerald-900/70 text-foreground;
+    /* Updated background gradient to vivid greens */
+    @apply bg-gradient-to-br from-lime-400 via-green-500 to-teal-600 dark:from-lime-700/70 dark:via-green-800/70 dark:to-teal-900/70 text-foreground;
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
@@ -232,4 +232,5 @@
    @apply bg-transparent;
 }
     
+
 
