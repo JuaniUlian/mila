@@ -5,7 +5,7 @@ import type { DocumentBlock, AlertItem, ApplicableNorm, MissingConnection } from
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Info, FileCheck2, ListChecks, BarChart3, AlertTriangle } from 'lucide-react';
-import * as ProgressPrimitive from "@radix-ui/react-progress"; // Corrected import
+import * as ProgressPrimitive from "@radix-ui/react-progress";
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -23,10 +23,20 @@ interface RisksPanelProps {
   overallCompletenessIndex: number; 
 }
 
-const getRiskColorClasses = (riskPercentage: number, type: 'text' | 'bg' = 'text'): string => {
-  if (riskPercentage < 25) return type === 'text' ? 'text-green-600' : 'bg-green-600';
-  if (riskPercentage <= 50) return type === 'text' ? 'text-custom-warning-yellow-DEFAULT' : 'bg-custom-warning-yellow-DEFAULT';
-  return type === 'text' ? 'text-destructive' : 'bg-destructive';
+const getRiskColorClasses = (riskPercentage: number, type: 'text' | 'bg' | 'border' = 'text'): string => {
+  if (riskPercentage < 25) {
+    if (type === 'text') return 'text-green-600 dark:text-green-400';
+    if (type === 'bg') return 'bg-green-500 dark:bg-green-600';
+    if (type === 'border') return 'border-green-500 dark:border-green-600';
+  }
+  if (riskPercentage <= 50) {
+    if (type === 'text') return 'text-custom-warning-yellow-DEFAULT dark:text-yellow-400';
+    if (type === 'bg') return 'bg-custom-warning-yellow-DEFAULT dark:bg-yellow-500';
+    if (type === 'border') return 'border-custom-warning-yellow-DEFAULT dark:border-yellow-500';
+  }
+  if (type === 'text') return 'text-destructive dark:text-red-400';
+  if (type === 'bg') return 'bg-destructive dark:bg-red-600';
+  return 'border-destructive dark:border-red-600'; // border
 };
 
 
@@ -134,16 +144,16 @@ export function RisksPanel({
                               key={alert.id}
                               className={cn(
                                 "p-2.5 border-l-4 rounded-r-md flex items-start gap-2 text-sm shadow-sm bg-white/20 dark:bg-slate-700/30 backdrop-blur-sm transition-all duration-150 ease-in-out",
-                                alert.severity === 'grave' && 'border-destructive',
-                                alert.severity === 'media' && 'border-custom-warning-yellow-DEFAULT',
-                                alert.severity === 'leve' && 'border-custom-severity-low-DEFAULT',
+                                alert.severity === 'grave' && getRiskColorClasses(100, 'border'),
+                                alert.severity === 'media' && getRiskColorClasses(50, 'border'),
+                                alert.severity === 'leve' && getRiskColorClasses(10, 'border'),
                               )}
                             >
-                              <SeverityIndicator level={alert.severity} size={5} className={cn( // size 5 for larger icon
+                              <SeverityIndicator level={alert.severity} size={5} className={cn(
                                   "mt-0.5 flex-shrink-0",
-                                  alert.severity === 'grave' && 'text-destructive',
-                                  alert.severity === 'media' && 'text-custom-warning-yellow-DEFAULT',
-                                  alert.severity === 'leve' && 'text-custom-severity-low-DEFAULT',
+                                  alert.severity === 'grave' && getRiskColorClasses(100, 'text'),
+                                  alert.severity === 'media' && getRiskColorClasses(50, 'text'),
+                                  alert.severity === 'leve' && getRiskColorClasses(10, 'text'),
                               )}/>
                               <span className={cn(
                                 'text-foreground/90'
@@ -239,3 +249,5 @@ export function RisksPanel({
     </div>
   );
 }
+
+    

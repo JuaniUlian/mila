@@ -17,9 +17,9 @@ import { cn } from '@/lib/utils';
 import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Info, ShieldAlert } from 'lucide-react';
 
 const getBlockRiskColorClasses = (riskPercentage: number): string => {
-  if (riskPercentage < 25) return 'text-green-600';
-  if (riskPercentage <= 50) return 'text-custom-warning-yellow-DEFAULT';
-  return 'text-destructive';
+  if (riskPercentage < 25) return 'text-green-600 dark:text-green-400';
+  if (riskPercentage <= 50) return 'text-custom-warning-yellow-DEFAULT dark:text-yellow-400';
+  return 'text-destructive dark:text-red-400';
 };
 
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
@@ -230,7 +230,7 @@ export default function HomePage() {
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 bg-muted/30 dark:bg-transparent">
+          <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 bg-transparent">
             {selectedBlock ? (
               <ContentPanel
                 block={selectedBlock}
@@ -254,3 +254,5 @@ export default function HomePage() {
     </SidebarProvider>
   );
 }
+
+    

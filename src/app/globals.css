@@ -125,7 +125,7 @@
     --custom-warning-yellow-bg: 45 93% 50%;   
     --custom-warning-yellow-fg: 0 0% 98%;
 
-    --custom-technical-text-blue: 227 64% 73%; /* #1E3A8A dark mode equivalent */
+    --custom-technical-text-blue: 227 64% 73%; 
     
     --custom-severity-low-bg: 185 88% 37%;    
     --custom-severity-low-fg: 0 0% 98%;    
@@ -208,7 +208,7 @@
   @apply bg-white/50 dark:bg-slate-800/50 backdrop-blur-lg shadow-xl border border-white/30 dark:border-slate-700/50;
 }
 .glass-sidebar {
-   background-color: hsla(var(--sidebar-background), 0.7) !important;
+   background-color: hsla(var(--sidebar-background), 0.7) !important; /* Higher transparency */
    @apply backdrop-blur-lg border-r border-[hsla(var(--sidebar-border),0.5)] dark:border-[hsla(var(--sidebar-border),0.5)];
 }
 .glass-sidebar-header-footer {
@@ -217,7 +217,7 @@
 }
 
 .glass-card-content {
-  @apply bg-transparent;
+  @apply bg-transparent; /* Content area of cards is transparent */
 }
 
 .glass-accordion-item {
@@ -230,3 +230,5 @@
 .glass-accordion-content {
    @apply bg-transparent;
 }
+
+    

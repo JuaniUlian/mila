@@ -78,7 +78,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
   const [currentEditText, setCurrentEditText] = useState<string>('');
 
   if (!block) {
-    return ( // Placeholder when no block is selected, this won't be seen if BlockSummaryGrid is shown
+    return ( 
         <Card className="glass-card rounded-xl flex flex-col items-center justify-center p-6 min-h-[200px] transition-all duration-200 ease-in-out">
             <Info size={32} className="text-muted-foreground mb-3" />
             <CardTitle className="text-lg text-center font-semibold text-foreground mb-1.5">Seleccione un Bloque</CardTitle>
@@ -122,7 +122,6 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
     <div className="flex-1 flex flex-col gap-4">
       <BlockStatusDisplay block={block} />
       
-      {/* Section for Suggestions */}
       {visibleSuggestions.length > 0 ? (
         <div className="space-y-1">
           <div className="flex items-center gap-1.5 mb-1.5 px-1">
@@ -176,7 +175,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                         <Lightbulb className="h-3.5 w-3.5 text-accent" />
                         Propuesta de Redacción
                     </h4>
-                    <p className="text-[0.65rem] text-technical-norm-blue mb-1 ml-[1.25rem] flex items-center gap-0.5 -mt-0.5"> {/* Adjusted ml for alignment with h-4 icon */}
+                    <p className="text-[0.65rem] text-technical-norm-blue mb-1 ml-[1.25rem] flex items-center gap-0.5 -mt-0.5">
                         <BookOpen size={11}/> Norma Principal: {suggestion.appliedNorm}
                     </p>
                     {editingSuggestionId === suggestion.id ? (
@@ -281,3 +280,5 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
     </div>
   );
 }
+
+    
