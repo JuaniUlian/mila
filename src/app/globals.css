@@ -62,7 +62,7 @@
     --custom-warning-yellow-bg: 45 80% 60%;   
     --custom-warning-yellow-fg: 260 50% 10%; 
 
-    --custom-technical-text-blue: 220 70% 80%; 
+    --custom-technical-text-blue: 227 64% 33%; /* Dark navy/indigo for strong text */
     
     --custom-severity-low-bg: 185 70% 50%;    /* Cyan/Teal for low severity */
     --custom-severity-low-fg: 0 0% 100%;
@@ -128,7 +128,7 @@
     --custom-warning-yellow-bg: 45 80% 60%;   
     --custom-warning-yellow-fg: 260 50% 10%; 
 
-    --custom-technical-text-blue: 220 70% 80%; 
+    --custom-technical-text-blue: 210 70% 75%; /* Lighter version of dark navy for dark mode */
     
     --custom-severity-low-bg: 185 70% 50%;    
     --custom-severity-low-fg: 0 0% 100%;    
@@ -146,7 +146,7 @@
     @apply border-border;
   }
   body {
-    /* Dark Purple Gradient Background */
+    /* Dark Purple Gradient Background - matching reference image */
     background-image: linear-gradient(145deg, hsl(260, 50%, 10%) 0%, hsl(265, 55%, 15%) 30%, hsl(270, 60%, 20%) 70%, hsl(275, 65%, 25%) 100%);
     background-attachment: fixed; /* Ensures the gradient covers the full page and stays fixed during scroll */
     @apply bg-background text-foreground; /* Ensure base bg/fg for elements not explicitly styled */
