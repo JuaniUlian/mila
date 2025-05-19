@@ -14,7 +14,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { BlockNavigation } from '@/components/mila/block-navigation';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Info, ShieldAlert } from 'lucide-react';
+import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, ShieldAlert, CheckSquare } from 'lucide-react';
 
 const getBlockRiskColorClasses = (riskPercentage: number): string => {
   if (riskPercentage < 25) return 'text-green-600 dark:text-green-400';
@@ -25,7 +25,7 @@ const getBlockRiskColorClasses = (riskPercentage: number): string => {
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-4">
-       <Card className="glass-card rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
+       <Card className="glass-card rounded-2xl transition-all duration-200 ease-in-out hover:shadow-2xl">
         <CardHeader className="p-4">
           <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
             <Target className="h-6 w-6 text-accent" />
@@ -45,7 +45,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
               return (
                 <Card
                   key={block.id}
-                  className="glass-card hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col rounded-lg group bg-card/80 border"
+                  className="glass-card rounded-2xl hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col group bg-card/80 border"
                   onClick={() => onSelectBlock(block.id)}
                 >
                   <CardHeader className="flex-grow pb-1 px-3 pt-3">

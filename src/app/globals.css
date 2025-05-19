@@ -37,7 +37,7 @@
     --input: 215 30% 87%;
     --ring: 217 91% 59%; /* New Blue Accent for focus rings, matching accent */
 
-    --radius: 0.5rem;
+    --radius: 1rem; /* Increased for rounder cards */
 
     /* Sidebar specific variables - NAVY BLUE THEME */
     --sidebar-background: 225 40% 20%; /* Dark Navy Blue */
@@ -143,7 +143,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-gradient-to-br from-slate-50 to-sky-100 dark:from-slate-900 dark:to-sky-950 text-foreground;
+    /* Updated background gradient */
+    @apply bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 dark:from-pink-800/70 dark:via-purple-800/70 dark:to-indigo-900/70 text-foreground;
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
@@ -205,15 +206,15 @@
 
 /* Glassmorphism related classes */
 .glass-card {
-  @apply bg-white/50 dark:bg-slate-800/50 backdrop-blur-lg shadow-xl border border-white/30 dark:border-slate-700/50;
+  @apply bg-white/60 dark:bg-slate-800/60 backdrop-blur-lg shadow-xl border border-white/30 dark:border-slate-700/50 rounded-2xl; /* Increased rounding */
 }
 .glass-sidebar {
-   background-color: hsla(var(--sidebar-background), 0.7) !important; /* Higher transparency */
-   @apply backdrop-blur-lg border-r border-[hsla(var(--sidebar-border),0.5)] dark:border-[hsla(var(--sidebar-border),0.5)];
+   background-color: hsla(var(--sidebar-background), 0.65) !important; /* Adjusted transparency */
+   @apply backdrop-blur-lg border-r border-[hsla(var(--sidebar-border),0.4)] dark:border-[hsla(var(--sidebar-border),0.4)] rounded-r-2xl; /* Added rounding to right edge */
 }
 .glass-sidebar-header-footer {
    background-color: transparent !important;
-   border-color: hsla(var(--sidebar-border),0.3) !important;
+   border-color: hsla(var(--sidebar-border),0.2) !important;
 }
 
 .glass-card-content {
@@ -221,7 +222,7 @@
 }
 
 .glass-accordion-item {
-  @apply bg-white/30 dark:bg-slate-800/30 backdrop-blur-md shadow-md border border-white/20 dark:border-slate-700/40 rounded-xl overflow-hidden;
+  @apply bg-white/40 dark:bg-slate-800/40 backdrop-blur-md shadow-md border border-white/20 dark:border-slate-700/40 rounded-2xl overflow-hidden; /* Increased rounding */
 }
 
 .glass-accordion-trigger {
@@ -230,5 +231,4 @@
 .glass-accordion-content {
    @apply bg-transparent;
 }
-
     
