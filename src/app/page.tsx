@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { PageHeader } from '@/components/page-header';
+// import { PageHeader } from '@/components/page-header'; // No longer needed
 import { ContentPanel } from '@/components/mila/content-panel';
 import { RisksPanel } from '@/components/mila/risks-panel';
 import type { DocumentBlock, Suggestion, MilaAppPData } from '@/components/mila/types';
@@ -14,7 +14,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
 import { BlockNavigation } from '@/components/mila/block-navigation';
 import { SeverityIndicator } from '@/components/mila/severity-indicator';
 import { cn } from '@/lib/utils';
-import { FileText, Target, ShieldAlert, Layers, Home, ListChecks } from 'lucide-react';
+import { FileText, Target, ShieldAlert, Layers, Home, ListChecks, ArrowLeft } from 'lucide-react';
 
 const getBlockRiskColorClasses = (riskPercentage: number): string => {
   if (riskPercentage < 25) return 'text-green-600 dark:text-green-400';
@@ -25,7 +25,7 @@ const getBlockRiskColorClasses = (riskPercentage: number): string => {
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-4">
-       <Card className="glass-card rounded-2xl transition-all duration-200 ease-in-out hover:shadow-2xl">
+       <Card className="glass-card rounded-2xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-4">
           <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
             <Target className="h-6 w-6 text-accent" />
@@ -200,15 +200,27 @@ export default function HomePage() {
              <Layers className="h-6 w-6 text-sidebar-primary" />
              <h2 className="text-lg font-semibold text-sidebar-foreground">Navegación</h2>
            </div>
+           {selectedBlockId && (
+             <Button 
+                variant="ghost" 
+                onClick={handleGoHome} 
+                className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm font-medium mt-1 transition-colors duration-150 ease-in-out"
+              >
+                <ArrowLeft size={16} className="mr-2" />
+                Volver al Resumen
+             </Button>
+            )}
         </SidebarHeader>
         <SidebarContent className="p-0">
           <BlockNavigation
+            blocks={blocks}
+            selectedBlockId={selectedBlockId}
+            onSelectBlock={handleSelectBlock}
             onGoHome={handleGoHome}
             isHomeActive={selectedBlockId === null}
           />
         </SidebarContent>
          <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border glass-sidebar-header-footer">
-            {/* Placeholder for potential future sidebar footer items */}
             <Button variant="outline" className="w-full border-sidebar-border text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors duration-150">
                 <ListChecks className="mr-2 h-4 w-4" />
                 Opciones
@@ -217,7 +229,7 @@ export default function HomePage() {
       </Sidebar>
 
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
-        <PageHeader title={documentTitle} />
+        {/* <PageHeader title={documentTitle} />  Removed PageHeader */}
         <div className="flex flex-1 overflow-hidden">
           <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 bg-transparent">
             {selectedBlock ? (
