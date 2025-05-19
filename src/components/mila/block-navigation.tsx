@@ -40,18 +40,19 @@ export function BlockNavigation({ blocks, selectedBlockId, onSelectBlock }: Bloc
     <Accordion
       type="multiple"
       defaultValue={defaultOpenCategories}
-      className="w-full p-2 space-y-1" // Adjusted padding
-      key={selectedBlockId} // Force re-render when selectedBlockId changes to correctly apply defaultValue
+      className="w-full p-2 space-y-1"
+      key={selectedBlockId} 
     >
       {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => (
         <AccordionItem
           value={category}
           key={category}
-          className="border-b-0 rounded-md overflow-hidden transition-all duration-200 ease-in-out" // Removed border-b, using space-y-1 on parent
+          className="border-b-0 rounded-md overflow-hidden transition-all duration-200 ease-in-out"
         >
-          <AccordionTrigger className="text-sm font-medium text-sidebar-foreground/90 hover:no-underline hover:bg-sidebar-accent/80 px-3 py-2.5 data-[state=open]:bg-sidebar-accent/90 rounded-md data-[state=open]:text-sidebar-accent-foreground transition-colors duration-150 ease-in-out group">
+          <AccordionTrigger className="text-sm font-medium text-sidebar-foreground hover:no-underline hover:bg-sidebar-accent/80 px-3 py-2.5 data-[state=open]:bg-sidebar-accent/90 rounded-md data-[state=open]:text-sidebar-accent-foreground transition-colors duration-150 ease-in-out group">
             <div className="flex items-center gap-2.5">
-              <Layers size={18} className="text-sidebar-primary group-hover:text-sidebar-accent-foreground transition-colors"/> <span>{category} ({categoryBlocks.length})</span>
+              <Layers size={18} className="text-sidebar-primary group-hover:text-sidebar-accent-foreground transition-colors"/> 
+              <span className="text-sidebar-foreground">{category} ({categoryBlocks.length})</span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="pt-1 pb-2 px-1.5 bg-transparent data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
@@ -65,7 +66,7 @@ export function BlockNavigation({ blocks, selectedBlockId, onSelectBlock }: Bloc
                     "justify-between items-center w-full h-auto py-2 px-2.5 text-left text-xs rounded-md font-normal transition-colors duration-150 ease-in-out",
                     selectedBlockId === block.id
                       ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                      : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                   title={`Bloque: ${block.name}\nCategoría: ${block.category}\nCompletitud: ${block.completenessIndex}/${block.maxCompleteness}\nAlertas: ${block.alertLevel !== 'none' ? block.alertLevel.toUpperCase() : 'Ninguna'}`}
                 >

@@ -1,7 +1,7 @@
 
 "use client";
 import type React from 'react';
-import type { DocumentBlock, AlertItem, MilaAppPData } from './types'; 
+import type { DocumentBlock, AlertItem } from './types'; // Removed MilaAppPData
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Link2Off, ShieldAlert, BookOpen, TrendingUp, Gauge, Info, FileCheck2, ListChecks, BarChart3, AlertTriangle } from 'lucide-react'; 
@@ -15,24 +15,19 @@ import {
 } from "@/components/ui/accordion";
 import { SeverityIndicator } from './severity-indicator';
 import { cn } from '@/lib/utils';
-import { BlockNavigation } from './block-navigation';
+// Removed BlockNavigation import
 
 interface RisksPanelProps {
   selectedBlockDetail: DocumentBlock | null;
   overallComplianceScore: number;
   overallCompletenessIndex: number;
-  blocks: DocumentBlock[]; // Added for BlockNavigation
-  selectedBlockId: string | null; // Added for BlockNavigation
-  onSelectBlock: (id: string) => void; // Added for BlockNavigation
+  // Removed props: blocks, selectedBlockId, onSelectBlock
 }
 
 export function RisksPanel({
   selectedBlockDetail,
   overallComplianceScore,
   overallCompletenessIndex,
-  blocks, // Added
-  selectedBlockId, // Added
-  onSelectBlock, // Added
 }: RisksPanelProps) {
   const { toast } = useToast();
   
@@ -49,13 +44,9 @@ export function RisksPanel({
 
   return (
     <div className="p-4 md:p-5 space-y-6 h-full">
-      <BlockNavigation
-        blocks={blocks}
-        selectedBlockId={selectedBlockId}
-        onSelectBlock={onSelectBlock}
-      />
+      {/* BlockNavigation is no longer rendered here */}
 
-      <Card className="glass-card rounded-xl mt-6 transition-all duration-200 ease-in-out hover:shadow-2xl">
+      <Card className="glass-card rounded-xl mt-0 transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-5">
           <div className="flex items-center gap-2.5 mb-0.5">
             <BarChart3 className="h-6 w-6 text-accent" />
@@ -90,7 +81,7 @@ export function RisksPanel({
       </Card>
 
       {selectedBlockDetail ? (
-        <Card className="glass-card mt-6 rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl">
+        <Card className="glass-card mt-6 rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
           <CardHeader className="p-5">
             <div className="flex items-center gap-2.5 mb-0.5">
               <Info className="h-6 w-6 text-accent" />
@@ -198,7 +189,7 @@ export function RisksPanel({
               )}
             </Accordion>
 
-            {(selectedBlockDetail.alerts.length === 0 && selectedBlockDetail.missingConnections.length === 0 && !selectedBlockDetail.legalRisk && selectedBlockDetail.applicableNorms.length === 0) && (
+            {(selectedBlockDetail.alerts?.length === 0 && selectedBlockDetail.missingConnections?.length === 0 && !selectedBlockDetail.legalRisk && selectedBlockDetail.applicableNorms?.length === 0) && (
                  <p className="text-sm text-muted-foreground p-4 border border-white/20 dark:border-slate-700/40 rounded-lg bg-white/10 dark:bg-slate-700/20 backdrop-blur-sm mt-2">
                     No hay información adicional (alertas, conexiones, riesgos o normativas directas) para este bloque.
                 </p>
@@ -213,11 +204,11 @@ export function RisksPanel({
           </CardContent>
         </Card>
       ) : (
-        <Card className="glass-card rounded-xl mt-6 flex flex-col items-center justify-center p-8 min-h-[250px] transition-all duration-200 ease-in-out">
+        <Card className="glass-card rounded-xl mt-6 flex flex-col items-center justify-center p-8 min-h-[250px] transition-all duration-200 ease-in-out border">
           <ListChecks size={38} className="text-muted-foreground/70 mb-3.5" />
           <CardTitle className="text-lg text-center font-semibold text-foreground mb-1.5">Información Detallada del Bloque</CardTitle>
           <CardDescription className="text-sm text-center text-muted-foreground max-w-xs">
-            Seleccione un bloque de la navegación para ver sus detalles, alertas, y sugerencias específicas aquí.
+            Seleccione un bloque de la navegación izquierda para ver sus detalles, alertas, y sugerencias específicas aquí.
           </CardDescription>
         </Card>
       )}

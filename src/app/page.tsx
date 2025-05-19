@@ -20,13 +20,13 @@ import { FileText, Layers, ListChecks, Home, ArrowLeft, Target, CheckSquare, Inf
 const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: string) => void }> = ({ blocks, onSelectBlock }) => {
   return (
     <div className="space-y-6">
-       <Card className="glass-card rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl">
+       <Card className="glass-card rounded-xl transition-all duration-200 ease-in-out hover:shadow-2xl border">
         <CardHeader className="p-6">
           <CardTitle className="text-2xl font-semibold flex items-center gap-3 text-foreground">
             <Target className="h-7 w-7 text-accent" />
             Resumen de Bloques del Documento
           </CardTitle>
-          <CardDescription className="text-base text-muted-foreground mt-1.5">
+          <CardDescription className="text-base text-muted-foreground mt-1.5 mb-8">
             Seleccione un bloque para ver su contenido detallado y las sugerencias de mejora, o navegue usando el panel izquierdo.
           </CardDescription>
         </CardHeader>
@@ -35,16 +35,16 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
             {blocks.map((block) => (
               <Card
                 key={block.id}
-                className="glass-card hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col rounded-lg group"
+                className="glass-card hover:shadow-lg transition-all duration-200 ease-in-out cursor-pointer flex flex-col rounded-lg group bg-card/80 border"
                 onClick={() => onSelectBlock(block.id)}
               >
                 <CardHeader className="flex-grow pb-3 px-5 pt-5">
                   <CardTitle className="text-lg font-semibold flex items-center justify-between text-foreground group-hover:text-accent transition-colors">
                     <span className="flex items-center gap-2.5 text-accent">
-                      <FileText size={20} className="group-hover:text-accent/90 transition-colors" />
+                      <FileText size={22} className="group-hover:text-accent/90 transition-colors" />
                       {block.name}
                     </span>
-                    <SeverityIndicator level={block.alertLevel} size={5}/>
+                    <SeverityIndicator level={block.alertLevel} size={6}/>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-grow pt-2 pb-4 px-5">
@@ -53,7 +53,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                     <CheckSquare size={16} className="text-muted-foreground"/>
                     <span className="text-sm font-medium text-muted-foreground">Completitud: </span>
                     <span className={cn(
-                      "font-bold text-base", 
+                      "font-bold text-lg", 
                       block.completenessIndex < 5 ? "text-destructive" :
                       block.completenessIndex < 8 ? "text-custom-warning-yellow-DEFAULT" :
                       "text-green-600" 
@@ -63,7 +63,7 @@ const BlockSummaryGrid: React.FC<{ blocks: DocumentBlock[]; onSelectBlock: (id: 
                   </div>
                 </CardContent>
                 <CardContent className="pt-0 pb-5 px-5">
-                   <Button variant="outline" size="sm" className="w-full mt-auto text-sm py-2 group-hover:border-accent group-hover:text-accent transition-colors duration-150">
+                   <Button variant="outline" size="default" className="w-full mt-auto text-base py-2.5 group-hover:border-accent group-hover:text-accent transition-colors duration-150">
                     Ver Detalles del Bloque
                   </Button>
                 </CardContent>
@@ -128,7 +128,7 @@ export default function HomePage() {
       const previousStatus = suggestionToUpdate.status;
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
 
-      if (previousStatus === 'pending' && newStatus === 'applied') {
+      if (previousStatus === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       }
       
@@ -205,7 +205,7 @@ export default function HomePage() {
               </Button>
             )}
         </SidebarHeader>
-        <SidebarContent className="p-0">
+        <SidebarContent className="p-0"> {/* Ensure BlockNavigation can control its own padding */}
           <BlockNavigation
             blocks={blocks}
             selectedBlockId={selectedBlockId}
@@ -220,10 +220,11 @@ export default function HomePage() {
         </SidebarFooter>
       </Sidebar>
 
+      {/* Main content area now uses custom CSS variable for sidebar width adjustment */}
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         <PageHeader title={documentTitle} />
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-transparent"> {/* Changed bg-muted/30 to bg-transparent */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-muted/30 dark:bg-transparent">
             {selectedBlock ? (
               <ContentPanel
                 block={selectedBlock}
@@ -240,9 +241,6 @@ export default function HomePage() {
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}
               overallCompletenessIndex={overallCompletenessIndex}
-              blocks={blocks}
-              selectedBlockId={selectedBlockId}
-              onSelectBlock={handleSelectBlock}
             />
           </aside>
         </div>
