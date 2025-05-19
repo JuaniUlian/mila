@@ -72,7 +72,7 @@ export function RisksPanel({
           </div>
            <Button className="w-full mt-4 bg-accent hover:bg-accent/90 text-accent-foreground text-sm py-2 transition-colors duration-150" size="sm" onClick={() => handleExportPDF()}>
             <Download className="mr-2 h-4 w-4" />
-            Exportar Reporte Completo (PDF)
+            Exportar Informe (PDF)
           </Button>
         </CardContent>
       </Card>
