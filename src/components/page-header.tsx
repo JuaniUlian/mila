@@ -21,11 +21,7 @@ export function PageHeader({ title }: PageHeaderProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-1 pb-3 md:pt-0 md:pb-4">
-        <p className="text-xs md:text-sm text-muted-foreground">
-          Plataforma interactiva para la validación y mejora de documentos normativos.
-        </p>
-      </CardContent>
+      {/* CardContent removed as per request */}
       <CardFooter className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 bg-white/10 dark:bg-slate-900/20 p-3 md:p-4 rounded-b-2xl border-t border-white/20 dark:border-slate-700/40">
         <Button 
           variant="outline" 
