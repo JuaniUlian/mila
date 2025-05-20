@@ -47,15 +47,15 @@ const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
       </CardHeader>
       <CardContent className="space-y-2 pt-1 p-3 glass-card-content">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-          <div className="p-2 bg-[hsla(var(--muted),0.5)] backdrop-blur-sm rounded-lg">
+          <div className="p-2 bg-[hsla(var(--muted-rgb),0.5)] backdrop-blur-sm rounded-lg">
             <p className="text-muted-foreground mb-0.5">Sugerencias Pendientes</p>
             <p className="font-semibold text-sm text-foreground">{pendingSuggestionsCount} <span className="text-xs text-muted-foreground">de {totalSuggestionsOriginal}</span></p>
           </div>
-          <div className="p-2 bg-[hsla(var(--muted),0.5)] backdrop-blur-sm rounded-lg">
+          <div className="p-2 bg-[hsla(var(--muted-rgb),0.5)] backdrop-blur-sm rounded-lg">
             <p className="text-muted-foreground mb-0.5">Sugerencias Aplicadas</p>
             <p className="font-semibold text-sm text-foreground">{appliedSuggestionsCount}</p>
           </div>
-          <div className="p-2 bg-[hsla(var(--muted),0.5)] backdrop-blur-sm rounded-lg">
+          <div className="p-2 bg-[hsla(var(--muted-rgb),0.5)] backdrop-blur-sm rounded-lg">
             <p className="text-muted-foreground mb-0.5">Score Normativo</p>
             <p className="font-semibold text-sm text-foreground">{block.completenessIndex} / {block.maxCompleteness}</p>
           </div>
@@ -78,7 +78,6 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
   const [currentEditText, setCurrentEditText] = useState<string>('');
 
   if (!block) {
-    // This part should ideally not be reached if HeroBanner is shown on page.tsx when !selectedBlock
     return ( 
         <Card className="glass-card rounded-xl flex flex-col items-center justify-center p-6 min-h-[200px] transition-all duration-200 ease-in-out">
             <Layers size={32} className="text-muted-foreground mb-3" />
@@ -133,8 +132,8 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
           </div>
           <Accordion type="multiple" defaultValue={defaultOpenSuggestionItems} className="w-full space-y-2.5">
             {visibleSuggestions.map((suggestion) => (
-              <AccordionItem value={suggestion.id} key={suggestion.id} className="glass-accordion-item">
-                <AccordionTrigger className="p-2.5 text-sm hover:no-underline data-[state=open]:bg-[hsla(var(--card),0.8)] w-full text-left data-[state=open]:border-b data-[state=open]:border-[hsla(var(--border),0.3)] transition-colors duration-150 ease-in-out group glass-accordion-trigger">
+              <AccordionItem value={suggestion.id} key={suggestion.id} className="glass-accordion-item hover:shadow-lg hover:border-accent/50 transition-all duration-200 ease-in-out">
+                <AccordionTrigger className="p-2.5 text-sm hover:no-underline data-[state=open]:bg-[hsla(var(--card-rgb),0.8)] w-full text-left data-[state=open]:border-b data-[state=open]:border-[hsla(var(--border-rgb),0.3)] transition-colors duration-150 ease-in-out group glass-accordion-trigger hover:bg-accent/20">
                   <div className="flex items-center gap-1.5 w-full">
                     <Edit3 className="h-4 w-4 text-primary group-hover:text-primary/80 transition-colors" />
                     <span className="flex-1 font-medium text-xs text-foreground group-hover:text-primary transition-colors">
@@ -145,7 +144,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                       className={cn(
                         'text-xs font-semibold px-1.5 py-0.5 transition-colors duration-150 rounded-md',
                         suggestion.status === 'pending' && 'border-primary/70 text-primary bg-primary/20 backdrop-blur-sm',
-                        editingSuggestionId === suggestion.id && 'border-blue-500/70 text-blue-400 bg-blue-500/20 backdrop-blur-sm', // Primary action blue for editing
+                        editingSuggestionId === suggestion.id && 'border-blue-500/70 text-blue-400 bg-blue-500/20 backdrop-blur-sm',
                         suggestion.status === 'applied' && 'bg-green-500/30 text-green-300 border-green-500/50',
                         suggestion.status === 'discarded' && 'bg-red-500/30 text-red-300 border-red-500/50'
                       )}
@@ -154,7 +153,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                     </Badge>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-3 py-2.5 space-y-2.5 border-t border-[hsla(var(--border),0.3)] glass-accordion-content">
+                <AccordionContent className="px-3 py-2.5 space-y-2.5 border-t border-[hsla(var(--border-rgb),0.3)] glass-accordion-content">
                   
                   <div>
                     <h4 className="text-xs font-semibold mb-0.5 flex items-center gap-1 text-foreground">
@@ -166,12 +165,12 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                         <Copy className="h-2 w-2 mr-0.5" /> Copiar
                       </Button>
                     </div>
-                    <ScrollArea className="h-[100px] rounded-md border border-[hsla(var(--border),0.3)] p-2 bg-[hsla(var(--background),0.3)] backdrop-blur-sm text-[0.7rem] text-foreground/80">
+                    <ScrollArea className="h-[100px] rounded-md border border-[hsla(var(--border-rgb),0.3)] p-2 bg-[hsla(var(--background-rgb),0.3)] backdrop-blur-sm text-[0.7rem] text-foreground/80">
                       <pre className="whitespace-pre-wrap">{block.originalText}</pre>
                     </ScrollArea>
                   </div>
 
-                  <Separator className="bg-[hsla(var(--border),0.3)]" />
+                  <Separator className="bg-[hsla(var(--border-rgb),0.3)]" />
 
                   <div>
                     <h4 className="text-xs font-semibold mb-0.5 text-foreground flex items-center gap-1">
@@ -186,11 +185,11 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                         value={currentEditText}
                         onChange={(e) => setCurrentEditText(e.target.value)}
                         rows={3}
-                        className="w-full text-xs p-1.5 border border-[hsla(var(--border),0.4)] rounded-md bg-[hsla(var(--background),0.2)] backdrop-blur-sm focus-visible:ring-primary mb-2 text-foreground"
+                        className="w-full text-xs p-1.5 border border-[hsla(var(--border-rgb),0.4)] rounded-md bg-[hsla(var(--background-rgb),0.2)] backdrop-blur-sm focus-visible:ring-primary mb-2 text-foreground"
                         aria-label="Editar sugerencia"
                       />
                     ) : (
-                      <div className="p-2 border border-[hsla(var(--border),0.3)] rounded-md bg-[hsla(var(--muted),0.3)] backdrop-blur-sm mb-2 text-xs text-foreground">
+                      <div className="p-2 border border-[hsla(var(--border-rgb),0.3)] rounded-md bg-[hsla(var(--muted-rgb),0.3)] backdrop-blur-sm mb-2 text-xs text-foreground">
                         <p className="leading-relaxed">{suggestion.text}</p>
                       </div>
                     )}
@@ -209,7 +208,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                             size="sm" 
                             variant="outline" 
                             onClick={handleCancelEdit}
-                            className="text-muted-foreground hover:border-destructive hover:text-destructive transition-colors duration-150 border-[hsla(var(--border),0.4)] h-7 text-xs px-2 rounded-md"
+                            className="text-muted-foreground hover:border-destructive hover:text-destructive transition-colors duration-150 border-[hsla(var(--border-rgb),0.4)] h-7 text-xs px-2 rounded-md"
                           >
                             <XCircle className="mr-1 h-2.5 w-2.5" /> Cancelar
                           </Button>
@@ -229,7 +228,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                             variant="outline" 
                             onClick={() => handleEditSuggestion(suggestion)}
                             disabled={suggestion.status !== 'pending'}
-                            className="text-primary hover:border-primary hover:text-primary hover:bg-primary/10 transition-colors duration-150 border-[hsla(var(--border),0.4)] h-7 text-xs px-2 rounded-md"
+                            className="text-primary hover:border-primary hover:text-primary hover:bg-primary/10 transition-colors duration-150 border-[hsla(var(--border-rgb),0.4)] h-7 text-xs px-2 rounded-md"
                           >
                             <Edit3 className="mr-1 h-2.5 w-2.5" /> Editar
                           </Button>
@@ -249,7 +248,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                       </Button>
                     </div>
 
-                    <Separator className="my-2 bg-[hsla(var(--border),0.3)]" />
+                    <Separator className="my-2 bg-[hsla(var(--border-rgb),0.3)]" />
                     <div>
                       <h5 className="text-xs font-semibold mb-1 flex items-center gap-1 text-foreground"><ClipboardList size={12} /> Detalles Técnicos</h5>
                       <div className="space-y-1 text-[0.65rem] leading-snug pl-0.5">
@@ -274,7 +273,7 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
                 </CardTitle>
             </CardHeader>
             <CardContent className="pt-0.5 pb-2.5 px-2.5 glass-card-content">
-                <p className="text-xs text-muted-foreground p-2 border border-[hsla(var(--border),0.3)] rounded-lg bg-[hsla(var(--muted),0.3)] backdrop-blur-sm">
+                <p className="text-xs text-muted-foreground p-2 border border-[hsla(var(--border-rgb),0.3)] rounded-lg bg-[hsla(var(--muted-rgb),0.3)] backdrop-blur-sm">
                     No hay sugerencias de redacción pendientes para este bloque, o ya fueron procesadas.
                 </p>
             </CardContent>
@@ -283,3 +282,5 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
     </div>
   );
 }
+
+    

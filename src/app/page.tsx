@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
 import { BlockNavigation } from '@/components/mila/block-navigation';
-import { FileText, Layers, ShieldAlert, ArrowLeft, ListChecks, Settings, UserCircle, Bell, Target } from 'lucide-react';
+import { FileText, Layers, ShieldAlert, ListChecks, Settings, UserCircle, Bell, Target } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { cn } from '@/lib/utils';
 import { ThemeSwitcher } from '@/components/layout/theme-switcher';
@@ -37,17 +37,17 @@ const BlockSummaryGrid: React.FC<{
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           {blocks.map((block) => {
             const blockRiskPercentage = 100 - (block.completenessIndex / block.maxCompleteness) * 100;
-            let riskColorClass = 'text-[rgb(var(--custom-severity-low-fg-rgb))]'; // Default to low risk color
+            let riskColorClass = 'text-custom-severity-low-DEFAULT'; // Default to low risk color
             if (blockRiskPercentage > 50) {
-              riskColorClass = 'text-[rgb(var(--custom-severity-high-fg-rgb))]';
+              riskColorClass = 'text-destructive';
             } else if (blockRiskPercentage >= 25) {
-              riskColorClass = 'text-custom-warning-yellow-foreground';
+              riskColorClass = 'text-custom-warning-yellow-DEFAULT';
             }
 
             return (
               <Card
                 key={block.id}
-                className="glass-card rounded-2xl hover:shadow-2xl transition-all duration-200 ease-in-out cursor-pointer flex flex-col group"
+                className="glass-card rounded-2xl hover:shadow-2xl hover:border-accent/70 transition-all duration-200 ease-in-out cursor-pointer flex flex-col group"
                 onClick={() => onSelectBlock(block.id)}
               >
                 <CardHeader className="px-3 pt-3 pb-1 md:px-4 md:pt-4 md:pb-2">
@@ -106,7 +106,7 @@ export default function HomePage() {
 
   const { blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
 
-  const handleSelectBlock = useCallback((id: string | null) => { // Allow null to go home
+  const handleSelectBlock = useCallback((id: string | null) => {
     setSelectedBlockId(id);
   }, []);
 
@@ -169,18 +169,18 @@ export default function HomePage() {
 
       const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
 
+      toast({
+        title: "Sugerencia Actualizada",
+        description: `El estado de la sugerencia ha sido cambiado a ${newStatus}.`,
+        variant: newStatus === 'applied' ? 'default' : newStatus === 'discarded' ? 'destructive' : 'default', 
+      });
+      
       return {
         ...prevData,
         blocks: updatedBlocks,
         overallCompletenessIndex: newOverallCompleteness,
         overallComplianceScore: newOverallCompliance,
       };
-    });
-
-    toast({
-      title: "Sugerencia Actualizada",
-      description: `El estado de la sugerencia ha sido cambiado a ${newStatus}.`,
-      variant: newStatus === 'applied' ? 'default' : newStatus === 'discarded' ? 'destructive' : 'default', 
     });
   }, [toast, recalculateOverallScores]);
 
@@ -242,7 +242,7 @@ export default function HomePage() {
             <Button variant="ghost" size="icon" className="text-foreground hover:bg-accent/20 rounded-full">
               <Settings size={20} />
             </Button>
-            <UserCircle size={28} className="text-foreground" /> {/* Placeholder for user avatar */}
+            <UserCircle size={28} className="text-foreground" />
           </div>
         </header>
 
@@ -274,3 +274,5 @@ export default function HomePage() {
     </SidebarProvider>
   );
 }
+
+    
