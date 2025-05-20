@@ -11,10 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar';
 import { BlockNavigation } from '@/components/mila/block-navigation';
-import { FileText, Layers, ShieldAlert, ArrowLeft, ListChecks, Settings, UserCircle, Bell } from 'lucide-react';
+import { FileText, Layers, ShieldAlert, ArrowLeft, ListChecks, Settings, UserCircle, Bell, Target } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 import { cn } from '@/lib/utils';
-import { ThemeSwitcher } from '@/components/layout/theme-switcher'; // New Import
+import { ThemeSwitcher } from '@/components/layout/theme-switcher';
 
 const BlockSummaryGrid: React.FC<{
   blocks: DocumentBlock[];
@@ -24,7 +24,7 @@ const BlockSummaryGrid: React.FC<{
     <Card className="glass-card rounded-2xl shadow-xl border transition-all duration-200 ease-in-out w-full">
       <CardHeader className="p-4 md:p-5 text-center">
         <div className="flex flex-col items-center gap-2 mb-1">
-          <Layers size={32} className="text-primary mb-1" />
+          <Target size={32} className="text-primary mb-1" />
           <CardTitle className="text-xl font-semibold flex items-center justify-center gap-2 text-foreground">
             Resumen de Bloques del Documento
           </CardTitle>
@@ -41,7 +41,7 @@ const BlockSummaryGrid: React.FC<{
             if (blockRiskPercentage > 50) {
               riskColorClass = 'text-[rgb(var(--custom-severity-high-fg-rgb))]';
             } else if (blockRiskPercentage >= 25) {
-              riskColorClass = 'text-[rgb(var(--custom-severity-medium-fg-rgb))]';
+              riskColorClass = 'text-custom-warning-yellow-foreground';
             }
 
             return (
@@ -52,8 +52,8 @@ const BlockSummaryGrid: React.FC<{
               >
                 <CardHeader className="px-3 pt-3 pb-1 md:px-4 md:pt-4 md:pb-2">
                   <div className="flex items-center gap-2.5 mb-1">
-                    <FileText size={18} className="text-accent group-hover:text-accent/90 transition-colors" />
-                    <CardTitle className="text-base font-semibold text-accent group-hover:text-accent/90 transition-colors">
+                    <FileText size={18} className="text-technical-text-blue group-hover:text-accent/90 transition-colors" />
+                    <CardTitle className="text-base font-semibold text-technical-text-blue group-hover:text-accent transition-colors">
                       {block.name}
                     </CardTitle>
                   </div>
@@ -74,7 +74,7 @@ const BlockSummaryGrid: React.FC<{
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs py-1.5 h-8 text-accent group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150"
+                    className="w-full text-xs py-1.5 h-8 text-technical-text-blue group-hover:border-accent group-hover:text-accent group-hover:bg-accent/10 transition-colors duration-150"
                   >
                     Ver Detalles
                   </Button>
@@ -92,19 +92,21 @@ const BlockSummaryGrid: React.FC<{
 export default function HomePage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [theme, setTheme] = useState('light'); // State for theme
+  const [theme, setTheme] = useState<'light' | 'dark' | 'violet'>('light');
   const { toast } = useToast();
 
   useEffect(() => {
-    // Apply theme to HTML element
     document.documentElement.setAttribute('data-theme', theme);
-    // Remove .dark class if it exists, as data-theme will handle dark mode
-    document.documentElement.classList.remove('dark');
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [theme]);
 
   const { blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
 
-  const handleSelectBlock = useCallback((id: string) => {
+  const handleSelectBlock = useCallback((id: string | null) => { // Allow null to go home
     setSelectedBlockId(id);
   }, []);
 
@@ -149,11 +151,9 @@ export default function HomePage() {
       if (suggestionIndex === -1) return prevData;
 
       const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
-
       if (suggestionToUpdate.status === newStatus) return prevData; 
 
       let newCompletenessIndexForBlock = blockToUpdate.completenessIndex;
-
       if (suggestionToUpdate.status === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         newCompletenessIndexForBlock = Math.min(blockToUpdate.maxCompleteness, blockToUpdate.completenessIndex + (suggestionToUpdate.completenessImpact || 0));
       } else if (suggestionToUpdate.status === 'applied' && (newStatus === 'pending' || newStatus === 'discarded') && suggestionToUpdate.completenessImpact) {
@@ -216,22 +216,11 @@ export default function HomePage() {
             <span className="text-lg font-semibold text-sidebar-foreground ml-1">Mila</span>
              <SidebarTrigger className="md:hidden ml-auto" /> 
            </div>
-           {selectedBlockId && (
-             <Button 
-                variant="ghost" 
-                onClick={handleGoHome} 
-                className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm font-medium mt-1 transition-colors duration-150 ease-in-out rounded-md h-9 px-3"
-              >
-                <ArrowLeft size={16} className="mr-2" />
-                Volver al Resumen
-             </Button>
-            )}
         </SidebarHeader>
         <SidebarContent className="p-0">
           <BlockNavigation
-            blocks={blocks}
-            selectedBlockId={selectedBlockId}
-            onSelectBlock={handleSelectBlock}
+            onGoHome={handleGoHome}
+            isHomeActive={selectedBlockId === null}
           />
         </SidebarContent>
          <SidebarFooter className="p-3 mt-auto border-t border-sidebar-border/30 glass-sidebar-header-footer">
@@ -244,8 +233,7 @@ export default function HomePage() {
 
       <div className="flex flex-col h-screen md:pl-[var(--sidebar-width)] group-data-[state=collapsed]/sidebar-wrapper:md:pl-[var(--sidebar-width-icon)] transition-[padding] duration-200 ease-linear">
         
-        {/* Top bar area for ThemeSwitcher and user profile (conceptual) */}
-        <header className="sticky top-0 z-10 flex items-center justify-end h-14 px-4 md:px-6 border-b bg-[rgba(var(--card-rgb),var(--card-alpha))] backdrop-blur-lg">
+        <header className="glass-card rounded-full flex items-center justify-end h-14 px-4 md:px-6 my-2 mx-4 md:mx-6 backdrop-blur-xl shadow-lg">
           <div className="flex items-center gap-3">
             <ThemeSwitcher currentTheme={theme} setTheme={setTheme} />
             <Button variant="ghost" size="icon" className="text-foreground hover:bg-accent/20 rounded-full">
@@ -259,7 +247,7 @@ export default function HomePage() {
         </header>
 
         <div className="flex flex-1 overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-3 md:p-4 lg:p-4 space-y-4 md:space-y-5 bg-transparent">
+          <main className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 md:space-y-5 bg-transparent">
             {selectedBlock ? (
               <>
                 <h1 className="text-2xl font-bold text-foreground mb-3 md:mb-4 px-1">Detalle del Bloque: {selectedBlock.name}</h1>
@@ -274,7 +262,7 @@ export default function HomePage() {
             )}
           </main>
 
-          <aside className="w-full shrink-0 md:w-[320px] lg:w-[300px] xl:w-[340px] border-l border-[rgba(var(--border-rgb),0.2)] bg-[rgba(var(--card-rgb),var(--card-alpha))] backdrop-blur-lg text-card-foreground overflow-y-auto shadow-lg transition-all duration-200 ease-in-out">
+          <aside className="w-full shrink-0 md:w-[320px] lg:w-[300px] xl:w-[340px] border-l border-[rgba(var(--border-rgb),0.2)] bg-[hsla(var(--card-rgb),var(--card-alpha))] backdrop-blur-lg text-card-foreground overflow-y-auto shadow-lg transition-all duration-200 ease-in-out">
             <RisksPanel
               selectedBlockDetail={selectedBlock}
               overallComplianceScore={overallComplianceScore}
