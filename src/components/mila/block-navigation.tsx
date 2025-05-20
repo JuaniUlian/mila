@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Home, FilePlus2, BriefcaseBusiness } from 'lucide-react'; // Updated Briefcase to BriefcaseBusiness for more relevance
+import { Home, FilePlus2, BriefcaseBusiness } from 'lucide-react';
 
 interface BlockNavigationProps {
   onGoHome: () => void;
@@ -15,7 +15,7 @@ const navItems = [
     name: 'Inicio',
     icon: Home,
     actionType: 'internal' as const,
-    href: '#', // Placeholder for internal navigation
+    href: '#',
   },
   {
     name: 'Nuevo Pliego',
@@ -25,7 +25,7 @@ const navItems = [
   },
   {
     name: 'PLUS BI',
-    icon: BriefcaseBusiness, // Changed from Layers to Briefcase for a more business-like icon
+    icon: BriefcaseBusiness,
     actionType: 'external' as const,
     href: 'https://pluscompol.com',
   },
@@ -36,7 +36,7 @@ export function BlockNavigation({
   isHomeActive,
 }: BlockNavigationProps) {
   return (
-    <nav className="p-3 space-y-1.5">
+    <nav className="p-2 space-y-1.5"> {/* Changed p-3 to p-2 */}
       {navItems.map((item) => (
         <Button
           key={item.name}
@@ -44,7 +44,7 @@ export function BlockNavigation({
           onClick={item.actionType === 'internal' ? onGoHome : undefined}
           asChild={item.actionType === 'external'}
           className={cn(
-            "w-full justify-start text-sm font-medium h-9 px-3 rounded-md transition-colors duration-150 ease-in-out",
+            "w-full justify-start text-sm font-medium h-9 px-2 rounded-md transition-colors duration-150 ease-in-out", // Changed px-3 to px-2
             item.name === 'Inicio' && isHomeActive
               ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
