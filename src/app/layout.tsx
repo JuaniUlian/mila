@@ -1,8 +1,10 @@
+
 import type { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { MainSidebar } from '@/components/layout/main-sidebar';
+import { LayoutProvider } from '@/context/LayoutContext';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -27,12 +29,14 @@ export default function RootLayout({
         The font-sans class is removed from here as it's no longer the primary mechanism.
       */}
       <body className={`${nunito.variable} antialiased`}>
-        <div className="flex min-h-screen bg-slate-100">
-          <MainSidebar />
-          <main className="flex-1">
-            {children}
-          </main>
-        </div>
+        <LayoutProvider>
+          <div className="flex min-h-screen bg-slate-100">
+            <MainSidebar />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
+        </LayoutProvider>
         <Toaster />
       </body>
     </html>

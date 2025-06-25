@@ -1,9 +1,11 @@
+
 "use client";
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/types';
+import { useLayout } from '@/context/LayoutContext';
 
 import { PageHeader } from '@/components/mila/page-header';
 import { IncidentsList } from '@/components/mila/incidents-list';
@@ -22,8 +24,17 @@ export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
+  const { setScore } = useLayout();
 
   const { documentTitle, blocks, overallComplianceScore } = documentData;
+
+  useEffect(() => {
+    setScore(overallComplianceScore);
+    // Cleanup function to reset the score when the page is left
+    return () => {
+      setScore(null);
+    };
+  }, [overallComplianceScore, setScore]);
   
   // Calculate total possible severity weight from all suggestions in the initial data
   const totalSeverityWeight = useMemo(() => {
