@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -8,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import { Search } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Mock Data
 const initialFolders = [
@@ -54,7 +56,7 @@ export default function PreparePage() {
     }}>
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="glass-card shadow-lg">
+        <Card className="glass-card shadow-lg rounded-2xl">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               📄 Paso 1: Subí, buscá y organizá tus pliegos
@@ -77,20 +79,22 @@ export default function PreparePage() {
         </Card>
 
         {/* Section 2: Select Regulations */}
-        <Card className="glass-card shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              ⚖️ Paso 2: Seleccioná las normativas para el análisis
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RegulationList 
-              regulations={initialRegulations}
-              selectedIds={selectedRegulationIds}
-              onSelectionChange={setSelectedRegulationIds}
-            />
-          </CardContent>
-        </Card>
+        <Accordion type="single" collapsible className="w-full" defaultValue="regulations">
+          <AccordionItem value="regulations" className="border-b-0 glass-card shadow-lg rounded-2xl overflow-hidden">
+            <AccordionTrigger className="p-6 hover:no-underline w-full text-left">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                ⚖️ Paso 2: Seleccioná las normativas para el análisis
+              </CardTitle>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pt-0 pb-6">
+              <RegulationList 
+                regulations={initialRegulations}
+                selectedIds={selectedRegulationIds}
+                onSelectionChange={setSelectedRegulationIds}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {/* Section 3: Validation Button */}
         <div className="flex justify-center pt-4">
