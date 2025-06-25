@@ -15,19 +15,19 @@ import { useToast } from '@/hooks/use-toast';
 
 // Mock Data
 const initialFolders = [
-  { id: 'f1', name: 'Expediente 101/2024', files: [
+  { id: 'f1', name: 'Pliegos 2025', files: [
     { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf' },
     { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx' },
     { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
   ]},
-  { id: 'f2', name: 'Expediente 102/2024', files: [
+  { id: 'f2', name: 'Contrataciones Directas', files: [
     { id: 'file4', name: 'Informe de Contratación Directa.docx' }
   ]},
-  { id: 'f3', name: 'Expediente 103/2024', files: [
+  { id: 'f3', name: 'Expedientes', files: [
     { id: 'file5', name: 'Resolución de Apertura.pdf' },
     { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf' },
   ]},
-  { id: 'f4', name: 'Expediente 099/2023 (Archivado)', files: [] },
+  { id: 'f4', name: 'Decretos', files: [] },
 ];
 
 const initialRegulations = [
