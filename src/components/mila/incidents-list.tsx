@@ -228,7 +228,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
       <CardContent className="flex-1 overflow-y-auto p-4">
         <ScrollArea className="h-full w-full pr-2">
             {pendingSuggestions.length > 0 ? (
-                <Accordion type="multiple" defaultValue={groupedSuggestions.map(([category]) => category)} className="space-y-4">
+                <Accordion type="multiple" className="space-y-4">
                 {groupedSuggestions.map(([category, s_group]) => {
                     const gradientStyle = getCategoryGradientStyle(s_group);
                     return(
