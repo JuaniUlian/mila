@@ -23,7 +23,7 @@ const initialFolders = [
   ]},
   { id: 'f3', name: 'Normativas Internas', fileCount: 2, files: [
     { id: 'file5', name: 'Manual-Contratacion-v3.pdf' },
-    { id: 'file6', name: 'Politica-Adquisiciones.pdf' },
+    { id: 'file6', 'name': 'Politica-Adquisiciones.pdf' },
   ]},
   { id: 'f4', name: 'Proyectos Archivados', fileCount: 0, files: [] },
 ];
@@ -59,7 +59,7 @@ export default function PreparePage() {
         <Card className="glass-card shadow-lg rounded-2xl">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              📄 Paso 1: Subí, buscá y organizá tus pliegos
+              📄 Paso 1: Seleccionar documento
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
