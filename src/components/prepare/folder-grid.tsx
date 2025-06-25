@@ -58,7 +58,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery,
             {folders.map(folder => (
                 <Card 
                     key={folder.id} 
-                    className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg transition-shadow hover:shadow-xl flex flex-col rounded-2xl"
+                    className="bg-white/30 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl"
                 >
                     <CardHeader className='pb-3 flex flex-row items-start justify-between'>
                         <div className='flex-1'>

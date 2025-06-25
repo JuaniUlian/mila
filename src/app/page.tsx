@@ -175,11 +175,11 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 text-foreground"
+        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-50 via-slate-100 to-sky-100 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+        <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
           <CardHeader className="bg-white/20 border-b border-white/20 p-6">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               <FileSignature className="h-8 w-8 text-primary"/>
@@ -199,7 +199,7 @@ export default function PreparePage() {
               </div>
                <FileUploadButton
                 variant="ghost"
-                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -207,7 +207,7 @@ export default function PreparePage() {
               </FileUploadButton>
               <Button
                 variant="ghost"
-                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
                 onClick={() => setIsCreateFolderModalOpen(true)}
               >
                 <FolderPlus className="mr-2 h-4 w-4" />
@@ -227,7 +227,7 @@ export default function PreparePage() {
         {/* Section 2: Select Regulations */}
         <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
             <AccordionItem value="item-1" className="border-none">
-                <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+                <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
                 <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
                     <div className="p-6 w-full text-left flex items-center justify-between">
                         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">

@@ -37,7 +37,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     <div 
                       key={regulation.id} 
                       className={cn(
-                          "bg-white/80 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm transition-all hover:shadow-md cursor-pointer",
+                          "bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md cursor-pointer",
                           selectedIds.includes(regulation.id) && "ring-2 ring-primary"
                       )}
                       onClick={() => handleCheckboxChange(regulation.id)}
