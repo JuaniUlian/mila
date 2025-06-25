@@ -1,9 +1,8 @@
-
 "use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { FilePlus2, Globe, FileText } from 'lucide-react';
+import { FilePlus2, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -12,11 +11,6 @@ const navItems = [
     name: 'Preparar Pliego',
     icon: FilePlus2,
     href: '/',
-  },
-  {
-    name: 'Plantilla Viva',
-    icon: FileText,
-    href: '/analysis',
   },
   {
     name: 'PLUS BI',
