@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Folder, FileText, MoreVertical, Plus, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,40 +30,33 @@ interface FolderGridProps {
 
 export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload, searchQuery }: FolderGridProps) {
     const isSearching = !!searchQuery;
-    const accordionType = isSearching ? "multiple" : "single";
-    const defaultValue = isSearching
-        ? folders.map(f => f.id)
-        : (folders.length > 0 ? folders[0].id : undefined);
 
     if (folders.length === 0 && isSearching) {
         return <p className="text-sm text-gray-500 text-center py-4">No se encontraron archivos con ese nombre.</p>
     }
 
+    // When searching, we use a single column list for better readability of filtered results.
+    const gridClasses = isSearching 
+        ? "grid grid-cols-1 gap-4"
+        : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4";
+
     return (
-        <Accordion 
-            type={accordionType as any}
-            collapsible 
-            defaultValue={defaultValue} 
-            className="w-full space-y-3"
-            key={accordionType}
-        >
+        <div className={gridClasses}>
             {folders.map(folder => (
-                <AccordionItem key={folder.id} value={folder.id} className="border border-gray-200/80 rounded-xl bg-white shadow-md overflow-hidden transition-shadow hover:shadow-lg">
-                    <div className="flex items-center w-full hover:bg-gray-50/50 transition-colors">
-                        <AccordionTrigger className="flex-1 px-4 py-3 hover:no-underline text-left">
-                           <div className="flex items-center gap-3">
-                               <Folder className="h-6 w-6 text-blue-500" />
-                               <div className="flex flex-col text-left">
-                                <span className="font-semibold text-gray-800">{folder.name}</span>
-                                <span className="text-sm text-gray-500">{folder.fileCount} archivos</span>
-                               </div>
-                           </div>
-                        </AccordionTrigger>
-                        <div className="pr-4 flex items-center gap-1">
-                            <FileUploadButton
+                <Card key={folder.id} className="bg-white shadow-md hover:shadow-lg transition-shadow rounded-xl flex flex-col">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 border-b">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <Folder className="h-6 w-6 text-blue-500 flex-shrink-0" />
+                            <div className="min-w-0">
+                                <CardTitle className="text-base font-semibold truncate">{folder.name}</CardTitle>
+                                <CardDescription>{folder.fileCount} archivos</CardDescription>
+                            </div>
+                        </div>
+                        <div className="flex items-center flex-shrink-0">
+                             <FileUploadButton
                                 variant="ghost"
-                                size="sm"
-                                className="text-gray-600 hover:bg-gray-200/50"
+                                size="icon"
+                                className="h-8 w-8 text-gray-600 hover:bg-gray-200/50"
                                 onClick={(e) => e.stopPropagation()}
                                 onFileSelect={(fileName) => onFileUpload(folder.id, fileName)}
                             >
@@ -73,45 +66,43 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </div>
-                    </div>
-                    <AccordionContent className="pt-0 pb-4 px-4 bg-slate-50/70">
-                        <div className="border-t border-gray-200 pt-4 space-y-2">
-                            {folder.files.length > 0 ? folder.files.map(file => (
-                                <div 
-                                    key={file.id} 
-                                    className={cn(
-                                        "flex items-center justify-between p-3 transition-all bg-white rounded-xl border",
-                                        selectedFileId === file.id 
-                                            ? "border-blue-500 ring-2 ring-blue-500" 
-                                            : "border-gray-200 hover:border-blue-400/50 hover:bg-blue-50/20"
-                                    )}
-                                >
-                                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                                        <FileText className="h-5 w-5 text-gray-600 flex-shrink-0" />
-                                        <span className="font-medium text-gray-900 truncate">{file.name}</span>
-                                    </div>
-                                    <Button 
-                                        variant={selectedFileId === file.id ? "default" : "secondary"}
-                                        className={cn(
-                                            "ml-4",
-                                            selectedFileId === file.id 
-                                                ? "bg-blue-600 hover:bg-blue-700" 
-                                                : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-                                        )}
-                                        size="sm" 
-                                        onClick={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
-                                     >
-                                        {selectedFileId === file.id ? <CheckCircle2 className="mr-2 h-4 w-4" /> : null}
-                                        {selectedFileId === file.id ? 'Seleccionado' : 'Seleccionar'}
-                                    </Button>
+                    </CardHeader>
+                    <CardContent className="flex-grow space-y-2 p-4">
+                        {folder.files.length > 0 ? folder.files.map(file => (
+                            <div 
+                                key={file.id} 
+                                className={cn(
+                                    "flex items-center justify-between p-2 text-sm transition-all bg-slate-50/70 rounded-lg border",
+                                    selectedFileId === file.id 
+                                        ? "border-blue-500 ring-1 ring-blue-500" 
+                                        : "border-gray-200 hover:border-blue-400/50"
+                                )}
+                            >
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <FileText className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                                    <span className="font-medium text-gray-900 truncate">{file.name}</span>
                                 </div>
-                            )) : (
-                                <p className="text-sm text-gray-500 text-center py-4">Esta carpeta está vacía.</p>
-                            )}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
+                                <Button 
+                                    variant={selectedFileId === file.id ? "default" : "secondary"}
+                                    className={cn(
+                                        "ml-2 text-xs h-7 px-2.5",
+                                        selectedFileId === file.id 
+                                            ? "bg-blue-600 hover:bg-blue-700" 
+                                            : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                                    )}
+                                    size="sm" 
+                                    onClick={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
+                                 >
+                                    {selectedFileId === file.id ? <CheckCircle2 className="mr-1.5 h-4 w-4" /> : null}
+                                    {selectedFileId === file.id ? 'Seleccionado' : 'Seleccionar'}
+                                </Button>
+                            </div>
+                        )) : (
+                            <p className="text-sm text-gray-500 text-center py-4">Esta carpeta está vacía.</p>
+                        )}
+                    </CardContent>
+                </Card>
             ))}
-        </Accordion>
+        </div>
     );
 }
