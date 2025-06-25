@@ -201,7 +201,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     <Card className="h-full flex flex-col bg-transparent border-none shadow-none">
       <CardHeader className="p-0 mb-4">
         <CardTitle className={cn("text-xl font-bold transition-colors duration-500", titleColorClass)}>Incidencias y Sugerencias</CardTitle>
-        <CardDescription className={cn("transition-colors duration-500", descriptionColorClass)}>Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
+        <CardDescription className={cn("transition-colors duration-500", descriptionColorClass)}>Hallazgos pendientes detectados, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto pr-2 p-0">
         <ScrollArea className="h-full w-full pr-4">
