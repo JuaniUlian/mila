@@ -27,14 +27,14 @@ export function RisksPanel({
   const uniqueNorms = [...new Set(blocks.flatMap(b => b.suggestions.map(s => s.appliedNorm)))];
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col h-full bg-white/60 backdrop-blur-xl border-white/50 shadow-xl">
         <CardHeader>
             <CardTitle className="text-lg font-bold text-foreground">Resultados Parciales</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">Resumen del análisis en tiempo real.</CardDescription>
         </CardHeader>
         
         <CardContent className="flex-grow space-y-3 text-sm overflow-y-auto">
-            <Separator className="mb-3"/>
+            <Separator className="mb-3 bg-foreground/20"/>
             <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Cumplimiento General</span>
                 <span className="font-semibold text-foreground">{overallComplianceScore.toFixed(0)}%</span>
@@ -56,7 +56,7 @@ export function RisksPanel({
                 <span className="font-semibold text-sky-500">{lowSeverityCount}</span>
             </div>
 
-            <Separator className="my-3"/>
+            <Separator className="my-3 bg-foreground/20"/>
 
              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground flex items-center gap-1.5"><Check className="w-4 h-4 text-green-500" /> Correcciones Aplicadas</span>

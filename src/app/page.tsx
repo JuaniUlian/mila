@@ -149,7 +149,7 @@ export default function PlanillaVivaPage() {
   };
 
   return (
-    <>
+    <div className="bg-gradient-to-b from-rose-900/50 via-rose-100/50 to-white">
       <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
         <PageHeader 
           documentTitle={documentTitle}
@@ -178,6 +178,6 @@ export default function PlanillaVivaPage() {
             <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -27,16 +28,21 @@ interface IncidentItemProps {
   onUpdateText: (newText: string) => void;
 }
 
+const getSeverityGradientClass = (severity: SuggestionSeverity) => {
+    switch (severity) {
+      case 'high':
+        return 'from-red-500 to-red-400';
+      case 'medium':
+        return 'from-amber-400 to-amber-300';
+      case 'low':
+        return 'from-sky-400 to-sky-300';
+    }
+};
+
 const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, onUpdateStatus, onUpdateText }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(suggestion.text);
-
-  const severityDotColor = {
-    high: 'bg-red-500',
-    medium: 'bg-amber-500',
-    low: 'bg-sky-500',
-  }[suggestion.severity];
 
   const handleSave = () => {
     onUpdateText(editText);
@@ -65,83 +71,83 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   }
 
   return (
-    <div className="bg-card border rounded-lg shadow-md transition-all duration-200 hover:shadow-xl overflow-hidden">
-      {/* Header Row */}
-      <div className="relative p-4 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <span className={cn("absolute top-3 right-3 h-2.5 w-2.5 rounded-full", severityDotColor)}></span>
-        <div className="flex-1 space-y-1 pr-8">
-          <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-          <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
-        </div>
-        <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
-      </div>
+    <div className="relative pl-3">
+        <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", getSeverityGradientClass(suggestion.severity))} />
+        <div className="bg-card/90 border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden">
+            <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="flex-1 space-y-1 pr-8">
+                <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
+                <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
+                </div>
+                <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
+            </div>
       
-      {/* Collapsible Content */}
-      {isExpanded && (
-        <div className="px-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down bg-card">
-          <div>
-            <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> Contexto del Texto Original</h4>
-            <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
-          </div>
+            {isExpanded && (
+                <div className="px-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down">
+                    <div>
+                        <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> Contexto del Texto Original</h4>
+                        <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
+                    </div>
 
-          <Separator />
+                    <Separator />
 
-          <div>
-            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16} className="text-primary"/> Propuesta de Redacción</h4>
-             {isEditing ? (
-              <Textarea
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                rows={4}
-                className="w-full text-sm p-2 border-primary/50 rounded-md bg-background focus-visible:ring-primary mb-2 text-foreground"
-                aria-label="Editar sugerencia"
-              />
-            ) : (
-              <div className="p-3 border rounded-md bg-secondary text-sm text-foreground">
-                <p className="leading-relaxed">{suggestion.text}</p>
-              </div>
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16} className="text-primary"/> Propuesta de Redacción</h4>
+                        {isEditing ? (
+                        <Textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={4}
+                            className="w-full text-sm p-2 border-primary/50 rounded-md bg-background focus-visible:ring-primary mb-2 text-foreground"
+                            aria-label="Editar sugerencia"
+                        />
+                        ) : (
+                        <div className="p-3 border rounded-md bg-secondary text-sm text-foreground">
+                            <p className="leading-relaxed">{suggestion.text}</p>
+                        </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><Gavel size={14}/> Justificación Legal</h5>
+                            <p className="text-muted-foreground">{suggestion.justification.legal}</p>
+                        </div>
+                        <div>
+                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><FlaskConical size={14}/> Justificación Técnica</h5>
+                            <p className="text-muted-foreground">{suggestion.justification.technical}</p>
+                        </div>
+                        <div>
+                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><AlertTriangle size={14}/> Consecuencia Estimada</h5>
+                            <p className="text-muted-foreground">{suggestion.estimatedConsequence}</p>
+                        </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {isEditing ? (
+                            <>
+                                <Button size="sm" onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Guardar</Button>
+                                <Button size="sm" variant="outline" onClick={handleCancel}><XCircle className="mr-2 h-4 w-4"/> Cancelar</Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
+                                    <Check className="mr-2 h-4 w-4"/> Aplicar
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
+                                    <Edit3 className="mr-2 h-4 w-4"/> Editar y Aplicar
+                                </Button>
+                                <Button size="sm" variant="destructive" onClick={handleDiscard} disabled={suggestion.status !== 'pending'}>
+                                    <Trash2 className="mr-2 h-4 w-4"/> Descartar
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                </div>
             )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div>
-                 <h5 className="font-semibold mb-1 flex items-center gap-1.5"><Gavel size={14}/> Justificación Legal</h5>
-                 <p className="text-muted-foreground">{suggestion.justification.legal}</p>
-            </div>
-             <div>
-                 <h5 className="font-semibold mb-1 flex items-center gap-1.5"><FlaskConical size={14}/> Justificación Técnica</h5>
-                 <p className="text-muted-foreground">{suggestion.justification.technical}</p>
-            </div>
-             <div>
-                 <h5 className="font-semibold mb-1 flex items-center gap-1.5"><AlertTriangle size={14}/> Consecuencia Estimada</h5>
-                 <p className="text-muted-foreground">{suggestion.estimatedConsequence}</p>
-            </div>
-          </div>
-          
-          <Separator />
-          
-          <div className="flex items-center gap-2 flex-wrap">
-            {isEditing ? (
-                <>
-                    <Button size="sm" onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Guardar</Button>
-                    <Button size="sm" variant="outline" onClick={handleCancel}><XCircle className="mr-2 h-4 w-4"/> Cancelar</Button>
-                </>
-            ) : (
-                 <>
-                    <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
-                        <Check className="mr-2 h-4 w-4"/> Aplicar
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
-                        <Edit3 className="mr-2 h-4 w-4"/> Editar y Aplicar
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={handleDiscard} disabled={suggestion.status !== 'pending'}>
-                        <Trash2 className="mr-2 h-4 w-4"/> Descartar
-                    </Button>
-                 </>
-            )}
-          </div>
         </div>
-      )}
     </div>
   );
 };
@@ -181,37 +187,49 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
   }
 
+  const getHighestSeverity = (suggestions: SuggestionWithBlockId[]): SuggestionSeverity => {
+    if (suggestions.some(s => s.severity === 'high')) return 'high';
+    if (suggestions.some(s => s.severity === 'medium')) return 'medium';
+    return 'low';
+  };
+
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-xl font-bold">Incidencias y Sugerencias</CardTitle>
-        <CardDescription>Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
+    <Card className="h-full flex flex-col bg-transparent border-none shadow-none">
+      <CardHeader className="p-0 mb-4">
+        <CardTitle className="text-xl font-bold text-white">Incidencias y Sugerencias</CardTitle>
+        <CardDescription className="text-white/80">Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto pr-2">
+      <CardContent className="flex-1 overflow-y-auto pr-2 p-0">
         <ScrollArea className="h-full w-full pr-4">
             {pendingSuggestions.length > 0 ? (
-                <div className="space-y-6">
-                {groupedSuggestions.map(([category, s_group]) => (
-                    <div key={category}>
-                    <h3 className="text-lg font-semibold text-foreground mb-3">{category} ({s_group.length})</h3>
-                    <div className="space-y-3">
-                        {s_group.map(suggestion => (
-                        <IncidentItem 
-                            key={suggestion.id}
-                            suggestion={suggestion}
-                            originalText={getOriginalText(suggestion.blockId)}
-                            onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
-                            onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                        />
-                        ))}
-                    </div>
-                    </div>
-                ))}
-                </div>
+                <Accordion type="multiple" className="space-y-4">
+                {groupedSuggestions.map(([category, s_group]) => {
+                    const highestSeverity = getHighestSeverity(s_group);
+                    return(
+                    <AccordionItem key={category} value={category} className="border-none">
+                        <AccordionTrigger className="relative pl-5 p-4 rounded-lg bg-card/80 backdrop-blur-md shadow-lg hover:no-underline [&[data-state=open]]:rounded-b-none">
+                            <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(highestSeverity))}/>
+                            <span className="text-lg font-semibold flex-1 text-left">{category} ({s_group.length})</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="bg-card/80 backdrop-blur-md shadow-lg rounded-b-lg p-3 space-y-3">
+                            {s_group.map(suggestion => (
+                            <IncidentItem 
+                                key={suggestion.id}
+                                suggestion={suggestion}
+                                originalText={getOriginalText(suggestion.blockId)}
+                                onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
+                                onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
+                            />
+                            ))}
+                        </AccordionContent>
+                    </AccordionItem>
+                    )
+                })}
+                </Accordion>
             ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                    <Check className="w-16 h-16 text-green-500 mb-4" />
-                    <h3 className="text-xl font-semibold text-foreground">¡Excelente!</h3>
+                <div className="flex flex-col items-center justify-center h-full text-center text-white/80">
+                    <Check className="w-16 h-16 text-green-400 mb-4" />
+                    <h3 className="text-xl font-semibold text-white">¡Excelente!</h3>
                     <p>No hay incidencias pendientes de revisión.</p>
                     <p>El documento ha sido completamente validado.</p>
                 </div>
