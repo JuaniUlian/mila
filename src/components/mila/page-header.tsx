@@ -31,16 +31,14 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
     // Determine text color based on background lightness
     const useDarkText = overallComplianceScore >= 75;
     const primaryTextColor = useDarkText ? "text-foreground" : "text-white";
-    const secondaryTextColor = useDarkText ? "text-muted-foreground" : "text-white/80";
 
     return (
         <header className="w-full">
             <Card className="p-4 md:p-6 w-full bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                 <CardContent className="p-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    {/* Title and Subtitle */}
+                    {/* Title */}
                     <div className="flex-1">
                         <h1 className={cn("text-3xl font-bold", primaryTextColor)}>{documentTitle}</h1>
-                        <p className={cn("text-md", secondaryTextColor)}>Informe de situación</p>
                     </div>
                     
                     <div className="w-full md:w-auto flex items-center gap-x-6 gap-y-4 flex-wrap">
