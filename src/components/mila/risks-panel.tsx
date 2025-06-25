@@ -4,37 +4,19 @@ import React from 'react';
 import type { MilaAppPData } from './types';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Inbox, Check, FileText } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Download, Check, FileText } from 'lucide-react';
 import { Separator } from '../ui/separator';
 
 interface RisksPanelProps {
   documentData: MilaAppPData;
-  hasCorrections: boolean;
+  onDownloadReport: () => void;
 }
 
 export function RisksPanel({
   documentData,
-  hasCorrections,
+  onDownloadReport,
 }: RisksPanelProps) {
-  const { toast } = useToast();
   const { blocks, overallComplianceScore } = documentData;
-
-  const handleExport = () => {
-    try {
-      // Save the current state to localStorage to be read by the new window.
-      localStorage.setItem('milaReportData', JSON.stringify(documentData));
-      // Open the report preview page in a new tab.
-      window.open('/report-preview', '_blank');
-    } catch (error) {
-      console.error("Failed to save report data to localStorage", error);
-      toast({
-        title: "Error al generar el informe",
-        description: "No se pudo guardar la información para la previsualización. Intente de nuevo.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const totalSuggestions = blocks.reduce((acc, block) => acc + block.suggestions.length, 0);
   const highSeverityCount = blocks.reduce((acc, block) => acc + block.suggestions.filter(s => s.severity === 'high').length, 0);
@@ -94,21 +76,12 @@ export function RisksPanel({
             <Button 
                 className="w-full text-base py-6"
                 size="lg"
-                onClick={handleExport}
+                onClick={onDownloadReport}
             >
-                {hasCorrections ? (
-                    <>
-                        <Inbox className="mr-2 h-5 w-5" />
-                        Previsualizar con correcciones
-                    </>
-                ) : (
-                    <>
-                        <Download className="mr-2 h-5 w-5" />
-                        Previsualizar informe
-                    </>
-                )}
+                <Download className="mr-2 h-5 w-5" />
+                Descargar Informe
             </Button>
-            <p className="text-xs text-muted-foreground text-center mt-2">Abre una nueva ventana con el informe detallado de las incidencias y correcciones.</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">Abre una previsualización del informe para imprimir o guardar como PDF.</p>
         </div>
     </aside>
   );

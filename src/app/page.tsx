@@ -9,10 +9,11 @@ import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/
 import { PageHeader } from '@/components/mila/page-header';
 import { IncidentsList } from '@/components/mila/incidents-list';
 import { RisksPanel } from '@/components/mila/risks-panel';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
-  const [hasCorrections, setHasCorrections] = useState<boolean>(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
 
   const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
@@ -76,8 +77,6 @@ export default function PlanillaVivaPage() {
 
       const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
       
-      setHasCorrections(true);
-
       toast({
         title: `✅ Irregularidad ${newStatus === 'applied' ? 'Corregida' : 'Descartada'}`,
         description: "El puntaje de cumplimiento ha sido actualizado.",
@@ -121,8 +120,6 @@ export default function PlanillaVivaPage() {
 
       const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
        
-      setHasCorrections(true);
-
       toast({
         title: "Sugerencia Modificada y Aplicada",
         description: "El texto de la sugerencia ha sido actualizado y el puntaje recalculado.",
@@ -137,30 +134,50 @@ export default function PlanillaVivaPage() {
     });
   }, [toast, recalculateOverallScores]);
 
+  const handleDownloadReport = () => {
+    try {
+      localStorage.setItem('milaReportData', JSON.stringify(documentData));
+      setIsReportModalOpen(true);
+    } catch (error) {
+      console.error("Failed to save report data to localStorage", error);
+      toast({
+        title: "Error al generar el informe",
+        description: "No se pudo guardar la información para la previsualización. Intente de nuevo.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
-      <PageHeader 
-        documentTitle={documentTitle}
-        overallComplianceScore={overallComplianceScore}
-        overallCompletenessIndex={overallCompletenessIndex}
-      />
-      <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        <div className="lg:col-span-2 w-full h-full min-h-0">
-            <IncidentsList 
-                suggestions={allSuggestions}
-                blocks={blocks}
-                onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
-                onUpdateSuggestionText={handleUpdateSuggestionText}
-            />
-        </div>
-        <div className="w-full h-full min-h-0">
-             <RisksPanel
-                documentData={documentData}
-                hasCorrections={hasCorrections}
-            />
-        </div>
-      </main>
-    </div>
+    <>
+      <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
+        <PageHeader 
+          documentTitle={documentTitle}
+          overallComplianceScore={overallComplianceScore}
+          overallCompletenessIndex={overallCompletenessIndex}
+        />
+        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+          <div className="lg:col-span-2 w-full h-full min-h-0">
+              <IncidentsList 
+                  suggestions={allSuggestions}
+                  blocks={blocks}
+                  onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
+                  onUpdateSuggestionText={handleUpdateSuggestionText}
+              />
+          </div>
+          <div className="w-full h-full min-h-0">
+               <RisksPanel
+                  documentData={documentData}
+                  onDownloadReport={handleDownloadReport}
+              />
+          </div>
+        </main>
+      </div>
+      <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
+        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0">
+            <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
