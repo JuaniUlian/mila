@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -33,9 +32,9 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
 
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" className="w-full space-y-2">
+            <Accordion type="multiple" className="w-full space-y-3">
                 {regulations.map(regulation => (
-                    <AccordionItem key={regulation.id} value={regulation.id} className="border rounded-lg bg-white shadow-sm overflow-hidden">
+                    <AccordionItem key={regulation.id} value={regulation.id} className="border border-gray-200/80 rounded-xl bg-white shadow-md overflow-hidden transition-shadow hover:shadow-lg">
                         <div className="flex items-center gap-4 w-full p-3 hover:bg-gray-50/50 transition-colors">
                             <Checkbox
                                 id={`checkbox-${regulation.id}`}

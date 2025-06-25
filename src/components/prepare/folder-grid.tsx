@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -31,9 +30,9 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
     const defaultValue = folders.length > 0 ? folders[0].id : undefined;
 
     return (
-        <Accordion type="single" collapsible defaultValue={defaultValue} className="w-full space-y-2">
+        <Accordion type="single" collapsible defaultValue={defaultValue} className="w-full space-y-3">
             {folders.map(folder => (
-                <AccordionItem key={folder.id} value={folder.id} className="border rounded-lg bg-white shadow-sm overflow-hidden">
+                <AccordionItem key={folder.id} value={folder.id} className="border border-gray-200/80 rounded-xl bg-white shadow-md overflow-hidden transition-shadow hover:shadow-lg">
                     <div className="flex items-center w-full hover:bg-gray-50/50 transition-colors">
                         <AccordionTrigger className="flex-1 px-4 py-3 hover:no-underline text-left">
                            <div className="flex items-center gap-3">
@@ -60,12 +59,12 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                         </div>
                     </div>
                     <AccordionContent className="pt-0 pb-4 px-4 bg-slate-50/70">
-                        <div className="border-t pt-4 space-y-2">
+                        <div className="border-t border-gray-200 pt-4 space-y-2">
                             {folder.files.length > 0 ? folder.files.map(file => (
                                 <div 
                                     key={file.id} 
                                     className={cn(
-                                        "flex items-center justify-between p-3 transition-all bg-white rounded-lg border",
+                                        "flex items-center justify-between p-3 transition-all bg-white rounded-xl border",
                                         selectedFileId === file.id 
                                             ? "border-blue-500 ring-2 ring-blue-500" 
                                             : "border-gray-200 hover:border-blue-400/50 hover:bg-blue-50/20"
