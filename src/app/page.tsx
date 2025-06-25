@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/types';
@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/mila/page-header';
 import { IncidentsList } from '@/components/mila/incidents-list';
 import { RisksPanel } from '@/components/mila/risks-panel';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
@@ -21,6 +22,17 @@ export default function PlanillaVivaPage() {
   const allSuggestions = blocks.flatMap(block => 
     block.suggestions.map(s => ({ ...s, blockId: block.id }))
   );
+
+  const getDynamicBackgroundClass = useCallback((score: number): string => {
+    if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white'; // Dark Red for very low scores
+    if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white'; // Orange for low scores
+    if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white'; // Yellow for medium scores
+    if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white'; // Green for good scores
+    if (score < 95) return 'from-sky-600/50 via-sky-100/50 to-white'; // Light Blue for very good scores
+    return 'from-slate-200/50 via-slate-100/50 to-white'; // Almost white for excellent scores
+  }, []);
+
+  const backgroundClass = useMemo(() => getDynamicBackgroundClass(overallComplianceScore), [overallComplianceScore, getDynamicBackgroundClass]);
 
   const recalculateOverallScores = useCallback((updatedBlocks: DocumentBlock[]): { overallCompletenessIndex: number, overallComplianceScore: number } => {
     let totalCompletenessAchieved = 0;
@@ -149,7 +161,7 @@ export default function PlanillaVivaPage() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-rose-900/50 via-rose-100/50 to-white">
+    <div className={cn("bg-gradient-to-b transition-all duration-1000", backgroundClass)}>
       <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
         <PageHeader 
           documentTitle={documentTitle}
