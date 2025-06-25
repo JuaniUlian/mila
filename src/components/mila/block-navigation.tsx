@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Home, FilePlus2, BriefcaseBusiness } from 'lucide-react';
+import { FilePlus2, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,7 +14,7 @@ const navItems = [
   },
   {
     name: 'PLUS BI',
-    icon: BriefcaseBusiness,
+    icon: Globe,
     href: 'https://pluscompol.com',
     external: true,
   },
