@@ -190,7 +190,7 @@ export default function PreparePage() {
               </div>
                <FileUploadButton
                 variant="ghost"
-                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-amber-700 font-semibold shadow-lg hover:shadow-md transition-all duration-300"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -198,7 +198,7 @@ export default function PreparePage() {
               </FileUploadButton>
               <Button
                 variant="ghost"
-                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-amber-700 font-semibold shadow-lg hover:shadow-md transition-all duration-300"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300"
                 onClick={() => setIsCreateFolderModalOpen(true)}
               >
                 <FolderPlus className="mr-2 h-4 w-4" />
@@ -245,7 +245,7 @@ export default function PreparePage() {
         {/* Section 3: Validation Button */}
         <div className="flex justify-center pt-4">
             <Button
-              className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-amber-700 shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+              className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
               onClick={handleValidate}
               disabled={!isValidationReady}
             >
