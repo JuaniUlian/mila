@@ -1,7 +1,10 @@
 
 import React from 'react';
+import Link from 'next/link';
+import { Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
 interface PageHeaderProps {
@@ -12,9 +15,9 @@ interface PageHeaderProps {
 }
 
 const getScoreColor = (score: number) => {
-    if (score < 40) return "text-red-500";
-    if (score < 75) return "text-amber-500";
-    return "text-green-500";
+    if (score < 40) return "text-red-600";
+    if (score < 75) return "text-amber-600";
+    return "text-green-600";
 };
 
 const getProgressColorClass = (score: number) => {
@@ -26,8 +29,10 @@ const getProgressColorClass = (score: number) => {
 export function PageHeader({ documentTitle, overallComplianceScore, appliedSuggestionsCount, totalSuggestions }: PageHeaderProps) {
     const suggestionProgress = totalSuggestions > 0 ? (appliedSuggestionsCount / totalSuggestions) * 100 : 100;
     
-    const primaryTextColor = "text-foreground";
-    const secondaryTextColor = "text-muted-foreground";
+    // Determine text color based on background lightness
+    const useDarkText = overallComplianceScore >= 75;
+    const primaryTextColor = useDarkText ? "text-foreground" : "text-white";
+    const secondaryTextColor = useDarkText ? "text-muted-foreground" : "text-white/80";
 
     return (
         <header className="w-full">
@@ -38,30 +43,44 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
                         <h1 className={cn("text-3xl font-bold", primaryTextColor)}>{documentTitle}</h1>
                         <p className={cn("text-md", secondaryTextColor)}>Informe de situación</p>
                     </div>
+                    
+                    <div className="w-full md:w-auto flex items-center gap-x-6 gap-y-4 flex-wrap">
+                        {/* Scores */}
+                        <div className="w-full sm:w-auto md:min-w-[300px] flex flex-col gap-3">
+                            {/* Compliance Score */}
+                            <div>
+                                <div className="flex justify-between items-baseline mb-1">
+                                    <span className="font-semibold text-foreground">Puntaje de Cumplimiento</span>
+                                    <span className={cn("text-2xl font-bold", getScoreColor(overallComplianceScore))}>
+                                        {overallComplianceScore.toFixed(0)}
+                                        <span className="text-sm">/100</span>
+                                    </span>
+                                </div>
+                                <Progress value={overallComplianceScore} indicatorClassName={getProgressColorClass(overallComplianceScore)} className="bg-muted" />
+                            </div>
+                            {/* Applied Suggestions Count */}
+                            <div>
+                                <div className="flex justify-between items-baseline">
+                                    <span className="font-semibold text-foreground">Sugerencias Aplicadas</span>
+                                    <span className={cn("text-2xl font-bold", getScoreColor(suggestionProgress))}>
+                                        {appliedSuggestionsCount}
+                                        <span className="text-sm">/{totalSuggestions}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
 
-                    {/* Scores */}
-                    <div className="w-full md:w-auto md:min-w-[300px] flex flex-col gap-3">
-                        {/* Compliance Score */}
-                        <div>
-                            <div className="flex justify-between items-baseline mb-1">
-                                <span className="text-sm font-semibold text-foreground">Puntaje de Cumplimiento</span>
-                                <span className={cn("text-2xl font-bold", getScoreColor(overallComplianceScore))}>
-                                    {overallComplianceScore.toFixed(0)}
-                                    <span className="text-sm">/100</span>
-                                </span>
-                            </div>
-                            <Progress value={overallComplianceScore} indicatorClassName={getProgressColorClass(overallComplianceScore)} className="bg-muted" />
-                        </div>
-                        {/* Applied Suggestions Count */}
-                        <div>
-                            <div className="flex justify-between items-baseline">
-                                <span className="text-sm font-semibold text-foreground">Sugerencias Aplicadas</span>
-                                <span className={cn("text-2xl font-bold", getScoreColor(suggestionProgress))}>
-                                    {appliedSuggestionsCount}
-                                    <span className="text-sm">/{totalSuggestions}</span>
-                                </span>
-                            </div>
-                        </div>
+                        {/* Home Button */}
+                         <Link href="/prepare" passHref>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-14 w-14 rounded-full bg-white/30 hover:bg-white/50 text-foreground"
+                                aria-label="Volver a la página de preparación"
+                            >
+                                <Home className="h-7 w-7" />
+                            </Button>
+                        </Link>
                     </div>
                 </CardContent>
             </Card>
