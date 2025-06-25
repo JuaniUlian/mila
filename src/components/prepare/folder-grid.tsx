@@ -47,7 +47,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="flex items-center gap-3">
                                 <Folder className="h-8 w-8 text-blue-600" />
-                                <CardTitle className="text-lg font-semibold text-gray-800">{folder.name}</CardTitle>
+                                <CardTitle className="text-lg font-semibold text-gray-900">{folder.name}</CardTitle>
                             </div>
                             <DropdownMenu onOpenChange={(open) => { if(open) setOpenFolderId(null) }} >
                                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -63,7 +63,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                             </DropdownMenu>
                         </CardHeader>
                         <CardContent className="flex-grow">
-                            <CardDescription className="text-gray-600">{folder.fileCount} archivos</CardDescription>
+                            <CardDescription className="text-gray-700">{folder.fileCount} archivos</CardDescription>
                         </CardContent>
                         <CardFooter>
                              <FileUploadButton
@@ -90,18 +90,22 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                              <Card 
                                 key={file.id} 
                                 className={cn(
-                                    "flex items-center justify-between p-3 transition-all bg-white/60",
-                                    selectedFileId === file.id ? "border-blue-500 ring-2 ring-blue-500" : "border-gray-200"
+                                    "flex items-center justify-between p-3 transition-all bg-white/60 backdrop-blur-lg shadow-sm",
+                                    selectedFileId === file.id ? "border-blue-500 ring-2 ring-blue-500" : "border-gray-200/80"
                                 )}
                             >
                                 <div className="flex items-center gap-3">
-                                    <FileText className="h-5 w-5 text-gray-500" />
-                                    <span className="font-medium text-gray-800">{file.name}</span>
+                                    <FileText className="h-5 w-5 text-gray-600" />
+                                    <span className="font-medium text-gray-900">{file.name}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                      <Button 
                                         variant={selectedFileId === file.id ? "default" : "secondary"}
-                                        className={selectedFileId === file.id ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}
+                                        className={cn(
+                                            selectedFileId === file.id 
+                                                ? "bg-blue-600 hover:bg-blue-700" 
+                                                : "bg-gray-200/70 hover:bg-gray-300/70 text-gray-900"
+                                        )}
                                         size="sm" 
                                         onClick={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
                                      >

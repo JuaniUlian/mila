@@ -35,7 +35,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
         <div className="space-y-4">
             <Accordion type="multiple" className="w-full space-y-2">
                 {regulations.map(regulation => (
-                    <AccordionItem key={regulation.id} value={regulation.id} className="border rounded-lg bg-white/40 border-gray-200/80">
+                    <AccordionItem key={regulation.id} value={regulation.id} className="border rounded-lg bg-white/40 border-gray-200/80 backdrop-blur-lg shadow-sm">
                         <div className="flex items-center gap-4 w-full p-4 hover:bg-gray-100/50 rounded-t-lg">
                             <Checkbox
                                 id={`checkbox-${regulation.id}`}
@@ -44,13 +44,13 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                                 className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                             />
                             <AccordionTrigger className="p-0 hover:no-underline flex-1 w-full justify-between">
-                                <label htmlFor={`checkbox-${regulation.id}`} className="font-medium text-left flex-1 cursor-pointer text-gray-800">
+                                <label htmlFor={`checkbox-${regulation.id}`} className="font-medium text-left flex-1 cursor-pointer text-gray-900">
                                     {regulation.name}
                                 </label>
                             </AccordionTrigger>
                         </div>
                         <AccordionContent className="p-4 pt-2 border-t border-gray-200/80">
-                            <p className="text-gray-600">{regulation.content}</p>
+                            <p className="text-gray-700">{regulation.content}</p>
                         </AccordionContent>
                     </AccordionItem>
                 ))}
