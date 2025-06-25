@@ -120,12 +120,12 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 bg-slate-50 text-foreground"
+        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="bg-white rounded-2xl shadow-lg border overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b p-6">
+        <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="bg-white/20 border-b border-white/20 p-6">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               <FileSignature className="h-8 w-8 text-primary"/>
               Paso 1: Seleccionar documento a validar
@@ -137,7 +137,7 @@ export default function PreparePage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Buscar documento por nombre o palabra clave..."
-                  className="pl-12 py-6 w-full bg-slate-100 text-foreground rounded-lg border-slate-200 focus:bg-white"
+                  className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -161,8 +161,8 @@ export default function PreparePage() {
         </Card>
 
         {/* Section 2: Select Regulations */}
-        <Card className="bg-white rounded-2xl shadow-lg border overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b p-6">
+        <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="bg-white/20 border-b border-white/20 p-6">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               <BookCheck className="h-8 w-8 text-primary"/>
               Paso 2: Seleccionar normativas para el análisis

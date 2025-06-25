@@ -4,7 +4,7 @@
 import React from 'react';
 import { Folder, FileText, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 interface File {
     id: string;
@@ -28,7 +28,7 @@ const FileItem: React.FC<{ file: File; isSelected: boolean; onSelect: () => void
     <div 
         onClick={onSelect}
         className={cn(
-            "flex items-center justify-between p-3 text-sm transition-all hover:bg-primary/10 rounded-lg cursor-pointer",
+            "flex items-center justify-between p-2 text-sm transition-all hover:bg-primary/10 rounded-lg cursor-pointer border border-transparent",
             isSelected && "bg-primary/20 ring-2 ring-primary"
         )}
     >
@@ -42,40 +42,45 @@ const FileItem: React.FC<{ file: File; isSelected: boolean; onSelect: () => void
 
 export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery }: FolderGridProps) {
     if (folders.length === 0) {
-        return <p className="text-base text-muted-foreground text-center py-8">No se encontraron archivos o carpetas.</p>
+        return (
+            <div className="text-center py-10 bg-slate-100/50 rounded-lg">
+                <p className="text-base text-muted-foreground">
+                    {searchQuery ? 'No se encontraron archivos que coincidan con su búsqueda.' : 'No hay carpetas o archivos.'}
+                </p>
+            </div>
+        );
     }
 
     return (
-        <Accordion type="multiple" className="w-full space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {folders.map(folder => (
-                <AccordionItem 
-                    value={folder.id} 
+                <Card 
                     key={folder.id} 
-                    className="bg-white rounded-xl border shadow-sm transition-shadow hover:shadow-md"
+                    className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg transition-shadow hover:shadow-xl flex flex-col rounded-2xl"
                 >
-                    <AccordionTrigger className="p-4 font-semibold w-full flex text-lg hover:no-underline rounded-t-lg">
-                        <div className="flex items-center gap-3 flex-1 text-left">
+                    <CardHeader className='pb-3'>
+                        <CardTitle className="flex items-center gap-2 text-lg">
                             <Folder className="h-6 w-6 text-primary" />
                             {folder.name}
-                            <span className="text-sm font-normal text-muted-foreground ml-2">({folder.files.length} archivos)</span>
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-4 pt-0">
-                        <div className="space-y-1 border-t pt-3 mt-2">
-                            {folder.files.length > 0 ? folder.files.map(file => (
+                        </CardTitle>
+                         <CardDescription>{folder.files.length} {folder.files.length === 1 ? 'archivo' : 'archivos'}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1 space-y-1 p-3">
+                        {folder.files.length > 0 ? (
+                            folder.files.map(file => (
                                 <FileItem
                                     key={file.id}
                                     file={file}
                                     isSelected={selectedFileId === file.id}
                                     onSelect={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
                                 />
-                            )) : (
-                                <p className="text-sm text-muted-foreground text-center py-4">Esta carpeta está vacía.</p>
-                            )}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
+                            ))
+                        ) : (
+                             <p className="text-sm text-muted-foreground text-center py-4">Esta carpeta está vacía.</p>
+                        )}
+                    </CardContent>
+                </Card>
             ))}
-        </Accordion>
+        </div>
     );
 }

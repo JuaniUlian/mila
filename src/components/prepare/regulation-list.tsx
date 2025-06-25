@@ -5,6 +5,7 @@ import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
+import { cn } from '@/lib/utils';
 
 interface Regulation {
     id: string;
@@ -35,7 +36,10 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                 {regulations.map(regulation => (
                     <div 
                       key={regulation.id} 
-                      className="bg-white rounded-xl border shadow-sm transition-shadow hover:shadow-md cursor-pointer"
+                      className={cn(
+                          "bg-white/80 backdrop-blur-sm rounded-xl border border-white/30 shadow-sm transition-all hover:shadow-md cursor-pointer",
+                          selectedIds.includes(regulation.id) && "ring-2 ring-primary"
+                      )}
                       onClick={() => handleCheckboxChange(regulation.id)}
                     >
                         <div className="flex items-center gap-4 w-full p-4">
