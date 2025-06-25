@@ -82,8 +82,8 @@ export default function PlanillaVivaPage() {
     let resolvedSeverityWeight = 0;
     updatedBlocks.forEach(block => {
       block.suggestions.forEach(suggestion => {
-        // "resolved" means applied or discarded
-        if (suggestion.status !== 'pending') {
+        // Only count 'applied' suggestions for score increase.
+        if (suggestion.status === 'applied') {
           resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
         }
       });
@@ -143,10 +143,17 @@ export default function PlanillaVivaPage() {
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
       
-      toast({
-        title: `✅ Irregularidad ${newStatus === 'applied' ? 'Corregida' : 'Descartada'}`,
-        description: "El puntaje de cumplimiento ha sido actualizado.",
-      });
+      if (newStatus === 'applied') {
+        toast({
+          title: `✅ Sugerencia Aplicada`,
+          description: "El puntaje de cumplimiento ha sido actualizado.",
+        });
+      } else if (newStatus === 'discarded') {
+        toast({
+          title: `🗑️ Sugerencia Descartada`,
+          description: "La sugerencia ha sido descartada y no afectará el puntaje.",
+        });
+      }
       
       return {
         ...prevData,
