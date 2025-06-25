@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
-import { Search } from 'lucide-react';
+import { Search, Upload } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Mock Data
@@ -63,12 +63,18 @@ export default function PreparePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nombre o palabra clave"
-                className="pl-10 w-full md:w-1/2"
-              />
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="relative flex-grow w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nombre o palabra clave"
+                  className="pl-10 w-full"
+                />
+              </div>
+              <Button variant="outline" className="w-full sm:w-auto flex-shrink-0">
+                <Upload className="mr-2 h-4 w-4" />
+                Subir archivo
+              </Button>
             </div>
             <FolderGrid 
               folders={initialFolders} 
