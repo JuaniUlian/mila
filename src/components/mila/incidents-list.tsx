@@ -137,7 +137,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                                     <Check className="mr-2 h-4 w-4"/> Aplicar
                                 </Button>
                                 <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
-                                    <Edit3 className="mr-2 h-4 w-4"/> Editar y Aplicar
+                                    <Edit3 className="mr-2 h-4 w-4"/> Editar
                                 </Button>
                                 <Button size="sm" variant="destructive" onClick={handleDiscard} disabled={suggestion.status !== 'pending'}>
                                     <Trash2 className="mr-2 h-4 w-4"/> Descartar
