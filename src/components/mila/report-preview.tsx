@@ -37,7 +37,14 @@ const getStatusStyles = (status: Suggestion['status']) => {
 
 export function ReportPreview({ data }: ReportPreviewProps) {
   const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = data;
-  const allSuggestions = blocks.flatMap(block => block.suggestions.map(s => ({ ...s, blockName: block.name })));
+  
+  const allSuggestionsWithContext = blocks.flatMap(block => 
+    block.suggestions.map(suggestion => ({
+      ...suggestion,
+      blockName: block.name,
+      originalText: block.originalText,
+    }))
+  );
   
   const handlePrint = () => {
     window.print();
@@ -99,10 +106,10 @@ export function ReportPreview({ data }: ReportPreviewProps) {
 
         {/* --- Inconsistencies Detected --- */}
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Detalle de Inconsistencias Detectadas</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Detalle de Hallazgos</h2>
           
           <div className="space-y-8">
-            {allSuggestions.length > 0 ? allSuggestions.map(suggestion => (
+            {allSuggestionsWithContext.length > 0 ? allSuggestionsWithContext.map(suggestion => (
               <div key={suggestion.id} className={`p-4 rounded-md border-l-4 ${getSeverityStyles(suggestion.severity)}`}>
                  {/* Suggestion Header */}
                  <div className="flex justify-between items-center mb-2">
@@ -115,21 +122,21 @@ export function ReportPreview({ data }: ReportPreviewProps) {
                     </div>
                  </div>
                  <p className="text-sm text-gray-600 mb-4">
-                    <span className="font-semibold">Normativa Aplicada:</span> {suggestion.appliedNorm} | <span className="font-semibold">Bloque:</span> {suggestion.blockName}
+                    <span className="font-semibold">Bloque:</span> {suggestion.blockName}
                  </p>
                  
                  {/* Suggestion Details */}
                  <div className="space-y-4">
-                    {/* Original text would go here if needed, but for the report, suggestion is key */}
-
                     <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Justificación:</h4>
-                        <p className="text-sm text-gray-600">{suggestion.justification.legal} {suggestion.justification.technical}</p>
+                        <h4 className="font-semibold text-gray-700 mb-1">Contexto del Texto Original:</h4>
+                        <p className="text-sm text-gray-600 p-3 bg-gray-100 border rounded-md font-mono">{suggestion.originalText}</p>
                     </div>
-
-                     <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Consecuencia Estimada:</h4>
-                        <p className="text-sm text-gray-600">{suggestion.estimatedConsequence}</p>
+                    <div>
+                        <h4 className="font-semibold text-gray-700 mb-1">Justificación Legal (Incumplimiento):</h4>
+                        <p className="text-sm text-gray-600">{suggestion.justification.legal}</p>
+                         <p className="text-sm text-gray-500 mt-1">
+                            <span className="font-semibold">Normativa:</span> {suggestion.appliedNorm}
+                        </p>
                     </div>
                  </div>
               </div>
