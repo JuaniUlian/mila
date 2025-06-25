@@ -56,9 +56,9 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                    <DropdownMenuItem><Edit className="mr-2 h-4 w-4" />Renombrar</DropdownMenuItem>
-                                    <DropdownMenuItem><Download className="mr-2 h-4 w-4" />Descargar</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-gray-800 focus:bg-gray-200/50"><Edit className="mr-2 h-4 w-4" />Renombrar</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-gray-800 focus:bg-gray-200/50"><Download className="mr-2 h-4 w-4" />Descargar</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-red-100/50"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </CardHeader>
@@ -69,7 +69,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                              <FileUploadButton
                                 variant="outline"
                                 size="sm"
-                                className="w-full bg-white/50 hover:bg-white/80 border-gray-300"
+                                className="w-full bg-white/50 hover:bg-white/80 border-gray-300 text-gray-800"
                                 onClick={(e) => e.stopPropagation()}
                                 onFileSelect={(fileName) => onFileUpload(folder.id, fileName)}
                             >

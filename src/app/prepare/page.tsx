@@ -125,12 +125,12 @@ export default function PreparePage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
                 <Input
                   placeholder="Buscar por nombre o palabra clave"
-                  className="pl-10 w-full bg-white/50 border-gray-300"
+                  className="pl-10 w-full bg-white/50 border-gray-300 text-gray-900"
                 />
               </div>
                <FileUploadButton
                 variant="outline"
-                className="w-full sm:w-auto flex-shrink-0 bg-white/50 hover:bg-white/80 border-gray-300"
+                className="w-full sm:w-auto flex-shrink-0 bg-white/50 hover:bg-white/80 border-gray-300 text-gray-800"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />

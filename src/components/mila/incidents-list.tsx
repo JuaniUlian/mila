@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, ClipboardList, BookOpen, AlertTriangle, FlaskConical, Gavel } from 'lucide-react';
+import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -41,8 +41,8 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const handleSave = () => {
     onUpdateText(editText);
     setIsEditing(false);
-    // Optimistically expand to see the result
-    setIsExpanded(true);
+    // After saving, we collapse the item as the action is done.
+    setIsExpanded(false); 
   };
   
   const handleCancel = () => {
@@ -62,7 +62,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
   const handleEdit = () => {
     setIsEditing(true);
-    setIsExpanded(true);
+    setIsExpanded(true); // Keep it expanded for editing
   }
 
   return (
@@ -171,8 +171,10 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     low: 2,
   };
 
-  const sortedSuggestions = useMemo(() => {
-    return [...suggestions].sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+  const pendingSuggestions = useMemo(() => {
+    return [...suggestions]
+      .filter(s => s.status === 'pending')
+      .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
   }, [suggestions]);
   
   const groupedSuggestions = useMemo(() => {
@@ -183,14 +185,14 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
       'Redacción': [],
     };
     
-    sortedSuggestions.forEach(suggestion => {
+    pendingSuggestions.forEach(suggestion => {
       if (groups[suggestion.category]) {
         groups[suggestion.category].push(suggestion);
       }
     });
 
     return Object.entries(groups).filter(([, s]) => s.length > 0);
-  }, [sortedSuggestions]);
+  }, [pendingSuggestions]);
 
   const getOriginalText = (blockId: string) => {
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
@@ -200,28 +202,37 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     <Card className="panel-glass h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-xl font-bold">Incidencias y Sugerencias</CardTitle>
-        <CardDescription>Hallazgos detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
+        <CardDescription>Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto pr-2">
         <ScrollArea className="h-full w-full pr-4">
-            <div className="space-y-6">
-              {groupedSuggestions.map(([category, s_group]) => (
-                <div key={category}>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">{category} ({s_group.length})</h3>
-                  <div className="space-y-3">
-                    {s_group.map(suggestion => (
-                      <IncidentItem 
-                        key={suggestion.id}
-                        suggestion={suggestion}
-                        originalText={getOriginalText(suggestion.blockId)}
-                        onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
-                        onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                      />
-                    ))}
-                  </div>
+            {pendingSuggestions.length > 0 ? (
+                <div className="space-y-6">
+                {groupedSuggestions.map(([category, s_group]) => (
+                    <div key={category}>
+                    <h3 className="text-lg font-semibold text-foreground mb-3">{category} ({s_group.length})</h3>
+                    <div className="space-y-3">
+                        {s_group.map(suggestion => (
+                        <IncidentItem 
+                            key={suggestion.id}
+                            suggestion={suggestion}
+                            originalText={getOriginalText(suggestion.blockId)}
+                            onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
+                            onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
+                        />
+                        ))}
+                    </div>
+                    </div>
+                ))}
                 </div>
-              ))}
-            </div>
+            ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                    <Check className="w-16 h-16 text-green-500 mb-4" />
+                    <h3 className="text-xl font-semibold text-foreground">¡Excelente!</h3>
+                    <p>No hay incidencias pendientes de revisión.</p>
+                    <p>El documento ha sido completamente validado.</p>
+                </div>
+            )}
         </ScrollArea>
       </CardContent>
     </Card>

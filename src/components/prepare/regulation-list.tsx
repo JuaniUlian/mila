@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
+import { Button } from '@/components/ui/button';
 
 interface Regulation {
     id: string;
@@ -35,19 +36,19 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
             <Accordion type="multiple" className="w-full space-y-2">
                 {regulations.map(regulation => (
                     <AccordionItem key={regulation.id} value={regulation.id} className="border rounded-lg bg-white/40 border-gray-200/80">
-                        <AccordionTrigger className="p-4 hover:no-underline hover:bg-gray-100/50 rounded-t-lg">
-                            <div className="flex items-center gap-4 w-full" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCheckboxChange(regulation.id); }}>
-                                 <Checkbox
-                                    id={`checkbox-${regulation.id}`}
-                                    checked={selectedIds.includes(regulation.id)}
-                                    className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                                    readOnly
-                                />
+                        <div className="flex items-center gap-4 w-full p-4 hover:bg-gray-100/50 rounded-t-lg">
+                            <Checkbox
+                                id={`checkbox-${regulation.id}`}
+                                checked={selectedIds.includes(regulation.id)}
+                                onCheckedChange={() => handleCheckboxChange(regulation.id)}
+                                className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                            />
+                            <AccordionTrigger className="p-0 hover:no-underline flex-1 w-full justify-between">
                                 <label htmlFor={`checkbox-${regulation.id}`} className="font-medium text-left flex-1 cursor-pointer text-gray-800">
                                     {regulation.name}
                                 </label>
-                            </div>
-                        </AccordionTrigger>
+                            </AccordionTrigger>
+                        </div>
                         <AccordionContent className="p-4 pt-2 border-t border-gray-200/80">
                             <p className="text-gray-600">{regulation.content}</p>
                         </AccordionContent>
@@ -57,7 +58,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
             <div className="flex justify-end">
                 <FileUploadButton
                     variant="outline"
-                    className="bg-white/50 hover:bg-white/80 border-gray-300"
+                    className="bg-white/50 hover:bg-white/80 border-gray-300 text-gray-800"
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />
