@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -8,9 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
-import { Search, Upload, FileSignature, BookCheck } from 'lucide-react';
+import { Search, Upload, FileSignature, BookCheck, FolderPlus } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 // Mock Data
 const initialFolders = [
@@ -44,6 +52,10 @@ export default function PreparePage() {
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // State for the new folder modal
+  const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
 
   const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
 
@@ -102,6 +114,33 @@ export default function PreparePage() {
     showToast(fileName);
   };
 
+  const handleCreateFolder = () => {
+    if (!newFolderName.trim()) {
+      toast({
+        title: "Error",
+        description: "El nombre de la carpeta no puede estar vacío.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newFolder = {
+      id: `f${Date.now()}`,
+      name: newFolderName,
+      files: [],
+      fileCount: 0,
+    };
+
+    setFolders(prevFolders => [...prevFolders, newFolder]);
+    toast({
+      title: "Carpeta Creada",
+      description: `La carpeta "${newFolderName}" ha sido creada exitosamente.`,
+    });
+
+    setNewFolderName('');
+    setIsCreateFolderModalOpen(false);
+  };
+
   const filteredFolders = useMemo(() => {
     if (!searchQuery) {
       return folders;
@@ -150,6 +189,14 @@ export default function PreparePage() {
                 <Upload className="mr-2 h-4 w-4" />
                 Subir nuevo archivo
               </FileUploadButton>
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-lg border-dashed"
+                onClick={() => setIsCreateFolderModalOpen(true)}
+              >
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Nueva Carpeta
+              </Button>
             </div>
             <FolderGrid 
               folders={filteredFolders} 
@@ -191,6 +238,33 @@ export default function PreparePage() {
             </Button>
         </div>
       </div>
+
+      {/* Create Folder Modal */}
+      <Dialog open={isCreateFolderModalOpen} onOpenChange={setIsCreateFolderModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Crear Nueva Carpeta</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="folder-name" className="text-foreground">
+                Nombre de la carpeta
+            </Label>
+            <Input
+              id="folder-name"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Ej: Pliegos 2026"
+              className="bg-white/70"
+            />
+          </div>
+          <DialogFooter className="pt-2">
+            <DialogClose asChild>
+              <Button variant="ghost" onClick={() => setNewFolderName('')}>Cancelar</Button>
+            </DialogClose>
+            <Button onClick={handleCreateFolder}>Crear</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
