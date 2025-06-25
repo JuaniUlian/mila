@@ -193,21 +193,10 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     return 'low';
   };
   
-  const getSeparatorGradientClass = (score: number): string => {
-    if (score < 40) return 'from-rose-500 to-rose-600'; 
-    if (score < 60) return 'from-orange-400 to-orange-500';
-    if (score < 75) return 'from-amber-400 to-amber-500';
-    if (score < 85) return 'from-lime-400 to-lime-500';
-    if (score < 95) return 'from-sky-400 to-sky-500';
-    return 'from-slate-400 to-slate-500';
-  };
-  
-  const separatorClass = getSeparatorGradientClass(overallComplianceScore);
   const useDarkText = overallComplianceScore >= 75;
 
   return (
     <Card className="h-full flex flex-col bg-card/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border-white/20">
-      <div className={cn("h-1.5 w-full bg-gradient-to-r", separatorClass)} />
       <CardHeader className="p-4 border-b border-white/10">
         <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
       </CardHeader>
@@ -218,12 +207,12 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                 {groupedSuggestions.map(([category, s_group]) => {
                     const highestSeverity = getHighestSeverity(s_group);
                     return(
-                    <AccordionItem key={category} value={category} className="border rounded-lg border-white/10 bg-background/20 overflow-hidden">
-                        <AccordionTrigger className="relative pl-5 p-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10">
-                            <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b", getSeverityGradientClass(highestSeverity))}/>
+                    <AccordionItem key={category} value={category} className="relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+                        <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b", getSeverityGradientClass(highestSeverity))}/>
+                        <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10">
                             <span className="text-lg font-semibold flex-1 text-left">{category} ({s_group.length})</span>
                         </AccordionTrigger>
-                        <AccordionContent className="p-3 space-y-3">
+                        <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                             {s_group.map(suggestion => (
                             <IncidentItem 
                                 key={suggestion.id}
