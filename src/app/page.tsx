@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
@@ -210,6 +209,7 @@ export default function PlanillaVivaPage() {
                   blocks={blocks}
                   onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
                   onUpdateSuggestionText={handleUpdateSuggestionText}
+                  overallComplianceScore={overallComplianceScore}
               />
           </div>
           <div className="w-full h-full min-h-0">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -19,6 +18,7 @@ interface IncidentsListProps {
   blocks: DocumentBlock[];
   onUpdateSuggestionStatus: (blockId: string, suggestionId: string, status: Suggestion['status']) => void;
   onUpdateSuggestionText: (blockId: string, suggestionId: string, newText: string) => void;
+  overallComplianceScore: number;
 }
 
 interface IncidentItemProps {
@@ -153,7 +153,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 };
 
 
-export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText }: IncidentsListProps) {
+export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
   const severityOrder: { [key in SuggestionSeverity]: number } = {
     high: 0,
     medium: 1,
@@ -192,12 +192,16 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     if (suggestions.some(s => s.severity === 'medium')) return 'medium';
     return 'low';
   };
+  
+  const useDarkText = overallComplianceScore >= 75;
+  const titleColorClass = useDarkText ? "text-foreground" : "text-white";
+  const descriptionColorClass = useDarkText ? "text-muted-foreground" : "text-white/80";
 
   return (
     <Card className="h-full flex flex-col bg-transparent border-none shadow-none">
       <CardHeader className="p-0 mb-4">
-        <CardTitle className="text-xl font-bold text-white">Incidencias y Sugerencias</CardTitle>
-        <CardDescription className="text-white/80">Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
+        <CardTitle className={cn("text-xl font-bold transition-colors duration-500", titleColorClass)}>Incidencias y Sugerencias</CardTitle>
+        <CardDescription className={cn("transition-colors duration-500", descriptionColorClass)}>Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto pr-2 p-0">
         <ScrollArea className="h-full w-full pr-4">
