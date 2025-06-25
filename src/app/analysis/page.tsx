@@ -10,7 +10,7 @@ import { useLayout } from '@/context/LayoutContext';
 import { PageHeader } from '@/components/mila/page-header';
 import { IncidentsList } from '@/components/mila/incidents-list';
 import { RisksPanel } from '@/components/mila/risks-panel';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 // Define severity weights for score calculation
@@ -250,7 +250,10 @@ export default function PlanillaVivaPage() {
       </div>
       <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
         <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0">
-            <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
+          <DialogHeader className="sr-only">
+            <DialogTitle>Previsualización de Informe</DialogTitle>
+          </DialogHeader>
+          <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
         </DialogContent>
       </Dialog>
     </div>
