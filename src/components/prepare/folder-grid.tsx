@@ -41,17 +41,17 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                 {folders.map(folder => (
                     <Card 
                         key={folder.id} 
-                        className="flex flex-col cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-primary/50 bg-card/80"
+                        className="flex flex-col cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-blue-400/50 glass-card border-gray-200/50"
                         onClick={() => handleFolderClick(folder.id)}
                     >
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <div className="flex items-center gap-3">
-                                <Folder className="h-8 w-8 text-primary" />
-                                <CardTitle className="text-lg font-semibold">{folder.name}</CardTitle>
+                                <Folder className="h-8 w-8 text-blue-600" />
+                                <CardTitle className="text-lg font-semibold text-gray-800">{folder.name}</CardTitle>
                             </div>
                             <DropdownMenu onOpenChange={(open) => { if(open) setOpenFolderId(null) }} >
                                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-200/50">
                                         <MoreVertical className="h-4 w-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -63,13 +63,13 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                             </DropdownMenu>
                         </CardHeader>
                         <CardContent className="flex-grow">
-                            <CardDescription>{folder.fileCount} archivos</CardDescription>
+                            <CardDescription className="text-gray-600">{folder.fileCount} archivos</CardDescription>
                         </CardContent>
                         <CardFooter>
                              <FileUploadButton
                                 variant="outline"
                                 size="sm"
-                                className="w-full"
+                                className="w-full bg-white/50 hover:bg-white/80 border-gray-300"
                                 onClick={(e) => e.stopPropagation()}
                                 onFileSelect={(fileName) => onFileUpload(folder.id, fileName)}
                             >
@@ -82,7 +82,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
 
             {openFolderId && folders.find(f => f.id === openFolderId)?.files.length > 0 && (
                 <div className="mt-6">
-                    <h3 className="text-xl font-semibold mb-3">
+                    <h3 className="text-xl font-semibold mb-3 text-gray-900">
                         Contenido de: {folders.find(f => f.id === openFolderId)?.name}
                     </h3>
                     <div className="space-y-2">
@@ -90,26 +90,27 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                              <Card 
                                 key={file.id} 
                                 className={cn(
-                                    "flex items-center justify-between p-3 transition-all bg-background/60",
-                                    selectedFileId === file.id && "border-primary ring-2 ring-primary"
+                                    "flex items-center justify-between p-3 transition-all bg-white/60",
+                                    selectedFileId === file.id ? "border-blue-500 ring-2 ring-blue-500" : "border-gray-200"
                                 )}
                             >
                                 <div className="flex items-center gap-3">
-                                    <FileText className="h-5 w-5 text-muted-foreground" />
-                                    <span className="font-medium">{file.name}</span>
+                                    <FileText className="h-5 w-5 text-gray-500" />
+                                    <span className="font-medium text-gray-800">{file.name}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                      <Button 
-                                        variant={selectedFileId === file.id ? "default" : "secondary"} 
+                                        variant={selectedFileId === file.id ? "default" : "secondary"}
+                                        className={selectedFileId === file.id ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}
                                         size="sm" 
                                         onClick={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
                                      >
                                         {selectedFileId === file.id ? <CheckCircle2 className="mr-2 h-4 w-4" /> : null}
                                         {selectedFileId === file.id ? 'Seleccionado' : 'Seleccionar'}
                                     </Button>
-                                    <Button variant="ghost" size="icon"><Download className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon"><Move className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                    <Button variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-200/50"><Download className="h-4 w-4" /></Button>
+                                    <Button variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-200/50"><Move className="h-4 w-4" /></Button>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:bg-red-100/50"><Trash2 className="h-4 w-4" /></Button>
                                 </div>
                             </Card>
                         ))}

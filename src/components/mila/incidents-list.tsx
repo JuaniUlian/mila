@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import type { Suggestion, SuggestionCategory, DocumentBlock } from './types';
+import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, ClipboardList, BookOpen, AlertTriangle, FlaskConical, Gavel } from 'lucide-react';
@@ -41,6 +41,8 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const handleSave = () => {
     onUpdateText(editText);
     setIsEditing(false);
+    // Optimistically expand to see the result
+    setIsExpanded(true);
   };
   
   const handleCancel = () => {
@@ -48,8 +50,23 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
     setIsEditing(false);
   };
 
+  const handleApply = () => {
+    onUpdateStatus('applied');
+    setIsExpanded(false);
+  };
+
+  const handleDiscard = () => {
+    onUpdateStatus('discarded');
+    setIsExpanded(false);
+  }
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setIsExpanded(true);
+  }
+
   return (
-    <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden">
+    <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden transition-all duration-200">
       {/* Header Row */}
       <div className="relative pl-8 pr-4 py-3 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <div className={cn("incident-bar", severityBarClass)}></div>
@@ -66,7 +83,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                 {suggestion.status}
             </span>
             <Button variant="ghost" size="sm" className="hover:bg-secondary">
-                {isEditing ? "Corregir" : "Mostrar"}
+                {isExpanded ? "Ocultar" : "Mostrar"}
                 <ChevronDown className={cn("w-4 h-4 ml-2 transition-transform", isExpanded && "rotate-180")} />
             </Button>
         </div>
@@ -74,7 +91,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
       
       {/* Collapsible Content */}
       {isExpanded && (
-        <div className="pl-8 pr-4 pb-4 border-t border-border/50 space-y-4">
+        <div className="pl-8 pr-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down">
           {/* Original Text */}
           <div>
             <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> Contexto del Texto Original</h4>
@@ -128,13 +145,13 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                 </>
             ) : (
                  <>
-                    <Button size="sm" onClick={() => onUpdateStatus('applied')} disabled={suggestion.status !== 'pending'}>
+                    <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
                         <Check className="mr-2 h-4 w-4"/> Aplicar Corrección
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setIsEditing(true)} disabled={suggestion.status !== 'pending'}>
+                    <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
                         <Edit3 className="mr-2 h-4 w-4"/> Editar y Aplicar
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => onUpdateStatus('discarded')} disabled={suggestion.status !== 'pending'}>
+                    <Button size="sm" variant="destructive" onClick={handleDiscard} disabled={suggestion.status !== 'pending'}>
                         <Trash2 className="mr-2 h-4 w-4"/> Descartar
                     </Button>
                  </>
@@ -148,6 +165,16 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
 
 export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText }: IncidentsListProps) {
+  const severityOrder: { [key in SuggestionSeverity]: number } = {
+    high: 0,
+    medium: 1,
+    low: 2,
+  };
+
+  const sortedSuggestions = useMemo(() => {
+    return [...suggestions].sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+  }, [suggestions]);
+  
   const groupedSuggestions = useMemo(() => {
     const groups: Record<SuggestionCategory, SuggestionWithBlockId[]> = {
       'Legal': [],
@@ -156,14 +183,14 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
       'Redacción': [],
     };
     
-    suggestions.forEach(suggestion => {
+    sortedSuggestions.forEach(suggestion => {
       if (groups[suggestion.category]) {
         groups[suggestion.category].push(suggestion);
       }
     });
 
     return Object.entries(groups).filter(([, s]) => s.length > 0);
-  }, [suggestions]);
+  }, [sortedSuggestions]);
 
   const getOriginalText = (blockId: string) => {
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
@@ -173,27 +200,29 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     <Card className="panel-glass h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-xl font-bold">Incidencias y Sugerencias</CardTitle>
-        <CardDescription>Hallazgos detectados por la IA, agrupados por categoría.</CardDescription>
+        <CardDescription>Hallazgos detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto pr-2">
-        <div className="space-y-6">
-          {groupedSuggestions.map(([category, s_group]) => (
-            <div key={category}>
-              <h3 className="text-lg font-semibold text-foreground mb-3">{category} ({s_group.length})</h3>
-              <div className="space-y-3">
-                {s_group.map(suggestion => (
-                  <IncidentItem 
-                    key={suggestion.id}
-                    suggestion={suggestion}
-                    originalText={getOriginalText(suggestion.blockId)}
-                    onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
-                    onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                  />
-                ))}
-              </div>
+        <ScrollArea className="h-full w-full pr-4">
+            <div className="space-y-6">
+              {groupedSuggestions.map(([category, s_group]) => (
+                <div key={category}>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">{category} ({s_group.length})</h3>
+                  <div className="space-y-3">
+                    {s_group.map(suggestion => (
+                      <IncidentItem 
+                        key={suggestion.id}
+                        suggestion={suggestion}
+                        originalText={getOriginalText(suggestion.blockId)}
+                        onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
+                        onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

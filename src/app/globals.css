@@ -57,8 +57,8 @@
 
     /* Severity Colors (for text, borders, etc.) */
     --severity-high: 0 84% 60%;
-    --severity-medium: 35 92% 60%;
-    --severity-low: 160 84% 40%;
+    --severity-medium: 45 92% 55%; /* Changed to yellow/orange */
+    --severity-low: 185 84% 60%; /* Changed to light blue */
   }
 
   .dark {
@@ -74,7 +74,7 @@
     background: hsl(var(--background));
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     
-    /* Adaptive Morphism Background */
+    /* Adaptive Morphism Background for Plantilla Viva page */
     background-image: 
       radial-gradient(at 80% 10%, hsla(var(--stain-1-hue), var(--stain-1-saturation), var(--stain-1-lightness), var(--stain-1-alpha)) 0px, transparent 50%),
       radial-gradient(at 20% 90%, hsla(var(--stain-2-hue), var(--stain-2-saturation), var(--stain-2-lightness), var(--stain-2-alpha)) 0px, transparent 50%),
@@ -99,8 +99,13 @@
      background-color: hsl(var(--severity-low));
   }
 
-  /* Glassmorphism for specific panels */
+  /* Glassmorphism for dark background panels */
   .panel-glass {
     @apply bg-[hsl(var(--card)/0.6)] backdrop-blur-md border border-[hsl(var(--border)/0.5)] shadow-xl;
+  }
+  
+  /* Glassmorphism for light background cards */
+  .glass-card {
+    @apply bg-white/30 backdrop-blur-lg border border-white/40 shadow-lg;
   }
 }

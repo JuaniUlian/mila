@@ -104,31 +104,33 @@ export default function PreparePage() {
 
 
   return (
-    // We apply a background that matches the light theme for consistency
-    <div className="min-h-screen w-full p-4 md:p-8" style={{
-      background: 'linear-gradient(145deg, rgba(255, 192, 203, 1) 0%, rgba(173, 216, 230, 1) 40%, rgba(255, 160, 122, 1) 100%)',
-      backgroundAttachment: 'fixed'
-    }}>
+    <div 
+        className="min-h-screen w-full p-4 md:p-8 text-gray-800" 
+        style={{
+            background: 'linear-gradient(135deg, #E0E7FF 0%, #F9FAFB 50%, #FFFFFF 100%)',
+            backgroundAttachment: 'fixed'
+        }}
+    >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="glass-card shadow-lg rounded-2xl">
+        <Card className="glass-card shadow-lg rounded-2xl border-gray-200/50">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
               📄 Paso 1: Seleccionar documento
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative flex-grow w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
                 <Input
                   placeholder="Buscar por nombre o palabra clave"
-                  className="pl-10 w-full"
+                  className="pl-10 w-full bg-white/50 border-gray-300"
                 />
               </div>
                <FileUploadButton
                 variant="outline"
-                className="w-full sm:w-auto flex-shrink-0"
+                className="w-full sm:w-auto flex-shrink-0 bg-white/50 hover:bg-white/80 border-gray-300"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -146,9 +148,9 @@ export default function PreparePage() {
 
         {/* Section 2: Select Regulations */}
         <Accordion type="single" collapsible className="w-full" defaultValue="regulations">
-          <AccordionItem value="regulations" className="border-b-0 glass-card shadow-lg rounded-2xl overflow-hidden">
+          <AccordionItem value="regulations" className="border-b-0 glass-card shadow-lg rounded-2xl overflow-hidden border-gray-200/50">
             <AccordionTrigger className="p-6 hover:no-underline w-full text-left">
-              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 ⚖️ Paso 2: Seleccioná las normativas para el análisis
               </CardTitle>
             </AccordionTrigger>
@@ -167,7 +169,7 @@ export default function PreparePage() {
         <div className="flex justify-center pt-4">
             <Button
               size="lg"
-              className="text-lg font-semibold px-12 py-7 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-lg font-semibold px-12 py-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               onClick={handleValidate}
               disabled={!isValidationReady}
             >

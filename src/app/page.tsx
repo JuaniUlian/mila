@@ -98,19 +98,30 @@ export default function PlanillaVivaPage() {
           return {
             ...block,
             suggestions: block.suggestions.map(suggestion =>
-              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'pending' } : suggestion 
+              suggestion.id === suggestionId ? { ...suggestion, text: newText, status: 'applied' } : suggestion 
             ),
           };
         }
         return block;
       });
+
+       const blockToRecalculate = updatedBlocks.find(b => b.id === blockId);
+       let newCompletenessIndexForBlock = blockToRecalculate?.completenessIndex ?? 0;
+       if (blockToRecalculate) {
+           const suggestion = blockToRecalculate.suggestions.find(s => s.id === suggestionId);
+           if(suggestion?.completenessImpact) {
+              newCompletenessIndexForBlock = Math.min(blockToRecalculate.maxCompleteness, newCompletenessIndexForBlock + suggestion.completenessImpact);
+              blockToRecalculate.completenessIndex = newCompletenessIndexForBlock;
+           }
+       }
+
        const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
        
        setHasCorrections(true);
 
        toast({
-        title: "Sugerencia Modificada",
-        description: "El texto de la sugerencia ha sido actualizado y marcado como pendiente.",
+        title: "Sugerencia Modificada y Aplicada",
+        description: "El texto de la sugerencia ha sido actualizado y marcado como corregido.",
       });
 
       return {

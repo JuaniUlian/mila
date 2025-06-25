@@ -40,10 +40,16 @@ export default function LoadingPage() {
   }, [router]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
-      <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
+    <div 
+      className="flex flex-col items-center justify-center min-h-screen text-gray-800"
+      style={{
+        background: 'linear-gradient(135deg, #E0E7FF 0%, #F9FAFB 50%, #FFFFFF 100%)',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      <Loader2 className="h-16 w-16 animate-spin text-blue-600 mb-6" />
       <h1 className="text-2xl font-semibold mb-2">Procesando Pliego</h1>
-      <p className="text-lg text-muted-foreground">{statusText}</p>
+      <p className="text-lg text-gray-600">{statusText}</p>
     </div>
   );
 }

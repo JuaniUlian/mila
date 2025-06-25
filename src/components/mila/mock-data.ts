@@ -1,31 +1,6 @@
 
 import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionCategory, SuggestionSeverity } from './types';
 
-const commonSuggestionsBase: Omit<Suggestion, 'id' | 'status' | 'category' | 'severity'>[] = [
-  {
-    text: "El presente contrato tiene por objeto: 1. La adquisición de licencias de software para la entidad. 2. La prestación de soporte técnico especializado durante 12 meses. Este acuerdo busca asegurar la continuidad operativa, la actualización tecnológica de las plataformas institucionales y cubrir integralmente las necesidades de software de la organización.",
-    justification: {
-      legal: "Principios de transparencia y publicidad (Ley 80 de 1993, Art. 24).",
-      technical: "Facilita la comprensión por parte de los proponentes y reduce el riesgo de interpretaciones erróneas.",
-    },
-    appliedNorm: "Ley 80 de 1993, Art. 24",
-    errorType: "Ambigüedad, Falta de claridad",
-    estimatedConsequence: "Consultas recurrentes, posibles protestas o impugnaciones.",
-    completenessImpact: 0.8,
-  },
-  {
-    text: "Los proponentes deben satisfacer los requisitos financieros y técnicos especificados. Es mandatorio poseer experiencia previa en contrataciones con el sector público. El equipo técnico asignado deberá contar con las certificaciones vigentes pertinentes. La oferta técnica incluirá un cronograma de ejecución detallado. Se adjuntará el Registro Único Tributario (RUT) y el certificado de existencia y representación legal.",
-    justification: {
-      legal: "Principio de buena fe contractual.",
-      technical: "Evita confusiones y contradicciones internas.",
-    },
-    appliedNorm: "Código Civil, Art. 1603",
-    errorType: "Inconsistencia terminológica",
-    estimatedConsequence: "Dificultad en la interpretación y aplicación del pliego.",
-    completenessImpact: 0.7,
-  }
-];
-
 const block1Suggestions: Suggestion[] = [ 
   {
     id: 'sug1-obj',
@@ -54,10 +29,24 @@ const block1Suggestions: Suggestion[] = [
     appliedNorm: "Ley 80 de 1993, Art. 3",
     errorType: "Falta de previsión contractual",
     estimatedConsequence: "Posibles costos adicionales no presupuestados para actualizaciones.",
-    status: 'applied',
+    status: 'pending',
     completenessImpact: 1.0,
   },
-  { ...commonSuggestionsBase[0], id: `sug-generic-1-obj`, status: 'pending', category: 'Redacción', severity: 'low' },
+  {
+    id: 'sug-generic-1-obj',
+    category: 'Redacción',
+    severity: 'low',
+    text: "El presente contrato tiene por objeto: 1. La adquisición de licencias de software para la entidad. 2. La prestación de soporte técnico especializado durante 12 meses. Este acuerdo busca asegurar la continuidad operativa, la actualización tecnológica de las plataformas institucionales y cubrir integralmente las necesidades de software de la organización.",
+    justification: {
+      legal: "Principios de transparencia y publicidad (Ley 80 de 1993, Art. 24).",
+      technical: "Facilita la comprensión por parte de los proponentes y reduce el riesgo de interpretaciones erróneas.",
+    },
+    appliedNorm: "Ley 80 de 1993, Art. 24",
+    errorType: "Ambigüedad, Falta de claridad",
+    estimatedConsequence: "Consultas recurrentes, posibles protestas o impugnaciones.",
+    status: 'pending',
+    completenessImpact: 0.8,
+  },
 ];
 
 const block2Suggestions: Suggestion[] = [ 
@@ -88,10 +77,24 @@ const block2Suggestions: Suggestion[] = [
     appliedNorm: "Decreto 1082 de 2015, Art. 2.2.1.1.1.5.2",
     errorType: "Requisitos de experiencia insuficientes",
     estimatedConsequence: "Contratación de proponentes sin la experiencia adecuada.",
-    status: 'applied',
+    status: 'pending',
     completenessImpact: 1.8,
   },
-  { ...commonSuggestionsBase[1], id: `sug-generic-2-req`, status: 'pending', category: 'Redacción', severity: 'medium' },
+  {
+    id: 'sug-generic-2-req',
+    category: 'Redacción',
+    severity: 'medium',
+    text: "Los proponentes deben satisfacer los requisitos financieros y técnicos especificados. Es mandatorio poseer experiencia previa en contrataciones con el sector público. El equipo técnico asignado deberá contar con las certificaciones vigentes pertinentes. La oferta técnica incluirá un cronograma de ejecución detallado. Se adjuntará el Registro Único Tributario (RUT) y el certificado de existencia y representación legal.",
+    justification: {
+      legal: "Principio de buena fe contractual.",
+      technical: "Evita confusiones y contradicciones internas.",
+    },
+    appliedNorm: "Código Civil, Art. 1603",
+    errorType: "Inconsistencia terminológica",
+    estimatedConsequence: "Dificultad en la interpretación y aplicación del pliego.",
+    status: 'pending',
+    completenessImpact: 0.7,
+  },
 ];
 
 
