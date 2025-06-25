@@ -29,7 +29,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, overallCompl
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 className="text-3xl font-bold text-white">{documentTitle}</h1>
-                <p className="text-md text-white/80">Estado general del documento y sus validaciones.</p>
+                <p className="text-md text-white/80">Informe de situación</p>
             </div>
             <Card className="p-4 w-full md:w-auto md:min-w-[300px] bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                 <CardContent className="p-0 flex flex-col gap-3">

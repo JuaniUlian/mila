@@ -99,7 +99,7 @@ const block2Suggestions: Suggestion[] = [
 
 
 export const mockData: MilaAppPData = {
-  documentTitle: "Pliego Normativo XYZ-2024",
+  documentTitle: "Evaluación Pliego XYZ-2025",
   overallComplianceScore: 78, 
   overallCompletenessIndex: 8.2, 
   blocks: [
