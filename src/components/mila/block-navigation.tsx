@@ -8,11 +8,6 @@ import { usePathname } from 'next/navigation';
 
 const navItems = [
   {
-    name: 'Plantilla Viva',
-    icon: Home,
-    href: '/',
-  },
-  {
     name: 'Preparar Pliego',
     icon: FilePlus2,
     href: '/prepare',

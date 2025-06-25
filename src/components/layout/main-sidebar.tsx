@@ -6,7 +6,7 @@ import { BlockNavigation } from '../mila/block-navigation';
 
 export function MainSidebar() {
     return (
-        <aside className="w-64 flex-shrink-0 bg-gradient-to-b from-sky-950 via-slate-800 to-slate-950 text-white p-4 flex flex-col">
+        <aside className="w-64 flex-shrink-0 bg-slate-900/70 backdrop-blur-xl text-white p-4 flex flex-col border-r border-white/10">
             <div className="flex justify-center items-center py-4">
                 <Logo />
             </div>
