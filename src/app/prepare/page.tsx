@@ -156,6 +156,7 @@ export default function PreparePage() {
               selectedFileId={selectedFileId}
               onSelectFile={setSelectedFileId}
               searchQuery={searchQuery}
+              onFileUploadToFolder={handleFileUploadToFolder}
             />
           </CardContent>
         </Card>

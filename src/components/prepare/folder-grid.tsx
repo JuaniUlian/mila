@@ -2,9 +2,10 @@
 "use client";
 
 import React from 'react';
-import { Folder, FileText, CheckCircle2 } from 'lucide-react';
+import { Folder, FileText, CheckCircle2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { FileUploadButton } from './file-upload-button';
 
 interface File {
     id: string;
@@ -22,6 +23,7 @@ interface FolderGridProps {
     selectedFileId: string | null;
     onSelectFile: (id: string | null) => void;
     searchQuery: string;
+    onFileUploadToFolder: (folderId: string, fileName: string) => void;
 }
 
 const FileItem: React.FC<{ file: File; isSelected: boolean; onSelect: () => void }> = ({ file, isSelected, onSelect }) => (
@@ -40,7 +42,7 @@ const FileItem: React.FC<{ file: File; isSelected: boolean; onSelect: () => void
     </div>
 );
 
-export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery }: FolderGridProps) {
+export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery, onFileUploadToFolder }: FolderGridProps) {
     if (folders.length === 0) {
         return (
             <div className="text-center py-10 bg-slate-100/50 rounded-lg">
@@ -58,12 +60,24 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery 
                     key={folder.id} 
                     className="bg-white/60 backdrop-blur-sm border-white/20 shadow-lg transition-shadow hover:shadow-xl flex flex-col rounded-2xl"
                 >
-                    <CardHeader className='pb-3'>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            <Folder className="h-6 w-6 text-primary" />
-                            {folder.name}
-                        </CardTitle>
-                         <CardDescription>{folder.files.length} {folder.files.length === 1 ? 'archivo' : 'archivos'}</CardDescription>
+                    <CardHeader className='pb-3 flex flex-row items-start justify-between'>
+                        <div className='flex-1'>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Folder className="h-6 w-6 text-primary" />
+                                {folder.name}
+                            </CardTitle>
+                            <CardDescription>{folder.files.length} {folder.files.length === 1 ? 'archivo' : 'archivos'}</CardDescription>
+                        </div>
+                        <FileUploadButton
+                            onFileSelect={(fileName) => onFileUploadToFolder(folder.id, fileName)}
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full flex-shrink-0"
+                            title={`Añadir archivo a ${folder.name}`}
+                        >
+                            <Plus className="h-5 w-5" />
+                            <span className="sr-only">Añadir archivo</span>
+                        </FileUploadButton>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
                         {folder.files.length > 0 ? (
