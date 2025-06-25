@@ -31,14 +31,14 @@ export function Logo({ className }: { className?: string }) {
         />
         
         {/* Text with gradient */}
-        <g fontFamily="Nunito, sans-serif" fontSize="48" fontWeight="800" fill="url(#text-grad)" textAnchor="middle">
+        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
             {/* Top Row: MI */}
-            <text x="38" y="46">M</text>
-            <text x="74" y="46">I</text>
+            <text x="34" y="48">M</text>
+            <text x="78" y="48">I</text>
 
             {/* Bottom Row: LA */}
-            <text x="38" y="86">L</text>
-            <text x="74" y="86">A</text>
+            <text x="34" y="92">L</text>
+            <text x="78" y="92">A</text>
         </g>
 
         <defs>
