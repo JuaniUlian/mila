@@ -156,8 +156,7 @@ export default function PlanillaVivaPage() {
         </div>
         <div className="w-full h-full min-h-0">
              <RisksPanel
-                blocks={blocks}
-                overallComplianceScore={overallComplianceScore}
+                documentData={documentData}
                 hasCorrections={hasCorrections}
             />
         </div>
