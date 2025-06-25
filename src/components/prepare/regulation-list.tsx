@@ -5,6 +5,7 @@ import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
+import { Button } from '../ui/button';
 
 interface Regulation {
     id: string;
@@ -33,25 +34,28 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
         <div className="space-y-4">
             <div className="w-full space-y-3">
                 {regulations.map(regulation => (
-                    <div key={regulation.id} className="border border-slate-300/40 rounded-xl bg-slate-50/50 backdrop-blur-xl shadow-lg transition-shadow hover:shadow-2xl">
-                        <div className="flex items-center gap-4 w-full p-3 hover:bg-slate-100/30 transition-colors rounded-xl">
+                    <div 
+                      key={regulation.id} 
+                      className="border rounded-lg bg-card transition-shadow hover:shadow-lg"
+                      onClick={() => handleCheckboxChange(regulation.id)}
+                    >
+                        <div className="flex items-center gap-4 w-full p-4 cursor-pointer">
                             <Checkbox
                                 id={`checkbox-${regulation.id}`}
                                 checked={selectedIds.includes(regulation.id)}
                                 onCheckedChange={() => handleCheckboxChange(regulation.id)}
-                                className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
-                            <label htmlFor={`checkbox-${regulation.id}`} className="font-medium text-left flex-1 cursor-pointer text-gray-800">
+                            <label htmlFor={`checkbox-${regulation.id}`} className="font-medium text-left flex-1 cursor-pointer text-foreground">
                                 {regulation.name}
                             </label>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2">
                 <FileUploadButton
                     variant="outline"
-                    className="bg-white/70 border-gray-300 text-gray-800 hover:bg-blue-800 hover:text-white transition-colors"
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />

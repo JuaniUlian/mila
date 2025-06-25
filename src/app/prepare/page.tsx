@@ -125,7 +125,7 @@ export default function PreparePage() {
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="panel-glass">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               📄 Paso 1: Seleccionar documento
@@ -137,14 +137,14 @@ export default function PreparePage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por nombre o palabra clave"
-                  className="pl-10 w-full bg-card/80 border-border text-foreground focus:bg-card"
+                  className="pl-10 w-full bg-secondary text-foreground focus:bg-card"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
                <FileUploadButton
                 variant="outline"
-                className="w-full sm:w-auto flex-shrink-0 bg-card/80 border-border text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="w-full sm:w-auto flex-shrink-0"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -161,29 +161,27 @@ export default function PreparePage() {
         </Card>
 
         {/* Section 2: Select Regulations */}
-        <Accordion type="single" collapsible className="w-full" defaultValue="regulations">
-          <AccordionItem value="regulations" className="border-b-0 panel-glass overflow-hidden">
-            <AccordionTrigger className="p-6 hover:no-underline w-full text-left">
-              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                ⚖️ Paso 2: Seleccioná las normativas para el análisis
-              </CardTitle>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pt-0 pb-6">
-              <RegulationList 
-                regulations={regulations}
-                selectedIds={selectedRegulationIds}
-                onSelectionChange={setSelectedRegulationIds}
-                onRegulationUpload={handleRegulationUpload}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+              ⚖️ Paso 2: Seleccioná las normativas para el análisis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RegulationList 
+              regulations={regulations}
+              selectedIds={selectedRegulationIds}
+              onSelectionChange={setSelectedRegulationIds}
+              onRegulationUpload={handleRegulationUpload}
+            />
+          </CardContent>
+        </Card>
 
         {/* Section 3: Validation Button */}
         <div className="flex justify-center pt-4">
             <Button
               size="lg"
-              className="text-lg font-semibold px-12 py-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="text-lg font-semibold px-12 py-7 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               onClick={handleValidate}
               disabled={!isValidationReady}
             >

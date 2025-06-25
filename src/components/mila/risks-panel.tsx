@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import type { MilaAppPData } from './types';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Check, FileText } from 'lucide-react';
 import { Separator } from '../ui/separator';
@@ -24,19 +24,17 @@ export function RisksPanel({
   const lowSeverityCount = blocks.reduce((acc, block) => acc + block.suggestions.filter(s => s.severity === 'low').length, 0);
   const appliedCount = blocks.reduce((acc, block) => acc + block.suggestions.filter(s => s.status === 'applied').length, 0);
 
-
   const uniqueNorms = [...new Set(blocks.flatMap(b => b.suggestions.map(s => s.appliedNorm)))];
 
   return (
-    <aside className="panel-glass flex flex-col h-full p-4 space-y-4">
-        <CardHeader className="p-0">
+    <Card className="flex flex-col h-full">
+        <CardHeader>
             <CardTitle className="text-lg font-bold text-foreground">Resultados Parciales</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">Resumen del análisis en tiempo real.</CardDescription>
         </CardHeader>
         
-        <Separator className="bg-border/50" />
-
-        <div className="p-0 space-y-3 text-sm flex-grow overflow-y-auto">
+        <CardContent className="flex-grow space-y-3 text-sm overflow-y-auto">
+            <Separator className="mb-3"/>
             <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Cumplimiento General</span>
                 <span className="font-semibold text-foreground">{overallComplianceScore.toFixed(0)}%</span>
@@ -46,19 +44,19 @@ export function RisksPanel({
                 <span className="font-semibold text-foreground">{totalSuggestions}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[hsl(var(--severity-high))]"></div> Alta Severidad</span>
-                <span className="font-semibold text-[hsl(var(--severity-high))]">{highSeverityCount}</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div> Alta Severidad</span>
+                <span className="font-semibold text-red-500">{highSeverityCount}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[hsl(var(--severity-medium))]"></div> Media Severidad</span>
-                <span className="font-semibold text-[hsl(var(--severity-medium))]">{mediumSeverityCount}</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500"></div> Media Severidad</span>
+                <span className="font-semibold text-amber-500">{mediumSeverityCount}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[hsl(var(--severity-low))]"></div> Baja Severidad</span>
-                <span className="font-semibold text-[hsl(var(--severity-low))]">{lowSeverityCount}</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500"></div> Baja Severidad</span>
+                <span className="font-semibold text-sky-500">{lowSeverityCount}</span>
             </div>
 
-            <Separator className="bg-border/50" />
+            <Separator className="my-3"/>
 
              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground flex items-center gap-1.5"><Check className="w-4 h-4 text-green-500" /> Correcciones Aplicadas</span>
@@ -68,11 +66,9 @@ export function RisksPanel({
                 <span className="text-muted-foreground flex items-center gap-1.5"><FileText className="w-4 h-4" /> Normativas Involucradas</span>
                 <span className="font-semibold text-foreground">{uniqueNorms.length}</span>
             </div>
-        </div>
+        </CardContent>
 
-        <Separator className="bg-border/50" />
-
-        <div className="mt-auto">
+        <CardFooter className="flex-col items-stretch pt-6">
             <Button 
                 className="w-full text-base py-6"
                 size="lg"
@@ -82,7 +78,7 @@ export function RisksPanel({
                 Descargar Informe
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-2">Abre una previsualización del informe para imprimir o guardar como PDF.</p>
-        </div>
-    </aside>
+        </CardFooter>
+    </Card>
   );
 }

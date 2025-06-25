@@ -32,16 +32,15 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(suggestion.text);
 
-  const severityBarClass = {
-    high: 'incident-bar-high',
-    medium: 'incident-bar-medium',
-    low: 'incident-bar-low',
+  const severityDotColor = {
+    high: 'bg-red-500',
+    medium: 'bg-amber-500',
+    low: 'bg-sky-500',
   }[suggestion.severity];
 
   const handleSave = () => {
     onUpdateText(editText);
     setIsEditing(false);
-    // After saving, we collapse the item as the action is done.
     setIsExpanded(false); 
   };
   
@@ -62,45 +61,31 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
   const handleEdit = () => {
     setIsEditing(true);
-    setIsExpanded(true); // Keep it expanded for editing
+    setIsExpanded(true);
   }
 
   return (
-    <div className="bg-white/80 border border-border/60 rounded-lg overflow-hidden transition-all duration-200 shadow-md hover:shadow-lg">
+    <div className="bg-card border rounded-lg shadow-md transition-all duration-200 hover:shadow-xl overflow-hidden">
       {/* Header Row */}
-      <div className="relative pl-8 pr-4 py-3 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className={cn("incident-bar", severityBarClass)}></div>
-        <div className="flex-1">
-          <p className="font-semibold text-foreground">{suggestion.errorType}</p>
-          <p className="text-xs text-muted-foreground">Normativa aplicada: {suggestion.appliedNorm}</p>
+      <div className="relative p-4 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+        <span className={cn("absolute top-3 right-3 h-2.5 w-2.5 rounded-full", severityDotColor)}></span>
+        <div className="flex-1 space-y-1 pr-8">
+          <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
+          <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
         </div>
-        <div className="flex items-center gap-4">
-            <span className={cn("text-xs font-bold px-2 py-1 rounded-md", 
-                suggestion.status === 'pending' && 'bg-amber-500/20 text-amber-500',
-                suggestion.status === 'applied' && 'bg-green-500/20 text-green-500',
-                suggestion.status === 'discarded' && 'bg-red-500/20 text-red-500'
-            )}>
-                {suggestion.status}
-            </span>
-            <Button variant="ghost" size="sm" className="hover:bg-secondary">
-                {isExpanded ? "Ocultar" : "Mostrar"}
-                <ChevronDown className={cn("w-4 h-4 ml-2 transition-transform", isExpanded && "rotate-180")} />
-            </Button>
-        </div>
+        <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
       </div>
       
       {/* Collapsible Content */}
       {isExpanded && (
-        <div className="pl-8 pr-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down bg-white/50">
-          {/* Original Text */}
+        <div className="px-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down bg-card">
           <div>
             <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> Contexto del Texto Original</h4>
-            <p className="text-xs bg-secondary/70 p-2 rounded-md font-mono text-foreground/70 max-h-28 overflow-y-auto">{originalText}</p>
+            <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
           </div>
 
-          <Separator className="bg-border/30"/>
+          <Separator />
 
-          {/* Suggested Text */}
           <div>
             <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16} className="text-primary"/> Propuesta de Redacción</h4>
              {isEditing ? (
@@ -112,13 +97,12 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                 aria-label="Editar sugerencia"
               />
             ) : (
-              <div className="p-3 border border-border/30 rounded-md bg-secondary/30 text-sm text-foreground">
+              <div className="p-3 border rounded-md bg-secondary text-sm text-foreground">
                 <p className="leading-relaxed">{suggestion.text}</p>
               </div>
             )}
           </div>
 
-          {/* Justification */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
                  <h5 className="font-semibold mb-1 flex items-center gap-1.5"><Gavel size={14}/> Justificación Legal</h5>
@@ -134,19 +118,18 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
             </div>
           </div>
           
-          <Separator className="bg-border/30"/>
+          <Separator />
           
-          {/* Action Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
             {isEditing ? (
                 <>
-                    <Button size="sm" onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Guardar Cambio</Button>
+                    <Button size="sm" onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Guardar</Button>
                     <Button size="sm" variant="outline" onClick={handleCancel}><XCircle className="mr-2 h-4 w-4"/> Cancelar</Button>
                 </>
             ) : (
                  <>
                     <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
-                        <Check className="mr-2 h-4 w-4"/> Aplicar Corrección
+                        <Check className="mr-2 h-4 w-4"/> Aplicar
                     </Button>
                     <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
                         <Edit3 className="mr-2 h-4 w-4"/> Editar y Aplicar
@@ -199,7 +182,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   }
 
   return (
-    <Card className="panel-glass h-full flex flex-col">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-xl font-bold">Incidencias y Sugerencias</CardTitle>
         <CardDescription>Hallazgos pendientes detectados por la IA, agrupados por categoría y ordenados por severidad.</CardDescription>
