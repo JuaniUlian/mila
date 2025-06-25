@@ -196,7 +196,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   const useDarkText = overallComplianceScore >= 75;
 
   return (
-    <Card className="h-full flex flex-col bg-card/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border-white/20">
+    <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
       <CardHeader className="p-4 border-b border-white/10">
         <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
       </CardHeader>
