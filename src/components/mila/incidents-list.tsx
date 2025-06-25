@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
@@ -194,37 +194,36 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   };
   
   const getSeparatorGradientClass = (score: number): string => {
-    if (score < 40) return 'from-rose-900/0 via-rose-400/80 to-rose-900/0'; 
-    if (score < 60) return 'from-orange-600/0 via-orange-400/80 to-orange-600/0';
-    if (score < 75) return 'from-amber-500/0 via-amber-300/80 to-amber-500/0';
-    if (score < 85) return 'from-lime-600/0 via-lime-400/80 to-lime-600/0';
-    if (score < 95) return 'from-sky-600/0 via-sky-300/80 to-sky-600/0';
-    return 'from-slate-400/0 via-slate-400/80 to-slate-400/0';
+    if (score < 40) return 'from-rose-500 to-rose-600'; 
+    if (score < 60) return 'from-orange-400 to-orange-500';
+    if (score < 75) return 'from-amber-400 to-amber-500';
+    if (score < 85) return 'from-lime-400 to-lime-500';
+    if (score < 95) return 'from-sky-400 to-sky-500';
+    return 'from-slate-400 to-slate-500';
   };
   
   const separatorClass = getSeparatorGradientClass(overallComplianceScore);
   const useDarkText = overallComplianceScore >= 75;
 
   return (
-    <Card className="h-full flex flex-col bg-transparent border-none shadow-none">
-      <div className={cn("h-px w-full bg-gradient-to-r mb-6 mt-2", separatorClass)} />
-      <CardHeader className="p-4 mb-4 rounded-lg bg-card/80 backdrop-blur-md shadow-lg">
+    <Card className="h-full flex flex-col bg-card/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden border-white/20">
+      <div className={cn("h-1.5 w-full bg-gradient-to-r", separatorClass)} />
+      <CardHeader className="p-4 border-b border-white/10">
         <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
-        <CardDescription className="text-muted-foreground">Hallazgos pendientes detectados, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto pr-2 p-0">
-        <ScrollArea className="h-full w-full pr-4">
+      <CardContent className="flex-1 overflow-y-auto p-4">
+        <ScrollArea className="h-full w-full pr-2">
             {pendingSuggestions.length > 0 ? (
-                <Accordion type="multiple" className="space-y-4">
+                <Accordion type="multiple" defaultValue={groupedSuggestions.map(([category]) => category)} className="space-y-4">
                 {groupedSuggestions.map(([category, s_group]) => {
                     const highestSeverity = getHighestSeverity(s_group);
                     return(
-                    <AccordionItem key={category} value={category} className="border-none">
-                        <AccordionTrigger className="relative pl-5 p-4 rounded-lg bg-card/80 backdrop-blur-md shadow-lg hover:no-underline [&[data-state=open]]:rounded-b-none">
-                            <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(highestSeverity))}/>
+                    <AccordionItem key={category} value={category} className="border rounded-lg border-white/10 bg-background/20 overflow-hidden">
+                        <AccordionTrigger className="relative pl-5 p-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10">
+                            <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b", getSeverityGradientClass(highestSeverity))}/>
                             <span className="text-lg font-semibold flex-1 text-left">{category} ({s_group.length})</span>
                         </AccordionTrigger>
-                        <AccordionContent className="bg-card/80 backdrop-blur-md shadow-lg rounded-b-lg p-3 space-y-3">
+                        <AccordionContent className="p-3 space-y-3">
                             {s_group.map(suggestion => (
                             <IncidentItem 
                                 key={suggestion.id}
