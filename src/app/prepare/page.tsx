@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -19,6 +20,12 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // Mock Data
 const initialFolders = [
@@ -209,22 +216,31 @@ export default function PreparePage() {
         </Card>
 
         {/* Section 2: Select Regulations */}
-        <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
-          <CardHeader className="bg-white/20 border-b border-white/20 p-6">
-            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              <BookCheck className="h-8 w-8 text-primary"/>
-              Paso 2: Seleccionar normativas para el análisis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <RegulationList 
-              regulations={regulations}
-              selectedIds={selectedRegulationIds}
-              onSelectionChange={setSelectedRegulationIds}
-              onRegulationUpload={handleRegulationUpload}
-            />
-          </CardContent>
-        </Card>
+        <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+            <AccordionItem value="item-1" className="border-none">
+                <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+                <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                    <div className="p-6 w-full text-left flex items-center justify-between">
+                        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                            <BookCheck className="h-8 w-8 text-primary"/>
+                            Paso 2: Seleccionar normativas para el análisis
+                        </CardTitle>
+                        {/* The chevron is added automatically by the AccordionTrigger component */}
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                    <CardContent className="p-6">
+                        <RegulationList 
+                        regulations={regulations}
+                        selectedIds={selectedRegulationIds}
+                        onSelectionChange={setSelectedRegulationIds}
+                        onRegulationUpload={handleRegulationUpload}
+                        />
+                    </CardContent>
+                </AccordionContent>
+                </Card>
+            </AccordionItem>
+        </Accordion>
 
         {/* Section 3: Validation Button */}
         <div className="flex justify-center pt-4">
@@ -268,3 +284,5 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
