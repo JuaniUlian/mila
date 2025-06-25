@@ -8,8 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
-import { Search, Upload } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Search, Upload, FileSignature, BookCheck } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -121,34 +120,35 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 text-foreground"
+        className="min-h-screen w-full p-4 md:p-8 bg-slate-50 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card>
-          <CardHeader>
+        <Card className="bg-white rounded-2xl shadow-lg border overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b p-6">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              📄 Paso 1: Seleccionar documento
+              <FileSignature className="h-8 w-8 text-primary"/>
+              Paso 1: Seleccionar documento a validar
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative flex-grow w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por nombre o palabra clave"
-                  className="pl-10 w-full bg-secondary text-foreground focus:bg-card"
+                  placeholder="Buscar documento por nombre o palabra clave..."
+                  className="pl-12 py-6 w-full bg-slate-100 text-foreground rounded-lg border-slate-200 focus:bg-white"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
                <FileUploadButton
                 variant="outline"
-                className="w-full sm:w-auto flex-shrink-0"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-lg border-dashed"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Subir archivo
+                Subir nuevo archivo
               </FileUploadButton>
             </div>
             <FolderGrid 
@@ -161,13 +161,14 @@ export default function PreparePage() {
         </Card>
 
         {/* Section 2: Select Regulations */}
-        <Card>
-          <CardHeader>
+        <Card className="bg-white rounded-2xl shadow-lg border overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b p-6">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              ⚖️ Paso 2: Seleccioná las normativas para el análisis
+              <BookCheck className="h-8 w-8 text-primary"/>
+              Paso 2: Seleccionar normativas para el análisis
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <RegulationList 
               regulations={regulations}
               selectedIds={selectedRegulationIds}
@@ -181,11 +182,11 @@ export default function PreparePage() {
         <div className="flex justify-center pt-4">
             <Button
               size="lg"
-              className="text-lg font-semibold px-12 py-7 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="text-xl font-semibold px-16 py-8 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-primary/40"
               onClick={handleValidate}
               disabled={!isValidationReady}
             >
-              Validar pliego
+              Validar Pliego
             </Button>
         </div>
       </div>

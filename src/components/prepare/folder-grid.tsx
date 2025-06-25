@@ -2,8 +2,6 @@
 "use client";
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Folder, FileText, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -28,86 +26,43 @@ interface FolderGridProps {
 
 const FileItem: React.FC<{ file: File; isSelected: boolean; onSelect: () => void }> = ({ file, isSelected, onSelect }) => (
     <div 
+        onClick={onSelect}
         className={cn(
-            "flex items-center justify-between p-2.5 text-sm transition-all bg-secondary/50 hover:bg-secondary rounded-lg",
-            isSelected && "ring-2 ring-primary bg-blue-100/50" 
+            "flex items-center justify-between p-3 text-sm transition-all hover:bg-primary/10 rounded-lg cursor-pointer",
+            isSelected && "bg-primary/20 ring-2 ring-primary"
         )}
     >
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
-            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+            <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
             <span className="font-medium text-foreground truncate">{file.name}</span>
         </div>
-        <Button 
-            variant={isSelected ? "default" : "secondary"}
-            className={cn(
-                "ml-2 text-xs h-7 px-2.5",
-                !isSelected && "bg-background hover:bg-background/80"
-            )}
-            size="sm" 
-            onClick={onSelect}
-         >
-            {isSelected ? <CheckCircle2 className="mr-1.5 h-4 w-4" /> : null}
-            {isSelected ? 'Seleccionado' : 'Seleccionar'}
-        </Button>
+        {isSelected && <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />}
     </div>
 );
 
-const ExpandedFolderView: React.FC<Omit<FolderGridProps, 'searchQuery' | 'folders'> & { folder: FolderData }> = ({ folder, selectedFileId, onSelectFile }) => (
-     <Card className="flex flex-col col-span-full">
-        <CardHeader className="py-3 px-4">
-            <CardTitle className="text-base font-semibold text-foreground">{folder.name}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 p-4 pt-0">
-            {folder.files.length > 0 ? folder.files.map(file => (
-                <FileItem
-                    key={file.id}
-                    file={file}
-                    isSelected={selectedFileId === file.id}
-                    onSelect={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
-                />
-            )) : (
-                <p className="text-sm text-muted-foreground text-center py-4">Esta carpeta está vacía.</p>
-            )}
-        </CardContent>
-    </Card>
-);
-
 export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery }: FolderGridProps) {
-    const isSearching = !!searchQuery;
-
-    if (folders.length === 0 && isSearching) {
-        return <p className="text-sm text-muted-foreground text-center py-4">No se encontraron archivos con ese nombre.</p>
-    }
-    
-    if (isSearching) {
-        return (
-            <div className="grid grid-cols-1 gap-4">
-                {folders.map(folder => (
-                    <ExpandedFolderView key={folder.id} folder={folder} selectedFileId={selectedFileId} onSelectFile={onSelectFile} />
-                ))}
-            </div>
-        )
+    if (folders.length === 0) {
+        return <p className="text-base text-muted-foreground text-center py-8">No se encontraron archivos o carpetas.</p>
     }
 
-    // Default view: Grid of expandable folder icons
     return (
-        <Accordion type="single" collapsible className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <Accordion type="multiple" className="w-full space-y-3">
             {folders.map(folder => (
                 <AccordionItem 
                     value={folder.id} 
                     key={folder.id} 
-                    className="border-none bg-card rounded-lg shadow-md transition-shadow hover:shadow-xl focus-within:ring-2 focus-within:ring-primary"
+                    className="bg-white rounded-xl border shadow-sm transition-shadow hover:shadow-md"
                 >
-                    <AccordionTrigger className="p-0 hover:no-underline rounded-t-lg w-full h-full flex flex-col justify-center items-center cursor-pointer data-[state=open]:bg-secondary/50">
-                        <div className="flex flex-col items-center justify-center p-4 text-foreground">
-                             <Folder className="h-12 w-12 text-primary mb-2" />
-                             <span className="font-semibold text-center text-sm">{folder.name}</span>
-                             <span className="text-xs text-muted-foreground">{folder.files.length} archivos</span>
+                    <AccordionTrigger className="p-4 font-semibold w-full flex text-lg hover:no-underline rounded-t-lg">
+                        <div className="flex items-center gap-3 flex-1 text-left">
+                            <Folder className="h-6 w-6 text-primary" />
+                            {folder.name}
+                            <span className="text-sm font-normal text-muted-foreground ml-2">({folder.files.length} archivos)</span>
                         </div>
                     </AccordionTrigger>
-                    <AccordionContent className="p-2 bg-transparent rounded-b-lg border-t">
-                        <div className="space-y-2">
-                             {folder.files.length > 0 ? folder.files.map(file => (
+                    <AccordionContent className="p-4 pt-0">
+                        <div className="space-y-1 border-t pt-3 mt-2">
+                            {folder.files.length > 0 ? folder.files.map(file => (
                                 <FileItem
                                     key={file.id}
                                     file={file}
@@ -115,7 +70,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery 
                                     onSelect={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
                                 />
                             )) : (
-                                <p className="text-sm text-muted-foreground text-center py-2">Carpeta vacía.</p>
+                                <p className="text-sm text-muted-foreground text-center py-4">Esta carpeta está vacía.</p>
                             )}
                         </div>
                     </AccordionContent>
