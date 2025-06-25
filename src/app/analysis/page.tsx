@@ -151,7 +151,7 @@ export default function PlanillaVivaPage() {
       } else if (newStatus === 'discarded') {
         toast({
           title: `🗑️ Sugerencia Descartada`,
-          description: "La sugerencia ha sido descartada y no afectará el puntaje.",
+          description: "La sugerencia ha sido descartada.",
         });
       }
       
