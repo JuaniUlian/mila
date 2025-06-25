@@ -1,7 +1,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,18 +68,6 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
                                 </div>
                             </div>
                         </div>
-
-                        {/* Home Button */}
-                         <Link href="/prepare" passHref>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-14 w-14 rounded-full bg-white/30 hover:bg-white/50 text-foreground"
-                                aria-label="Volver a la página de preparación"
-                            >
-                                <Home className="h-7 w-7" />
-                            </Button>
-                        </Link>
                     </div>
                 </CardContent>
             </Card>
