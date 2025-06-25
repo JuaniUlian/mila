@@ -123,11 +123,6 @@ export function ReportPreview({ data }: ReportPreviewProps) {
                     {/* Original text would go here if needed, but for the report, suggestion is key */}
 
                     <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Propuesta de Mejora:</h4>
-                        <p className="text-gray-800 bg-green-50 p-3 rounded-md border border-green-200">{suggestion.text}</p>
-                    </div>
-
-                    <div>
                         <h4 className="font-semibold text-gray-700 mb-1">Justificación:</h4>
                         <p className="text-sm text-gray-600">{suggestion.justification.legal} {suggestion.justification.technical}</p>
                     </div>
