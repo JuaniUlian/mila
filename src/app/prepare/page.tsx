@@ -15,19 +15,19 @@ import { useToast } from '@/hooks/use-toast';
 
 // Mock Data
 const initialFolders = [
-  { id: 'f1', name: 'Pliegos 2024', fileCount: 3, files: [
+  { id: 'f1', name: 'Pliegos 2024', files: [
     { id: 'file1', name: 'Pliego-Licitacion-XYZ.pdf' },
     { id: 'file2', name: 'Anexo-Tecnico.docx' },
     { id: 'file3', name: 'Borrador-Contrato.pdf' },
   ]},
-  { id: 'f2', name: 'Contrataciones Directas', fileCount: 1, files: [
+  { id: 'f2', name: 'Contrataciones Directas', files: [
     { id: 'file4', name: 'CD-Software-2024.docx' }
   ]},
-  { id: 'f3', name: 'Normativas Internas', fileCount: 2, files: [
+  { id: 'f3', name: 'Normativas Internas', files: [
     { id: 'file5', name: 'Manual-Contratacion-v3.pdf' },
     { id: 'file6', 'name': 'Politica-Adquisiciones.pdf' },
   ]},
-  { id: 'f4', name: 'Proyectos Archivados', fileCount: 0, files: [] },
+  { id: 'f4', name: 'Proyectos Archivados', files: [] },
 ];
 
 const initialRegulations = [
@@ -40,7 +40,7 @@ const initialRegulations = [
 export default function PreparePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [folders, setFolders] = useState(initialFolders);
+  const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, fileCount: f.files.length })));
   const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
@@ -159,7 +159,6 @@ export default function PreparePage() {
               folders={filteredFolders} 
               selectedFileId={selectedFileId}
               onSelectFile={setSelectedFileId}
-              onFileUpload={handleFileUploadToFolder}
               searchQuery={searchQuery}
             />
           </CardContent>
