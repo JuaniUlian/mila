@@ -17,11 +17,14 @@ export default function PlanillaVivaPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
 
-  const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = documentData;
+  const { documentTitle, blocks, overallComplianceScore } = documentData;
   
-  const allSuggestions = blocks.flatMap(block => 
+  const allSuggestions = useMemo(() => blocks.flatMap(block => 
     block.suggestions.map(s => ({ ...s, blockId: block.id }))
-  );
+  ), [blocks]);
+
+  const totalSuggestions = useMemo(() => allSuggestions.length, [allSuggestions]);
+  const appliedSuggestionsCount = useMemo(() => allSuggestions.filter(s => s.status === 'applied').length, [allSuggestions]);
 
   const getDynamicBackgroundClass = useCallback((score: number): string => {
     if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white'; // Dark Red for very low scores
@@ -166,7 +169,8 @@ export default function PlanillaVivaPage() {
         <PageHeader 
           documentTitle={documentTitle}
           overallComplianceScore={overallComplianceScore}
-          overallCompletenessIndex={overallCompletenessIndex}
+          appliedSuggestionsCount={appliedSuggestionsCount}
+          totalSuggestions={totalSuggestions}
         />
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           <div className="lg:col-span-2 w-full h-full min-h-0">

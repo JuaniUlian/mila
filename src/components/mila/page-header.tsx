@@ -7,7 +7,8 @@ import { Progress } from '@/components/ui/progress';
 interface PageHeaderProps {
     documentTitle: string;
     overallComplianceScore: number;
-    overallCompletenessIndex: number;
+    appliedSuggestionsCount: number;
+    totalSuggestions: number;
 }
 
 const getScoreColor = (score: number) => {
@@ -22,8 +23,8 @@ const getProgressColorClass = (score: number) => {
     return "bg-green-500";
 }
 
-export function PageHeader({ documentTitle, overallComplianceScore, overallCompletenessIndex }: PageHeaderProps) {
-    const completenessScore = overallCompletenessIndex * 10;
+export function PageHeader({ documentTitle, overallComplianceScore, appliedSuggestionsCount, totalSuggestions }: PageHeaderProps) {
+    const suggestionProgress = totalSuggestions > 0 ? (appliedSuggestionsCount / totalSuggestions) * 100 : 100;
 
     return (
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -44,16 +45,15 @@ export function PageHeader({ documentTitle, overallComplianceScore, overallCompl
                         </div>
                         <Progress value={overallComplianceScore} indicatorClassName={getProgressColorClass(overallComplianceScore)} className="bg-white/30" />
                     </div>
-                    {/* Completeness Score */}
+                    {/* Applied Suggestions Count */}
                     <div>
-                         <div className="flex justify-between items-baseline mb-1">
-                            <span className="text-sm font-semibold text-white/90">Índice de Completitud</span>
-                            <span className={cn("text-2xl font-bold", getScoreColor(completenessScore))}>
-                                {overallCompletenessIndex.toFixed(1)}
-                                <span className="text-sm">/10.0</span>
+                         <div className="flex justify-between items-baseline">
+                            <span className="text-sm font-semibold text-white/90">Sugerencias Aplicadas</span>
+                            <span className={cn("text-2xl font-bold", getScoreColor(suggestionProgress))}>
+                                {appliedSuggestionsCount}
+                                <span className="text-sm">/{totalSuggestions}</span>
                             </span>
                         </div>
-                        <Progress value={completenessScore} indicatorClassName={getProgressColorClass(completenessScore)} className="bg-white/30"/>
                     </div>
                 </CardContent>
             </Card>

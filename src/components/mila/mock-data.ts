@@ -100,15 +100,15 @@ const block2Suggestions: Suggestion[] = [
 
 export const mockData: MilaAppPData = {
   documentTitle: "Evaluación Pliego XYZ-2025",
-  overallComplianceScore: 78, 
-  overallCompletenessIndex: 8.2, 
+  overallComplianceScore: 55, 
+  overallCompletenessIndex: 5.5, 
   blocks: [
     {
       id: 'objeto',
       name: 'Objeto',
       category: 'Definiciones Fundamentales',
       alertLevel: 'grave',
-      completenessIndex: 5.6, 
+      completenessIndex: 3.0, 
       maxCompleteness: 10,
       originalText: "El objeto del presente proceso de contratación es la adquisición de licencias de software para la entidad, así como el soporte técnico especializado durante un periodo de 12 meses. Se busca garantizar la continuidad operativa y la actualización tecnológica de las plataformas institucionales. Este contrato busca cubrir todas las necesidades de software de la organización.",
       suggestions: block1Suggestions,
@@ -130,7 +130,7 @@ export const mockData: MilaAppPData = {
       name: 'Requisitos',
       category: 'Condiciones y Habilitantes',
       alertLevel: 'media',
-      completenessIndex: 7.2, 
+      completenessIndex: 4.0, 
       maxCompleteness: 10,
       originalText: "Los proponentes deberán cumplir con los requisitos financieros y técnicos establecidos. Se requiere experiencia previa en contratos con el estado. El personal técnico debe estar certificado. La propuesta debe incluir un plan de trabajo detallado. Deben presentar el RUT y certificado de existencia.",
       suggestions: block2Suggestions,
@@ -152,7 +152,7 @@ export const mockData: MilaAppPData = {
       name: 'Criterios de Evaluación',
       category: 'Ponderación y Selección',
       alertLevel: 'leve',
-      completenessIndex: 8.9,
+      completenessIndex: 7.0,
       maxCompleteness: 10,
       originalText: "La evaluación se basará en: Precio (50%), Calidad Técnica (30%), Experiencia (20%). Se asignarán puntos adicionales por innovación. El precio más bajo obtendrá el máximo puntaje. La calidad se medirá según la propuesta técnica.",
       suggestions: [
@@ -180,7 +180,7 @@ export const mockData: MilaAppPData = {
       name: 'Régimen Sancionatorio',
       category: 'Incumplimientos y Multas',
       alertLevel: 'none',
-      completenessIndex: 9.5,
+      completenessIndex: 8.0,
       maxCompleteness: 10,
       originalText: "El incumplimiento de las obligaciones contractuales dará lugar a las multas y sanciones previstas en la Ley y en el contrato. Se aplicará el artículo 86 de la Ley 1474 de 2011. Las multas no podrán superar el 10% del valor del contrato.",
       suggestions: [
