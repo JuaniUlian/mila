@@ -235,9 +235,9 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                     <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                         <CardContent className="p-0 flex flex-col items-center justify-center text-center">
                             <Check className="w-16 h-16 text-green-400 mb-4" />
-                            <h3 className="text-xl font-semibold text-white">¡Excelente!</h3>
-                            <p className="text-white/80">No hay incidencias pendientes de revisión.</p>
-                            <p className="text-white/80">El documento ha sido completamente validado.</p>
+                            <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>¡Excelente!</h3>
+                            <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>No hay incidencias pendientes de revisión.</p>
+                            <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>El documento ha sido completamente validado.</p>
                         </CardContent>
                     </Card>
                 </div>
