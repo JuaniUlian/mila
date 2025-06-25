@@ -51,7 +51,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
             <div className="flex justify-end">
                 <FileUploadButton
                     variant="outline"
-                    className="bg-white/70 hover:bg-white border-gray-300 text-gray-800"
+                    className="bg-white/70 border-gray-300 text-gray-800 hover:bg-blue-800 hover:text-white transition-colors"
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />

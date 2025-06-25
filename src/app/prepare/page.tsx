@@ -148,7 +148,7 @@ export default function PreparePage() {
               </div>
                <FileUploadButton
                 variant="outline"
-                className="w-full sm:w-auto flex-shrink-0 bg-white/80 hover:bg-white border-gray-300 text-gray-800"
+                className="w-full sm:w-auto flex-shrink-0 bg-white/80 border-gray-300 text-gray-800 hover:bg-blue-800 hover:text-white transition-colors"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
