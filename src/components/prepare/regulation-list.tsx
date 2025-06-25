@@ -3,9 +3,9 @@
 
 import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
+import { FileUploadButton } from './file-upload-button';
 
 interface Regulation {
     id: string;
@@ -17,9 +17,10 @@ interface RegulationListProps {
     regulations: Regulation[];
     selectedIds: string[];
     onSelectionChange: (ids: string[]) => void;
+    onRegulationUpload: (fileName: string) => void;
 }
 
-export function RegulationList({ regulations, selectedIds, onSelectionChange }: RegulationListProps) {
+export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload }: RegulationListProps) {
     
     const handleCheckboxChange = (regulationId: string) => {
         onSelectionChange(
@@ -53,10 +54,13 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange }: 
                 ))}
             </Accordion>
             <div className="flex justify-end">
-                <Button variant="outline">
+                <FileUploadButton
+                    variant="outline"
+                    onFileSelect={onRegulationUpload}
+                >
                     <Plus className="mr-2 h-4 w-4" />
                     Subir nueva normativa
-                </Button>
+                </FileUploadButton>
             </div>
         </div>
     );

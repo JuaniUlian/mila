@@ -10,6 +10,8 @@ import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import { Search, Upload } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { FileUploadButton } from '@/components/prepare/file-upload-button';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock Data
 const initialFolders = [
@@ -37,6 +39,9 @@ const initialRegulations = [
 
 export default function PreparePage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [folders, setFolders] = useState(initialFolders);
+  const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
 
@@ -47,6 +52,56 @@ export default function PreparePage() {
       router.push('/loading');
     }
   };
+  
+  const showToast = (fileName: string) => {
+    toast({
+      title: "Archivo Subido (Simulado)",
+      description: `El archivo "${fileName}" se ha agregado.`,
+    });
+  };
+
+  const handleFileUploadToFolder = (folderId: string, fileName: string) => {
+    setFolders(prevFolders => {
+        const newFolders = prevFolders.map(folder => {
+            if (folder.id === folderId) {
+                const updatedFolder = { ...folder };
+                const newFile = { id: `file-${Date.now()}`, name: fileName };
+                updatedFolder.files = [...updatedFolder.files, newFile];
+                updatedFolder.fileCount = updatedFolder.files.length;
+                return updatedFolder;
+            }
+            return folder;
+        });
+        return newFolders;
+    });
+    showToast(fileName);
+  };
+
+  const handleFileUploadedToRoot = (fileName: string) => {
+    // Add file to the first folder as a default behavior for simulation
+    if (folders.length > 0) {
+      handleFileUploadToFolder(folders[0].id, fileName);
+    } else {
+       toast({
+          title: "Error",
+          description: `No hay carpetas para agregar el archivo.`,
+          variant: 'destructive', 
+        });
+    }
+  };
+  
+  const handleRegulationUpload = (fileName: string) => {
+    setRegulations(prevRegulations => {
+        const newRegulation = {
+            id: `reg-${Date.now()}`,
+            name: fileName,
+            content: 'Contenido del archivo de normativa subido...'
+        };
+        return [...prevRegulations, newRegulation];
+    });
+    showToast(fileName);
+  };
+
 
   return (
     // We apply a background that matches the light theme for consistency
@@ -71,15 +126,20 @@ export default function PreparePage() {
                   className="pl-10 w-full"
                 />
               </div>
-              <Button variant="outline" className="w-full sm:w-auto flex-shrink-0">
+               <FileUploadButton
+                variant="outline"
+                className="w-full sm:w-auto flex-shrink-0"
+                onFileSelect={handleFileUploadedToRoot}
+              >
                 <Upload className="mr-2 h-4 w-4" />
                 Subir archivo
-              </Button>
+              </FileUploadButton>
             </div>
             <FolderGrid 
-              folders={initialFolders} 
+              folders={folders} 
               selectedFileId={selectedFileId}
               onSelectFile={setSelectedFileId}
+              onFileUpload={handleFileUploadToFolder}
             />
           </CardContent>
         </Card>
@@ -94,9 +154,10 @@ export default function PreparePage() {
             </AccordionTrigger>
             <AccordionContent className="px-6 pt-0 pb-6">
               <RegulationList 
-                regulations={initialRegulations}
+                regulations={regulations}
                 selectedIds={selectedRegulationIds}
                 onSelectionChange={setSelectedRegulationIds}
+                onRegulationUpload={handleRegulationUpload}
               />
             </AccordionContent>
           </AccordionItem>

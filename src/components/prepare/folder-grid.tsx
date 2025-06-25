@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Folder, FileText, MoreVertical, Plus, Download, Trash2, Edit, Move, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FileUploadButton } from './file-upload-button';
 
 interface File {
     id: string;
@@ -24,10 +25,11 @@ interface FolderGridProps {
     folders: FolderData[];
     selectedFileId: string | null;
     onSelectFile: (id: string | null) => void;
+    onFileUpload: (folderId: string, fileName: string) => void;
 }
 
-export function FolderGrid({ folders, selectedFileId, onSelectFile }: FolderGridProps) {
-    const [openFolderId, setOpenFolderId] = useState<string | null>(null);
+export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload }: FolderGridProps) {
+    const [openFolderId, setOpenFolderId] = useState<string | null>(folders.length > 0 ? folders[0].id : null);
 
     const handleFolderClick = (folderId: string) => {
         setOpenFolderId(prevId => (prevId === folderId ? null : folderId));
@@ -64,9 +66,15 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile }: FolderGrid
                             <CardDescription>{folder.fileCount} archivos</CardDescription>
                         </CardContent>
                         <CardFooter>
-                            <Button variant="outline" size="sm" className="w-full" onClick={(e) => e.stopPropagation()}>
+                             <FileUploadButton
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={(e) => e.stopPropagation()}
+                                onFileSelect={(fileName) => onFileUpload(folder.id, fileName)}
+                            >
                                 <Plus className="mr-2 h-4 w-4" /> Subir archivo
-                            </Button>
+                            </FileUploadButton>
                         </CardFooter>
                     </Card>
                 ))}
