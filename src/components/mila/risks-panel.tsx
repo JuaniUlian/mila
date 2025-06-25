@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import type { DocumentBlock } from './types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Inbox, Check, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +40,7 @@ export function RisksPanel({
   const uniqueNorms = [...new Set(blocks.flatMap(b => b.suggestions.map(s => s.appliedNorm)))];
 
   return (
-    <aside className="panel-glass rounded-lg flex flex-col h-full p-4 space-y-4">
+    <aside className="panel-glass flex flex-col h-full p-4 space-y-4">
         <CardHeader className="p-0">
             <CardTitle className="text-lg font-bold text-foreground">Resultados Parciales</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">Resumen del análisis en tiempo real.</CardDescription>
@@ -48,7 +48,7 @@ export function RisksPanel({
         
         <Separator className="bg-border/50" />
 
-        <CardContent className="p-0 space-y-3 text-sm flex-grow overflow-y-auto">
+        <div className="p-0 space-y-3 text-sm flex-grow overflow-y-auto">
             <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Cumplimiento General</span>
                 <span className="font-semibold text-foreground">{overallComplianceScore.toFixed(0)}%</span>
@@ -80,7 +80,7 @@ export function RisksPanel({
                 <span className="text-muted-foreground flex items-center gap-1.5"><FileText className="w-4 h-4" /> Normativas Involucradas</span>
                 <span className="font-semibold text-foreground">{uniqueNorms.length}</span>
             </div>
-        </CardContent>
+        </div>
 
         <Separator className="bg-border/50" />
 

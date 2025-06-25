@@ -121,34 +121,30 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 text-gray-800" 
-        style={{
-            background: 'linear-gradient(135deg, #E0E7FF 0%, #F9FAFB 50%, #FFFFFF 100%)',
-            backgroundAttachment: 'fixed'
-        }}
+        className="min-h-screen w-full p-4 md:p-8 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="bg-white/60 backdrop-blur-xl shadow-xl rounded-2xl border border-white/30">
+        <Card className="panel-glass">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               📄 Paso 1: Seleccionar documento
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="relative flex-grow w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por nombre o palabra clave"
-                  className="pl-10 w-full bg-white/80 border-gray-300 text-gray-900 focus:bg-white"
+                  className="pl-10 w-full bg-card/80 border-border text-foreground focus:bg-card"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
                <FileUploadButton
                 variant="outline"
-                className="w-full sm:w-auto flex-shrink-0 bg-white/80 border-gray-300 text-gray-800 hover:bg-blue-800 hover:text-white transition-colors"
+                className="w-full sm:w-auto flex-shrink-0 bg-card/80 border-border text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
@@ -166,9 +162,9 @@ export default function PreparePage() {
 
         {/* Section 2: Select Regulations */}
         <Accordion type="single" collapsible className="w-full" defaultValue="regulations">
-          <AccordionItem value="regulations" className="border-b-0 bg-white/60 backdrop-blur-xl shadow-xl rounded-2xl overflow-hidden border border-white/30">
+          <AccordionItem value="regulations" className="border-b-0 panel-glass overflow-hidden">
             <AccordionTrigger className="p-6 hover:no-underline w-full text-left">
-              <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                 ⚖️ Paso 2: Seleccioná las normativas para el análisis
               </CardTitle>
             </AccordionTrigger>

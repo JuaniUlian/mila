@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { mockData as initialMockData } from '@/components/mila/mock-data';
 import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/types';
@@ -137,29 +137,6 @@ export default function PlanillaVivaPage() {
     });
   }, [toast, recalculateOverallScores]);
 
-
-  // Adaptive Background Effect
-  useEffect(() => {
-    document.body.classList.add('plantilla-viva-background');
-    const root = document.documentElement;
-    const score = overallComplianceScore; // 0-100
-
-    // As score improves (increases), background transitions from Red -> Yellow -> Green -> Blue/White
-    // Hue: 0 (Red) -> 60 (Yellow) -> 120 (Green) -> 200 (Light Blue)
-    const hue = Math.min(120, score * 1.2); 
-    const alpha = Math.max(0.02, 0.15 - (score / 1000));
-    
-    root.style.setProperty('--stain-1-hue', `${hue}`);
-    root.style.setProperty('--stain-1-alpha', `${alpha}`);
-    root.style.setProperty('--stain-2-hue', `${hue + 20}`);
-    root.style.setProperty('--stain-2-alpha', `${alpha * 0.8}`);
-    root.style.setProperty('--stain-3-hue', `${hue + 40}`);
-    root.style.setProperty('--stain-3-alpha', `${alpha * 0.6}`);
-    
-    return () => {
-        document.body.classList.remove('plantilla-viva-background');
-    }
-  }, [overallComplianceScore]);
 
   return (
     <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">

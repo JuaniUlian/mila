@@ -66,7 +66,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   }
 
   return (
-    <div className="bg-card/80 border border-border/50 rounded-lg overflow-hidden transition-all duration-200">
+    <div className="bg-white/80 border border-border/60 rounded-lg overflow-hidden transition-all duration-200 shadow-md hover:shadow-lg">
       {/* Header Row */}
       <div className="relative pl-8 pr-4 py-3 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <div className={cn("incident-bar", severityBarClass)}></div>
@@ -76,9 +76,9 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
         </div>
         <div className="flex items-center gap-4">
             <span className={cn("text-xs font-bold px-2 py-1 rounded-md", 
-                suggestion.status === 'pending' && 'bg-amber-500/20 text-amber-400',
-                suggestion.status === 'applied' && 'bg-green-500/20 text-green-400',
-                suggestion.status === 'discarded' && 'bg-red-500/20 text-red-400'
+                suggestion.status === 'pending' && 'bg-amber-500/20 text-amber-500',
+                suggestion.status === 'applied' && 'bg-green-500/20 text-green-500',
+                suggestion.status === 'discarded' && 'bg-red-500/20 text-red-500'
             )}>
                 {suggestion.status}
             </span>
@@ -91,11 +91,11 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
       
       {/* Collapsible Content */}
       {isExpanded && (
-        <div className="pl-8 pr-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down">
+        <div className="pl-8 pr-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down bg-white/50">
           {/* Original Text */}
           <div>
             <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> Contexto del Texto Original</h4>
-            <p className="text-xs bg-black/30 p-2 rounded-md font-mono text-foreground/70 max-h-28 overflow-y-auto">{originalText}</p>
+            <p className="text-xs bg-secondary/70 p-2 rounded-md font-mono text-foreground/70 max-h-28 overflow-y-auto">{originalText}</p>
           </div>
 
           <Separator className="bg-border/30"/>
