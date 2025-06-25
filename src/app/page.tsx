@@ -77,7 +77,7 @@ export default function PreparePage() {
         localStorage.setItem('selectedDocumentName', 'Documento no encontrado');
       }
       
-      router.push('/loading');
+      router.push('/analysis');
     }
   };
   
@@ -175,7 +175,7 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-50 via-slate-100 to-sky-100 text-foreground"
+        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-sky-200 via-slate-100 to-white text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
