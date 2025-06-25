@@ -30,9 +30,9 @@ const getRiskColorClasses = (riskPercentage: number, type: 'text' | 'bg' | 'bord
     if (type === 'border') return 'border-green-500';
   }
   if (riskPercentage <= 50) { 
-    if (type === 'text') return 'text-custom-warning-yellow-DEFAULT'; 
-    if (type === 'bg') return 'bg-custom-warning-yellow-DEFAULT/70'; 
-    if (type === 'border') return 'border-custom-warning-yellow-DEFAULT';
+    if (type === 'text') return 'text-custom-warning-yellow'; 
+    if (type === 'bg') return 'bg-custom-warning-yellow/70'; 
+    if (type === 'border') return 'border-custom-warning-yellow';
   }
   // High Risk
   if (type === 'text') return 'text-red-400'; 

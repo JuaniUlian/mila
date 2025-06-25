@@ -15,11 +15,11 @@ export function SeverityIndicator({ level, size = 5, className }: SeverityIndica
 
   switch (level) {
     case 'grave':
-      return <AlertOctagon className={cn('text-custom-severity-high-DEFAULT', iconSizeClass, className)} aria-label="Grave" />;
+      return <AlertOctagon className={cn('text-custom-severity-high', iconSizeClass, className)} aria-label="Grave" />;
     case 'media':
-      return <AlertTriangle className={cn('text-custom-severity-medium-DEFAULT', iconSizeClass, className)} aria-label="Media" />;
+      return <AlertTriangle className={cn('text-custom-severity-medium', iconSizeClass, className)} aria-label="Media" />;
     case 'leve':
-      return <AlertCircle className={cn('text-custom-severity-low-DEFAULT', iconSizeClass, className)} aria-label="Leve" />;
+      return <AlertCircle className={cn('text-custom-severity-low', iconSizeClass, className)} aria-label="Leve" />;
     case 'none':
        return <CheckCircle className={cn('text-green-500', iconSizeClass, className)} aria-label="None" />;
     default:
@@ -36,9 +36,9 @@ export function SeverityDotIndicator({ level, size = 'sm', className }: { level:
   };
 
   const colorClasses = {
-    grave: 'bg-custom-severity-high-DEFAULT',
-    media: 'bg-custom-severity-medium-DEFAULT',
-    leve: 'bg-custom-severity-low-DEFAULT',
+    grave: 'bg-custom-severity-high',
+    media: 'bg-custom-severity-medium',
+    leve: 'bg-custom-severity-low',
     none: 'bg-green-500',
   };
 

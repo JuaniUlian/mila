@@ -37,11 +37,11 @@ const BlockSummaryGrid: React.FC<{
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           {blocks.map((block) => {
             const blockRiskPercentage = 100 - (block.completenessIndex / block.maxCompleteness) * 100;
-            let riskColorClass = 'text-custom-severity-low-DEFAULT'; // Default to low risk color
+            let riskColorClass = 'text-custom-severity-low'; // Default to low risk color
             if (blockRiskPercentage > 50) {
               riskColorClass = 'text-destructive';
             } else if (blockRiskPercentage >= 25) {
-              riskColorClass = 'text-custom-warning-yellow-DEFAULT';
+              riskColorClass = 'text-custom-warning-yellow';
             }
 
             return (
