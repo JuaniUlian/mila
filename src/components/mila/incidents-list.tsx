@@ -28,6 +28,7 @@ interface IncidentItemProps {
   onUpdateText: (newText: string) => void;
 }
 
+// This function is for the *individual* suggestion items inside a category.
 const getSeverityGradientClass = (severity: SuggestionSeverity) => {
     switch (severity) {
       case 'high':
@@ -37,6 +38,36 @@ const getSeverityGradientClass = (severity: SuggestionSeverity) => {
       case 'low':
         return 'from-sky-400 to-sky-300';
     }
+};
+
+// This function is for the *category* accordion group.
+// It creates a multi-color gradient based on all severities present.
+const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.CSSProperties => {
+  const severities = new Set(suggestions.map(s => s.severity));
+  const colors: string[] = [];
+
+  const severityColors = {
+    high: 'hsl(var(--destructive))',
+    medium: 'hsl(var(--severity-medium))',
+    low: 'hsl(var(--severity-low))',
+  };
+
+  // Order is important for the top-to-bottom gradient
+  if (severities.has('high')) colors.push(severityColors.high);
+  if (severities.has('medium')) colors.push(severityColors.medium);
+  if (severities.has('low')) colors.push(severityColors.low);
+
+  if (colors.length === 0) {
+    return { background: 'hsl(var(--border))' }; // Fallback
+  }
+
+  if (colors.length === 1) {
+    return { backgroundColor: colors[0] };
+  }
+
+  return {
+    backgroundImage: `linear-gradient(to bottom, ${colors.join(', ')})`,
+  };
 };
 
 const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, onUpdateStatus, onUpdateText }) => {
@@ -186,12 +217,6 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   const getOriginalText = (blockId: string) => {
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
   }
-
-  const getHighestSeverity = (suggestions: SuggestionWithBlockId[]): SuggestionSeverity => {
-    if (suggestions.some(s => s.severity === 'high')) return 'high';
-    if (suggestions.some(s => s.severity === 'medium')) return 'medium';
-    return 'low';
-  };
   
   const useDarkText = overallComplianceScore >= 75;
 
@@ -205,10 +230,13 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
             {pendingSuggestions.length > 0 ? (
                 <Accordion type="multiple" defaultValue={groupedSuggestions.map(([category]) => category)} className="space-y-4">
                 {groupedSuggestions.map(([category, s_group]) => {
-                    const highestSeverity = getHighestSeverity(s_group);
+                    const gradientStyle = getCategoryGradientStyle(s_group);
                     return(
                     <AccordionItem key={category} value={category} className="relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
-                        <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b", getSeverityGradientClass(highestSeverity))}/>
+                        <div 
+                            className="absolute left-0 top-0 bottom-0 w-1.5"
+                            style={gradientStyle}
+                        />
                         <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10">
                             <span className="text-lg font-semibold flex-1 text-left">{category} ({s_group.length})</span>
                         </AccordionTrigger>
