@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,7 @@ export default function PreparePage() {
   const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
 
@@ -102,6 +103,21 @@ export default function PreparePage() {
     showToast(fileName);
   };
 
+  const filteredFolders = useMemo(() => {
+    if (!searchQuery) {
+      return folders;
+    }
+    const lowercasedQuery = searchQuery.toLowerCase();
+    return folders
+      .map(folder => {
+        const matchingFiles = folder.files.filter(file =>
+          file.name.toLowerCase().includes(lowercasedQuery)
+        );
+        return { ...folder, files: matchingFiles, fileCount: matchingFiles.length };
+      })
+      .filter(folder => folder.files.length > 0);
+  }, [searchQuery, folders]);
+
 
   return (
     <div 
@@ -126,6 +142,8 @@ export default function PreparePage() {
                 <Input
                   placeholder="Buscar por nombre o palabra clave"
                   className="pl-10 w-full bg-white/80 border-gray-300 text-gray-900 focus:bg-white"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
                <FileUploadButton
@@ -138,10 +156,11 @@ export default function PreparePage() {
               </FileUploadButton>
             </div>
             <FolderGrid 
-              folders={folders} 
+              folders={filteredFolders} 
               selectedFileId={selectedFileId}
               onSelectFile={setSelectedFileId}
               onFileUpload={handleFileUploadToFolder}
+              searchQuery={searchQuery}
             />
           </CardContent>
         </Card>

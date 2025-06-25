@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -24,13 +25,28 @@ interface FolderGridProps {
     selectedFileId: string | null;
     onSelectFile: (id: string | null) => void;
     onFileUpload: (folderId: string, fileName: string) => void;
+    searchQuery: string;
 }
 
-export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload }: FolderGridProps) {
-    const defaultValue = folders.length > 0 ? folders[0].id : undefined;
+export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload, searchQuery }: FolderGridProps) {
+    const isSearching = !!searchQuery;
+    const accordionType = isSearching ? "multiple" : "single";
+    const defaultValue = isSearching
+        ? folders.map(f => f.id)
+        : (folders.length > 0 ? folders[0].id : undefined);
+
+    if (folders.length === 0 && isSearching) {
+        return <p className="text-sm text-gray-500 text-center py-4">No se encontraron archivos con ese nombre.</p>
+    }
 
     return (
-        <Accordion type="single" collapsible defaultValue={defaultValue} className="w-full space-y-3">
+        <Accordion 
+            type={accordionType as any}
+            collapsible 
+            defaultValue={defaultValue} 
+            className="w-full space-y-3"
+            key={accordionType}
+        >
             {folders.map(folder => (
                 <AccordionItem key={folder.id} value={folder.id} className="border border-gray-200/80 rounded-xl bg-white shadow-md overflow-hidden transition-shadow hover:shadow-lg">
                     <div className="flex items-center w-full hover:bg-gray-50/50 transition-colors">
