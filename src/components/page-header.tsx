@@ -1,4 +1,8 @@
 
+// This component is no longer used in the new design. 
+// It is replaced by src/components/mila/page-header.tsx.
+// Consider for deletion in a future cleanup.
+
 import type React from 'react';
 import { Card, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

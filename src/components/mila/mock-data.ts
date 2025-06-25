@@ -1,9 +1,8 @@
 
-import type { MilaAppPData, DocumentBlock, Suggestion } from './types';
+import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionCategory, SuggestionSeverity } from './types';
 
-const commonSuggestionsBase = [
+const commonSuggestionsBase: Omit<Suggestion, 'id' | 'status' | 'category' | 'severity'>[] = [
   {
-    idPrefix: 'sug-generic-1', // Applied to 'objeto'
     text: "El presente contrato tiene por objeto: 1. La adquisición de licencias de software para la entidad. 2. La prestación de soporte técnico especializado durante 12 meses. Este acuerdo busca asegurar la continuidad operativa, la actualización tecnológica de las plataformas institucionales y cubrir integralmente las necesidades de software de la organización.",
     justification: {
       legal: "Principios de transparencia y publicidad (Ley 80 de 1993, Art. 24).",
@@ -12,11 +11,9 @@ const commonSuggestionsBase = [
     appliedNorm: "Ley 80 de 1993, Art. 24",
     errorType: "Ambigüedad, Falta de claridad",
     estimatedConsequence: "Consultas recurrentes, posibles protestas o impugnaciones.",
-    status: 'pending' as Suggestion['status'],
     completenessImpact: 0.8,
   },
   {
-    idPrefix: 'sug-generic-2', // Applied to 'requisitos'
     text: "Los proponentes deben satisfacer los requisitos financieros y técnicos especificados. Es mandatorio poseer experiencia previa en contrataciones con el sector público. El equipo técnico asignado deberá contar con las certificaciones vigentes pertinentes. La oferta técnica incluirá un cronograma de ejecución detallado. Se adjuntará el Registro Único Tributario (RUT) y el certificado de existencia y representación legal.",
     justification: {
       legal: "Principio de buena fe contractual.",
@@ -25,7 +22,6 @@ const commonSuggestionsBase = [
     appliedNorm: "Código Civil, Art. 1603",
     errorType: "Inconsistencia terminológica",
     estimatedConsequence: "Dificultad en la interpretación y aplicación del pliego.",
-    status: 'pending' as Suggestion['status'],
     completenessImpact: 0.7,
   }
 ];
@@ -33,6 +29,8 @@ const commonSuggestionsBase = [
 const block1Suggestions: Suggestion[] = [ 
   {
     id: 'sug1-obj',
+    category: 'Técnica',
+    severity: 'high',
     text: "El objeto del presente proceso de contratación es la adquisición de 100 licencias de software de tipo 'Suscripción Anual' para las herramientas ofimáticas y 20 licencias 'Perpetuas' para el software de diseño especializado. Adicionalmente, se contratará el soporte técnico especializado por 12 meses, con un tiempo de respuesta máximo de 4 horas para incidentes críticos y disponibilidad 24/7. Se busca garantizar la continuidad operativa y la actualización tecnológica de las plataformas institucionales.",
     justification: {
       legal: "Artículo 2.2.1.1.2.1.1 del Decreto 1082 de 2015 - Estudios y documentos previos.",
@@ -46,6 +44,8 @@ const block1Suggestions: Suggestion[] = [
   },
   {
     id: 'sug2-obj',
+    category: 'Legal',
+    severity: 'medium',
     text: "Adicionalmente, el proveedor garantizará la actualización a nuevas versiones del software cubierto por este contrato sin costo adicional para la Entidad durante toda la vigencia del servicio de soporte técnico, siempre que el modelo de licenciamiento adquirido así lo contemple.",
     justification: {
       legal: "Principio de eficiencia y economía en la contratación estatal.",
@@ -57,12 +57,14 @@ const block1Suggestions: Suggestion[] = [
     status: 'applied',
     completenessImpact: 1.0,
   },
-  { ...commonSuggestionsBase[0], id: `${commonSuggestionsBase[0].idPrefix}-obj` },
+  { ...commonSuggestionsBase[0], id: `sug-generic-1-obj`, status: 'pending', category: 'Redacción', severity: 'low' },
 ];
 
 const block2Suggestions: Suggestion[] = [ 
    {
     id: 'sug1-req',
+    category: 'Legal',
+    severity: 'high',
     text: "Los proponentes deberán cumplir con los siguientes requisitos técnicos mínimos obligatorios: [Detallar aquí: e.g., Certificación ISO 9001, Nivel de seguridad X]. Adicionalmente, se valorarán como deseables, otorgando puntaje adicional, los siguientes aspectos: [Detallar aquí: e.g., Personal con certificación Y (hasta Z puntos)]. No se admitirán criterios de evaluación subjetivos.",
     justification: {
       legal: "Ley 1150 de 2007, Art. 5 - De la selección objetiva.",
@@ -76,6 +78,8 @@ const block2Suggestions: Suggestion[] = [
   },
   {
     id: 'sug2-req',
+    category: 'Técnica',
+    severity: 'high',
     text: "Como requisito habilitante, se requiere experiencia previa demostrable en al menos tres (3) contratos ejecutados y terminados con entidades estatales en los últimos cinco (5) años, cuyo objeto sea similar al del presente proceso y cuya sumatoria de valores sea igual o superior a quinientos (500) SMMLV. Para cada contrato acreditado, se deberá adjuntar copia del mismo y certificación de cumplimiento expedida por la entidad contratante.",
     justification: {
       legal: "Decreto 1082 de 2015, Art. 2.2.1.1.1.5.2 - Capacidad jurídica y condiciones de experiencia.",
@@ -87,7 +91,7 @@ const block2Suggestions: Suggestion[] = [
     status: 'applied',
     completenessImpact: 1.8,
   },
-  { ...commonSuggestionsBase[1], id: `${commonSuggestionsBase[1].idPrefix}-req` },
+  { ...commonSuggestionsBase[1], id: `sug-generic-2-req`, status: 'pending', category: 'Redacción', severity: 'medium' },
 ];
 
 
@@ -101,7 +105,7 @@ export const mockData: MilaAppPData = {
       name: 'Objeto',
       category: 'Definiciones Fundamentales',
       alertLevel: 'grave',
-      completenessIndex: 5.6, // Initial score, includes impact of 'sug2-obj' (1.0)
+      completenessIndex: 5.6, 
       maxCompleteness: 10,
       originalText: "El objeto del presente proceso de contratación es la adquisición de licencias de software para la entidad, así como el soporte técnico especializado durante un periodo de 12 meses. Se busca garantizar la continuidad operativa y la actualización tecnológica de las plataformas institucionales. Este contrato busca cubrir todas las necesidades de software de la organización.",
       suggestions: block1Suggestions,
@@ -123,7 +127,7 @@ export const mockData: MilaAppPData = {
       name: 'Requisitos',
       category: 'Condiciones y Habilitantes',
       alertLevel: 'media',
-      completenessIndex: 7.2, // Initial score, includes impact of 'sug2-req' (1.8)
+      completenessIndex: 7.2, 
       maxCompleteness: 10,
       originalText: "Los proponentes deberán cumplir con los requisitos financieros y técnicos establecidos. Se requiere experiencia previa en contratos con el estado. El personal técnico debe estar certificado. La propuesta debe incluir un plan de trabajo detallado. Deben presentar el RUT y certificado de existencia.",
       suggestions: block2Suggestions,
@@ -151,6 +155,8 @@ export const mockData: MilaAppPData = {
       suggestions: [
         {
           id: 'sug1-crit',
+          category: 'Administrativa',
+          severity: 'medium',
           text: "La evaluación se basará en: Precio (50%), Calidad Técnica (30%), y Experiencia (20%). Para la 'Calidad Técnica' (30 puntos), se evaluarán los siguientes sub-criterios: a) Metodología propuesta (hasta 15 puntos), b) Cumplimiento de especificaciones avanzadas (hasta 10 puntos), c) Plan de capacitación (hasta 5 puntos). La 'Innovación', que podrá otorgar hasta 5 puntos adicionales sobre el total, se medirá considerando la incorporación de tecnologías emergentes y soluciones creativas que aporten valor agregado.",
           justification: { legal: "Principio de transparencia y selección objetiva.", technical: "Evita discrecionalidad y facilita la preparación de ofertas competitivas." },
           appliedNorm: "Ley 1150 de 2007, Art. 5", errorType: "Falta de detalle en criterios", estimatedConsequence: "Riesgo de impugnaciones por subjetividad.", status: 'pending',
@@ -177,6 +183,8 @@ export const mockData: MilaAppPData = {
       suggestions: [
          {
           id: 'sug1-san',
+          category: 'Legal',
+          severity: 'low',
           text: "Para la imposición de multas por incumplimiento, se seguirá el siguiente procedimiento garantizando el debido proceso: 1. Comunicación formal al contratista detallando el presunto incumplimiento y la multa aplicable. 2. Otorgamiento de un plazo de cinco (5) días hábiles al contratista para presentar descargos y pruebas. 3. Análisis de los descargos por parte de la Entidad. 4. Emisión de acto administrativo motivado que decide sobre la imposición de la multa, contra el cual procederán los recursos de ley.",
           justification: { legal: "Ley 1437 de 2011 (CPACA) - Debido Proceso Administrativo.", technical: "Brinda seguridad jurídica a las partes." },
           appliedNorm: "Ley 1437 de 2011", errorType: "Omisión procedimental", estimatedConsequence: "Posibles nulidades en la imposición de sanciones.", status: 'pending',

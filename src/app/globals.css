@@ -3,292 +3,104 @@
 @tailwind utilities;
 
 /* 
-  Base styles and theming.
-  The primary theme applied will be 'light-theme' via :root.
-  Specific themes like 'dark-theme' and 'violet-theme' will be applied
-  by adding a data-theme attribute to the <html> element.
+  V2 Design System: Institucional, Sobrio, Funcional 
 */
 
 @layer base {
-  :root { /* Default Light Theme (Inspired by new image) */
-    --background-start-rgb: 255, 192, 203; /* Light Pinkish */
-    --background-end-rgb: 255, 160, 122;   /* Light Salmon/Orange */
-    --background-mid-rgb: 173, 216, 230; /* Light Blue/Celeste */
+  :root {
+    /* Adaptive Background Stains */
+    --stain-1-hue: 0;      /* Red */
+    --stain-1-saturation: 80%;
+    --stain-1-lightness: 50%;
+    --stain-1-alpha: 0.1;
 
-    --foreground-rgb: 51, 51, 51; /* Dark Gray for text */
-    
-    --card-rgb: 255, 255, 255; /* White for cards */
-    --card-alpha: 0.65;
-    --card-foreground-rgb: var(--foreground-rgb);
+    --stain-2-hue: 20;     /* Orange-Red */
+    --stain-2-saturation: 85%;
+    --stain-2-lightness: 55%;
+    --stain-2-alpha: 0.08;
 
-    --popover-rgb: 255, 255, 255;
-    --popover-alpha: 0.9;
-    --popover-foreground-rgb: var(--foreground-rgb);
+    --stain-3-hue: 220;    /* Neutral Blue */
+    --stain-3-saturation: 10%;
+    --stain-3-lightness: 60%;
+    --stain-3-alpha: 0.05;
 
-    --primary-rgb: 255, 127, 80; /* Coral/Orange for primary actions/accents */
-    --primary-foreground-rgb: 255, 255, 255; /* White */
+    /* Base Palette */
+    --background: 224 71.4% 4.1%; /* Almost Black */
+    --foreground: 210 20% 98%;   /* Almost White */
 
-    --secondary-rgb: 240, 240, 240; /* Light gray for secondary elements */
-    --secondary-alpha: 0.7;
-    --secondary-foreground-rgb: var(--foreground-rgb);
+    --card: 220 25% 12%; /* Dark, slightly blue-ish gray */
+    --card-foreground: 210 20% 98%;
 
-    --muted-rgb: 220, 220, 220;
-    --muted-alpha: 0.6;
-    --muted-foreground-rgb: 100, 100, 100; /* Medium Gray */
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
 
-    --accent-rgb: var(--primary-rgb); /* Use primary as main accent */
-    --accent-foreground-rgb: var(--primary-foreground-rgb);
+    --primary: 217 91% 60%; /* Bright Blue */
+    --primary-foreground: 210 20% 98%;
 
-    --destructive-rgb: 220, 38, 38; /* Red */
-    --destructive-foreground-rgb: 255, 255, 255;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
 
-    --border-rgb: 255, 255, 255;
-    --border-alpha: 0.4;
-    --input-rgb: 200, 200, 200; /* Lighter input border */
-    --input-alpha: 0.5;
-    --ring-rgb: var(--primary-rgb);
+    --muted: 215 28% 17%;
+    --muted-foreground: 215.4 16.3% 56.9%;
 
-    --radius: 1rem; /* More rounded look */
+    --accent: 217.2 91.2% 59.8%;
+    --accent-foreground: 210 40% 98%;
 
-    /* Sidebar specific variables - Light Theme */
-    --sidebar-background-rgb: 248, 249, 250; /* Very light gray / Off-white */
-    --sidebar-alpha: 0.85;
-    --sidebar-foreground-rgb: var(--foreground-rgb);       
-    --sidebar-primary-rgb: var(--primary-rgb);       
-    --sidebar-primary-foreground-rgb: var(--primary-foreground-rgb); 
-    --sidebar-accent-rgb: 230, 230, 230; /* Lighter gray for hover */
-    --sidebar-accent-alpha: 0.8;
-    --sidebar-accent-foreground-rgb: var(--foreground-rgb);
-    --sidebar-border-rgb: 220, 220, 220;           
-    --sidebar-border-alpha: 0.5;
-    --sidebar-ring-rgb: var(--primary-rgb);             
+    --destructive: 0 72% 51%; /* Red */
+    --destructive-foreground: 210 40% 98%;
 
-    /* Custom status/severity colors */
-    --custom-severity-low-bg-rgb: 74, 222, 128;  /* Green */
-    --custom-severity-low-fg-rgb: var(--foreground-rgb);
-    
-    --custom-severity-medium-bg-rgb: 96, 165, 250; /* Light Blue (replaces yellow) */
-    --custom-severity-medium-fg-rgb: var(--foreground-rgb); 
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 217.2 91.2% 59.8%;
 
-    --custom-severity-high-bg-rgb: var(--destructive-rgb);    
-    --custom-severity-high-fg-rgb: var(--destructive-foreground-rgb);
+    --radius: 0.75rem;
 
-    --custom-technical-text-blue-rgb: 30, 64, 175; /* Dark Blue for technical text */
-
-    --chart-1-rgb: var(--primary-rgb); 
-    --chart-2-rgb: 96, 165, 250; 
-    --chart-3-rgb: 74, 222, 128; 
-    --chart-4-rgb: 251, 191, 36;  
-    --chart-5-rgb: 168, 85, 247; 
+    /* Severity Colors (for text, borders, etc.) */
+    --severity-high: 0 84% 60%;
+    --severity-medium: 35 92% 60%;
+    --severity-low: 160 84% 40%;
   }
 
-  html[data-theme="dark"] {
-    --background-start-rgb: 48, 25, 52; /* Dark Violet */
-    --background-end-rgb: 20, 20, 40;   /* Deep Dark Blue */
-    --background-mid-rgb: 30, 22, 45; /* Dark Purple */
-
-    --foreground-rgb: 229, 231, 235; /* Light Gray for text */
-    
-    --card-rgb: 41, 40, 61; /* Dark Slate/Purple */
-    --card-alpha: 0.65;
-    --card-foreground-rgb: var(--foreground-rgb);
-
-    --popover-rgb: 30, 28, 48; 
-    --popover-alpha: 0.9;
-    --popover-foreground-rgb: var(--foreground-rgb);
-
-    --primary-rgb: 129, 140, 248; /* Indigo */
-    --primary-foreground-rgb: 238, 242, 255;
-
-    --secondary-rgb: 55, 48, 79;
-    --secondary-alpha: 0.7;
-    --secondary-foreground-rgb: var(--foreground-rgb);
-
-    --muted-rgb: 42, 36, 60;
-    --muted-alpha: 0.6;
-    --muted-foreground-rgb: 156, 163, 175; 
-
-    --accent-rgb: var(--primary-rgb); 
-    --accent-foreground-rgb: var(--primary-foreground-rgb);
-
-    --destructive-rgb: 191, 23, 56; 
-    --destructive-foreground-rgb: 254, 226, 226;
-
-    --border-rgb: 72, 61, 93;
-    --border-alpha: 0.4;
-    --input-rgb: 60, 50, 80; 
-    --input-alpha: 0.5;
-    --ring-rgb: var(--primary-rgb);
-
-    /* Sidebar specific variables - Dark Theme */
-    --sidebar-background-rgb: 31, 26, 47; /* Very Dark Purple/Blue */
-    --sidebar-alpha: 0.85;
-    --sidebar-foreground-rgb: var(--foreground-rgb);       
-    --sidebar-primary-rgb: var(--primary-rgb);       
-    --sidebar-primary-foreground-rgb: var(--primary-foreground-rgb); 
-    --sidebar-accent-rgb: 45, 38, 68; 
-    --sidebar-accent-alpha: 0.8;
-    --sidebar-accent-foreground-rgb: var(--foreground-rgb);
-    --sidebar-border-rgb: 55, 48, 79;           
-    --sidebar-border-alpha: 0.5;
-    --sidebar-ring-rgb: var(--primary-rgb);             
-
-    /* Custom status/severity colors - Dark Theme */
-    --custom-severity-low-bg-rgb: 22, 101, 52; 
-    --custom-severity-low-fg-rgb: 187, 247, 208;
-    
-    --custom-severity-medium-bg-rgb: 30, 64, 175; 
-    --custom-severity-medium-fg-rgb: 191, 219, 254; 
-
-    --custom-severity-high-bg-rgb: var(--destructive-rgb);    
-    --custom-severity-high-fg-rgb: var(--destructive-foreground-rgb);
-    
-    --custom-technical-text-blue-rgb: 147, 197, 253; /* Lighter Blue for dark mode */
-  }
-  
-  html[data-theme="violet"] {
-    --background-start-rgb: 107, 33, 168; /* Purple-700 */
-    --background-end-rgb: 59, 130, 246;   /* Blue-500 */
-    --background-mid-rgb: 236, 72, 153; /* Pink-500 */
-
-    --foreground-rgb: 243, 244, 246; /* Gray-100 for text */
-    
-    --card-rgb: 88, 28, 135; /* Purple-800 */
-    --card-alpha: 0.65;
-    --card-foreground-rgb: var(--foreground-rgb);
-
-    --popover-rgb: 67, 20, 107; 
-    --popover-alpha: 0.9;
-    --popover-foreground-rgb: var(--foreground-rgb);
-
-    --primary-rgb: 219, 39, 119; /* Pink-600 */
-    --primary-foreground-rgb: 255, 255, 255;
-
-    --secondary-rgb: 126, 34, 206; /* Purple-600 */
-    --secondary-alpha: 0.7;
-    --secondary-foreground-rgb: var(--foreground-rgb);
-
-    --muted-rgb: 109, 40, 217; /* Violet-600 */
-    --muted-alpha: 0.6;
-    --muted-foreground-rgb: 203, 213, 225; 
-
-    --accent-rgb: var(--primary-rgb); 
-    --accent-foreground-rgb: var(--primary-foreground-rgb);
-
-    --destructive-rgb: 190, 18, 60; 
-    --destructive-foreground-rgb: 254, 226, 226;
-
-    --border-rgb: 147, 51, 234; /* Purple-500 */
-    --border-alpha: 0.4;
-    --input-rgb: 128, 60, 190; 
-    --input-alpha: 0.5;
-    --ring-rgb: var(--primary-rgb);
-
-    /* Sidebar specific variables - Violet Theme */
-    --sidebar-background-rgb: 76, 29, 149; /* Purple-900 */
-    --sidebar-alpha: 0.85;
-    --sidebar-foreground-rgb: var(--foreground-rgb);       
-    --sidebar-primary-rgb: var(--primary-rgb);       
-    --sidebar-primary-foreground-rgb: var(--primary-foreground-rgb); 
-    --sidebar-accent-rgb: 107, 33, 168; 
-    --sidebar-accent-alpha: 0.8;
-    --sidebar-accent-foreground-rgb: var(--foreground-rgb);
-    --sidebar-border-rgb: 90, 30, 150;           
-    --sidebar-border-alpha: 0.5;
-    --sidebar-ring-rgb: var(--primary-rgb);             
-
-    /* Custom status/severity colors - Violet Theme */
-    --custom-severity-low-bg-rgb: 16, 185, 129; /* Emerald-500 */
-    --custom-severity-low-fg-rgb: var(--foreground-rgb);
-    
-    --custom-severity-medium-bg-rgb: 59, 130, 246; /* Blue-500 */
-    --custom-severity-medium-fg-rgb: var(--foreground-rgb); 
-
-    --custom-severity-high-bg-rgb: var(--destructive-rgb);    
-    --custom-severity-high-fg-rgb: var(--destructive-foreground-rgb);
-    
-    --custom-technical-text-blue-rgb: 147, 197, 253; /* Sky-300 */
+  .dark {
+    /* Same as root for this design */
   }
 
   * {
-    @apply border-[rgba(var(--border-rgb),var(--border-alpha))];
+    @apply border-border;
   }
+  
   body {
-    background-color: rgba(var(--background-end-rgb),1); /* Fallback */
-    background-image: linear-gradient(145deg, 
-      rgba(var(--background-start-rgb),1) 0%, 
-      rgba(var(--background-mid-rgb),1) 40%, 
-      rgba(var(--background-end-rgb),1) 100%);
-    background-attachment: fixed;
-    @apply text-[rgb(var(--foreground-rgb))]; 
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    
+    /* Adaptive Morphism Background */
+    background-image: 
+      radial-gradient(at 80% 10%, hsla(var(--stain-1-hue), var(--stain-1-saturation), var(--stain-1-lightness), var(--stain-1-alpha)) 0px, transparent 50%),
+      radial-gradient(at 20% 90%, hsla(var(--stain-2-hue), var(--stain-2-saturation), var(--stain-2-lightness), var(--stain-2-alpha)) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsla(var(--stain-3-hue), var(--stain-3-saturation), var(--stain-3-lightness), var(--stain-3-alpha)) 0px, transparent 70%);
+    background-attachment: fixed;
+    transition: background-image 1.5s ease-in-out;
   }
 }
 
-/* Custom utility classes */
-.text-technical-text-blue { 
-  color: rgb(var(--custom-technical-text-blue-rgb));
-}
+@layer components {
+  /* Custom utility for the incident severity gradient bar */
+  .incident-bar {
+    @apply w-1.5 h-full absolute left-0 top-0;
+  }
+  .incident-bar-high {
+    background-image: linear-gradient(to bottom, hsl(var(--severity-high)), hsl(var(--severity-medium)));
+  }
+  .incident-bar-medium {
+    background-image: linear-gradient(to bottom, hsl(var(--severity-medium)), hsl(var(--severity-low)));
+  }
+  .incident-bar-low {
+     background-color: hsl(var(--severity-low));
+  }
 
-.bg-severity-low {
-  background-color: rgb(var(--custom-severity-low-bg-rgb));
-  color: rgb(var(--custom-severity-low-fg-rgb));
-}
-.text-severity-low-fg {
-  color: rgb(var(--custom-severity-low-fg-rgb));
-}
-.border-severity-low {
-  border-color: rgb(var(--custom-severity-low-bg-rgb)); 
-}
-
-.bg-severity-medium {
-  background-color: rgb(var(--custom-severity-medium-bg-rgb));
-  color: rgb(var(--custom-severity-medium-fg-rgb));
-}
-.text-severity-medium-fg {
-  color: rgb(var(--custom-severity-medium-fg-rgb));
-}
-.border-severity-medium {
-  border-color: rgb(var(--custom-severity-medium-bg-rgb)); 
-}
-
-.bg-severity-high {
-  background-color: rgb(var(--custom-severity-high-bg-rgb));
-  color: rgb(var(--custom-severity-high-fg-rgb));
-}
-.text-severity-high-fg {
-  color: rgb(var(--custom-severity-high-fg-rgb));
-}
-.border-severity-high {
-  border-color: rgb(var(--custom-severity-high-bg-rgb)); 
-}
-
-/* Glassmorphism related classes */
-.glass-card {
-  background-color: rgba(var(--card-rgb), var(--card-alpha));
-  @apply backdrop-blur-xl shadow-2xl border rounded-2xl;
-}
-.glass-sidebar {
-   background-color: rgba(var(--sidebar-background-rgb), var(--sidebar-alpha)) !important;
-   @apply backdrop-blur-xl border-r rounded-r-2xl;
-}
-.glass-sidebar-header-footer {
-   background-color: transparent !important;
-   border-color: rgba(var(--sidebar-border-rgb),calc(var(--sidebar-border-alpha) * 0.5)) !important;
-}
-
-.glass-card-content {
-  @apply bg-transparent; 
-}
-
-.glass-accordion-item {
-  background-color: rgba(var(--card-rgb), calc(var(--card-alpha) * 0.8)); 
-  @apply backdrop-blur-lg shadow-lg border rounded-xl;
-}
-
-.glass-accordion-trigger {
-  @apply hover:bg-[rgba(var(--muted-rgb),0.25)]; 
-}
-.glass-accordion-content {
-   @apply bg-transparent;
+  /* Glassmorphism for specific panels */
+  .panel-glass {
+    @apply bg-[hsl(var(--card)/0.6)] backdrop-blur-md border border-[hsl(var(--border)/0.5)] shadow-xl;
+  }
 }

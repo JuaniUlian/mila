@@ -1,5 +1,7 @@
 
 export type AlertLevel = 'grave' | 'media' | 'leve' | 'none';
+export type SuggestionSeverity = 'high' | 'medium' | 'low';
+export type SuggestionCategory = 'Legal' | 'Técnica' | 'Administrativa' | 'Redacción';
 
 export interface Suggestion {
   id: string;
@@ -13,6 +15,8 @@ export interface Suggestion {
   estimatedConsequence: string; 
   status: 'pending' | 'applied' | 'discarded';
   completenessImpact: number; // How much applying this suggestion contributes to completeness
+  severity: SuggestionSeverity;
+  category: SuggestionCategory;
 }
 
 export interface DocumentBlock {
@@ -37,7 +41,7 @@ export interface AlertItem {
 }
 
 export interface MissingConnection {
-  id: string;
+  id:string;
   description: string; 
 }
 

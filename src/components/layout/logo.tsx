@@ -8,7 +8,7 @@ export function Logo() {
         width="32" 
         height="32" 
         viewBox="0 0 100 100" 
-        fill="hsl(var(--sidebar-primary-foreground))" 
+        fill="hsl(var(--foreground))" 
         xmlns="http://www.w3.org/2000/svg"
         className="transition-opacity hover:opacity-80"
         data-ai-hint="logo app brand"

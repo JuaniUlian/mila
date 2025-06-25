@@ -72,6 +72,8 @@ const BlockStatusDisplay: React.FC<{ block: DocumentBlock }> = ({ block }) => {
   );
 };
 
+// NOTE: This component is likely no longer used in the new "IncidentsList" design.
+// It is kept for reference or potential future use in other contexts.
 export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggestionText }: ContentPanelProps) {
   const { toast } = useToast();
   const [editingSuggestionId, setEditingSuggestionId] = useState<string | null>(null);
@@ -282,5 +284,3 @@ export function ContentPanel({ block, onUpdateSuggestionStatus, onUpdateSuggesti
     </div>
   );
 }
-
-    
