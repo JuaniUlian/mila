@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -93,14 +92,8 @@ export default function PreparePage() {
           </CardContent>
         </Card>
 
-        {/* Section 3: Validation */}
-        <Card className="glass-card shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              ✅ Paso 3: Validación
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex justify-center p-6">
+        {/* Section 3: Validation Button */}
+        <div className="flex justify-center pt-4">
             <Button
               size="lg"
               className="text-lg font-semibold px-12 py-7 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -109,8 +102,7 @@ export default function PreparePage() {
             >
               Validar pliego
             </Button>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   );
