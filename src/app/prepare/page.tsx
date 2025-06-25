@@ -68,6 +68,15 @@ export default function PreparePage() {
 
   const handleValidate = () => {
     if (isValidationReady) {
+      const allFiles = folders.flatMap(folder => folder.files);
+      const selectedFile = allFiles.find(file => file.id === selectedFileId);
+
+      if (selectedFile) {
+        localStorage.setItem('selectedDocumentName', selectedFile.name);
+      } else {
+        localStorage.setItem('selectedDocumentName', 'Documento no encontrado');
+      }
+      
       router.push('/loading');
     }
   };

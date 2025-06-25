@@ -26,6 +26,16 @@ export default function PlanillaVivaPage() {
   const { toast } = useToast();
   const { setScore } = useLayout();
 
+  useEffect(() => {
+    const savedFileName = localStorage.getItem('selectedDocumentName');
+    if (savedFileName) {
+      setDocumentData(prevData => ({
+        ...prevData,
+        documentTitle: `Evaluación ${savedFileName}`,
+      }));
+    }
+  }, []);
+
   const { documentTitle, blocks, overallComplianceScore } = documentData;
 
   useEffect(() => {
