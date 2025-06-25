@@ -193,12 +193,23 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     return 'low';
   };
   
+  const getSeparatorGradientClass = (score: number): string => {
+    if (score < 40) return 'from-rose-900/0 via-rose-400/80 to-rose-900/0'; 
+    if (score < 60) return 'from-orange-600/0 via-orange-400/80 to-orange-600/0';
+    if (score < 75) return 'from-amber-500/0 via-amber-300/80 to-amber-500/0';
+    if (score < 85) return 'from-lime-600/0 via-lime-400/80 to-lime-600/0';
+    if (score < 95) return 'from-sky-600/0 via-sky-300/80 to-sky-600/0';
+    return 'from-slate-400/0 via-slate-400/80 to-slate-400/0';
+  };
+  
+  const separatorClass = getSeparatorGradientClass(overallComplianceScore);
   const useDarkText = overallComplianceScore >= 75;
   const titleColorClass = useDarkText ? "text-foreground" : "text-white";
   const descriptionColorClass = useDarkText ? "text-muted-foreground" : "text-white/80";
 
   return (
     <Card className="h-full flex flex-col bg-transparent border-none shadow-none">
+      <div className={cn("h-px w-full bg-gradient-to-r mb-6 mt-2", separatorClass)} />
       <CardHeader className="p-0 mb-4">
         <CardTitle className={cn("text-xl font-bold transition-colors duration-500", titleColorClass)}>Incidencias y Sugerencias</CardTitle>
         <CardDescription className={cn("transition-colors duration-500", descriptionColorClass)}>Hallazgos pendientes detectados, agrupados por categoría y ordenados por severidad.</CardDescription>
