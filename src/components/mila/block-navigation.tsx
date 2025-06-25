@@ -36,7 +36,6 @@ export function BlockNavigation() {
         );
 
         const buttonProps = {
-          key: item.name,
           variant: "ghost" as const,
           className: cn(
             "w-full justify-start text-base h-12 px-3 rounded-lg transition-colors duration-150 ease-in-out",
@@ -49,14 +48,14 @@ export function BlockNavigation() {
         
         if (item.external) {
            return (
-             <Button {...buttonProps} asChild>
+             <Button key={item.name} {...buttonProps} asChild>
                 <a href={item.href} target="_blank" rel="noopener noreferrer">{buttonContent}</a>
             </Button>
           );
         }
 
         return (
-          <Button {...buttonProps} asChild>
+          <Button key={item.name} {...buttonProps} asChild>
             <Link href={item.href}>{buttonContent}</Link>
           </Button>
         );
