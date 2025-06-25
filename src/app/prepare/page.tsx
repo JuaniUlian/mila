@@ -123,13 +123,13 @@ export default function PreparePage() {
     <div 
         className="min-h-screen w-full p-4 md:p-8 text-gray-800" 
         style={{
-            background: 'linear-gradient(135deg, #F0F4FF 0%, #F8FAFC 50%, #FFFFFF 100%)',
+            background: 'linear-gradient(135deg, #E0E7FF 0%, #F9FAFB 50%, #FFFFFF 100%)',
             backgroundAttachment: 'fixed'
         }}
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
-        <Card className="bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl border-gray-200/50">
+        <Card className="bg-white/60 backdrop-blur-xl shadow-xl rounded-2xl border border-white/30">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
               📄 Paso 1: Seleccionar documento
@@ -166,7 +166,7 @@ export default function PreparePage() {
 
         {/* Section 2: Select Regulations */}
         <Accordion type="single" collapsible className="w-full" defaultValue="regulations">
-          <AccordionItem value="regulations" className="border-b-0 bg-white/90 backdrop-blur-sm shadow-lg rounded-2xl overflow-hidden border-gray-200/50">
+          <AccordionItem value="regulations" className="border-b-0 bg-white/60 backdrop-blur-xl shadow-xl rounded-2xl overflow-hidden border border-white/30">
             <AccordionTrigger className="p-6 hover:no-underline w-full text-left">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 ⚖️ Paso 2: Seleccioná las normativas para el análisis

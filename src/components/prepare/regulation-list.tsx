@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -32,8 +33,8 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
         <div className="space-y-4">
             <div className="w-full space-y-3">
                 {regulations.map(regulation => (
-                    <div key={regulation.id} className="border border-gray-200/80 rounded-xl bg-white shadow-md transition-shadow hover:shadow-lg">
-                        <div className="flex items-center gap-4 w-full p-3 hover:bg-gray-50/50 transition-colors rounded-xl">
+                    <div key={regulation.id} className="border border-slate-300/40 rounded-xl bg-slate-50/50 backdrop-blur-xl shadow-lg transition-shadow hover:shadow-2xl">
+                        <div className="flex items-center gap-4 w-full p-3 hover:bg-slate-100/30 transition-colors rounded-xl">
                             <Checkbox
                                 id={`checkbox-${regulation.id}`}
                                 checked={selectedIds.includes(regulation.id)}
@@ -50,7 +51,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
             <div className="flex justify-end">
                 <FileUploadButton
                     variant="outline"
-                    className="bg-white hover:bg-gray-50 border-gray-300 text-gray-800"
+                    className="bg-white/70 hover:bg-white border-gray-300 text-gray-800"
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />
