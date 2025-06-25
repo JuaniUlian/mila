@@ -227,11 +227,15 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                 })}
                 </Accordion>
             ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center text-white/80">
-                    <Check className="w-16 h-16 text-green-400 mb-4" />
-                    <h3 className="text-xl font-semibold text-white">¡Excelente!</h3>
-                    <p>No hay incidencias pendientes de revisión.</p>
-                    <p>El documento ha sido completamente validado.</p>
+                <div className="h-full flex items-center justify-center">
+                    <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
+                        <CardContent className="p-0 flex flex-col items-center justify-center text-center">
+                            <Check className="w-16 h-16 text-green-400 mb-4" />
+                            <h3 className="text-xl font-semibold text-white">¡Excelente!</h3>
+                            <p className="text-white/80">No hay incidencias pendientes de revisión.</p>
+                            <p className="text-white/80">El documento ha sido completamente validado.</p>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
         </ScrollArea>
