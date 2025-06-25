@@ -204,15 +204,13 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   
   const separatorClass = getSeparatorGradientClass(overallComplianceScore);
   const useDarkText = overallComplianceScore >= 75;
-  const titleColorClass = useDarkText ? "text-foreground" : "text-white";
-  const descriptionColorClass = useDarkText ? "text-muted-foreground" : "text-white/80";
 
   return (
     <Card className="h-full flex flex-col bg-transparent border-none shadow-none">
       <div className={cn("h-px w-full bg-gradient-to-r mb-6 mt-2", separatorClass)} />
-      <CardHeader className="p-0 mb-4">
-        <CardTitle className={cn("text-xl font-bold transition-colors duration-500", titleColorClass)}>Incidencias y Sugerencias</CardTitle>
-        <CardDescription className={cn("transition-colors duration-500", descriptionColorClass)}>Hallazgos pendientes detectados, agrupados por categoría y ordenados por severidad.</CardDescription>
+      <CardHeader className="p-4 mb-4 rounded-lg bg-card/80 backdrop-blur-md shadow-lg">
+        <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
+        <CardDescription className="text-muted-foreground">Hallazgos pendientes detectados, agrupados por categoría y ordenados por severidad.</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto pr-2 p-0">
         <ScrollArea className="h-full w-full pr-4">
