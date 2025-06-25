@@ -1,249 +1,292 @@
 
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FolderGrid } from '@/components/prepare/folder-grid';
+import { RegulationList } from '@/components/prepare/regulation-list';
+import { Search, Upload, FileSignature, BookCheck, FolderPlus } from 'lucide-react';
+import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
-import { mockData as initialMockData } from '@/components/mila/mock-data';
-import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/types';
-import { useLayout } from '@/context/LayoutContext';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
-import { PageHeader } from '@/components/mila/page-header';
-import { IncidentsList } from '@/components/mila/incidents-list';
-import { RisksPanel } from '@/components/mila/risks-panel';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+// Mock Data
+const initialFolders = [
+  { id: 'f1', name: 'Pliegos 2025', files: [
+    { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf' },
+    { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx' },
+    { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
+  ]},
+  { id: 'f2', name: 'Contrataciones Directas', files: [
+    { id: 'file4', name: 'Informe de Contratación Directa.docx' }
+  ]},
+  { id: 'f3', name: 'Expedientes', files: [
+    { id: 'file5', name: 'Resolución de Apertura.pdf' },
+    { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf' },
+  ]},
+  { id: 'f4', name: 'Decretos', files: [] },
+];
 
-// Define severity weights for score calculation
-const severityWeights: { [key in Suggestion['severity']]: number } = {
-  high: 3,
-  medium: 2,
-  low: 1,
-};
+const initialRegulations = [
+    { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...' },
+    { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...' },
+    { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...' },
+    { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...' },
+];
 
-export default function PlanillaVivaPage() {
-  const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+export default function PreparePage() {
+  const router = useRouter();
   const { toast } = useToast();
-  const { setScore } = useLayout();
+  const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, fileCount: f.files.length })));
+  const [regulations, setRegulations] = useState(initialRegulations);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const savedFileName = localStorage.getItem('selectedDocumentName');
-    if (savedFileName) {
-      setDocumentData(prevData => ({
-        ...prevData,
-        documentTitle: `Evaluación ${savedFileName}`,
-      }));
-    }
-  }, []);
+  // State for the new folder modal
+  const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
 
-  const { documentTitle, blocks, overallComplianceScore } = documentData;
+  const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
 
-  useEffect(() => {
-    setScore(overallComplianceScore);
-    // Cleanup function to reset the score when the page is left
-    return () => {
-      setScore(null);
-    };
-  }, [overallComplianceScore, setScore]);
-  
-  // Calculate total possible severity weight from all suggestions in the initial data
-  const totalSeverityWeight = useMemo(() => {
-    return initialMockData.blocks.reduce((total, block) => {
-      return total + block.suggestions.reduce((blockTotal, suggestion) => {
-        return blockTotal + (severityWeights[suggestion.severity] || 0);
-      }, 0);
-    }, 0);
-  }, []);
+  const handleValidate = () => {
+    if (isValidationReady) {
+      const allFiles = folders.flatMap(folder => folder.files);
+      const selectedFile = allFiles.find(file => file.id === selectedFileId);
 
-  const allSuggestions = useMemo(() => blocks.flatMap(block => 
-    block.suggestions.map(s => ({ ...s, blockId: block.id }))
-  ), [blocks]);
-
-  const totalSuggestions = useMemo(() => allSuggestions.length, [allSuggestions]);
-  const appliedSuggestionsCount = useMemo(() => allSuggestions.filter(s => s.status === 'applied').length, [allSuggestions]);
-
-  const getDynamicBackgroundClass = useCallback((score: number): string => {
-    if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white'; // Dark Red for very low scores
-    if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white'; // Orange for low scores
-    if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white'; // Yellow for medium scores
-    if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white'; // Green for good scores
-    if (score < 95) return 'from-sky-600/50 via-sky-100/50 to-white'; // Light Blue for very good scores
-    return 'from-slate-200/50 via-slate-100/50 to-white'; // Almost white for excellent scores
-  }, []);
-
-  const backgroundClass = useMemo(() => getDynamicBackgroundClass(overallComplianceScore), [overallComplianceScore, getDynamicBackgroundClass]);
-
-  const recalculateScores = useCallback((updatedBlocks: DocumentBlock[]): { newComplianceScore: number, newCompletenessIndex: number } => {
-    const baseScore = initialMockData.overallComplianceScore; // Start from the initial score
-    const maxScore = 100;
-    const pointsToGain = maxScore - baseScore;
-
-    // Calculate compliance score based on severity
-    let resolvedSeverityWeight = 0;
-    updatedBlocks.forEach(block => {
-      block.suggestions.forEach(suggestion => {
-        // "resolved" means applied or discarded
-        if (suggestion.status !== 'pending') {
-          resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
-        }
-      });
-    });
-    
-    const complianceScore = totalSeverityWeight > 0
-      ? baseScore + (resolvedSeverityWeight / totalSeverityWeight) * pointsToGain
-      : maxScore;
-      
-    const newComplianceScore = Math.min(maxScore, Math.round(complianceScore));
-
-    // Keep the original completeness index calculation
-    let totalCompletenessAchieved = 0;
-    let totalMaxCompleteness = 0;
-    updatedBlocks.forEach(block => {
-      totalCompletenessAchieved += block.completenessIndex;
-      totalMaxCompleteness += block.maxCompleteness;
-    });
-
-    const newCompletenessIndex = totalMaxCompleteness > 0
-      ? parseFloat(((totalCompletenessAchieved / totalMaxCompleteness) * 10).toFixed(1))
-      : 10;
-
-    return {
-      newComplianceScore,
-      newCompletenessIndex: Math.min(10, Math.max(0, newCompletenessIndex)),
-    };
-
-  }, [totalSeverityWeight]);
-
-  const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
-    setDocumentData(prevData => {
-      const updatedBlocks = [...prevData.blocks];
-      const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
-      if (blockIndex === -1) return prevData;
-
-      const blockToUpdate = { ...updatedBlocks[blockIndex] };
-      const suggestionIndex = blockToUpdate.suggestions.findIndex(s => s.id === suggestionId);
-      if (suggestionIndex === -1) return prevData;
-
-      const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
-      if (suggestionToUpdate.status === newStatus) return prevData; 
-
-      // Only update completeness if a pending suggestion is applied
-      if (suggestionToUpdate.status === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
-        blockToUpdate.completenessIndex = Math.min(
-          blockToUpdate.maxCompleteness, 
-          blockToUpdate.completenessIndex + suggestionToUpdate.completenessImpact
-        );
+      if (selectedFile) {
+        localStorage.setItem('selectedDocumentName', selectedFile.name);
+      } else {
+        localStorage.setItem('selectedDocumentName', 'Documento no encontrado');
       }
       
-      suggestionToUpdate.status = newStatus;
-      blockToUpdate.suggestions = [...blockToUpdate.suggestions];
-      blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
-      
-      updatedBlocks[blockIndex] = blockToUpdate;
-
-      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-      
-      toast({
-        title: `✅ Irregularidad ${newStatus === 'applied' ? 'Corregida' : 'Descartada'}`,
-        description: "El puntaje de cumplimiento ha sido actualizado.",
-      });
-      
-      return {
-        ...prevData,
-        blocks: updatedBlocks,
-        overallCompletenessIndex: newCompletenessIndex,
-        overallComplianceScore: newComplianceScore,
-      };
-    });
-  }, [toast, recalculateScores]);
-
-  const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
-    setDocumentData(prevData => {
-      const updatedBlocks = [...prevData.blocks];
-      const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
-      if (blockIndex === -1) return prevData;
-
-      const blockToUpdate = { ...updatedBlocks[blockIndex] };
-      const suggestionIndex = blockToUpdate.suggestions.findIndex(s => s.id === suggestionId);
-      if (suggestionIndex === -1) return prevData;
-
-      const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
-
-      // Apply completeness impact only if it was pending before this edit
-      if (suggestionToUpdate.status === 'pending' && suggestionToUpdate.completenessImpact) {
-        blockToUpdate.completenessIndex = Math.min(
-          blockToUpdate.maxCompleteness, 
-          blockToUpdate.completenessIndex + suggestionToUpdate.completenessImpact
-        );
-      }
-
-      suggestionToUpdate.text = newText;
-      suggestionToUpdate.status = 'applied'; // Editing and saving applies the change
-
-      blockToUpdate.suggestions = [...blockToUpdate.suggestions];
-      blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
-      updatedBlocks[blockIndex] = blockToUpdate;
-
-      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-       
-      toast({
-        title: "Sugerencia Modificada y Aplicada",
-        description: "El texto de la sugerencia ha sido actualizado y el puntaje recalculado.",
-      });
-
-      return {
-        ...prevData,
-        blocks: updatedBlocks,
-        overallCompletenessIndex: newCompletenessIndex,
-        overallComplianceScore: newComplianceScore
-      }
-    });
-  }, [toast, recalculateScores]);
-
-  const handleDownloadReport = () => {
-    try {
-      localStorage.setItem('milaReportData', JSON.stringify(documentData));
-      setIsReportModalOpen(true);
-    } catch (error) {
-      console.error("Failed to save report data to localStorage", error);
-      toast({
-        title: "Error al generar el informe",
-        description: "No se pudo guardar la información para la previsualización. Intente de nuevo.",
-        variant: "destructive",
-      });
+      router.push('/loading');
     }
   };
+  
+  const showToast = (fileName: string) => {
+    toast({
+      title: "Archivo Subido (Simulado)",
+      description: `El archivo "${fileName}" se ha agregado.`,
+    });
+  };
+
+  const handleFileUploadToFolder = (folderId: string, fileName: string) => {
+    setFolders(prevFolders => {
+        const newFolders = prevFolders.map(folder => {
+            if (folder.id === folderId) {
+                const updatedFolder = { ...folder };
+                const newFile = { id: `file-${Date.now()}`, name: fileName };
+                updatedFolder.files = [...updatedFolder.files, newFile];
+                updatedFolder.fileCount = updatedFolder.files.length;
+                return updatedFolder;
+            }
+            return folder;
+        });
+        return newFolders;
+    });
+    showToast(fileName);
+  };
+
+  const handleFileUploadedToRoot = (fileName: string) => {
+    // Add file to the first folder as a default behavior for simulation
+    if (folders.length > 0) {
+      handleFileUploadToFolder(folders[0].id, fileName);
+    } else {
+       toast({
+          title: "Error",
+          description: `No hay carpetas para agregar el archivo.`,
+          variant: 'destructive', 
+        });
+    }
+  };
+  
+  const handleRegulationUpload = (fileName: string) => {
+    setRegulations(prevRegulations => {
+        const newRegulation = {
+            id: `reg-${Date.now()}`,
+            name: fileName,
+            content: 'Contenido del archivo de normativa subido...'
+        };
+        return [...prevRegulations, newRegulation];
+    });
+    showToast(fileName);
+  };
+
+  const handleCreateFolder = () => {
+    if (!newFolderName.trim()) {
+      toast({
+        title: "Error",
+        description: "El nombre de la carpeta no puede estar vacío.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newFolder = {
+      id: `f${Date.now()}`,
+      name: newFolderName,
+      files: [],
+      fileCount: 0,
+    };
+
+    setFolders(prevFolders => [...prevFolders, newFolder]);
+    toast({
+      title: "Carpeta Creada",
+      description: `La carpeta "${newFolderName}" ha sido creada exitosamente.`,
+    });
+
+    setNewFolderName('');
+    setIsCreateFolderModalOpen(false);
+  };
+
+  const filteredFolders = useMemo(() => {
+    if (!searchQuery) {
+      return folders;
+    }
+    const lowercasedQuery = searchQuery.toLowerCase();
+    return folders
+      .map(folder => {
+        const matchingFiles = folder.files.filter(file =>
+          file.name.toLowerCase().includes(lowercasedQuery)
+        );
+        return { ...folder, files: matchingFiles, fileCount: matchingFiles.length };
+      })
+      .filter(folder => folder.files.length > 0);
+  }, [searchQuery, folders]);
+
 
   return (
-    <div className={cn("bg-gradient-to-b transition-all duration-1000", backgroundClass)}>
-      <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
-        <PageHeader 
-          documentTitle={documentTitle}
-          overallComplianceScore={overallComplianceScore}
-          appliedSuggestionsCount={appliedSuggestionsCount}
-          totalSuggestions={totalSuggestions}
-        />
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-          <div className="lg:col-span-2 w-full h-full min-h-0">
-              <IncidentsList 
-                  suggestions={allSuggestions}
-                  blocks={blocks}
-                  onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
-                  onUpdateSuggestionText={handleUpdateSuggestionText}
-                  overallComplianceScore={overallComplianceScore}
-              />
-          </div>
-          <div className="w-full h-full min-h-0">
-               <RisksPanel
-                  documentData={documentData}
-                  onDownloadReport={handleDownloadReport}
-              />
-          </div>
-        </main>
+    <div 
+        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 text-foreground"
+    >
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Section 1: Upload and Organize */}
+        <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+          <CardHeader className="bg-white/20 border-b border-white/20 p-6">
+            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+              <FileSignature className="h-8 w-8 text-primary"/>
+              Paso 1: Seleccionar documento a validar
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="relative flex-grow w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar documento por nombre o palabra clave..."
+                  className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+               <FileUploadButton
+                variant="ghost"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300"
+                onFileSelect={handleFileUploadedToRoot}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Subir nuevo archivo
+              </FileUploadButton>
+              <Button
+                variant="ghost"
+                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300"
+                onClick={() => setIsCreateFolderModalOpen(true)}
+              >
+                <FolderPlus className="mr-2 h-4 w-4" />
+                Nueva Carpeta
+              </Button>
+            </div>
+            <FolderGrid 
+              folders={filteredFolders} 
+              selectedFileId={selectedFileId}
+              onSelectFile={setSelectedFileId}
+              searchQuery={searchQuery}
+              onFileUploadToFolder={handleFileUploadToFolder}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Section 2: Select Regulations */}
+        <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+            <AccordionItem value="item-1" className="border-none">
+                <Card className="bg-white/60 backdrop-blur-xl border-white/30 shadow-xl rounded-2xl overflow-hidden">
+                <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                    <div className="p-6 w-full text-left flex items-center justify-between">
+                        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                            <BookCheck className="h-8 w-8 text-primary"/>
+                            Paso 2: Seleccionar normativas para el análisis
+                        </CardTitle>
+                        {/* The chevron is added automatically by the AccordionTrigger component */}
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-0">
+                    <CardContent className="p-6">
+                        <RegulationList 
+                        regulations={regulations}
+                        selectedIds={selectedRegulationIds}
+                        onSelectionChange={setSelectedRegulationIds}
+                        onRegulationUpload={handleRegulationUpload}
+                        />
+                    </CardContent>
+                </AccordionContent>
+                </Card>
+            </AccordionItem>
+        </Accordion>
+
+        {/* Section 3: Validation Button */}
+        <div className="flex justify-center pt-4">
+            <Button
+              className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+              onClick={handleValidate}
+              disabled={!isValidationReady}
+            >
+              Validar Pliego
+            </Button>
+        </div>
       </div>
-      <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
-        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0">
-            <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
+
+      {/* Create Folder Modal */}
+      <Dialog open={isCreateFolderModalOpen} onOpenChange={setIsCreateFolderModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Crear Nueva Carpeta</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="folder-name" className="text-foreground">
+                Nombre de la carpeta
+            </Label>
+            <Input
+              id="folder-name"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Ej: Pliegos 2026"
+              className="bg-white/70"
+            />
+          </div>
+          <DialogFooter className="pt-2">
+            <DialogClose asChild>
+              <Button variant="ghost" onClick={() => setNewFolderName('')}>Cancelar</Button>
+            </DialogClose>
+            <Button onClick={handleCreateFolder}>Crear</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

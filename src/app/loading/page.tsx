@@ -29,7 +29,7 @@ export default function LoadingPage() {
 
     // Redirect after 15 seconds
     const redirectTimeout = setTimeout(() => {
-      router.push('/'); // Redirect to the main "plantilla viva" page
+      router.push('/analysis'); // Redirect to the main "plantilla viva" page
     }, 15000);
 
     // Cleanup timeouts and intervals on component unmount
