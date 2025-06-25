@@ -12,6 +12,13 @@ import { RisksPanel } from '@/components/mila/risks-panel';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
+// Define severity weights for score calculation
+const severityWeights: { [key in Suggestion['severity']]: number } = {
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
 export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -19,6 +26,15 @@ export default function PlanillaVivaPage() {
 
   const { documentTitle, blocks, overallComplianceScore } = documentData;
   
+  // Calculate total possible severity weight from all suggestions in the initial data
+  const totalSeverityWeight = useMemo(() => {
+    return initialMockData.blocks.reduce((total, block) => {
+      return total + block.suggestions.reduce((blockTotal, suggestion) => {
+        return blockTotal + (severityWeights[suggestion.severity] || 0);
+      }, 0);
+    }, 0);
+  }, []);
+
   const allSuggestions = useMemo(() => blocks.flatMap(block => 
     block.suggestions.map(s => ({ ...s, blockId: block.id }))
   ), [blocks]);
@@ -37,31 +53,46 @@ export default function PlanillaVivaPage() {
 
   const backgroundClass = useMemo(() => getDynamicBackgroundClass(overallComplianceScore), [overallComplianceScore, getDynamicBackgroundClass]);
 
-  const recalculateOverallScores = useCallback((updatedBlocks: DocumentBlock[]): { overallCompletenessIndex: number, overallComplianceScore: number } => {
+  const recalculateScores = useCallback((updatedBlocks: DocumentBlock[]): { newComplianceScore: number, newCompletenessIndex: number } => {
+    const baseScore = initialMockData.overallComplianceScore; // Start from the initial score
+    const maxScore = 100;
+    const pointsToGain = maxScore - baseScore;
+
+    // Calculate compliance score based on severity
+    let resolvedSeverityWeight = 0;
+    updatedBlocks.forEach(block => {
+      block.suggestions.forEach(suggestion => {
+        // "resolved" means applied or discarded
+        if (suggestion.status !== 'pending') {
+          resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
+        }
+      });
+    });
+    
+    const complianceScore = totalSeverityWeight > 0
+      ? baseScore + (resolvedSeverityWeight / totalSeverityWeight) * pointsToGain
+      : maxScore;
+      
+    const newComplianceScore = Math.min(maxScore, Math.round(complianceScore));
+
+    // Keep the original completeness index calculation
     let totalCompletenessAchieved = 0;
     let totalMaxCompleteness = 0;
-    let sumOfBlockCompliancePercentages = 0;
-
     updatedBlocks.forEach(block => {
       totalCompletenessAchieved += block.completenessIndex;
       totalMaxCompleteness += block.maxCompleteness;
-      const blockCompliance = block.maxCompleteness > 0 ? (block.completenessIndex / block.maxCompleteness) * 100 : 100; // Assume 100 if no suggestions
-      sumOfBlockCompliancePercentages += blockCompliance;
     });
 
-    const newOverallCompletenessIndex = totalMaxCompleteness > 0
+    const newCompletenessIndex = totalMaxCompleteness > 0
       ? parseFloat(((totalCompletenessAchieved / totalMaxCompleteness) * 10).toFixed(1))
       : 10;
 
-    const newOverallComplianceScore = updatedBlocks.length > 0
-      ? parseFloat((sumOfBlockCompliancePercentages / updatedBlocks.length).toFixed(0))
-      : 100;
-
     return {
-      overallCompletenessIndex: Math.min(10, Math.max(0, newOverallCompletenessIndex)),
-      overallComplianceScore: Math.min(100, Math.max(0, newOverallComplianceScore)),
+      newComplianceScore,
+      newCompletenessIndex: Math.min(10, Math.max(0, newCompletenessIndex)),
     };
-  }, []);
+
+  }, [totalSeverityWeight]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
@@ -90,7 +121,7 @@ export default function PlanillaVivaPage() {
       
       updatedBlocks[blockIndex] = blockToUpdate;
 
-      const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
+      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
       
       toast({
         title: `✅ Irregularidad ${newStatus === 'applied' ? 'Corregida' : 'Descartada'}`,
@@ -100,11 +131,11 @@ export default function PlanillaVivaPage() {
       return {
         ...prevData,
         blocks: updatedBlocks,
-        overallCompletenessIndex: newOverallCompleteness,
-        overallComplianceScore: newOverallCompliance,
+        overallCompletenessIndex: newCompletenessIndex,
+        overallComplianceScore: newComplianceScore,
       };
     });
-  }, [toast, recalculateOverallScores]);
+  }, [toast, recalculateScores]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
     setDocumentData(prevData => {
@@ -133,7 +164,7 @@ export default function PlanillaVivaPage() {
       blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
       updatedBlocks[blockIndex] = blockToUpdate;
 
-      const { overallCompletenessIndex: newOverallCompleteness, overallComplianceScore: newOverallCompliance } = recalculateOverallScores(updatedBlocks);
+      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
        
       toast({
         title: "Sugerencia Modificada y Aplicada",
@@ -143,11 +174,11 @@ export default function PlanillaVivaPage() {
       return {
         ...prevData,
         blocks: updatedBlocks,
-        overallCompletenessIndex: newOverallCompleteness,
-        overallComplianceScore: newOverallCompliance
+        overallCompletenessIndex: newCompletenessIndex,
+        overallComplianceScore: newComplianceScore
       }
     });
-  }, [toast, recalculateOverallScores]);
+  }, [toast, recalculateScores]);
 
   const handleDownloadReport = () => {
     try {
