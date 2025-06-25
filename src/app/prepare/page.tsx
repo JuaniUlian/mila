@@ -15,19 +15,19 @@ import { useToast } from '@/hooks/use-toast';
 
 // Mock Data
 const initialFolders = [
-  { id: 'f1', name: 'Pliegos 2024', files: [
-    { id: 'file1', name: 'Pliego-Licitacion-XYZ.pdf' },
-    { id: 'file2', name: 'Anexo-Tecnico.docx' },
-    { id: 'file3', name: 'Borrador-Contrato.pdf' },
+  { id: 'f1', name: 'Expediente 101/2024', files: [
+    { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf' },
+    { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx' },
+    { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
   ]},
-  { id: 'f2', name: 'Contrataciones Directas', files: [
-    { id: 'file4', name: 'CD-Software-2024.docx' }
+  { id: 'f2', name: 'Expediente 102/2024', files: [
+    { id: 'file4', name: 'Informe de Contratación Directa.docx' }
   ]},
-  { id: 'f3', name: 'Normativas Internas', files: [
-    { id: 'file5', name: 'Manual-Contratacion-v3.pdf' },
-    { id: 'file6', 'name': 'Politica-Adquisiciones.pdf' },
+  { id: 'f3', name: 'Expediente 103/2024', files: [
+    { id: 'file5', name: 'Resolución de Apertura.pdf' },
+    { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf' },
   ]},
-  { id: 'f4', name: 'Proyectos Archivados', files: [] },
+  { id: 'f4', name: 'Expediente 099/2023 (Archivado)', files: [] },
 ];
 
 const initialRegulations = [
