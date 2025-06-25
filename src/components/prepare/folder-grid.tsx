@@ -1,11 +1,10 @@
 
 "use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import React from 'react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Folder, FileText, MoreVertical, Plus, Download, Trash2, Edit, Move, CheckCircle2 } from 'lucide-react';
+import { Folder, FileText, MoreVertical, Plus, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FileUploadButton } from './file-upload-button';
 
@@ -29,82 +28,60 @@ interface FolderGridProps {
 }
 
 export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload }: FolderGridProps) {
-    const [openFolderId, setOpenFolderId] = useState<string | null>(folders.length > 0 ? folders[0].id : null);
-
-    const handleFolderClick = (folderId: string) => {
-        setOpenFolderId(prevId => (prevId === folderId ? null : folderId));
-    };
+    const defaultValue = folders.length > 0 ? folders[0].id : undefined;
 
     return (
-        <div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {folders.map(folder => (
-                    <Card 
-                        key={folder.id} 
-                        className="flex flex-col cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-blue-400/50 glass-card border-gray-200/50"
-                        onClick={() => handleFolderClick(folder.id)}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <div className="flex items-center gap-3">
-                                <Folder className="h-8 w-8 text-blue-600" />
-                                <CardTitle className="text-lg font-semibold text-gray-900">{folder.name}</CardTitle>
-                            </div>
-                            <DropdownMenu onOpenChange={(open) => { if(open) setOpenFolderId(null) }} >
-                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-200/50">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                    <DropdownMenuItem className="text-gray-800 focus:bg-gray-200/50"><Edit className="mr-2 h-4 w-4" />Renombrar</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-gray-800 focus:bg-gray-200/50"><Download className="mr-2 h-4 w-4" />Descargar</DropdownMenuItem>
-                                    <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-red-100/50"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                            <CardDescription className="text-gray-700">{folder.fileCount} archivos</CardDescription>
-                        </CardContent>
-                        <CardFooter>
-                             <FileUploadButton
-                                variant="outline"
+        <Accordion type="single" collapsible defaultValue={defaultValue} className="w-full space-y-2">
+            {folders.map(folder => (
+                <AccordionItem key={folder.id} value={folder.id} className="border rounded-lg bg-white shadow-sm overflow-hidden">
+                    <div className="flex items-center w-full hover:bg-gray-50/50 transition-colors">
+                        <AccordionTrigger className="flex-1 px-4 py-3 hover:no-underline text-left">
+                           <div className="flex items-center gap-3">
+                               <Folder className="h-6 w-6 text-blue-500" />
+                               <div className="flex flex-col text-left">
+                                <span className="font-semibold text-gray-800">{folder.name}</span>
+                                <span className="text-sm text-gray-500">{folder.fileCount} archivos</span>
+                               </div>
+                           </div>
+                        </AccordionTrigger>
+                        <div className="pr-4 flex items-center gap-1">
+                            <FileUploadButton
+                                variant="ghost"
                                 size="sm"
-                                className="w-full bg-white/50 hover:bg-white/80 border-gray-300 text-gray-800"
+                                className="text-gray-600 hover:bg-gray-200/50"
                                 onClick={(e) => e.stopPropagation()}
                                 onFileSelect={(fileName) => onFileUpload(folder.id, fileName)}
                             >
-                                <Plus className="mr-2 h-4 w-4" /> Subir archivo
+                                <Plus className="h-4 w-4" />
                             </FileUploadButton>
-                        </CardFooter>
-                    </Card>
-                ))}
-            </div>
-
-            {openFolderId && folders.find(f => f.id === openFolderId)?.files.length > 0 && (
-                <div className="mt-6">
-                    <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                        Contenido de: {folders.find(f => f.id === openFolderId)?.name}
-                    </h3>
-                    <div className="space-y-2">
-                        {folders.find(f => f.id === openFolderId)?.files.map(file => (
-                             <Card 
-                                key={file.id} 
-                                className={cn(
-                                    "flex items-center justify-between p-3 transition-all bg-white/60 backdrop-blur-lg shadow-sm",
-                                    selectedFileId === file.id ? "border-blue-500 ring-2 ring-blue-500" : "border-gray-200/80"
-                                )}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <FileText className="h-5 w-5 text-gray-600" />
-                                    <span className="font-medium text-gray-900">{file.name}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                     <Button 
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:bg-gray-200/50" onClick={(e) => e.stopPropagation()}>
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    <AccordionContent className="pt-0 pb-4 px-4 bg-slate-50/70">
+                        <div className="border-t pt-4 space-y-2">
+                            {folder.files.length > 0 ? folder.files.map(file => (
+                                <div 
+                                    key={file.id} 
+                                    className={cn(
+                                        "flex items-center justify-between p-3 transition-all bg-white rounded-lg border",
+                                        selectedFileId === file.id 
+                                            ? "border-blue-500 ring-2 ring-blue-500" 
+                                            : "border-gray-200 hover:border-blue-400/50 hover:bg-blue-50/20"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                        <FileText className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                                        <span className="font-medium text-gray-900 truncate">{file.name}</span>
+                                    </div>
+                                    <Button 
                                         variant={selectedFileId === file.id ? "default" : "secondary"}
                                         className={cn(
+                                            "ml-4",
                                             selectedFileId === file.id 
                                                 ? "bg-blue-600 hover:bg-blue-700" 
-                                                : "bg-gray-200/70 hover:bg-gray-300/70 text-gray-900"
+                                                : "bg-gray-200 hover:bg-gray-300 text-gray-800"
                                         )}
                                         size="sm" 
                                         onClick={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
@@ -112,15 +89,14 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, onFileUpload
                                         {selectedFileId === file.id ? <CheckCircle2 className="mr-2 h-4 w-4" /> : null}
                                         {selectedFileId === file.id ? 'Seleccionado' : 'Seleccionar'}
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-200/50"><Download className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-200/50"><Move className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon" className="text-destructive hover:bg-red-100/50"><Trash2 className="h-4 w-4" /></Button>
                                 </div>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
+                            )) : (
+                                <p className="text-sm text-gray-500 text-center py-4">Esta carpeta está vacía.</p>
+                            )}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
     );
 }
