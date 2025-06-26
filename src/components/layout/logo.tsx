@@ -42,20 +42,31 @@ export function Logo({ className }: { className?: string }) {
         </g>
 
         <defs>
-            <linearGradient id="blue-grad" x1="0" y1="0" x2="1" y2="1">
+            {/* Metallic blue gradient */}
+            <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#1E3A8A" />
-                <stop offset="60%" stopColor="#2563EB" />
-                <stop offset="100%" stopColor="#D1D5DB" />
+                <stop offset="45%" stopColor="#3B82F6" />
+                <stop offset="50%" stopColor="#93C5FD" />
+                <stop offset="55%" stopColor="#3B82F6" />
+                <stop offset="100%" stopColor="#1E40AF" />
             </linearGradient>
-            <linearGradient id="orange-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#F97316" />
-                <stop offset="60%" stopColor="#FBBF24" />
-                <stop offset="100%" stopColor="#FEF3C7" />
+
+            {/* Metallic orange gradient */}
+            <linearGradient id="orange-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#D97706" />
+                <stop offset="45%" stopColor="#FBBF24" />
+                <stop offset="50%" stopColor="#FEF9C3" />
+                <stop offset="55%" stopColor="#FBBF24" />
+                <stop offset="100%" stopColor="#F59E0B" />
             </linearGradient>
+
+            {/* Metallic/Chrome border gradient */}
              <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1E40AF" />
-                <stop offset="50%" stopColor="#E5E7EB" />
-                <stop offset="100%" stopColor="#F97316" />
+                <stop offset="0%" stopColor="#6B7280" />
+                <stop offset="25%" stopColor="#F9FAFB" />
+                <stop offset="50%" stopColor="#D1D5DB" />
+                <stop offset="75%" stopColor="#F9FAFB" />
+                <stop offset="100%" stopColor="#4B5563" />
             </linearGradient>
         </defs>
       </svg>
