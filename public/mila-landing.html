@@ -5,160 +5,176 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MILA | Gobernar bien es revisar bien.</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="icon" href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" type="image/png">
+  <link rel="icon" href="https://storage.googleapis.com/devaid-images/1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" type="image/x-icon">
   <style>
     body {
-      background: linear-gradient(to bottom right, #ffffff, #d4d4d4);
+      background: linear-gradient(135deg, #0f172a, #334155);
+      color: #e5e7eb;
     }
-    .glass {
-      background: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+    .hud-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(100, 116, 139, 0.4);
       border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 12px rgba(100, 116, 139, 0.2), inset 0 0 0 1px rgba(100, 116, 139, 0.3);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     }
-    .transition-hover:hover {
-      transform: scale(1.05);
-      transition: transform 0.3s ease-in-out;
+    .hud-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 25px rgba(100, 116, 139, 0.4), inset 0 0 0 1px rgba(100, 116, 139, 0.5);
     }
   </style>
 </head>
-<body class="text-gray-900">
-  <header class="glass max-w-7xl mx-auto mt-6 px-4 py-6 flex justify-between items-center">
-    <svg class="h-12 w-auto" width="112" height="112" viewBox="0 0 112 112" fill="none" xmlns="http://www.w3.org/2000/svg" data-ai-hint="logo company">
-      <rect x="2" y="2" width="108" height="108" rx="20" ry="20" fill="none" stroke="url(#border-grad-landing)" stroke-width="3"></rect>
-      <g font-family="sans-serif" font-size="48" font-weight="600" fill="url(#text-grad-landing)" text-anchor="middle">
-        <text x="34" y="48">M</text>
-        <text x="78" y="48">I</text>
-        <text x="34" y="92">L</text>
-        <text x="78" y="92">A</text>
-      </g>
-      <defs>
-        <linearGradient id="text-grad-landing" x1="0" y1="0" x2="0" y2="112">
-          <stop offset="0%" stop-color="#737373"></stop>
-          <stop offset="100%" stop-color="#1a1a1a"></stop>
-        </linearGradient>
-        <linearGradient id="border-grad-landing" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#FFFFFF"></stop>
-          <stop offset="100%" stop-color="#A9A9A9"></stop>
-        </linearGradient>
-      </defs>
-    </svg>
+<body class="text-gray-200">
+  <header class="hud-card max-w-7xl mx-auto mt-6 px-4 py-6 flex justify-between items-center">
+      <svg
+        width="112"
+        height="112"
+        viewBox="0 0 112 112"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        data-ai-hint="logo company"
+        class="h-12 w-auto"
+      >
+        <rect
+          x="2"
+          y="2"
+          width="108"
+          height="108"
+          rx="20"
+          ry="20"
+          fill="none"
+          stroke="url(#border-grad)"
+          strokeWidth="3"
+        />
+        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
+            <text x="34" y="48">M</text>
+            <text x="78" y="48">I</text>
+            <text x="34" y="92">L</text>
+            <text x="78" y="92">A</text>
+        </g>
+        <defs>
+            <linearGradient id="text-grad" x1="0" y1="0" x2="0" y2="112">
+                <stop offset="0%" stopColor="#EAEAEA" />
+                <stop offset="100%" stopColor="#A0A0A0" />
+            </linearGradient>
+             <linearGradient id="border-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#FFFFFF" />
+                <stop offset="100%" stopColor="#A9A9A9" />
+            </linearGradient>
+        </defs>
+      </svg>
     <div class="space-x-4">
-      <a href="/prepare" class="bg-blue-600 text-white px-4 py-2 rounded shadow transition-hover">Ir a Demo</a>
-      <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" class="border border-blue-600 text-blue-600 px-4 py-2 rounded shadow transition-hover">Descargá el dossier</a>
+      <a href="/prepare" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:scale-105 transition-transform">Ir a Demo</a>
+      <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" class="border border-blue-500 text-blue-400 px-4 py-2 rounded shadow hover:scale-105 transition-transform hover:bg-blue-500 hover:text-white">Descargá el dossier</a>
     </div>
   </header>
 
   <section class="text-center py-16">
-    <h2 class="text-5xl font-extrabold mb-4 tracking-tight">MILA</h2>
-    <p class="text-lg max-w-2xl mx-auto font-medium">La herramienta para gobiernos que acelera procesos, evita errores y asegura el cumplimiento normativo.</p>
+    <h2 class="text-5xl font-extrabold mb-4 tracking-tight text-white">MILA</h2>
+    <p class="text-lg max-w-2xl mx-auto font-medium text-gray-300">La herramienta para gobiernos que acelera procesos, evita errores y asegura el cumplimiento normativo.</p>
   </section>
 
   <section class="max-w-6xl mx-auto py-16 px-6">
-    <h3 class="text-4xl font-bold text-center mb-12">¿Qué hace MILA?</h3>
+    <h3 class="text-4xl font-bold text-center mb-12 text-white">¿Qué hace MILA?</h3>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-      <div class="glass p-6 shadow transition-hover">
-        <h4 class="text-2xl font-semibold mb-3">🔍 Análisis inteligente</h4>
+      <div class="hud-card p-6 shadow">
+        <h4 class="text-2xl font-semibold mb-3 text-blue-300">🔍 Análisis inteligente</h4>
         <p>Divide los documentos en bloques y analiza punto por punto para detectar errores y riesgos.</p>
       </div>
-      <div class="glass p-6 shadow transition-hover">
-        <h4 class="text-2xl font-semibold mb-3">🛑 Alertas automáticas</h4>
+      <div class="hud-card p-6 shadow">
+        <h4 class="text-2xl font-semibold mb-3 text-blue-300">🛑 Alertas automáticas</h4>
         <p>Clasifica los errores en niveles de riesgo (rojo, amarillo, verde) para que sepas qué atender primero.</p>
       </div>
-      <div class="glass p-6 shadow transition-hover">
-        <h4 class="text-2xl font-semibold mb-3">📑 Edición ágil</h4>
+      <div class="hud-card p-6 shadow">
+        <h4 class="text-2xl font-semibold mb-3 text-blue-300">📑 Edición ágil</h4>
         <p>Editá y corregí desde la plataforma, con control de versiones y sugerencias integradas.</p>
       </div>
-      <div class="glass p-6 shadow transition-hover">
-        <h4 class="text-2xl font-semibold mb-3">📈 Puntaje legal</h4>
+      <div class="hud-card p-6 shadow">
+        <h4 class="text-2xl font-semibold mb-3 text-blue-300">📈 Puntaje legal</h4>
         <p>Recibí una puntuación por documento o bloque, según el cumplimiento normativo.</p>
       </div>
-      <div class="glass p-6 shadow transition-hover">
-        <h4 class="text-2xl font-semibold mb-3">📚 Normas vinculadas</h4>
+      <div class="hud-card p-6 shadow">
+        <h4 class="text-2xl font-semibold mb-3 text-blue-300">📚 Normas vinculadas</h4>
         <p>MILA te muestra en qué norma o resolución se basa cada sugerencia.</p>
       </div>
-      <div class="glass p-6 shadow transition-hover">
-        <h4 class="text-2xl font-semibold mb-3">🔄 Exportá y compartí</h4>
+      <div class="hud-card p-6 shadow">
+        <h4 class="text-2xl font-semibold mb-3 text-blue-300">🔄 Exportá y compartí</h4>
         <p>Generá una versión corregida del documento para compartir fácilmente.</p>
       </div>
     </div>
   </section>
 
-  <section class="bg-white py-20">
-    <div class="max-w-6xl mx-auto text-center px-6">
-      <h3 class="text-4xl font-bold mb-4">Resultados Reales</h3>
-      <p class="mb-10 italic text-sm text-gray-600">*Basado en promedios de uso en gobiernos de distintas escalas</p>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-5xl font-extrabold text-green-600">+67%</h4>
-          <p class="mt-2 font-medium">Errores detectados vs revisión humana</p>
-        </div>
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-3xl font-extrabold text-blue-600">3 min vs 80 días</h4>
-          <p class="mt-2 font-medium">Tiempo de revisión MILA vs circuito tradicional</p>
-        </div>
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-5xl font-extrabold text-purple-600">+82%</h4>
-          <p class="mt-2 font-medium">Gobiernos reportan mejoras en control interno</p>
-        </div>
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-5xl font-extrabold text-yellow-500">76%</h4>
-          <p class="mt-2 font-medium">Reducción de tiempos en validación de circuitos internos</p>
-        </div>
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-5xl font-extrabold text-indigo-500">+15</h4>
-          <p class="mt-2 font-medium">Tipos de documentos ya validados en municipios reales</p>
-        </div>
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-5xl font-extrabold text-pink-600">100%</h4>
-          <p class="mt-2 font-medium">Conformidad con criterios de control legal y administrativo</p>
-        </div>
-        <div class="glass p-6 rounded shadow text-center">
-          <h4 class="text-5xl font-extrabold text-teal-500">24 hs</h4>
-          <p class="mt-2 font-medium">Tiempo de puesta en marcha promedio</p>
-        </div>
+  <section class="py-20">
+  <div class="max-w-6xl mx-auto text-center">
+    <h3 class="text-4xl font-bold mb-4 text-white">Resultados Reales</h3>
+    <p class="mb-10 italic text-sm text-gray-400">*Basado en promedios de uso en gobiernos de distintas escalas</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-5xl font-extrabold text-green-400">+67%</h4>
+        <p class="mt-2 font-medium">Errores detectados vs revisión humana</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-3xl font-extrabold text-blue-400">3 min vs 80 días</h4>
+        <p class="mt-2 font-medium">Tiempo de revisión MILA vs circuito tradicional</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-5xl font-extrabold text-purple-400">+82%</h4>
+        <p class="mt-2 font-medium">Gobiernos reportan mejoras en control interno</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-5xl font-extrabold text-yellow-400">76%</h4>
+        <p class="mt-2 font-medium">Reducción de tiempos en validación de circuitos internos</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-5xl font-extrabold text-indigo-400">+15</h4>
+        <p class="mt-2 font-medium">Tipos de documentos ya validados en municipios reales</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-5xl font-extrabold text-pink-400">100%</h4>
+        <p class="mt-2 font-medium">Conformidad con criterios de control legal y administrativo</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+        <h4 class="text-5xl font-extrabold text-teal-400">24 hs</h4>
+        <p class="mt-2 font-medium">Tiempo de puesta en marcha promedio</p>
+      </div>
+      <div class="hud-card p-6 rounded text-center">
+          <h4 class="text-5xl font-extrabold text-red-400">-95%</h4>
+          <p class="mt-2 font-medium">Reducción de observaciones de Tribunales de Cuentas</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <section class="py-20 px-6 max-w-6xl mx-auto">
-    <h3 class="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h3>
+    <h3 class="text-4xl font-bold mb-10 text-center text-white">¿En qué se diferencia de ChatGPT y otras IA?</h3>
     <div class="grid md:grid-cols-2 gap-8">
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-3 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"></path>
-          </svg>
-          <span>Entrenamiento especializado</span>
+      <div class="hud-card p-6 rounded">
+        <h4 class="text-2xl font-semibold mb-2 text-blue-300 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Entrenamiento especializado
         </h4>
         <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
       </div>
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-3 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          <span>Entiende documentos públicos</span>
+      <div class="hud-card p-6 rounded">
+        <h4 class="text-2xl font-semibold mb-2 text-blue-300 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Entiende documentos públicos
         </h4>
         <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
       </div>
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-3 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-          </svg>
-          <span>Detecta riesgos, no solo errores</span>
+      <div class="hud-card p-6 rounded">
+        <h4 class="text-2xl font-semibold mb-2 text-blue-300 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Detecta riesgos, no solo errores
         </h4>
         <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
       </div>
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-3 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 12h6m-6 5.25h6M5.25 21v-2.25a2.25 2.25 0 012.25-2.25h8.5a2.25 2.25 0 012.25 2.25V21"></path>
-          </svg>
-          <span>Diseñada para gobiernos</span>
+      <div class="hud-card p-6 rounded">
+        <h4 class="text-2xl font-semibold mb-2 text-blue-300 flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="8" y1="20" x2="8" y2="20"></line><line x1="12" y1="18" x2="12" y2="18"></line><line x1="12" y1="22" x2="12" y2="22"></line><line x1="16" y1="16" x2="16" y2="16"></line><line x1="16" y1="20" x2="16" y2="20"></line></svg>
+          Diseñada para gobiernos
         </h4>
         <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
       </div>
@@ -166,68 +182,61 @@
   </section>
 
   <section class="py-20 px-6 max-w-6xl mx-auto">
-    <h3 class="text-4xl font-bold mb-10 text-center">Preguntas Frecuentes</h3>
+    <h3 class="text-4xl font-bold mb-10 text-center text-white">Preguntas Frecuentes</h3>
     <div class="space-y-6">
-      <details class="glass p-4 rounded shadow">
+      <details class="hud-card p-4 rounded">
         <summary class="font-semibold cursor-pointer">¿Reemplaza al equipo legal?</summary>
-        <p class="mt-2">No. Lo potencia. MILA automatiza lo repetitivo y permite al equipo enfocarse en lo importante.</p>
+        <p class="mt-2 text-gray-300">No. Lo potencia. MILA automatiza lo repetitivo y permite al equipo enfocarse en lo importante.</p>
       </details>
-      <details class="glass p-4 rounded shadow">
+      <details class="hud-card p-4 rounded">
         <summary class="font-semibold cursor-pointer">¿Se pueden subir nuestras normativas internas?</summary>
-        <p class="mt-2">Sí. Podés incorporar reglamentos propios y MILA los usará como referencia.</p>
+        <p class="mt-2 text-gray-300">Sí. Podés incorporar reglamentos propios y MILA los usará como referencia.</p>
       </details>
-      <details class="glass p-4 rounded shadow">
+      <details class="hud-card p-4 rounded">
         <summary class="font-semibold cursor-pointer">¿Qué pasa si mi municipio no tiene sistema de gestión documental?</summary>
-        <p class="mt-2">No hay problema. MILA funciona con carga directa de archivos Word o PDF.</p>
+        <p class="mt-2 text-gray-300">No hay problema. MILA funciona con carga directa de archivos Word o PDF.</p>
       </details>
-      <details class="glass p-4 rounded shadow">
+      <details class="hud-card p-4 rounded">
         <summary class="font-semibold cursor-pointer">¿Cuánto tiempo toma capacitar a mi equipo?</summary>
-        <p class="mt-2">MILA es intuitiva. En promedio, en menos de 2 horas tu equipo puede usarla con autonomía total.</p>
+        <p class="mt-2 text-gray-300">MILA es intuitiva. En promedio, en menos de 2 horas tu equipo puede usarla con autonomía total.</p>
       </details>
-      <details class="glass p-4 rounded shadow">
+      <details class="hud-card p-4 rounded">
         <summary class="font-semibold cursor-pointer">¿Qué costo tiene?</summary>
-        <p class="mt-2">Hay planes adaptados a cada tamaño de municipio. Además, ofrecemos licencias promocionales para primeros adoptantes.</p>
+        <p class="mt-2 text-gray-300">Hay planes adaptados a cada tamaño de municipio. Además, ofrecemos licencias promocionales para primeros adoptantes.</p>
       </details>
-      <details class="glass p-4 rounded shadow">
+      <details class="hud-card p-4 rounded">
         <summary class="font-semibold cursor-pointer">¿Puede ayudarme con observaciones del Tribunal de Cuentas?</summary>
-        <p class="mt-2">Sí. MILA detecta muchas de las observaciones típicas antes de que lleguen a auditoría, y sugiere mejoras alineadas con prácticas de control interno.</p>
+        <p class="mt-2 text-gray-300">Sí. MILA detecta muchas de las observaciones típicas antes de que lleguen a auditoría, y sugiere mejoras alineadas con prácticas de control interno.</p>
       </details>
     </div>
   </section>
 
-  <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-16">
+  <section class="bg-blue-700 text-white text-center py-16">
     <h3 class="text-3xl font-bold mb-6">¿Querés MILA en tu municipio?</h3>
     <div class="space-x-4">
-      <a href="/prepare" class="bg-white text-blue-800 px-6 py-3 font-semibold rounded shadow transition-hover">Ir a Demo</a>
-      <a href="mailto:juan.ulian@pluscompol.com?subject=Solicitud%20de%20reuni%C3%B3n%20por%20MILA&body=Hola%20Juan%2C%0D%0A%0D%0AEstoy%20interesado%2Fa%20en%20coordinar%20una%20reuni%C3%B3n%20para%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20MILA%20y%20evaluar%20su%20implementaci%C3%B3n%20en%20nuestro%20gobierno.%0D%0AQuedo%20a%20disposici%C3%B3n%20para%20coordinar%20d%C3%ADa%20y%20horario.%0D%0A%0D%0AMuchas%20gracias.%0D%0A%0D%0ASaludos%2C%0D%0A" class="border border-white px-6 py-3 font-semibold rounded shadow transition-hover inline-block">Contactar</a>
+      <a href="/prepare" class="bg-white text-blue-800 px-6 py-3 font-semibold rounded shadow hover:scale-105 transition-transform inline-block">Ir a Demo</a>
+      <a href="mailto:juan.ulian@pluscompol.com?subject=Solicitud%20de%20reuni%C3%B3n%20por%20MILA&body=Hola%20Juan%2C%0D%0A%0D%0AEstoy%20interesado%2Fa%20en%20coordinar%20una%20reuni%C3%B3n%20para%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20MILA%20y%20evaluar%20su%20implementaci%C3%B3n%20en%20nuestro%20gobierno.%0D%0AQuedo%20a%20disposici%C3%B3n%20para%20coordinar%20d%C3%ADa%20y%20horario.%0D%0A%0D%0AMuchas%20gracias.%0D%0A%0D%0ASaludos%2C%0D%0A" class="border border-white px-6 py-3 font-semibold rounded shadow hover:scale-105 transition-transform inline-block">Contactar</a>
     </div>
   </section>
 
-  <footer class="bg-gray-900 text-gray-300 py-8 px-4">
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 text-center text-sm">
-        <span class="font-semibold">MILA es una solución GovTech desarrollada por PLUS BI</span>
-        <span class="hidden md:inline">|</span>
-        <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
-            <span>juan.ulian@pluscompol.com</span>
-        </div>
-        <span class="hidden md:inline">|</span>
-        <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9"></path>
-            </svg>
-            <span>pluscompol.com</span>
-        </div>
-        <span class="hidden md:inline">|</span>
-        <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            <span>Argentina</span>
-        </div>
+  <footer class="bg-slate-900 text-gray-400 py-8 text-center text-sm">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
+      <span>MILA es una solución GovTech desarrollada por PLUS BI</span>
+      <span class="hidden md:inline">|</span>
+      <a href="mailto:juan.ulian@pluscompol.com" class="flex items-center gap-2 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+        juan.ulian@pluscompol.com
+      </a>
+      <span class="hidden md:inline">|</span>
+      <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+        pluscompol.com
+      </a>
+      <span class="hidden md:inline">|</span>
+      <span class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        Argentina
+      </span>
     </div>
   </footer>
 </body>
