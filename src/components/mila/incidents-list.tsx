@@ -316,11 +316,8 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         key={category}
                         value={category}
                         className={cn(
-                          "group relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300 ease-out",
-                          isFocused
-                            ? "scale-[1.02]"
-                            : "hover:scale-[1.01] hover:shadow-xl",
-                           "hover:shadow-primary/30 hover:border-primary/30"
+                          "group card-hud-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md",
+                          isFocused && "scale-[1.02]"
                         )}
                       >
                           <div 
