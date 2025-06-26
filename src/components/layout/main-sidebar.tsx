@@ -36,7 +36,7 @@ export function MainSidebar() {
             backgroundClass
         )}>
             <div className="flex justify-center items-center py-4">
-                <Logo />
+                <Logo variant="monochrome" />
             </div>
             <nav className="mt-8 flex-1">
                 <BlockNavigation />
