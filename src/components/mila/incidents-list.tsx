@@ -246,7 +246,6 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
 
 export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
-  const [focusedCategories, setFocusedCategories] = useState<string[]>([]);
   const { language } = useLanguage();
   const t = useTranslations(language);
   
@@ -284,25 +283,12 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   
   const useDarkText = overallComplianceScore >= 75;
 
-  const handleOverlayClick = () => {
-    setFocusedCategories([]);
-  };
-
-  const isAnyCategoryFocused = focusedCategories.length > 0;
-
   const getTranslatedCategory = (category: SuggestionCategory) => {
       return t(`suggestionCategories.${category}`);
   }
 
   return (
     <div className="relative h-full">
-      {isAnyCategoryFocused && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-10 animate-in fade-in-0"
-          onClick={handleOverlayClick}
-          aria-hidden="true"
-        />
-      )}
       <Card className={cn(
         "h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden transition-all duration-300",
         "relative" 
@@ -316,19 +302,15 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   <Accordion
                     type="multiple"
                     className="space-y-4"
-                    value={focusedCategories}
-                    onValueChange={setFocusedCategories}
                   >
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => {
                       const gradientStyle = getCategoryGradientStyle(s_group);
-                      const isFocused = focusedCategories.includes(category);
                       return(
                       <AccordionItem
                         key={category}
                         value={category}
                         className={cn(
-                          "group incident-card-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md",
-                          isFocused && "scale-[1.02] z-20"
+                          "group incident-card-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md"
                         )}
                       >
                           <div 
