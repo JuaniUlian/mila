@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -17,6 +18,8 @@ export default function LoadingPage() {
   const [statusText, setStatusText] = useState(loadingTexts[0]);
 
   useEffect(() => {
+    document.title = 'MILA | Más Inteligencia Legal y Administrativa';
+
     // Simulate loading process and text change
     const textInterval = setInterval(() => {
       setStatusText(prevText => {

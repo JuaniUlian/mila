@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -63,6 +63,10 @@ export default function PreparePage() {
   // State for the new folder modal
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+
+  useEffect(() => {
+    document.title = 'MILA | Más Inteligencia Legal y Administrativa';
+  }, []);
 
   const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
 

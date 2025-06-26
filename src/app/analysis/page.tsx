@@ -27,6 +27,10 @@ export default function PlanillaVivaPage() {
   const { setScore } = useLayout();
 
   useEffect(() => {
+    document.title = 'MILA | Más Inteligencia Legal y Administrativa';
+  }, []);
+
+  useEffect(() => {
     const savedFileName = localStorage.getItem('selectedDocumentName');
     if (savedFileName) {
       setDocumentData(prevData => ({
