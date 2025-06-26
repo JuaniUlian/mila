@@ -127,9 +127,9 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   };
 
   return (
-    <div className="relative pl-3">
+    <div className="relative pl-3 card-hud-hover rounded-lg">
         <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", getSeverityGradientClass(suggestion.severity))} />
-        <div className="bg-card/90 border rounded-lg shadow-sm overflow-hidden card-hud-hover">
+        <div className="bg-card/90 border rounded-lg shadow-sm overflow-hidden">
             <div className="p-4 flex items-center justify-between cursor-pointer" onClick={toggleExpand}>
                 <div className="flex-1 space-y-1 pr-8">
                 <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
