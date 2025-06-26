@@ -1,6 +1,6 @@
 
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { FilePlus2, Globe, Settings } from 'lucide-react';
@@ -14,6 +14,11 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
   const pathname = usePathname();
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const navItems = [
     {
@@ -35,7 +40,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
     <div className="flex flex-col h-full">
       <nav className="space-y-2">
         {navItems.map((item) => {
-          const isActive = item.href === '/' ? pathname === item.href : pathname.startsWith(item.href);
+          const isActive = isClient && (item.href === '/' ? pathname === item.href : pathname.startsWith(item.href));
           const isPrepareButton = item.href === '/prepare';
 
           const buttonContent = (
