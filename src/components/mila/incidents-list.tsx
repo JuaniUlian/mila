@@ -127,7 +127,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   };
 
   return (
-    <div className="relative pl-3 card-hud-hover rounded-lg">
+    <div className="relative pl-3 incident-card-hover rounded-lg">
         <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", getSeverityGradientClass(suggestion.severity))} />
         <div className="bg-card/90 border rounded-lg shadow-sm overflow-hidden">
             <div className="p-4 flex items-center justify-between cursor-pointer" onClick={toggleExpand}>
@@ -317,7 +317,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         key={category}
                         value={category}
                         className={cn(
-                          "group card-hud-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md",
+                          "group incident-card-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md",
                           isFocused && "scale-[1.02]"
                         )}
                       >
@@ -325,8 +325,8 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                               className="absolute left-0 top-0 bottom-0 w-1.5"
                               style={gradientStyle}
                           />
-                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300 group-hover:text-primary-foreground">
-                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary-foreground transition-colors">{category} ({s_group.length})</span>
+                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
+                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{category} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-50 to-amber-100">
                               {s_group.map(suggestion => (

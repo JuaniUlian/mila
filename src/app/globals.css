@@ -91,4 +91,11 @@
     @apply bg-white/50 backdrop-blur-lg border-white/30 shadow-2xl scale-105;
     box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
   }
+  .incident-card-hover {
+    @apply transition-all duration-300;
+  }
+  .incident-card-hover:hover {
+    @apply shadow-2xl scale-[1.02];
+    box-shadow: 0 0 20px rgba(0, 128, 255, 0.15), 0 0 6px rgba(255, 255, 255, 0.4) inset;
+  }
 }
