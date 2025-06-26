@@ -8,7 +8,7 @@ const block1Suggestions: Suggestion[] = [
     severity: 'high',
     text: "El objeto del presente proceso de contratación es la adquisición de 100 licencias de software de tipo 'Suscripción Anual' para las herramientas ofimáticas y 20 licencias 'Perpetuas' para el software de diseño especializado. Adicionalmente, se contratará el soporte técnico especializado por 12 meses, con un tiempo de respuesta máximo de 4 horas para incidentes críticos y disponibilidad 24/7. Se busca garantizar la continuidad operativa y la actualización tecnológica de las plataformas institucionales.",
     justification: {
-      legal: "Artículo 2.2.1.1.2.1.1 del Decreto 1082 de 2015 - Estudios y documentos previos.",
+      legal: "El texto original carece de la especificidad requerida por la norma en cuanto a cantidades y tipos de licencias, así como los niveles de servicio del soporte, impidiendo una correcta planeación y evaluación de ofertas.",
       technical: "Asegura una evaluación precisa de las ofertas y evita ambigüedades que puedan generar sobrecostos o incumplimientos.",
     },
     appliedNorm: "Decreto 1082 de 2015, Art. 2.2.1.1.2.1.1",
@@ -23,7 +23,7 @@ const block1Suggestions: Suggestion[] = [
     severity: 'medium',
     text: "Adicionalmente, el proveedor garantizará la actualización a nuevas versiones del software cubierto por este contrato sin costo adicional para la Entidad durante toda la vigencia del servicio de soporte técnico, siempre que el modelo de licenciamiento adquirido así lo contemple.",
     justification: {
-      legal: "Principio de eficiencia y economía en la contratación estatal.",
+      legal: "No prever las actualizaciones futuras va en contra de los principios de economía y eficiencia, pues puede generar costos adicionales no planificados para la entidad.",
       technical: "Garantiza que la entidad se mantenga actualizada tecnológicamente y optimiza la inversión.",
     },
     appliedNorm: "Ley 80 de 1993, Art. 3",
@@ -38,7 +38,7 @@ const block1Suggestions: Suggestion[] = [
     severity: 'low',
     text: "El presente contrato tiene por objeto: 1. La adquisición de licencias de software para la entidad. 2. La prestación de soporte técnico especializado durante 12 meses. Este acuerdo busca asegurar la continuidad operativa, la actualización tecnológica de las plataformas institucionales y cubrir integralmente las necesidades de software de la organización.",
     justification: {
-      legal: "Principios de transparencia y publicidad (Ley 80 de 1993, Art. 24).",
+      legal: "La redacción ambigua y poco estructurada del objeto contractual dificulta la comprensión clara por parte de los proponentes, lo que atenta contra el principio de transparencia.",
       technical: "Facilita la comprensión por parte de los proponentes y reduce el riesgo de interpretaciones erróneas.",
     },
     appliedNorm: "Ley 80 de 1993, Art. 24",
@@ -56,7 +56,7 @@ const block2Suggestions: Suggestion[] = [
     severity: 'high',
     text: "Los proponentes deberán cumplir con los siguientes requisitos técnicos mínimos obligatorios: [Detallar aquí: e.g., Certificación ISO 9001, Nivel de seguridad X]. Adicionalmente, se valorarán como deseables, otorgando puntaje adicional, los siguientes aspectos: [Detallar aquí: e.g., Personal con certificación Y (hasta Z puntos)]. No se admitirán criterios de evaluación subjetivos.",
     justification: {
-      legal: "Ley 1150 de 2007, Art. 5 - De la selección objetiva.",
+      legal: "La ley exige que los criterios de evaluación sean objetivos, claros y completos. El texto original no desagrega los criterios técnicos, lo que podría dar lugar a una evaluación subjetiva.",
       technical: "Permite una evaluación transparente y equitativa de las ofertas.",
     },
     appliedNorm: "Ley 1150 de 2007, Art. 5",
@@ -71,7 +71,7 @@ const block2Suggestions: Suggestion[] = [
     severity: 'high',
     text: "Como requisito habilitante, se requiere experiencia previa demostrable en al menos tres (3) contratos ejecutados y terminados con entidades estatales en los últimos cinco (5) años, cuyo objeto sea similar al del presente proceso y cuya sumatoria de valores sea igual o superior a quinientos (500) SMMLV. Para cada contrato acreditado, se deberá adjuntar copia del mismo y certificación de cumplimiento expedida por la entidad contratante.",
     justification: {
-      legal: "Decreto 1082 de 2015, Art. 2.2.1.1.1.5.2 - Capacidad jurídica y condiciones de experiencia.",
+      legal: "La norma permite establecer requisitos de experiencia proporcionales. El texto original no define umbrales claros (cantidad de contratos, valor), lo que impide verificar la idoneidad del proponente.",
       technical: "Asegura la idoneidad del contratista para ejecutar el objeto contractual.",
     },
     appliedNorm: "Decreto 1082 de 2015, Art. 2.2.1.1.1.5.2",
@@ -86,7 +86,7 @@ const block2Suggestions: Suggestion[] = [
     severity: 'medium',
     text: "Los proponentes deben satisfacer los requisitos financieros y técnicos especificados. Es mandatorio poseer experiencia previa en contrataciones con el sector público. El equipo técnico asignado deberá contar con las certificaciones vigentes pertinentes. La oferta técnica incluirá un cronograma de ejecución detallado. Se adjuntará el Registro Único Tributario (RUT) y el certificado de existencia y representación legal.",
     justification: {
-      legal: "Principio de buena fe contractual.",
+      legal: "Aunque no es una norma de contratación pública directa, el principio de buena fe exige claridad. La inconsistencia en los términos puede generar confusión y futuras disputas contractuales.",
       technical: "Evita confusiones y contradicciones internas.",
     },
     appliedNorm: "Código Civil, Art. 1603",
@@ -161,7 +161,10 @@ export const mockData: MilaAppPData = {
           category: 'Administrativa',
           severity: 'medium',
           text: "La evaluación se basará en: Precio (50%), Calidad Técnica (30%), y Experiencia (20%). Para la 'Calidad Técnica' (30 puntos), se evaluarán los siguientes sub-criterios: a) Metodología propuesta (hasta 15 puntos), b) Cumplimiento de especificaciones avanzadas (hasta 10 puntos), c) Plan de capacitación (hasta 5 puntos). La 'Innovación', que podrá otorgar hasta 5 puntos adicionales sobre el total, se medirá considerando la incorporación de tecnologías emergentes y soluciones creativas que aporten valor agregado.",
-          justification: { legal: "Principio de transparencia y selección objetiva.", technical: "Evita discrecionalidad y facilita la preparación de ofertas competitivas." },
+          justification: { 
+            legal: "La selección objetiva requiere que los criterios de evaluación y sus puntajes estén claramente definidos. No detallar los sub-criterios de 'Calidad Técnica' introduce un elemento de subjetividad.", 
+            technical: "Evita discrecionalidad y facilita la preparación de ofertas competitivas." 
+          },
           appliedNorm: "Ley 1150 de 2007, Art. 5", errorType: "Falta de detalle en criterios", estimatedConsequence: "Riesgo de impugnaciones por subjetividad.", status: 'pending',
           completenessImpact: 1.0,
         }
@@ -189,7 +192,10 @@ export const mockData: MilaAppPData = {
           category: 'Legal',
           severity: 'low',
           text: "Para la imposición de multas por incumplimiento, se seguirá el siguiente procedimiento garantizando el debido proceso: 1. Comunicación formal al contratista detallando el presunto incumplimiento y la multa aplicable. 2. Otorgamiento de un plazo de cinco (5) días hábiles al contratista para presentar descargos y pruebas. 3. Análisis de los descargos por parte de la Entidad. 4. Emisión de acto administrativo motivado que decide sobre la imposición de la multa, contra el cual procederán los recursos de ley.",
-          justification: { legal: "Ley 1437 de 2011 (CPACA) - Debido Proceso Administrativo.", technical: "Brinda seguridad jurídica a las partes." },
+          justification: { 
+            legal: "La imposición de multas es un acto administrativo que debe respetar el debido proceso. Omitir el procedimiento para descargos puede viciar de nulidad la sanción.", 
+            technical: "Brinda seguridad jurídica a las partes." 
+          },
           appliedNorm: "Ley 1437 de 2011", errorType: "Omisión procedimental", estimatedConsequence: "Posibles nulidades en la imposición de sanciones.", status: 'pending',
           completenessImpact: 0.5,
         }
