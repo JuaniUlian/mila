@@ -249,7 +249,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   return (
     <div className="relative h-full">
       <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden relative">
-        <CardHeader className="p-4 border-b border-white/10">
+        <CardHeader className={cn("p-4 border-b border-white/10 transition-all duration-500", hasFocus && "blur-sm pointer-events-none")}>
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4">
@@ -265,8 +265,8 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         key={category}
                         value={category}
                         className={cn(
-                          "group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-300",
-                          hasFocus && !isCategoryInFocus && "opacity-30 pointer-events-none",
+                          "group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500",
+                          hasFocus && !isCategoryInFocus && "blur-sm opacity-50 pointer-events-none",
                           isCategoryInFocus ? "z-20 bg-background" : "bg-background/20"
                         )}
                       >
@@ -309,7 +309,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   </Accordion>
               ) : (
                   <div className="h-full flex items-center justify-center">
-                      <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
+                      <Card className={cn("p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg", hasFocus && "blur-sm pointer-events-none")}>
                           <CardContent className="p-0 flex flex-col items-center justify-center text-center">
                               <Check className="w-16 h-16 text-green-400 mb-4" />
                               <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>{t('analysisPage.excellent')}</h3>
