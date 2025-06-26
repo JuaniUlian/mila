@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MILA | Gobernar bien es revisar bien</title>
-  <link rel="icon" href="/favicon.ico" sizes="any">
+  <title>MILA | Gobernar bien es revisar bien.</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="icon" href="https://drive.usercontent.google.com/download?id=1-18m2y9f12dD_2dE_J4f9vB-vQ3j-4Cg" type="image/png">
   <style>
     body {
       background: linear-gradient(to bottom right, #ffffff, #d4d4d4);
@@ -26,7 +26,8 @@
 </head>
 <body class="text-gray-900">
   <header class="glass max-w-7xl mx-auto mt-6 px-4 py-6 flex justify-between items-center">
-    <svg
+    <div class="flex-shrink-0">
+       <svg
         width="112"
         height="112"
         viewBox="0 0 112 112"
@@ -35,7 +36,7 @@
         data-ai-hint="logo company"
         class="h-12 w-auto"
       >
-        
+        {/* Rounded rectangle border with gradient */}
         <rect
           x="2"
           y="2"
@@ -48,13 +49,13 @@
           strokeWidth="3"
         />
         
-        
+        {/* Text with gradient */}
         <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
-            
+            {/* Top Row: MI */}
             <text x="34" y="48">M</text>
             <text x="78" y="48">I</text>
 
-            
+            {/* Bottom Row: LA */}
             <text x="34" y="92">L</text>
             <text x="78" y="92">A</text>
         </g>
@@ -70,6 +71,7 @@
             </linearGradient>
         </defs>
       </svg>
+    </div>
     <div class="space-x-4">
       <a href="/prepare" class="bg-blue-600 text-white px-4 py-2 rounded shadow transition-hover">Ir a Demo</a>
       <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" class="border border-blue-600 text-blue-600 px-4 py-2 rounded shadow transition-hover">Descargá el dossier</a>
@@ -107,6 +109,28 @@
       <div class="glass p-6 shadow transition-hover">
         <h4 class="text-2xl font-semibold mb-3">🔄 Exportá y compartí</h4>
         <p>Generá una versión corregida del documento para compartir fácilmente.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 px-6 max-w-6xl mx-auto">
+    <h3 class="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h3>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-2">Entrenamiento especializado</h4>
+        <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
+      </div>
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-2">Entiende documentos públicos</h4>
+        <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
+      </div>
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-2">Detecta riesgos, no solo errores</h4>
+        <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
+      </div>
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-2">Diseñada para gobiernos</h4>
+        <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
       </div>
     </div>
   </section>
@@ -165,7 +189,7 @@
       </details>
       <details class="glass p-4 rounded shadow">
         <summary class="font-semibold cursor-pointer">¿Cuánto tiempo toma capacitar a mi equipo?</summary>
-        <p class="mt-2">MILA es intuitiva. En promedio, en menos de 2 horas tu equipo puede usarla con autonomía total.</p>
+        <p class="mt-2">MILA es intuitiva. En menos de 2 horas tu equipo puede usarla con autonomía total.</p>
       </details>
       <details class="glass p-4 rounded shadow">
         <summary class="font-semibold cursor-pointer">¿Qué costo tiene?</summary>
@@ -181,37 +205,29 @@
   <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-16">
     <h3 class="text-3xl font-bold mb-6">¿Querés MILA en tu municipio?</h3>
     <div class="space-x-4">
-      <a href="/prepare" class="bg-white text-blue-800 px-6 py-3 font-semibold rounded shadow transition-hover inline-block">Ir a Demo</a>
+      <a href="/prepare" class="bg-white text-blue-800 px-6 py-3 font-semibold rounded shadow transition-hover">Ir a Demo</a>
       <a href="mailto:juan.ulian@pluscompol.com?subject=Solicitud%20de%20reuni%C3%B3n%20por%20MILA&body=Hola%20Juan%2C%0D%0A%0D%0AEstoy%20interesado%2Fa%20en%20coordinar%20una%20reuni%C3%B3n%20para%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20MILA%20y%20evaluar%20su%20implementaci%C3%B3n%20en%20nuestro%20gobierno.%0D%0AQuedo%20a%20disposici%C3%B3n%20para%20coordinar%20d%C3%ADa%20y%20horario.%0D%0A%0D%0AMuchas%20gracias.%0D%0A%0D%0ASaludos%2C%0D%0A" class="border border-white px-6 py-3 font-semibold rounded shadow transition-hover inline-block">Contactar</a>
     </div>
   </section>
 
-  <footer class="bg-gray-900 text-gray-300 py-8 px-4 text-center text-sm">
-    <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-4">
-      <span class="flex items-center gap-2">
-        MILA es una solución GovTech desarrollada por PLUS BI
-      </span>
-      <span class="hidden sm:block">|</span>
-      <a href="mailto:juan.ulian@pluscompol.com" class="flex items-center gap-2 hover:text-white transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
-          <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
-        </svg>
-        juan.ulian@pluscompol.com
-      </a>
-      <span class="hidden sm:block">|</span>
-      <a href="http://pluscompol.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-white transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-globe" viewBox="0 0 16 16">
-          <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4.06a.75.75 0 0 0 0 1.502A6.478 6.478 0 0 1 5.5 5.512a.75.75 0 0 0 1.493.125 5.485 5.485 0 0 0 1.007-.94A7.98 7.98 0 0 0 8.5 4.06a.75.75 0 0 0 0-1.502 6.55 6.55 0 0 1-.993-.565A7.02 7.02 0 0 0 7.5 1.077zM4.09 4.185c.426-.962 1.02-1.782 1.76-2.522A6.99 6.99 0 0 1 8 1.077c.866 0 1.69.204 2.45.572.74.34 1.334.86 1.76 1.542.427.683.757 1.458.98 2.287.222.828.332 1.69.332 2.573 0 .883-.11 1.745-.332 2.573-.223.83-.553 1.604-.98 2.287a6.99 6.99 0 0 1-1.76 1.542 6.989 6.989 0 0 1-2.45.572c-.866 0-1.69-.204-2.45-.572a6.99 6.99 0 0 1-1.76-1.542 7.03 7.03 0 0 1-.98-2.287C1.11 9.745 1 8.883 1 8c0-.883.11-1.745.332-2.573.223-.83.553-1.604-.98-2.287.426-.962 1.02-1.782 1.76-2.522z"/>
-        </svg>
-        pluscompol.com
-      </a>
-      <span class="hidden sm:block">|</span>
-      <span class="flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
-          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-        </svg>
-        Argentina
-      </span>
+  <footer class="bg-gray-900 text-gray-300 py-8 text-center text-sm">
+    <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6">
+        <span>MILA es una solución GovTech desarrollada por PLUS BI</span>
+        <span class="hidden md:inline">|</span>
+        <a href="mailto:juan.ulian@pluscompol.com" class="flex items-center gap-2 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            juan.ulian@pluscompol.com
+        </a>
+        <span class="hidden md:inline">|</span>
+        <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h8a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.938 6.062a11 11 0 001-5.625m1-5.625a11 11 0 0110.125 0M3.055 11a11.002 11.002 0 010 2m17.89 0a11.002 11.002 0 010-2M7.938 17.938a11 11 0 00-1-5.625m-1-5.625a11 11 0 00-10.125 0M20.945 11a11.002 11.002 0 000 2m-17.89 0a11.002 11.002 0 000-2"></path></svg>
+            pluscompol.com
+        </a>
+        <span class="hidden md:inline">|</span>
+        <span class="flex items-center gap-2">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Argentina
+        </span>
     </div>
   </footer>
 </body>
