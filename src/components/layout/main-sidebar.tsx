@@ -15,13 +15,13 @@ export function MainSidebar() {
         const defaultBg = `bg-slate-900/80 ${baseStyle}`;
         
         if (currentScore === null) return defaultBg; // Default style for other pages
-        if (currentScore === 100) return `bg-sky-900/90 ${baseStyle}`; // Special blue for 100%
+        if (currentScore === 100) return `bg-blue-900/90 ${baseStyle}`; // Special blue for 100%
         if (currentScore >= 95) return defaultBg; // Slate for 95-99
         if (currentScore < 40) return `bg-rose-900/90 ${baseStyle}`;
         if (currentScore < 60) return `bg-orange-900/90 ${baseStyle}`;
         if (currentScore < 75) return `bg-amber-900/90 ${baseStyle}`;
         if (currentScore < 85) return `bg-lime-900/90 ${baseStyle}`;
-        if (currentScore < 95) return `bg-sky-900/90 ${baseStyle}`;
+        if (currentScore < 95) return `bg-blue-900/90 ${baseStyle}`;
         
         return defaultBg; // Fallback
     };

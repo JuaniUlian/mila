@@ -67,7 +67,7 @@ export default function PlanillaVivaPage() {
     if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white'; // Orange for low scores
     if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white'; // Yellow for medium scores
     if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white'; // Green for good scores
-    if (score < 95) return 'from-sky-600/50 via-sky-100/50 to-white'; // Light Blue for very good scores
+    if (score < 95) return 'from-slate-500/50 via-slate-100/50 to-white'; // Muted Blue for very good scores
     return 'from-slate-200/50 via-slate-100/50 to-white'; // Almost white for excellent scores
   }, []);
 
@@ -250,8 +250,8 @@ export default function PlanillaVivaPage() {
       </div>
       <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
         <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Previsualización de Informe</DialogTitle>
+          <DialogHeader>
+            <DialogTitle className="sr-only">Previsualización de Informe</DialogTitle>
           </DialogHeader>
           <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
         </DialogContent>
