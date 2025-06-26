@@ -81,7 +81,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     <div className="space-y-4">
         <div>
             <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
-            <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
+            <p className="text-xs bg-secondary/70 p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
         </div>
 
         <Separator />
@@ -102,7 +102,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
             ) : (
               <div className={cn(
                 "p-3 border rounded-md text-sm text-foreground",
-                mode === 'validated' ? "bg-blue-100/70 border-blue-300" : "bg-secondary"
+                mode === 'validated' ? "bg-blue-100/70 border-blue-300" : "bg-secondary/70"
                 )}>
                   <p className="leading-relaxed">{currentText}</p>
               </div>
@@ -266,19 +266,19 @@ export function IncidentsList({
                       <AccordionItem
                         key={category}
                         value={category}
-                        className="group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500 bg-background/20"
+                        className="group incident-card-hover relative border rounded-2xl border-white/30 overflow-hidden shadow-lg transition-all duration-500 bg-white/20 backdrop-blur-md"
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
-                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
+                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                               {s_group.map(suggestion => (
-                                <div key={suggestion.id} className="border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none bg-card/90">
+                                <div key={suggestion.id} className="rounded-lg shadow-sm overflow-hidden incident-card-hover border border-white/20 bg-white/20 backdrop-blur-sm">
                                   <div className="relative pl-3">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
                                       <button 
-                                        className="p-4 w-full flex items-center justify-between text-left hover:bg-accent/50 transition-colors"
+                                        className="p-4 w-full flex items-center justify-between text-left hover:bg-white/20 transition-colors"
                                         onClick={() => setDialogSuggestion(suggestion)}
                                       >
                                         <div className="flex-1 space-y-1 pr-4">
@@ -311,10 +311,10 @@ export function IncidentsList({
       </Card>
 
       <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
-        <DialogContent className="max-w-3xl w-full p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
+        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-white/30 backdrop-blur-md border border-white/40 shadow-xl">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-secondary border-b">
+              <DialogHeader className="p-4 bg-white/20 border-b border-white/20 shadow-md">
                   <DialogTitle>{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
