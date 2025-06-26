@@ -76,17 +76,18 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out";
-  const greenButtonClasses = "bg-green-600 hover:bg-green-700 hover:brightness-100";
-  const blueButtonClasses = "bg-blue-600 hover:bg-blue-700 hover:brightness-100";
-  const redButtonClasses = "bg-red-600 hover:bg-red-700 hover:brightness-100";
-  const neutralButtonClasses = "bg-slate-500 hover:bg-slate-600 hover:brightness-100 text-slate-100";
+  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-md hover:brightness-95 active:scale-95 transition-all duration-150 ease-in-out";
+  const greenButtonClasses = "bg-gradient-to-br from-green-500 to-green-600";
+  const blueButtonClasses = "bg-gradient-to-br from-blue-500 to-blue-600";
+  const redButtonClasses = "bg-gradient-to-br from-red-500 to-red-600";
+  const neutralButtonClasses = "bg-gradient-to-br from-slate-400 to-slate-500 text-slate-100";
+
 
   return (
     <div className="space-y-6">
         <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> Texto Original</h4>
-            <div className="bg-slate-200/50 p-3 rounded-xl shadow-inner border border-white/80">
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700"><FileText size={16}/> Texto Original</h4>
+            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
                 <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
         </div>
@@ -94,7 +95,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <Separator className="bg-slate-300/70"/>
 
         <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600">
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
               <Lightbulb size={16} className="text-primary"/> 
               {mode === 'validated' ? t('analysisPage.improvedProposal') : t('analysisPage.draftingProposal')}
             </h4>
@@ -103,13 +104,13 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                   value={currentText}
                   onChange={(e) => setCurrentText(e.target.value)}
                   rows={5}
-                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-slate-50 shadow-inner focus-visible:ring-primary mb-2 text-foreground"
+                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-white shadow-inner focus-visible:ring-primary mb-2 text-foreground"
                   aria-label="Editar sugerencia"
               />
             ) : (
               <div className={cn(
                 "p-3 border rounded-xl text-sm text-slate-800",
-                "bg-slate-200/50 shadow-inner border-white/80"
+                "bg-white/60 shadow-inner border-white/80"
                 )}>
                   <p className="leading-relaxed">{currentText}</p>
               </div>
@@ -117,15 +118,15 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="bg-slate-200/50 p-3 rounded-xl shadow-inner border border-white/80">
+            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
                 <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><Gavel size={14}/> {t('analysisPage.legalJustification')}</h5>
                 <p className="text-slate-700 text-xs">{suggestion.justification.legal}</p>
             </div>
-            <div className="bg-slate-200/50 p-3 rounded-xl shadow-inner border border-white/80">
+            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
                 <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><FlaskConical size={14}/> {t('analysisPage.technicalJustification')}</h5>
                 <p className="text-slate-700 text-xs">{suggestion.justification.technical}</p>
             </div>
-            <div className="bg-slate-200/50 p-3 rounded-xl shadow-inner border border-white/80 md:col-span-2">
+            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80 md:col-span-2">
                 <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><AlertTriangle size={14}/> {t('analysisPage.estimatedConsequence')}</h5>
                 <p className="text-slate-700 text-xs">{suggestion.estimatedConsequence}</p>
             </div>
@@ -329,7 +330,7 @@ export function IncidentsList({
         <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-slate-100 shadow-xl border-0">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-slate-200 shadow-[inset_5px_5px_10px_#d1d5db,inset_-5px_-5px_10px_#ffffff]">
+              <DialogHeader className="p-4 bg-slate-200/50 backdrop-blur-md shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)] border-b border-white/50">
                   <DialogTitle className="text-slate-800">{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
