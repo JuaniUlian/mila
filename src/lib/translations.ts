@@ -1,5 +1,5 @@
 
-export type Language = 'es' | 'en' | 'fr' | 'pt';
+export type Language = 'es' | 'en';
 
 type TextRecord = {
   [lang in Language]?: string;
@@ -206,6 +206,14 @@ export const translations = {
   sidebar: {
       prepare: t('Preparar Pliego', 'Prepare Document'),
       plusBI: t('PLUS BI', 'PLUS BI'),
+      settings: t('Configuración', 'Settings'),
+  },
+
+  settingsDialog: {
+    title: t('Configuración', 'Settings'),
+    languageLabel: t('Idioma', 'Language'),
+    languagePlaceholder: t('Seleccionar idioma', 'Select language'),
+    close: t('Cerrar', 'Close'),
   },
 
   suggestionCategories: {

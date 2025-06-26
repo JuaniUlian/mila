@@ -6,11 +6,11 @@ import { Logo } from './logo';
 import { BlockNavigation } from '../mila/block-navigation';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
-import { LanguageSwitcher } from './language-switcher';
-import { Separator } from '../ui/separator';
+import { SettingsDialog } from './settings-dialog';
 
 export function MainSidebar() {
     const { score } = useLayout();
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
 
     const getSidebarBackgroundClass = (currentScore: number | null): string => {
         const baseStyle = "bg-[linear-gradient(180deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0.03)_15%,transparent_100%)]";
@@ -38,13 +38,10 @@ export function MainSidebar() {
             <div className="flex justify-center items-center py-4">
                 <Logo variant="monochrome" />
             </div>
-            <nav className="mt-8 flex-1">
-                <BlockNavigation />
+            <nav className="mt-8 flex-1 flex flex-col">
+                <BlockNavigation onSettingsClick={() => setIsSettingsModalOpen(true)} />
             </nav>
-            <div className="mt-auto">
-                <Separator className="my-2 bg-white/10" />
-                <LanguageSwitcher />
-            </div>
+            <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
         </aside>
     );
 };

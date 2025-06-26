@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -17,8 +16,6 @@ import type { Language } from '@/lib/translations';
 const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'es', name: 'Español', flag: '🇪🇸' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'pt', name: 'Português', flag: '🇵🇹' },
 ];
 
 // Added a variant prop to handle different backgrounds (light/dark)
