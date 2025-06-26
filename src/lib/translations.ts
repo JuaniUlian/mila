@@ -222,6 +222,7 @@ export const translations = {
     'Legal': t('Legal', 'Legal'),
     'Administrativa': t('Administrativa', 'Administrative'),
     'Redacción': t('Redacción', 'Wording'),
+    'normativa': t('Normativa', 'Regulation'),
   },
 };
 

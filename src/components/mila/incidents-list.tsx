@@ -266,7 +266,7 @@ export function IncidentsList({
         <CardContent className="flex-1 overflow-y-auto p-4">
           <ScrollArea className="h-full w-full pr-2">
               {pendingSuggestions.length > 0 ? (
-                  <div className="space-y-4">
+                  <Accordion type="multiple" defaultValue={groupedSuggestions.map(g => g.category)} className="space-y-4">
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => {
                       const isCategoryInFocus = isFocusMode && s_group.some(s => s.id === focusedIncidentId);
 
@@ -299,7 +299,7 @@ export function IncidentsList({
                                         <button className="p-4 w-full flex items-center justify-between text-left hover:bg-accent/50 transition-colors">
                                           <div className="flex-1 space-y-1 pr-4">
                                               <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-                                              <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
+                                              <p className="text-sm text-muted-foreground">{t('suggestionCategories.normativa')}: {suggestion.appliedNorm}</p>
                                           </div>
                                           <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" />
                                         </button>
@@ -320,7 +320,7 @@ export function IncidentsList({
                       </AccordionItem>
                       )
                   })}
-                  </div>
+                  </Accordion>
               ) : (
                   <div className="h-full flex items-center justify-center">
                       <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
