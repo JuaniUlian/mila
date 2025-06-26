@@ -175,7 +175,7 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-sky-300 via-slate-100 to-white text-foreground"
+        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-400 via-slate-100 to-slate-400 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Section 1: Upload and Organize */}
