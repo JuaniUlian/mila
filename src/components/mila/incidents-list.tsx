@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -75,13 +75,20 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
 };
 
 const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, onUpdateStatus, onUpdateText }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [mode, setMode] = useState<'view' | 'editing' | 'validated'>('view');
   const [currentText, setCurrentText] = useState(suggestion.text);
   const [isValidationLoading, setIsValidationLoading] = useState(false);
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
+  
+  const [openItem, setOpenItem] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (mode === 'editing' || mode === 'validated') {
+      setOpenItem([suggestion.id]);
+    }
+  }, [mode, suggestion.id]);
 
   const handleValidate = () => {
     setIsValidationLoading(true);
@@ -100,49 +107,44 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const handleCancelEdit = () => {
     setCurrentText(suggestion.text);
     setMode('view');
+    setOpenItem([]);
   };
 
   const handleApply = () => {
     onUpdateText(currentText);
+    setOpenItem([]);
   };
 
   const handleDiscardOriginal = () => {
     onUpdateStatus('discarded');
+    setOpenItem([]);
   };
 
   const handleDiscardNewSuggestion = () => {
     setCurrentText(suggestion.text);
     setMode('view');
-    setIsExpanded(true); 
   };
 
   const handleEdit = () => {
     setMode('editing');
-    setIsExpanded(true);
-  };
-
-  const toggleExpand = () => {
-    if (mode === 'editing' || mode === 'validated') {
-      setIsExpanded(true);
-    } else {
-      setIsExpanded(!isExpanded);
-    }
   };
 
   return (
-    <div className="relative pl-3 incident-card-hover rounded-lg">
-        <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", getSeverityGradientClass(suggestion.severity))} />
-        <div className="bg-card/90 border rounded-lg shadow-sm overflow-hidden">
-            <div className="p-4 flex items-center justify-between cursor-pointer" onClick={toggleExpand}>
-                <div className="flex-1 space-y-1 pr-8">
-                <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-                <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
+    <Accordion type="multiple" value={openItem} onValueChange={setOpenItem} className="w-full">
+      <div className="relative pl-3 rounded-lg">
+        <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
+        <AccordionItem value={suggestion.id} className="bg-card/90 border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none">
+            <AccordionTrigger 
+              className="p-4 w-full hover:no-underline [&_svg]:data-[state=open]:text-primary"
+              onClick={(e) => e.stopPropagation()} // Stop propagation to not close the parent accordion
+            >
+                <div className="flex-1 space-y-1 pr-4 text-left">
+                    <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
+                    <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
                 </div>
-                <ChevronDown className={cn("w-5 h-5 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
-            </div>
-      
-            {isExpanded && (
-                <div className="px-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down">
+            </AccordionTrigger>
+            <AccordionContent>
+                <div className="px-4 pb-4 border-t border-border/50 space-y-4">
                     <div>
                         <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
                         <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
@@ -236,9 +238,10 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                       )}
                     </div>
                 </div>
-            )}
-        </div>
-    </div>
+            </AccordionContent>
+        </AccordionItem>
+      </div>
+    </Accordion>
   );
 };
 
@@ -369,5 +372,3 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     </div>
   );
 }
-
-    
