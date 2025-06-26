@@ -5,10 +5,14 @@ import React, { useEffect, useState } from 'react';
 import { ReportPreview } from '@/components/mila/report-preview';
 import type { MilaAppPData } from '@/components/mila/types';
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 export default function ReportPage() {
   const [reportData, setReportData] = useState<MilaAppPData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { language } = useLanguage();
+  const t = useTranslations(language);
 
   useEffect(() => {
     try {
@@ -18,13 +22,13 @@ export default function ReportPage() {
         // Optional: Clean up local storage after reading
         // localStorage.removeItem('milaReportData'); 
       } else {
-        setError('No se encontraron datos para generar el informe. Por favor, vuelva a la página principal e intente de nuevo.');
+        setError(t('reportPreviewPage.errorNotFound'));
       }
     } catch (e) {
       console.error('Error parsing report data from localStorage', e);
-      setError('Ocurrió un error al cargar los datos del informe.');
+      setError(t('reportPreviewPage.errorLoading'));
     }
-  }, []);
+  }, [t]);
 
   if (error) {
     return (
@@ -38,7 +42,7 @@ export default function ReportPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-gray-800">
         <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
-        <p>Cargando previsualización del informe...</p>
+        <p>{t('reportPreviewPage.loading')}</p>
       </div>
     );
   }

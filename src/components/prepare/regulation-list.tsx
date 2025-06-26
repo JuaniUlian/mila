@@ -6,6 +6,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 interface Regulation {
     id: string;
@@ -21,7 +23,9 @@ interface RegulationListProps {
 }
 
 export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload }: RegulationListProps) {
-    
+    const { language } = useLanguage();
+    const t = useTranslations(language);
+
     const handleCheckboxChange = (regulationId: string) => {
         onSelectionChange(
             selectedIds.includes(regulationId)
@@ -63,7 +67,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />
-                    Subir nueva normativa
+                    {t('preparePage.uploadRegulation')}
                 </FileUploadButton>
             </div>
         </div>

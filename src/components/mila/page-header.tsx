@@ -1,10 +1,10 @@
 
 import React from 'react';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 interface PageHeaderProps {
     documentTitle: string;
@@ -27,6 +27,8 @@ const getProgressColorClass = (score: number) => {
 
 export function PageHeader({ documentTitle, overallComplianceScore, appliedSuggestionsCount, totalSuggestions }: PageHeaderProps) {
     const suggestionProgress = totalSuggestions > 0 ? (appliedSuggestionsCount / totalSuggestions) * 100 : 100;
+    const { language } = useLanguage();
+    const t = useTranslations(language);
     
     // Determine text color based on background lightness
     const useDarkText = overallComplianceScore >= 75;
@@ -47,7 +49,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
                             {/* Compliance Score */}
                             <div>
                                 <div className="flex justify-between items-baseline mb-1">
-                                    <span className="font-semibold text-foreground">Puntaje de Cumplimiento</span>
+                                    <span className="font-semibold text-foreground">{t('analysisPage.complianceScore')}</span>
                                     <span className={cn("text-2xl font-bold", getScoreColor(overallComplianceScore))}>
                                         {overallComplianceScore.toFixed(0)}
                                         <span className="text-sm">/100</span>
@@ -58,7 +60,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
                             {/* Applied Suggestions Count */}
                             <div>
                                 <div className="flex justify-between items-baseline">
-                                    <span className="font-semibold text-foreground">Sugerencias Aplicadas</span>
+                                    <span className="font-semibold text-foreground">{t('analysisPage.appliedSuggestions')}</span>
                                     <span className={cn("text-2xl font-bold", getScoreColor(suggestionProgress))}>
                                         {appliedSuggestionsCount}
                                         <span className="text-sm">/{totalSuggestions}</span>

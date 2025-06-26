@@ -12,6 +12,8 @@ import { IncidentsList } from '@/components/mila/incidents-list';
 import { RisksPanel } from '@/components/mila/risks-panel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 // Define severity weights for score calculation
 const severityWeights: { [key in Suggestion['severity']]: number } = {
@@ -25,6 +27,8 @@ export default function PlanillaVivaPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
   const { setScore } = useLayout();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
@@ -35,10 +39,10 @@ export default function PlanillaVivaPage() {
     if (savedFileName) {
       setDocumentData(prevData => ({
         ...prevData,
-        documentTitle: `Evaluación ${savedFileName}`,
+        documentTitle: `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`,
       }));
     }
-  }, []);
+  }, [t]);
 
   const { documentTitle, blocks, overallComplianceScore } = documentData;
 
@@ -149,13 +153,13 @@ export default function PlanillaVivaPage() {
       
       if (newStatus === 'applied') {
         toast({
-          title: `✅ Sugerencia Aplicada`,
-          description: "El puntaje de cumplimiento ha sido actualizado.",
+          title: t('analysisPage.toastSuggestionApplied'),
+          description: t('analysisPage.toastComplianceUpdated'),
         });
       } else if (newStatus === 'discarded') {
         toast({
-          title: `🗑️ Sugerencia Descartada`,
-          description: "La sugerencia ha sido descartada.",
+          title: t('analysisPage.toastSuggestionDiscarded'),
+          description: t('analysisPage.toastSuggestionHasBeenDiscarded'),
         });
       }
       
@@ -166,7 +170,7 @@ export default function PlanillaVivaPage() {
         overallComplianceScore: newComplianceScore,
       };
     });
-  }, [toast, recalculateScores]);
+  }, [toast, recalculateScores, t]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
     setDocumentData(prevData => {
@@ -198,8 +202,8 @@ export default function PlanillaVivaPage() {
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
        
       toast({
-        title: "Sugerencia Modificada y Aplicada",
-        description: "El texto de la sugerencia ha sido actualizado.",
+        title: t('analysisPage.toastSuggestionModified'),
+        description: t('analysisPage.toastSuggestionTextUpdated'),
       });
 
       return {
@@ -209,7 +213,7 @@ export default function PlanillaVivaPage() {
         overallComplianceScore: newComplianceScore
       }
     });
-  }, [toast, recalculateScores]);
+  }, [toast, recalculateScores, t]);
 
   const handleDownloadReport = () => {
     try {
@@ -218,8 +222,8 @@ export default function PlanillaVivaPage() {
     } catch (error) {
       console.error("Failed to save report data to localStorage", error);
       toast({
-        title: "Error al generar el informe",
-        description: "No se pudo guardar la información para la previsualización. Intente de nuevo.",
+        title: t('analysisPage.toastReportError'),
+        description: t('analysisPage.toastReportErrorDesc'),
         variant: "destructive",
       });
     }
@@ -255,9 +259,9 @@ export default function PlanillaVivaPage() {
       <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
         <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0">
           <DialogHeader>
-            <DialogTitle className="sr-only">Previsualización de Informe</DialogTitle>
+            <DialogTitle className="sr-only">{t('analysisPage.reportPreviewTitle')}</DialogTitle>
           </DialogHeader>
-          <iframe src="/report-preview" className="w-full h-full border-0" title="Previsualización de Informe" />
+          <iframe src="/report-preview" className="w-full h-full border-0" title={t('analysisPage.reportPreviewTitle')} />
         </DialogContent>
       </Dialog>
     </div>

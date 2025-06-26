@@ -12,6 +12,8 @@ import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -78,6 +80,8 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const [currentText, setCurrentText] = useState(suggestion.text);
   const [isValidationLoading, setIsValidationLoading] = useState(false);
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   const neumorphicClasses = "bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out";
 
   const handleValidate = () => {
@@ -88,8 +92,8 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
         setMode('validated');
         setIsValidationLoading(false);
         toast({
-            title: "✅ Nueva Sugerencia Generada",
-            description: "La IA ha procesado tu edición y ha generado una nueva propuesta.",
+            title: t('analysisPage.toastNewSuggestionGenerated'),
+            description: t('analysisPage.toastNewProposalGenerated'),
         });
     }, 5000);
   };
@@ -141,7 +145,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
             {isExpanded && (
                 <div className="px-4 pb-4 border-t border-border/50 space-y-4 animate-accordion-down">
                     <div>
-                        <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> Contexto del Texto Original</h4>
+                        <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
                         <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
                     </div>
 
@@ -150,7 +154,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                     <div>
                         <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                           <Lightbulb size={16} className="text-primary"/> 
-                          {mode === 'validated' ? 'Propuesta Mejorada por IA' : 'Propuesta de Redacción'}
+                          {mode === 'validated' ? t('analysisPage.improvedProposal') : t('analysisPage.draftingProposal')}
                         </h4>
                         {mode === 'editing' ? (
                           <Textarea
@@ -172,15 +176,15 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div>
-                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><Gavel size={14}/> Justificación Legal</h5>
+                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><Gavel size={14}/> {t('analysisPage.legalJustification')}</h5>
                             <p className="text-muted-foreground">{suggestion.justification.legal}</p>
                         </div>
                         <div>
-                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><FlaskConical size={14}/> Justificación Técnica</h5>
+                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><FlaskConical size={14}/> {t('analysisPage.technicalJustification')}</h5>
                             <p className="text-muted-foreground">{suggestion.justification.technical}</p>
                         </div>
                         <div>
-                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><AlertTriangle size={14}/> Consecuencia Estimada</h5>
+                            <h5 className="font-semibold mb-1 flex items-center gap-1.5"><AlertTriangle size={14}/> {t('analysisPage.estimatedConsequence')}</h5>
                             <p className="text-muted-foreground">{suggestion.estimatedConsequence}</p>
                         </div>
                     </div>
@@ -191,13 +195,13 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                       {mode === 'view' && (
                           <>
                               <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={neumorphicClasses}>
-                                  <Check className="mr-2 h-4 w-4"/> Aplicar
+                                  <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                               </Button>
                               <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={neumorphicClasses}>
-                                  <Edit3 className="mr-2 h-4 w-4"/> Editar
+                                  <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                               </Button>
                               <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={neumorphicClasses}>
-                                  <Trash2 className="mr-2 h-4 w-4"/> Descartar
+                                  <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                               </Button>
                           </>
                       )}
@@ -207,27 +211,27 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                                   {isValidationLoading ? (
                                       <>
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                          Validando...
+                                          {t('analysisPage.validating')}
                                       </>
                                   ) : (
                                       <>
                                           <Sparkles className="mr-2 h-4 w-4" />
-                                          Validar
+                                          {t('analysisPage.validate')}
                                       </>
                                   )}
                               </Button>
                               <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={neumorphicClasses}>
-                                  <XCircle className="mr-2 h-4 w-4"/> Cancelar
+                                  <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
                               </Button>
                           </>
                       )}
                       {mode === 'validated' && (
                           <>
                               <Button size="sm" onClick={handleApply} className={neumorphicClasses}>
-                                  <Check className="mr-2 h-4 w-4"/> Aplicar
+                                  <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                               </Button>
                               <Button size="sm" onClick={handleDiscardNewSuggestion} className={neumorphicClasses}>
-                                  <Trash2 className="mr-2 h-4 w-4"/> Descartar
+                                  <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                               </Button>
                           </>
                       )}
@@ -242,6 +246,8 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
 export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
   const [focusedCategories, setFocusedCategories] = useState<string[]>([]);
+  const { language } = useLanguage();
+  const t = useTranslations(language);
   
   const severityOrder: { [key in SuggestionSeverity]: number } = {
     high: 0,
@@ -256,20 +262,19 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   }, [suggestions]);
   
   const groupedSuggestions = useMemo(() => {
-    const groups: Record<SuggestionCategory, SuggestionWithBlockId[]> = {
-      'Legal': [],
-      'Técnica': [],
-      'Administrativa': [],
-      'Redacción': [],
-    };
+    const groups: { [key in SuggestionCategory]?: SuggestionWithBlockId[] } = {};
     
     pendingSuggestions.forEach(suggestion => {
-      if (groups[suggestion.category]) {
-        groups[suggestion.category].push(suggestion);
+      const category = suggestion.category;
+      if (!groups[category]) {
+        groups[category] = [];
       }
+      groups[category]?.push(suggestion);
     });
 
-    return Object.entries(groups).filter(([, s]) => s.length > 0);
+    return Object.entries(groups)
+      .map(([category, suggestions]) => ({ category: category as SuggestionCategory, suggestions: suggestions || [] }))
+      .filter(group => group.suggestions.length > 0);
   }, [pendingSuggestions]);
 
   const getOriginalText = (blockId: string) => {
@@ -283,6 +288,10 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   };
 
   const isAnyCategoryFocused = focusedCategories.length > 0;
+
+  const getTranslatedCategory = (category: SuggestionCategory) => {
+      return t(`suggestionCategories.${category}`);
+  }
 
   return (
     <div className="relative h-full">
@@ -298,7 +307,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
         "relative z-20"
       )}>
         <CardHeader className="p-4 border-b border-white/10">
-          <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
+          <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4">
           <ScrollArea className="h-full w-full pr-2">
@@ -309,7 +318,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                     value={focusedCategories}
                     onValueChange={setFocusedCategories}
                   >
-                  {groupedSuggestions.map(([category, s_group]) => {
+                  {groupedSuggestions.map(({ category, suggestions: s_group }) => {
                       const gradientStyle = getCategoryGradientStyle(s_group);
                       const isFocused = focusedCategories.includes(category);
                       return(
@@ -326,7 +335,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                               style={gradientStyle}
                           />
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
-                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{category} ({s_group.length})</span>
+                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-50 to-amber-100">
                               {s_group.map(suggestion => (
@@ -348,9 +357,9 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                       <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                           <CardContent className="p-0 flex flex-col items-center justify-center text-center">
                               <Check className="w-16 h-16 text-green-400 mb-4" />
-                              <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>¡Excelente!</h3>
-                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>No hay incidencias pendientes de revisión.</p>
-                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>El documento ha sido completamente validado.</p>
+                              <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>{t('analysisPage.excellent')}</h3>
+                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>{t('analysisPage.noPendingIncidents')}</p>
+                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>{t('analysisPage.documentValidated')}</p>
                           </CardContent>
                       </Card>
                   </div>

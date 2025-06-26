@@ -5,6 +5,7 @@ type TextRecord = {
   [lang in Language]?: string;
 };
 
+// Helper to define translations, ensuring Spanish and English are provided.
 const t = (es: string, en: string): TextRecord => ({ es, en });
 
 export const translations = {
@@ -75,7 +76,144 @@ export const translations = {
     developedBy: t('MILA es una solución GovTech desarrollada por PLUS BI', 'MILA is a GovTech solution developed by PLUS BI'),
     website: t('pluscompol.com', 'pluscompol.com'),
     location: t('Argentina', 'Argentina'),
-  }
+  },
+  preparePage: {
+    step1: t('Paso 1: Seleccionar documento a validar', 'Step 1: Select document to validate'),
+    searchPlaceholder: t('Buscar documento por nombre o palabra clave...', 'Search document by name or keyword...'),
+    uploadFile: t('Subir nuevo archivo', 'Upload new file'),
+    newFolder: t('Nueva Carpeta', 'New Folder'),
+    step2: t('Paso 2: Seleccionar normativas para el análisis', 'Step 2: Select regulations for analysis'),
+    uploadRegulation: t('Subir nueva normativa', 'Upload new regulation'),
+    validateButton: t('Validar Pliego', 'Validate Document'),
+    createFolderTitle: t('Crear Nueva Carpeta', 'Create New Folder'),
+    folderNameLabel: t('Nombre de la carpeta', 'Folder name'),
+    folderNamePlaceholder: t('Ej: Pliegos 2026', 'e.g., Bidding Documents 2026'),
+    cancel: t('Cancelar', 'Cancel'),
+    create: t('Crear', 'Create'),
+    toastFileUploaded: t('Archivo Subido (Simulado)', 'File Uploaded (Simulated)'),
+    toastFileAdded: t('El archivo "{fileName}" se ha agregado.', 'The file "{fileName}" has been added.'),
+    toastError: t('Error', 'Error'),
+    toastEmptyFolderName: t('El nombre de la carpeta no puede estar vacío.', 'Folder name cannot be empty.'),
+    toastNoFolders: t('No hay carpetas para agregar el archivo.', 'There are no folders to add the file to.'),
+    toastFolderCreated: t('Carpeta Creada', 'Folder Created'),
+    toastFolderCreatedDesc: t('La carpeta "{folderName}" ha sido creada exitosamente.', 'The folder "{folderName}" has been created successfully.'),
+    noFilesFound: t('No se encontraron archivos que coincidan con su búsqueda.', 'No files were found matching your search.'),
+    noFoldersOrFiles: t('No hay carpetas o archivos.', 'No folders or files.'),
+    file: t('archivo', 'file'),
+    files: t('archivos', 'files'),
+    addFileTo: t('Añadir archivo a {folderName}', 'Add file to {folderName}'),
+    addFile: t('Añadir archivo', 'Add file'),
+    folderEmpty: t('Esta carpeta está vacía.', 'This folder is empty.'),
+  },
+
+  loadingPage: {
+    title: t('Procesando Pliego', 'Processing Document'),
+    status1: t('Analizando documentos...', 'Analyzing documents...'),
+    status2: t('Contrastando con normativas seleccionadas...', 'Cross-referencing with selected regulations...'),
+    status3: t('Identificando posibles inconsistencias...', 'Identifying potential inconsistencies...'),
+    status4: t('Generando sugerencias de mejora...', 'Generating improvement suggestions...'),
+    status5: t('Preparando la plantilla viva...', 'Preparing the live template...'),
+  },
+
+  analysisPage: {
+    documentTitlePrefix: t('Evaluación', 'Evaluation'),
+    // PageHeader
+    complianceScore: t('Puntaje de Cumplimiento', 'Compliance Score'),
+    appliedSuggestions: t('Sugerencias Aplicadas', 'Applied Suggestions'),
+    // IncidentsList
+    incidentsTitle: t('Incidencias y Sugerencias', 'Incidents and Suggestions'),
+    excellent: t('¡Excelente!', 'Excellent!'),
+    noPendingIncidents: t('No hay incidencias pendientes de revisión.', 'No pending incidents to review.'),
+    documentValidated: t('El documento ha sido completamente validado.', 'The document has been fully validated.'),
+    // IncidentItem
+    originalTextContext: t('Contexto del Texto Original', 'Original Text Context'),
+    improvedProposal: t('Propuesta Mejorada por IA', 'AI-Improved Proposal'),
+    draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
+    legalJustification: t('Justificación Legal', 'Legal Justification'),
+    technicalJustification: t('Justificación Técnica', 'Technical Justification'),
+    estimatedConsequence: t('Consecuencia Estimada', 'Estimated Consequence'),
+    apply: t('Aplicar', 'Apply'),
+    edit: t('Editar', 'Edit'),
+    discard: t('Descartar', 'Discard'),
+    validating: t('Validando...', 'Validating...'),
+    validate: t('Validar', 'Validate'),
+    cancel: t('Cancelar', 'Cancel'),
+    // RisksPanel
+    partialResults: t('Resultados Parciales', 'Partial Results'),
+    realTimeSummary: t('Resumen del análisis en tiempo real.', 'Real-time analysis summary.'),
+    overallCompliance: t('Cumplimiento General', 'Overall Compliance'),
+    totalIncidents: t('Incidencias Totales', 'Total Incidents'),
+    highSeverity: t('Alta Severidad', 'High Severity'),
+    mediumSeverity: t('Media Severidad', 'Medium Severity'),
+    lowSeverity: t('Baja Severidad', 'Low Severity'),
+    correctionsApplied: t('Correcciones Aplicadas', 'Corrections Applied'),
+    involvedRegulations: t('Normativas Involucradas', 'Involved Regulations'),
+    downloadReport: t('Descargar Informe', 'Download Report'),
+    downloadReportDesc: t('Abre una previsualización del informe para imprimir o guardar como PDF.', 'Opens a report preview to print or save as PDF.'),
+    // Dialog
+    reportPreviewTitle: t('Previsualización de Informe', 'Report Preview'),
+    // Toasts
+    toastSuggestionApplied: t('✅ Sugerencia Aplicada', '✅ Suggestion Applied'),
+    toastComplianceUpdated: t('El puntaje de cumplimiento ha sido actualizado.', 'The compliance score has been updated.'),
+    toastSuggestionDiscarded: t('🗑️ Sugerencia Descartada', '🗑️ Suggestion Discarded'),
+    toastSuggestionHasBeenDiscarded: t('La sugerencia ha sido descartada.', 'The suggestion has been discarded.'),
+    toastSuggestionModified: t('Sugerencia Modificada y Aplicada', 'Suggestion Modified and Applied'),
+    toastSuggestionTextUpdated: t('El texto de la sugerencia ha sido actualizado.', 'The suggestion text has been updated.'),
+    toastNewSuggestionGenerated: t('✅ Nueva Sugerencia Generada', '✅ New Suggestion Generated'),
+    toastNewProposalGenerated: t('La IA ha procesado tu edición y ha generado una nueva propuesta.', 'The AI has processed your edit and generated a new proposal.'),
+    toastReportError: t('Error al generar el informe', 'Error generating report'),
+    toastReportErrorDesc: t('No se pudo guardar la información para la previsualización. Intente de nuevo.', 'Could not save data for preview. Please try again.'),
+  },
+
+  reportPreviewPage: {
+    loading: t('Cargando previsualización del informe...', 'Loading report preview...'),
+    errorNotFound: t('No se encontraron datos para generar el informe. Por favor, vuelva a la página principal e intente de nuevo.', 'No data found to generate the report. Please return to the main page and try again.'),
+    errorLoading: t('Ocurrió un error al cargar los datos del informe.', 'An error occurred while loading the report data.'),
+    // ReportPreview Component
+    reportTitle: t('Informe de Análisis Normativo', 'Regulatory Analysis Report'),
+    generatedOn: t('Fecha de Generación', 'Generated on'),
+    printButton: t('Imprimir o Guardar como PDF', 'Print or Save as PDF'),
+    summaryTitle: t('Resumen General', 'General Summary'),
+    complianceScore: t('Puntaje de Cumplimiento', 'Compliance Score'),
+    complianceScoreDesc: t('Mide la calidad y conformidad del documento con las normativas aplicadas.', 'Measures the quality and conformity of the document with the applied regulations.'),
+    completenessIndex: t('Índice de Completitud', 'Completeness Index'),
+    completenessIndexDesc: t('Evalúa qué tan completo y detallado está el contenido del pliego.', 'Evaluates how complete and detailed the document content is.'),
+    conclusionTitle: t('Conclusión del Análisis Normativo', 'Conclusion of the Regulatory Analysis'),
+    validatedConclusionTitle: t('Documento Validado y Apto para Proceder', 'Document Validated and Fit to Proceed'),
+    validatedConclusionText1: t('Se certifica que la totalidad de las <strong>{count}</strong> observaciones emitidas durante el análisis han sido debidamente atendidas, alcanzando un puntaje de cumplimiento final de <strong>{score}/100</strong>.', 'It is certified that all <strong>{count}</strong> observations issued during the analysis have been duly addressed, reaching a final compliance score of <strong>{score}/100</strong>.'),
+    validatedConclusionText2: t('En virtud de lo anterior, se considera que el documento cumple con los estándares de calidad y conformidad normativa requeridos, encontrándose apto para continuar con las siguientes etapas del procedimiento administrativo correspondiente.', 'Therefore, the document is considered to meet the required quality and regulatory compliance standards, and is fit to proceed with the next stages of the corresponding administrative procedure.'),
+    actionsSummary: t('Resumen de Acciones Realizadas:', 'Summary of Actions Taken:'),
+    correctedSuggestions: t('Sugerencias Corregidas:', 'Corrected Suggestions:'),
+    discardedSuggestions: t('Sugerencias Descartadas:', 'Discarded Suggestions:'),
+    findingsTitle: t('Detalle de Hallazgos y Acciones Realizadas', 'Details of Findings and Actions Taken'),
+    block: t('Bloque:', 'Block:'),
+    originalTextContext: t('Contexto del Texto Original:', 'Original Text Context:'),
+    legalJustification: t('Justificación Legal (Incumplimiento):', 'Legal Justification (Non-compliance):'),
+    regulation: t('Normativa:', 'Regulation:'),
+    noInconsistencies: t('No se encontraron inconsistencias.', 'No inconsistencies were found.'),
+    status: {
+      pending: t('Pendiente', 'Pending'),
+      applied: t('Aplicado', 'Applied'),
+      discarded: t('Descartado', 'Discarded'),
+    },
+    severity: {
+      high: t('Alta', 'High'),
+      medium: t('Media', 'Medium'),
+      low: t('Baja', 'Low'),
+    },
+  },
+  
+  sidebar: {
+      prepare: t('Preparar Pliego', 'Prepare Document'),
+      plusBI: t('PLUS BI', 'PLUS BI'),
+  },
+
+  suggestionCategories: {
+    'Legal': t('Legal', 'Legal'),
+    'Técnica': t('Técnica', 'Technical'),
+    'Administrativa': t('Administrativa', 'Administrative'),
+    'Redacción': t('Redacción', 'Wording'),
+  },
 };
 
 // Helper function to get translation with fallback

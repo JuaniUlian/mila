@@ -1,3 +1,4 @@
+
 "use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -5,23 +6,27 @@ import { cn } from '@/lib/utils';
 import { FilePlus2, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-const navItems = [
-  {
-    name: 'Preparar Pliego',
-    icon: FilePlus2,
-    href: '/',
-  },
-  {
-    name: 'PLUS BI',
-    icon: Globe,
-    href: 'https://pluscompol.com',
-    external: true,
-  },
-];
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 export function BlockNavigation() {
   const pathname = usePathname();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
+
+  const navItems = [
+    {
+      name: t('sidebar.prepare'),
+      icon: FilePlus2,
+      href: '/',
+    },
+    {
+      name: t('sidebar.plusBI'),
+      icon: Globe,
+      href: 'https://pluscompol.com',
+      external: true,
+    },
+  ];
 
   return (
     <nav className="space-y-2">

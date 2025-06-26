@@ -6,6 +6,8 @@ import { Folder, FileText, CheckCircle2, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FileUploadButton } from './file-upload-button';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 interface File {
     id: string;
@@ -43,11 +45,14 @@ const FileItem: React.FC<{ file: File; isSelected: boolean; onSelect: () => void
 );
 
 export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery, onFileUploadToFolder }: FolderGridProps) {
+    const { language } = useLanguage();
+    const t = useTranslations(language);
+
     if (folders.length === 0) {
         return (
             <div className="text-center py-10 bg-slate-100/50 rounded-lg">
                 <p className="text-base text-muted-foreground">
-                    {searchQuery ? 'No se encontraron archivos que coincidan con su búsqueda.' : 'No hay carpetas o archivos.'}
+                    {searchQuery ? t('preparePage.noFilesFound') : t('preparePage.noFoldersOrFiles')}
                 </p>
             </div>
         );
@@ -66,17 +71,17 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery,
                                 <Folder className="h-6 w-6 text-primary" />
                                 {folder.name}
                             </CardTitle>
-                            <CardDescription>{folder.files.length} {folder.files.length === 1 ? 'archivo' : 'archivos'}</CardDescription>
+                            <CardDescription>{folder.files.length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
                         <FileUploadButton
                             onFileSelect={(fileName) => onFileUploadToFolder(folder.id, fileName)}
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 rounded-full flex-shrink-0"
-                            title={`Añadir archivo a ${folder.name}`}
+                            title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
                         >
                             <Plus className="h-5 w-5" />
-                            <span className="sr-only">Añadir archivo</span>
+                            <span className="sr-only">{t('preparePage.addFile')}</span>
                         </FileUploadButton>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
@@ -90,7 +95,7 @@ export function FolderGrid({ folders, selectedFileId, onSelectFile, searchQuery,
                                 />
                             ))
                         ) : (
-                             <p className="text-sm text-muted-foreground text-center py-4">Esta carpeta está vacía.</p>
+                             <p className="text-sm text-muted-foreground text-center py-4">{t('preparePage.folderEmpty')}</p>
                         )}
                     </CardContent>
                 </Card>

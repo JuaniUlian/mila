@@ -26,6 +26,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 // Mock Data
 const initialFolders = [
@@ -54,13 +56,15 @@ const initialRegulations = [
 export default function PreparePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const t = useTranslations(language);
+
   const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, fileCount: f.files.length })));
   const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // State for the new folder modal
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
@@ -85,10 +89,10 @@ export default function PreparePage() {
     }
   };
   
-  const showToast = (fileName: string) => {
+  const showToast = (title: string, description: string) => {
     toast({
-      title: "Archivo Subido (Simulado)",
-      description: `El archivo "${fileName}" se ha agregado.`,
+      title,
+      description,
     });
   };
 
@@ -106,17 +110,16 @@ export default function PreparePage() {
         });
         return newFolders;
     });
-    showToast(fileName);
+    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', fileName));
   };
 
   const handleFileUploadedToRoot = (fileName: string) => {
-    // Add file to the first folder as a default behavior for simulation
     if (folders.length > 0) {
       handleFileUploadToFolder(folders[0].id, fileName);
     } else {
        toast({
-          title: "Error",
-          description: `No hay carpetas para agregar el archivo.`,
+          title: t('preparePage.toastError'),
+          description: t('preparePage.toastNoFolders'),
           variant: 'destructive', 
         });
     }
@@ -131,14 +134,14 @@ export default function PreparePage() {
         };
         return [...prevRegulations, newRegulation];
     });
-    showToast(fileName);
+    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', fileName));
   };
 
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) {
       toast({
-        title: "Error",
-        description: "El nombre de la carpeta no puede estar vacío.",
+        title: t('preparePage.toastError'),
+        description: t('preparePage.toastEmptyFolderName'),
         variant: "destructive",
       });
       return;
@@ -153,8 +156,8 @@ export default function PreparePage() {
 
     setFolders(prevFolders => [...prevFolders, newFolder]);
     toast({
-      title: "Carpeta Creada",
-      description: `La carpeta "${newFolderName}" ha sido creada exitosamente.`,
+      title: t('preparePage.toastFolderCreated'),
+      description: t('preparePage.toastFolderCreatedDesc').replace('{folderName}', newFolderName),
     });
 
     setNewFolderName('');
@@ -182,12 +185,11 @@ export default function PreparePage() {
         className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Section 1: Upload and Organize */}
         <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
           <CardHeader className="bg-white/20 border-b border-white/20 p-6">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
               <FileSignature className="h-8 w-8 text-primary"/>
-              Paso 1: Seleccionar documento a validar
+              {t('preparePage.step1')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
@@ -195,7 +197,7 @@ export default function PreparePage() {
               <div className="relative flex-grow w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar documento por nombre o palabra clave..."
+                  placeholder={t('preparePage.searchPlaceholder')}
                   className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -207,7 +209,7 @@ export default function PreparePage() {
                 onFileSelect={handleFileUploadedToRoot}
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Subir nuevo archivo
+                {t('preparePage.uploadFile')}
               </FileUploadButton>
               <Button
                 variant="ghost"
@@ -215,7 +217,7 @@ export default function PreparePage() {
                 onClick={() => setIsCreateFolderModalOpen(true)}
               >
                 <FolderPlus className="mr-2 h-4 w-4" />
-                Nueva Carpeta
+                {t('preparePage.newFolder')}
               </Button>
             </div>
             <FolderGrid 
@@ -228,7 +230,6 @@ export default function PreparePage() {
           </CardContent>
         </Card>
 
-        {/* Section 2: Select Regulations */}
         <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
             <AccordionItem value="item-1" className="border-none">
                 <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
@@ -236,9 +237,8 @@ export default function PreparePage() {
                     <div className="p-6 w-full text-left flex items-center justify-between">
                         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                             <BookCheck className="h-8 w-8 text-primary"/>
-                            Paso 2: Seleccionar normativas para el análisis
+                            {t('preparePage.step2')}
                         </CardTitle>
-                        {/* The chevron is added automatically by the AccordionTrigger component */}
                     </div>
                 </AccordionTrigger>
                 <AccordionContent className="p-0">
@@ -255,41 +255,39 @@ export default function PreparePage() {
             </AccordionItem>
         </Accordion>
 
-        {/* Section 3: Validation Button */}
         <div className="flex justify-center pt-4">
             <Button
               className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
               onClick={handleValidate}
               disabled={!isValidationReady}
             >
-              Validar Pliego
+              {t('preparePage.validateButton')}
             </Button>
         </div>
       </div>
 
-      {/* Create Folder Modal */}
       <Dialog open={isCreateFolderModalOpen} onOpenChange={setIsCreateFolderModalOpen}>
         <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Crear Nueva Carpeta</DialogTitle>
+            <DialogTitle>{t('preparePage.createFolderTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2 py-2">
             <Label htmlFor="folder-name" className="text-foreground">
-                Nombre de la carpeta
+                {t('preparePage.folderNameLabel')}
             </Label>
             <Input
               id="folder-name"
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="Ej: Pliegos 2026"
+              placeholder={t('preparePage.folderNamePlaceholder')}
               className="bg-white/70"
             />
           </div>
           <DialogFooter className="pt-2">
             <DialogClose asChild>
-              <Button variant="ghost" onClick={() => setNewFolderName('')}>Cancelar</Button>
+              <Button variant="ghost" onClick={() => setNewFolderName('')}>{t('preparePage.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleCreateFolder}>Crear</Button>
+            <Button onClick={handleCreateFolder}>{t('preparePage.create')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

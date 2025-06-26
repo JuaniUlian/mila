@@ -6,6 +6,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Download, Check, FileText } from 'lucide-react';
 import { Separator } from '../ui/separator';
+import { useLanguage } from '@/context/LanguageContext';
+import { useTranslations } from '@/lib/translations';
 
 interface RisksPanelProps {
   documentData: MilaAppPData;
@@ -17,6 +19,8 @@ export function RisksPanel({
   onDownloadReport,
 }: RisksPanelProps) {
   const { blocks, overallComplianceScore } = documentData;
+  const { language } = useLanguage();
+  const t = useTranslations(language);
 
   const totalSuggestions = blocks.reduce((acc, block) => acc + block.suggestions.length, 0);
   const highSeverityCount = blocks.reduce((acc, block) => acc + block.suggestions.filter(s => s.severity === 'high').length, 0);
@@ -29,41 +33,41 @@ export function RisksPanel({
   return (
     <Card className="flex flex-col h-full bg-white/60 backdrop-blur-xl border-white/50 shadow-xl">
         <CardHeader>
-            <CardTitle className="text-lg font-bold text-foreground">Resultados Parciales</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">Resumen del análisis en tiempo real.</CardDescription>
+            <CardTitle className="text-lg font-bold text-foreground">{t('analysisPage.partialResults')}</CardTitle>
+            <CardDescription className="text-sm text-muted-foreground">{t('analysisPage.realTimeSummary')}</CardDescription>
         </CardHeader>
         
         <CardContent className="flex-grow space-y-3 text-sm overflow-y-auto">
             <Separator className="mb-3 bg-foreground/20"/>
             <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Cumplimiento General</span>
+                <span className="text-muted-foreground">{t('analysisPage.overallCompliance')}</span>
                 <span className="font-semibold text-foreground">{overallComplianceScore.toFixed(0)}%</span>
             </div>
             <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Incidencias Totales</span>
+                <span className="text-muted-foreground">{t('analysisPage.totalIncidents')}</span>
                 <span className="font-semibold text-foreground">{totalSuggestions}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div> Alta Severidad</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500"></div> {t('analysisPage.highSeverity')}</span>
                 <span className="font-semibold text-red-500">{highSeverityCount}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500"></div> Media Severidad</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500"></div> {t('analysisPage.mediumSeverity')}</span>
                 <span className="font-semibold text-amber-500">{mediumSeverityCount}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500"></div> Baja Severidad</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-sky-500"></div> {t('analysisPage.lowSeverity')}</span>
                 <span className="font-semibold text-sky-500">{lowSeverityCount}</span>
             </div>
 
             <Separator className="my-3 bg-foreground/20"/>
 
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><Check className="w-4 h-4 text-green-500" /> Correcciones Aplicadas</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><Check className="w-4 h-4 text-green-500" /> {t('analysisPage.correctionsApplied')}</span>
                 <span className="font-semibold text-green-500">{appliedCount}</span>
             </div>
              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground flex items-center gap-1.5"><FileText className="w-4 h-4" /> Normativas Involucradas</span>
+                <span className="text-muted-foreground flex items-center gap-1.5"><FileText className="w-4 h-4" /> {t('analysisPage.involvedRegulations')}</span>
                 <span className="font-semibold text-foreground">{uniqueNorms.length}</span>
             </div>
         </CardContent>
@@ -75,9 +79,9 @@ export function RisksPanel({
                 onClick={onDownloadReport}
             >
                 <Download className="mr-2 h-5 w-5" />
-                Descargar Informe
+                {t('analysisPage.downloadReport')}
             </Button>
-            <p className="text-xs text-muted-foreground text-center mt-2">Abre una previsualización del informe para imprimir o guardar como PDF.</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">{t('analysisPage.downloadReportDesc')}</p>
         </CardFooter>
     </Card>
   );
