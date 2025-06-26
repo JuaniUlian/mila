@@ -47,11 +47,11 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
       <nav className="space-y-2">
         {navItems.map((item) => {
           const isActive = isClient && item.href ? (item.href === '/' ? pathname === item.href : pathname.startsWith(item.href)) : false;
-          const isSpecialButton = item.href === '/prepare' || item.name === t('sidebar.settings');
+          const isSpecialButton = item.name === t('sidebar.prepare') || item.name === t('sidebar.settings');
 
           const buttonContent = (
             <>
-              <item.icon size={20} className={cn("mr-3", isSpecialButton || isActive ? "text-white" : "text-slate-400")} />
+              <item.icon size={20} className={cn("mr-3", isClient && (isSpecialButton || isActive) ? "text-white" : "text-slate-400")} />
               <span className="flex-1 truncate font-medium">{item.name}</span>
             </>
           );
@@ -59,7 +59,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
           const buttonProps = {
             variant: "ghost" as const,
             className: cn(
-              "w-full justify-start text-base h-12 px-3 rounded-lg",
+              "w-full text-base h-12 px-3 rounded-lg",
               isSpecialButton
                 ? neumorphicClasses
                 : cn(
@@ -97,7 +97,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
         <Separator className="my-2 bg-white/10" />
         <Button
           variant="ghost"
-          className="w-full justify-start text-base h-12 px-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
+          className="w-full text-base h-12 px-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
           asChild
           suppressHydrationWarning
         >
