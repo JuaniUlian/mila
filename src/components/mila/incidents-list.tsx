@@ -14,6 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { useLayout } from '@/context/LayoutContext';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -212,11 +213,11 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
 export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const { focusedIncidentId, setFocusedIncidentId } = useLayout();
   
   const [openCategories, setOpenCategories] = useState<string[]>([]);
-  const [openIncidentId, setOpenIncidentId] = useState<string | undefined>();
 
-  const hasFocus = !!openIncidentId;
+  const hasFocus = !!focusedIncidentId;
   
   const severityOrder: { [key in SuggestionSeverity]: number } = { high: 0, medium: 1, low: 2 };
 
@@ -248,12 +249,6 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   return (
     <div className="relative h-full">
       <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden relative">
-        {hasFocus && (
-          <div 
-            className="absolute inset-0 z-10 bg-black/40 backdrop-blur-sm"
-            onClick={() => setOpenIncidentId(undefined)} // Close incident by clicking overlay
-          />
-        )}
         <CardHeader className="p-4 border-b border-white/10">
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
         </CardHeader>
@@ -263,7 +258,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   <Accordion type="multiple" value={openCategories} onValueChange={setOpenCategories} className="space-y-4">
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => {
                       const gradientStyle = getCategoryGradientStyle(s_group);
-                      const isCategoryInFocus = hasFocus && s_group.some(s => s.id === openIncidentId);
+                      const isCategoryInFocus = hasFocus && s_group.some(s => s.id === focusedIncidentId);
 
                       return(
                       <AccordionItem
@@ -280,7 +275,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
-                              <Accordion type="single" collapsible className="w-full space-y-3" value={openIncidentId} onValueChange={setOpenIncidentId}>
+                              <Accordion type="single" collapsible className="w-full space-y-3" value={focusedIncidentId} onValueChange={setFocusedIncidentId}>
                                 {s_group.map(suggestion => (
                                   <div key={suggestion.id} className="relative pl-3 rounded-lg">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
@@ -297,7 +292,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                                             originalText={getOriginalText(suggestion.blockId)}
                                             onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
                                             onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                                            onClose={() => setOpenIncidentId(undefined)}
+                                            onClose={() => setFocusedIncidentId(undefined)}
                                           />
                                         </AccordionContent>
                                     </AccordionItem>
