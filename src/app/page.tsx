@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { BrainCircuit, Scale, ShieldCheck, Target, Search, FolderCheck, BookCheck, FileSignature, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin } from 'lucide-react';
 
 
-const cardBaseClasses = "glass p-6 shadow rounded-2xl card-hud-hover h-full";
+const cardBaseClasses = "glass p-6 shadow rounded-2xl card-hud-hover h-full flex flex-col items-center text-center";
 const detailsBaseClasses = "glass p-4 rounded-2xl shadow card-hud-hover";
 
 export default function LandingPage() {
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200 text-gray-800">
+    <div className="bg-gradient-to-br from-white via-slate-300 to-sky-900/40 text-gray-800">
       <header className="glass max-w-7xl mx-auto mt-6 px-4 py-3 flex justify-between items-center sticky top-4 z-50">
         <Link href="/">
           <span className="sr-only">MILA Home</span>
@@ -53,32 +53,44 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold text-center mb-12">¿Qué hace MILA?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className={cardBaseClasses}>
-              <Search className="h-8 w-8 text-blue-600 mb-3" />
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <Search className="h-8 w-8 text-blue-600" />
+              </div>
               <h3 className="text-2xl font-semibold mb-3">Análisis inteligente</h3>
               <p>Divide los documentos en bloques y analiza punto por punto para detectar errores y riesgos.</p>
             </div>
             <div className={cardBaseClasses}>
-              <FolderCheck className="h-8 w-8 text-blue-600 mb-3" />
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <FolderCheck className="h-8 w-8 text-blue-600" />
+              </div>
               <h3 className="text-2xl font-semibold mb-3">Alertas automáticas</h3>
               <p>Clasifica los errores en niveles de riesgo (rojo, amarillo, verde) para que sepas qué atender primero.</p>
             </div>
             <div className={cardBaseClasses}>
-              <Edit className="h-8 w-8 text-blue-600 mb-3" />
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <Edit className="h-8 w-8 text-blue-600" />
+              </div>
               <h3 className="text-2xl font-semibold mb-3">Edición ágil</h3>
               <p>Editá y corregí desde la plataforma, con control de versiones y sugerencias integradas.</p>
             </div>
             <div className={cardBaseClasses}>
-              <TrendingUp className="h-8 w-8 text-blue-600 mb-3" />
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <TrendingUp className="h-8 w-8 text-blue-600" />
+              </div>
               <h3 className="text-2xl font-semibold mb-3">Puntaje legal</h3>
               <p>Recibí una puntuación por documento o bloque, según el cumplimiento normativo.</p>
             </div>
             <div className={cardBaseClasses}>
-              <BookCheck className="h-8 w-8 text-blue-600 mb-3" />
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <BookCheck className="h-8 w-8 text-blue-600" />
+              </div>
               <h3 className="text-2xl font-semibold mb-3">Normas vinculadas</h3>
               <p>MILA te muestra en qué norma o resolución se basa cada sugerencia.</p>
             </div>
             <div className={cardBaseClasses}>
-              <Share2 className="h-8 w-8 text-blue-600 mb-3" />
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <Share2 className="h-8 w-8 text-blue-600" />
+              </div>
               <h3 className="text-2xl font-semibold mb-3">Exportá y compartí</h3>
               <p>Generá una versión corregida del documento para compartir fácilmente.</p>
             </div>
@@ -122,22 +134,30 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div className={cardBaseClasses}>
-              <BrainCircuit className="h-8 w-8 text-blue-600 mb-2"/>
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <BrainCircuit className="h-8 w-8 text-blue-600"/>
+              </div>
               <h3 className="text-2xl font-semibold mb-2">Entrenamiento especializado</h3>
               <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
             </div>
             <div className={cardBaseClasses}>
-              <FileSignature className="h-8 w-8 text-blue-600 mb-2"/>
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <FileSignature className="h-8 w-8 text-blue-600"/>
+              </div>
               <h3 className="text-2xl font-semibold mb-2">Entiende documentos públicos</h3>
               <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
             </div>
             <div className={cardBaseClasses}>
-              <ShieldCheck className="h-8 w-8 text-blue-600 mb-2"/>
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <ShieldCheck className="h-8 w-8 text-blue-600"/>
+              </div>
               <h3 className="text-2xl font-semibold mb-2">Detecta riesgos, no solo errores</h3>
               <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
             </div>
             <div className={cardBaseClasses}>
-              <Target className="h-8 w-8 text-blue-600 mb-2"/>
+              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+                <Target className="h-8 w-8 text-blue-600"/>
+              </div>
               <h3 className="text-2xl font-semibold mb-2">Diseñada para gobiernos</h3>
               <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
             </div>
