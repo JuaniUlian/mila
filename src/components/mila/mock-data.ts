@@ -5,7 +5,7 @@ const block1Suggestions: Suggestion[] = [
   {
     id: 'sug2-obj',
     category: 'Legal',
-    severity: 'medium',
+    severity: 'high',
     text: "Adicionalmente, el proveedor garantizará la actualización a nuevas versiones del software cubierto por este contrato sin costo adicional para la Entidad durante toda la vigencia del servicio de soporte técnico, siempre que el modelo de licenciamiento adquirido así lo contemple.",
     justification: {
       legal: "No prever las actualizaciones futuras va en contra de los principios de economía y eficiencia, pues puede generar costos adicionales no planificados para la entidad.",

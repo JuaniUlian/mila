@@ -136,7 +136,6 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
         <AccordionItem value={suggestion.id} className="bg-card/90 border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none">
             <AccordionTrigger 
               className="p-4 w-full hover:no-underline [&_svg]:data-[state=open]:text-primary"
-              onClick={(e) => e.stopPropagation()} // Stop propagation to not close the parent accordion
             >
                 <div className="flex-1 space-y-1 pr-4 text-left">
                     <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
@@ -144,7 +143,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                 </div>
             </AccordionTrigger>
             <AccordionContent>
-                <div className="px-4 pb-4 border-t border-border/50 space-y-4">
+                <div className="px-4 pb-4 border-t border-border/50 space-y-4 bg-background/50 rounded-b-lg">
                     <div>
                         <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
                         <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
@@ -306,7 +305,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
       )}
       <Card className={cn(
         "h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden transition-all duration-300",
-        "relative z-20"
+        "relative" 
       )}>
         <CardHeader className="p-4 border-b border-white/10">
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
@@ -329,7 +328,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         value={category}
                         className={cn(
                           "group incident-card-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md",
-                          isFocused && "scale-[1.02]"
+                          isFocused && "scale-[1.02] z-20"
                         )}
                       >
                           <div 
@@ -339,7 +338,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
-                          <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-50 to-amber-100">
+                          <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                               {s_group.map(suggestion => (
                               <IncidentItem 
                                   key={suggestion.id}
