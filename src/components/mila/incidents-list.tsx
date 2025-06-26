@@ -77,7 +77,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const baseButtonClasses = "font-semibold rounded-lg text-white transition-shadow duration-200 ease-in-out shadow-[5px_5px_10px_#cbd5e1,-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#cbd5e1,-2px_-2px_5px_#ffffff] hover:brightness-95 active:shadow-[inset_2px_2px_5px_#cbd5e1,inset_-2px_-2px_5px_#ffffff]";
+  const baseButtonClasses = "font-semibold rounded-lg text-white transition-all duration-200 ease-in-out shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff]";
   const greenButtonClasses = "bg-gradient-to-br from-green-500 to-green-600";
   const blueButtonClasses = "bg-gradient-to-br from-blue-500 to-blue-600";
   const redButtonClasses = "bg-gradient-to-br from-red-500 to-red-600";
@@ -86,7 +86,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   return (
     <div className="space-y-6">
         <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> {t('analysisPage.originalText')}</h4>
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> Texto Original</h4>
             <div className="bg-white/50 p-3 rounded-xl shadow-inner border border-white/80">
                 <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
@@ -134,23 +134,23 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         
         <Separator className="bg-slate-300/70"/>
         
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
+                  <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-green-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-green-600 hover:bg-opacity-90">
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
+                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-blue-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-blue-600 hover:bg-opacity-90">
                       <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, redButtonClasses)}>
+                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-red-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-red-600 hover:bg-opacity-90">
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
           )}
           {mode === 'editing' && (
               <>
-                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(baseButtonClasses, greenButtonClasses)}>
+                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-green-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-green-600 hover:bg-opacity-90">
                       {isValidationLoading ? (
                           <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -163,17 +163,17 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                           </>
                       )}
                   </Button>
-                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(baseButtonClasses, neutralButtonClasses)}>
+                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-slate-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-slate-600 hover:bg-opacity-90">
                       <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
                   </Button>
               </>
           )}
           {mode === 'validated' && (
               <>
-                  <Button size="sm" onClick={handleApply} className={cn(baseButtonClasses, greenButtonClasses)}>
+                  <Button size="sm" onClick={handleApply} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-green-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-green-600 hover:bg-opacity-90">
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardNewSuggestion} className={cn(baseButtonClasses, redButtonClasses)}>
+                  <Button size="sm" onClick={handleDiscardNewSuggestion} className="font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] hover:bg-red-500 active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out bg-red-600 hover:bg-opacity-90">
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
@@ -327,10 +327,10 @@ export function IncidentsList({
       </Card>
 
       <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
-        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl shadow-xl border border-white bg-gradient-to-b from-slate-50 to-slate-200">
+        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-slate-100 shadow-xl border-0">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-gradient-to-r from-slate-300/50 via-slate-100/50 to-slate-300/50 backdrop-blur-sm border-b border-white/20 shadow-md">
+              <DialogHeader className="p-4 bg-slate-100 shadow-[inset_5px_5px_10px_#d1d5db,inset_-5px_-5px_10px_#ffffff]">
                   <DialogTitle className="text-slate-800">{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
