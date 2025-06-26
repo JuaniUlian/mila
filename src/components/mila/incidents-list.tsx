@@ -78,16 +78,18 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
         <div>
-            <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
-            <p className="text-xs bg-secondary/70 p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
+            <div className="bg-slate-100/60 backdrop-blur-sm p-3 rounded-lg border border-white/20">
+                <p className="text-sm font-sans text-foreground/90 max-h-32 overflow-y-auto">{originalText}</p>
+            </div>
         </div>
 
-        <Separator />
+        <Separator className="bg-white/20"/>
 
         <div>
-            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600">
               <Lightbulb size={16} className="text-primary"/> 
               {mode === 'validated' ? t('analysisPage.improvedProposal') : t('analysisPage.draftingProposal')}
             </h4>
@@ -95,36 +97,36 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
               <Textarea
                   value={currentText}
                   onChange={(e) => setCurrentText(e.target.value)}
-                  rows={4}
-                  className="w-full text-sm p-2 border-primary/50 rounded-md bg-background focus-visible:ring-primary mb-2 text-foreground"
+                  rows={5}
+                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-white/50 backdrop-blur-sm focus-visible:ring-primary mb-2 text-foreground"
                   aria-label="Editar sugerencia"
               />
             ) : (
               <div className={cn(
-                "p-3 border rounded-md text-sm text-foreground",
-                mode === 'validated' ? "bg-blue-100/70 border-blue-300" : "bg-secondary/70"
+                "p-3 border rounded-lg text-sm text-foreground backdrop-blur-sm",
+                mode === 'validated' ? "bg-blue-100/70 border-blue-300" : "bg-white/60 border-white/20"
                 )}>
                   <p className="leading-relaxed">{currentText}</p>
               </div>
             )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div>
-                <h5 className="font-semibold mb-1 flex items-center gap-1.5"><Gavel size={14}/> {t('analysisPage.legalJustification')}</h5>
-                <p className="text-muted-foreground">{suggestion.justification.legal}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="bg-slate-100/60 backdrop-blur-sm p-3 rounded-lg border border-white/20">
+                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><Gavel size={14}/> {t('analysisPage.legalJustification')}</h5>
+                <p className="text-muted-foreground text-xs">{suggestion.justification.legal}</p>
             </div>
-            <div>
-                <h5 className="font-semibold mb-1 flex items-center gap-1.5"><FlaskConical size={14}/> {t('analysisPage.technicalJustification')}</h5>
-                <p className="text-muted-foreground">{suggestion.justification.technical}</p>
+            <div className="bg-slate-100/60 backdrop-blur-sm p-3 rounded-lg border border-white/20">
+                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><FlaskConical size={14}/> {t('analysisPage.technicalJustification')}</h5>
+                <p className="text-muted-foreground text-xs">{suggestion.justification.technical}</p>
             </div>
-            <div>
-                <h5 className="font-semibold mb-1 flex items-center gap-1.5"><AlertTriangle size={14}/> {t('analysisPage.estimatedConsequence')}</h5>
-                <p className="text-muted-foreground">{suggestion.estimatedConsequence}</p>
+            <div className="bg-slate-100/60 backdrop-blur-sm p-3 rounded-lg border border-white/20 md:col-span-2">
+                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><AlertTriangle size={14}/> {t('analysisPage.estimatedConsequence')}</h5>
+                <p className="text-muted-foreground text-xs">{suggestion.estimatedConsequence}</p>
             </div>
         </div>
         
-        <Separator />
+        <Separator className="bg-white/20"/>
         
         <div className="flex items-center gap-2 flex-wrap">
           {mode === 'view' && (
@@ -232,6 +234,14 @@ export function IncidentsList({
       .filter(s => s.status === 'pending')
       .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
   }, [suggestions]);
+
+  const [openCategories, setOpenCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    setOpenCategories(
+      Array.from(new Set(pendingSuggestions.map(s => s.category)))
+    );
+  }, [pendingSuggestions]);
   
   const groupedSuggestions = useMemo(() => {
     const groups: { [key in SuggestionCategory]?: SuggestionWithBlockId[] } = {};
@@ -261,12 +271,12 @@ export function IncidentsList({
         <CardContent className="flex-1 overflow-y-auto p-4">
           <ScrollArea className="h-full w-full pr-2">
               {pendingSuggestions.length > 0 ? (
-                  <Accordion type="multiple" defaultValue={groupedSuggestions.map(g => g.category)} className="space-y-4">
+                  <Accordion type="multiple" value={openCategories} onValueChange={setOpenCategories} className="space-y-4">
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => (
                       <AccordionItem
                         key={category}
                         value={category}
-                        className="group incident-card-hover relative border rounded-2xl border-white/30 overflow-hidden shadow-lg transition-all duration-500 bg-white/20 backdrop-blur-md"
+                        className="group incident-card-hover relative border rounded-2xl border-white/20 overflow-hidden shadow-lg transition-all duration-500 bg-white/20 backdrop-blur-md"
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300">
@@ -311,10 +321,10 @@ export function IncidentsList({
       </Card>
 
       <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
-        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-white/30 backdrop-blur-md border border-white/40 shadow-xl">
+        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-slate-200/50 backdrop-blur-xl border border-white/30 shadow-xl">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-white/20 border-b border-white/20 shadow-md">
+              <DialogHeader className="p-4 bg-gradient-to-r from-slate-300 via-slate-100 to-slate-300 backdrop-blur-sm border-b border-white/20 shadow-md">
                   <DialogTitle>{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
