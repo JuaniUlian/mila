@@ -27,7 +27,7 @@ export default function LandingPage() {
           </Button>
           <Button asChild className="hidden sm:inline-flex bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out">
             <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
-              Descargá el dossier
+              Descargar Deck
             </a>
           </Button>
         </div>
@@ -43,7 +43,7 @@ export default function LandingPage() {
               </Button>
               <Button asChild size="lg" className="bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out">
                 <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
-                  Descargá el dossier
+                  Descargar Deck
                 </a>
               </Button>
             </div>
