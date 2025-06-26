@@ -42,16 +42,19 @@ export function Logo({ className }: { className?: string }) {
         </g>
 
         <defs>
-            <linearGradient id="blue-grad" x1="0" y1="0" x2="0" y2="112">
+            <linearGradient id="blue-grad" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#1E3A8A" />
-                <stop offset="100%" stopColor="#1E40AF" />
+                <stop offset="60%" stopColor="#2563EB" />
+                <stop offset="100%" stopColor="#D1D5DB" />
             </linearGradient>
-            <linearGradient id="orange-grad" x1="0" y1="0" x2="0" y2="112">
+            <linearGradient id="orange-grad" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#F97316" />
-                <stop offset="100%" stopColor="#FBBF24" />
+                <stop offset="60%" stopColor="#FBBF24" />
+                <stop offset="100%" stopColor="#FEF3C7" />
             </linearGradient>
              <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#1E40AF" />
+                <stop offset="50%" stopColor="#E5E7EB" />
                 <stop offset="100%" stopColor="#F97316" />
             </linearGradient>
         </defs>
