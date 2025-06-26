@@ -195,7 +195,7 @@ export default function PlanillaVivaPage() {
        
       toast({
         title: "Sugerencia Modificada y Aplicada",
-        description: "El texto de la sugerencia ha sido actualizado y el puntaje recalculado.",
+        description: "El texto de la sugerencia ha sido actualizado.",
       });
 
       return {
