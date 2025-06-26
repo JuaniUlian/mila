@@ -76,16 +76,16 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-all duration-150 ease-in-out";
-  const greenButtonClasses = "bg-green-600 hover:bg-green-700";
-  const blueButtonClasses = "bg-blue-600 hover:bg-blue-700";
-  const redButtonClasses = "bg-red-600 hover:bg-red-700";
-  const neutralButtonClasses = "bg-slate-600 hover:bg-slate-700";
+  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-[5px_5px_15px_#a6abbd,-5px_-5px_15px_#ffffff] hover:shadow-[inset_2px_2px_5px_#a6abbd,inset_-2px_-2px_5px_#ffffff] active:shadow-[inset_5px_5px_10px_#a6abbd,inset_-5px_-5px_10px_#ffffff] transition-all duration-150 ease-in-out";
+  const greenButtonClasses = "bg-green-600 hover:bg-green-700 hover:brightness-100";
+  const blueButtonClasses = "bg-blue-600 hover:bg-blue-700 hover:brightness-100";
+  const redButtonClasses = "bg-red-600 hover:bg-red-700 hover:brightness-100";
+  const neutralButtonClasses = "bg-slate-500 hover:bg-slate-600 hover:brightness-100 text-slate-100";
 
   return (
     <div className="space-y-6">
         <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> {t('analysisPage.originalText')}</h4>
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> Texto Original</h4>
             <div className="bg-slate-200/50 p-3 rounded-xl shadow-inner border border-white/80">
                 <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
