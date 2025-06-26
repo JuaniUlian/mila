@@ -78,6 +78,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const [currentText, setCurrentText] = useState(suggestion.text);
   const [isValidationLoading, setIsValidationLoading] = useState(false);
   const { toast } = useToast();
+  const neumorphicClasses = "bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out";
 
   const handleValidate = () => {
     setIsValidationLoading(true);
@@ -189,20 +190,20 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                     <div className="flex items-center gap-2 flex-wrap">
                       {mode === 'view' && (
                           <>
-                              <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
+                              <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={neumorphicClasses}>
                                   <Check className="mr-2 h-4 w-4"/> Aplicar
                               </Button>
-                              <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
+                              <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={neumorphicClasses}>
                                   <Edit3 className="mr-2 h-4 w-4"/> Editar
                               </Button>
-                              <Button size="sm" variant="destructive" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'}>
+                              <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={neumorphicClasses}>
                                   <Trash2 className="mr-2 h-4 w-4"/> Descartar
                               </Button>
                           </>
                       )}
                       {mode === 'editing' && (
                           <>
-                              <Button size="sm" onClick={handleValidate} disabled={isValidationLoading}>
+                              <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={neumorphicClasses}>
                                   {isValidationLoading ? (
                                       <>
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -215,17 +216,17 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                                       </>
                                   )}
                               </Button>
-                              <Button size="sm" variant="outline" onClick={handleCancelEdit} disabled={isValidationLoading}>
+                              <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={neumorphicClasses}>
                                   <XCircle className="mr-2 h-4 w-4"/> Cancelar
                               </Button>
                           </>
                       )}
                       {mode === 'validated' && (
                           <>
-                              <Button size="sm" onClick={handleApply}>
+                              <Button size="sm" onClick={handleApply} className={neumorphicClasses}>
                                   <Check className="mr-2 h-4 w-4"/> Aplicar
                               </Button>
-                              <Button size="sm" variant="destructive" onClick={handleDiscardNewSuggestion}>
+                              <Button size="sm" onClick={handleDiscardNewSuggestion} className={neumorphicClasses}>
                                   <Trash2 className="mr-2 h-4 w-4"/> Descartar
                               </Button>
                           </>
