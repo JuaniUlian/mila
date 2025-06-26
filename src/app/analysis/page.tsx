@@ -29,7 +29,7 @@ export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
-  const { score, setScore } = useLayout();
+  const { score, setScore, focusedIncidentId, setFocusedIncidentId } = useLayout();
   const { language } = useLanguage();
   const t = useTranslations(language);
 
@@ -110,8 +110,9 @@ export default function PlanillaVivaPage() {
     // Cleanup function to reset the score when the page is left
     return () => {
       setScore(null);
+      setFocusedIncidentId(null);
     };
-  }, [documentData, setScore]);
+  }, [documentData, setScore, setFocusedIncidentId]);
   
   const backgroundClass = useMemo(() => {
     const getDynamicBackgroundClass = (score: number): string => {
@@ -119,8 +120,9 @@ export default function PlanillaVivaPage() {
         if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white';
         if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white';
         if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white';
-        if (score < 95) return 'from-slate-500/50 via-slate-100/50 to-white';
-        return 'from-slate-200/50 via-slate-100/50 to-white';
+        if (score === 100) return 'from-slate-200/50 via-slate-100/50 to-white';
+        if (score < 95) return 'from-blue-600/50 via-blue-100/50 to-white';
+        return 'from-slate-500/50 via-slate-100/50 to-white';
     };
     return documentData ? getDynamicBackgroundClass(documentData.overallComplianceScore) : 'from-slate-200/50 via-slate-100/50 to-white';
   }, [documentData]);
@@ -266,6 +268,8 @@ export default function PlanillaVivaPage() {
                   onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
                   onUpdateSuggestionText={handleUpdateSuggestionText}
                   overallComplianceScore={overallComplianceScore}
+                  focusedIncidentId={focusedIncidentId}
+                  setFocusedIncidentId={setFocusedIncidentId}
               />
           </div>
           <div className="w-full h-full min-h-0">

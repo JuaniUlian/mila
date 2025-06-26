@@ -177,6 +177,8 @@ interface IncidentsListProps {
   onUpdateSuggestionStatus: (blockId: string, suggestionId: string, status: Suggestion['status']) => void;
   onUpdateSuggestionText: (blockId: string, suggestionId: string, newText: string) => void;
   overallComplianceScore: number;
+  focusedIncidentId: string | null;
+  setFocusedIncidentId: (id: string | null) => void;
 }
 
 const getSeverityGradientClass = (severity: SuggestionSeverity) => {
@@ -209,11 +211,18 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
   return { backgroundImage: `linear-gradient(to bottom, ${colors.join(', ')})` };
 };
 
-export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
+export function IncidentsList({ 
+  suggestions, 
+  blocks, 
+  onUpdateSuggestionStatus, 
+  onUpdateSuggestionText, 
+  overallComplianceScore,
+  focusedIncidentId,
+  setFocusedIncidentId,
+}: IncidentsListProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [openCategories, setOpenCategories] = useState<string[]>([]);
-  const [openIncidentId, setOpenIncidentId] = useState<string | undefined>();
   
   const severityOrder: { [key in SuggestionSeverity]: number } = { high: 0, medium: 1, low: 2 };
 
@@ -235,6 +244,18 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
       .filter(group => group.suggestions.length > 0);
   }, [pendingSuggestions]);
 
+  const focusedCategory = useMemo(() => {
+    if (!focusedIncidentId) return null;
+    return groupedSuggestions.find(g => g.suggestions.some(s => s.id === focusedIncidentId))?.category;
+  }, [focusedIncidentId, groupedSuggestions]);
+
+  useEffect(() => {
+    if (focusedCategory && !openCategories.includes(focusedCategory)) {
+        setOpenCategories(prev => [...prev, focusedCategory]);
+    }
+  }, [focusedCategory, openCategories]);
+
+
   const getOriginalText = (blockId: string) => {
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
   }
@@ -244,8 +265,11 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
 
   return (
     <div className="relative h-full">
-      <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden relative">
-        <CardHeader className="p-4 border-b border-white/10 transition-all duration-500">
+      <Card className="h-full flex flex-col bg-transparent border-none shadow-none overflow-visible">
+        <CardHeader className={cn(
+          "p-4 border-b border-white/10 transition-all duration-300",
+          focusedIncidentId && 'blur-sm pointer-events-none'
+          )}>
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4">
@@ -254,19 +278,25 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   <Accordion type="multiple" value={openCategories} onValueChange={setOpenCategories} className="space-y-4">
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => {
                       const gradientStyle = getCategoryGradientStyle(s_group);
+                      const isCategoryInFocus = category === focusedCategory;
+                      const isAnyIncidentFocused = !!focusedIncidentId;
 
                       return(
                       <AccordionItem
                         key={category}
                         value={category}
-                        className="group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500 bg-background/20"
+                        className={cn(
+                          "group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500 bg-background/20",
+                          isCategoryInFocus && 'z-10 scale-105 bg-card shadow-2xl',
+                          isAnyIncidentFocused && !isCategoryInFocus && 'blur-sm opacity-50 pointer-events-none'
+                        )}
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={gradientStyle}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
-                              <Accordion type="single" collapsible className="w-full space-y-3" value={openIncidentId} onValueChange={setOpenIncidentId}>
+                              <Accordion type="single" collapsible className="w-full space-y-3" value={focusedIncidentId || undefined} onValueChange={(v) => setFocusedIncidentId(v || null)}>
                                 {s_group.map(suggestion => (
                                   <div key={suggestion.id} className="relative pl-3 rounded-lg">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
@@ -283,7 +313,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                                             originalText={getOriginalText(suggestion.blockId)}
                                             onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
                                             onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                                            onClose={() => setOpenIncidentId(undefined)}
+                                            onClose={() => setFocusedIncidentId(null)}
                                           />
                                         </AccordionContent>
                                     </AccordionItem>
@@ -296,7 +326,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   })}
                   </Accordion>
               ) : (
-                  <div className="h-full flex items-center justify-center">
+                  <div className={cn("h-full flex items-center justify-center", focusedIncidentId && 'blur-sm pointer-events-none')}>
                       <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                           <CardContent className="p-0 flex flex-col items-center justify-center text-center">
                               <Check className="w-16 h-16 text-green-400 mb-4" />

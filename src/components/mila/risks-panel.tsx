@@ -8,6 +8,8 @@ import { Download, Check, FileText } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { useLayout } from '@/context/LayoutContext';
+import { cn } from '@/lib/utils';
 
 interface RisksPanelProps {
   documentData: MilaAppPData;
@@ -21,6 +23,7 @@ export function RisksPanel({
   const { blocks, overallComplianceScore } = documentData;
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const { focusedIncidentId } = useLayout();
 
   const totalSuggestions = blocks.reduce((acc, block) => acc + block.suggestions.length, 0);
   const highSeverityCount = blocks.reduce((acc, block) => acc + block.suggestions.filter(s => s.severity === 'high').length, 0);
@@ -31,7 +34,10 @@ export function RisksPanel({
   const uniqueNorms = [...new Set(blocks.flatMap(b => b.suggestions.map(s => s.appliedNorm)))];
 
   return (
-    <Card className="flex flex-col h-full bg-white/60 backdrop-blur-xl border-white/50 shadow-xl">
+    <Card className={cn(
+      "flex flex-col h-full bg-white/60 backdrop-blur-xl border-white/50 shadow-xl transition-all duration-300",
+      focusedIncidentId && 'blur-sm pointer-events-none'
+      )}>
         <CardHeader>
             <CardTitle className="text-lg font-bold text-foreground">{t('analysisPage.partialResults')}</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">{t('analysisPage.realTimeSummary')}</CardDescription>

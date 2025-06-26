@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { SettingsDialog } from './settings-dialog';
 
 export function MainSidebar() {
-    const { score } = useLayout();
+    const { score, focusedIncidentId } = useLayout();
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
 
     const getSidebarBackgroundClass = (currentScore: number | null): string => {
@@ -17,7 +17,7 @@ export function MainSidebar() {
         const defaultBg = `bg-slate-900/80 ${baseStyle}`;
         
         if (currentScore === null) return defaultBg; // Default style for other pages
-        if (currentScore === 100) return defaultBg; // Use default slate background when score is 100
+        if (currentScore === 100) return `bg-slate-900/80 ${baseStyle}`;
         if (currentScore >= 95) return `bg-slate-900/90 ${baseStyle}`; // Slate for 95-99
         if (currentScore < 40) return `bg-rose-900/90 ${baseStyle}`;
         if (currentScore < 60) return `bg-orange-900/90 ${baseStyle}`;
@@ -33,7 +33,8 @@ export function MainSidebar() {
     return (
         <aside className={cn(
             "w-64 flex-shrink-0 backdrop-blur-xl text-white p-4 flex flex-col border-r border-white/10 transition-all duration-500",
-            backgroundClass
+            backgroundClass,
+            focusedIncidentId && 'blur-sm pointer-events-none'
         )}>
             <div className="flex justify-center items-center py-4">
                 <Logo variant="monochrome" />

@@ -6,14 +6,17 @@ import React, { createContext, useState, useContext, useMemo } from 'react';
 interface LayoutContextType {
   score: number | null;
   setScore: (score: number | null) => void;
+  focusedIncidentId: string | null;
+  setFocusedIncidentId: (id: string | null) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const [score, setScore] = useState<number | null>(null);
+  const [focusedIncidentId, setFocusedIncidentId] = useState<string | null>(null);
 
-  const value = useMemo(() => ({ score, setScore }), [score]);
+  const value = useMemo(() => ({ score, setScore, focusedIncidentId, setFocusedIncidentId }), [score, focusedIncidentId]);
 
   return (
     <LayoutContext.Provider value={value}>
