@@ -9,9 +9,8 @@ import { cn } from '@/lib/utils';
 import { SettingsDialog } from './settings-dialog';
 
 export function MainSidebar() {
-    const { score, focusedIncidentId } = useLayout();
+    const { score } = useLayout();
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
-    const hasFocus = !!focusedIncidentId;
 
     const getSidebarBackgroundClass = (currentScore: number | null): string => {
         const baseStyle = "bg-[linear-gradient(180deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0.03)_15%,transparent_100%)]";
@@ -34,8 +33,7 @@ export function MainSidebar() {
     return (
         <aside className={cn(
             "w-64 flex-shrink-0 backdrop-blur-xl text-white p-4 flex flex-col border-r border-white/10 transition-all duration-500",
-            backgroundClass,
-            hasFocus && "blur-sm pointer-events-none"
+            backgroundClass
         )}>
             <div className="flex justify-center items-center py-4">
                 <Logo variant="monochrome" />

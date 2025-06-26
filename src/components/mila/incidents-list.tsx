@@ -14,7 +14,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
-import { useLayout } from '@/context/LayoutContext';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -213,11 +212,8 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
 export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const { focusedIncidentId, setFocusedIncidentId } = useLayout();
-  
   const [openCategories, setOpenCategories] = useState<string[]>([]);
-
-  const hasFocus = !!focusedIncidentId;
+  const [openIncidentId, setOpenIncidentId] = useState<string | undefined>();
   
   const severityOrder: { [key in SuggestionSeverity]: number } = { high: 0, medium: 1, low: 2 };
 
@@ -249,7 +245,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   return (
     <div className="relative h-full">
       <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden relative">
-        <CardHeader className={cn("p-4 border-b border-white/10 transition-all duration-500", hasFocus && "blur-sm pointer-events-none")}>
+        <CardHeader className="p-4 border-b border-white/10 transition-all duration-500">
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4">
@@ -258,31 +254,23 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   <Accordion type="multiple" value={openCategories} onValueChange={setOpenCategories} className="space-y-4">
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => {
                       const gradientStyle = getCategoryGradientStyle(s_group);
-                      const isCategoryInFocus = hasFocus && s_group.some(s => s.id === focusedIncidentId);
 
                       return(
                       <AccordionItem
                         key={category}
                         value={category}
-                        className={cn(
-                          "group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500",
-                          hasFocus && !isCategoryInFocus && "blur-sm opacity-50 pointer-events-none",
-                          isCategoryInFocus ? "z-20 bg-background" : "bg-background/20"
-                        )}
+                        className="group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500 bg-background/20"
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={gradientStyle}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
-                              <Accordion type="single" collapsible className="w-full space-y-3" value={focusedIncidentId} onValueChange={setFocusedIncidentId}>
+                              <Accordion type="single" collapsible className="w-full space-y-3" value={openIncidentId} onValueChange={setOpenIncidentId}>
                                 {s_group.map(suggestion => (
                                   <div key={suggestion.id} className="relative pl-3 rounded-lg">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
-                                    <AccordionItem value={suggestion.id} className={cn(
-                                      "border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none",
-                                      isCategoryInFocus ? "bg-card" : "bg-card/90"
-                                    )}>
+                                    <AccordionItem value={suggestion.id} className="border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none bg-card/90">
                                         <AccordionTrigger className="p-4 w-full hover:no-underline [&_svg]:data-[state=open]:text-primary">
                                             <div className="flex-1 space-y-1 pr-4 text-left">
                                                 <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
@@ -295,7 +283,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                                             originalText={getOriginalText(suggestion.blockId)}
                                             onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
                                             onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                                            onClose={() => setFocusedIncidentId(undefined)}
+                                            onClose={() => setOpenIncidentId(undefined)}
                                           />
                                         </AccordionContent>
                                     </AccordionItem>
@@ -309,7 +297,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                   </Accordion>
               ) : (
                   <div className="h-full flex items-center justify-center">
-                      <Card className={cn("p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg", hasFocus && "blur-sm pointer-events-none")}>
+                      <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                           <CardContent className="p-0 flex flex-col items-center justify-center text-center">
                               <Check className="w-16 h-16 text-green-400 mb-4" />
                               <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>{t('analysisPage.excellent')}</h3>

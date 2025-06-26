@@ -29,10 +29,9 @@ export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
-  const { score, setScore, focusedIncidentId, setFocusedIncidentId } = useLayout();
+  const { score, setScore } = useLayout();
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const hasFocus = !!focusedIncidentId;
 
 
   useEffect(() => {
@@ -252,16 +251,13 @@ export default function PlanillaVivaPage() {
 
   return (
     <div className={cn("bg-gradient-to-b transition-all duration-1000", backgroundClass)}>
-      {hasFocus && <div className="fixed inset-0 z-10 bg-black/40" onClick={() => setFocusedIncidentId(undefined)} />}
       <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
-        <div className={cn("transition-all duration-500", hasFocus && "blur-sm pointer-events-none")}>
-            <PageHeader 
-              documentTitle={documentTitle}
-              overallComplianceScore={overallComplianceScore}
-              appliedSuggestionsCount={appliedSuggestionsCount}
-              totalSuggestions={totalSuggestions}
-            />
-        </div>
+        <PageHeader 
+          documentTitle={documentTitle}
+          overallComplianceScore={overallComplianceScore}
+          appliedSuggestionsCount={appliedSuggestionsCount}
+          totalSuggestions={totalSuggestions}
+        />
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           <div className="lg:col-span-2 w-full h-full min-h-0">
               <IncidentsList 
@@ -272,7 +268,7 @@ export default function PlanillaVivaPage() {
                   overallComplianceScore={overallComplianceScore}
               />
           </div>
-          <div className={cn("w-full h-full min-h-0 transition-all duration-500", hasFocus && "blur-sm pointer-events-none")}>
+          <div className="w-full h-full min-h-0">
                <RisksPanel
                   documentData={documentData}
                   onDownloadReport={handleDownloadReport}
