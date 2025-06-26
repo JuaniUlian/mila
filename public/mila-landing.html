@@ -26,13 +26,11 @@
 <body class="text-gray-900">
   <header class="glass max-w-7xl mx-auto mt-6 px-4 py-6 flex justify-between items-center">
     <svg
-        width="112"
-        height="112"
+        width="auto"
+        height="48"
         viewBox="0 0 112 112"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        class="h-12 w-auto"
-        data-ai-hint="logo company"
       >
         <rect
           x="2"
@@ -41,22 +39,25 @@
           height="108"
           rx="20"
           ry="20"
-          fill="none"
-          stroke="url(#border-grad)"
+          fill="#064E3B"
+          stroke="url(#border-grad-landing)"
           strokeWidth="3"
         />
-        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
+        
+        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad-landing)" textAnchor="middle">
             <text x="34" y="48">M</text>
             <text x="78" y="48">I</text>
+
             <text x="34" y="92">L</text>
             <text x="78" y="92">A</text>
         </g>
+
         <defs>
-            <linearGradient id="text-grad" x1="0" y1="0" x2="0" y2="112">
-                <stop offset="0%" stopColor="#4A4A4A" />
-                <stop offset="100%" stopColor="#000000" />
+            <linearGradient id="text-grad-landing" x1="0" y1="0" x2="0" y2="112">
+                <stop offset="0%" stopColor="#EAEAEA" />
+                <stop offset="100%" stopColor="#A0A0A0" />
             </linearGradient>
-             <linearGradient id="border-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+             <linearGradient id="border-grad-landing" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#FFFFFF" />
                 <stop offset="100%" stopColor="#A9A9A9" />
             </linearGradient>
@@ -178,8 +179,25 @@
     </div>
   </section>
 
-  <footer class="bg-gray-900 text-gray-300 py-8 text-center text-sm">
-    MILA es una solución GovTech desarrollada por PLUS BI | juan.ulian@pluscompol.com | pluscompol.com | Argentina
+  <footer class="bg-gray-900 text-gray-300 py-8 text-sm">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center flex-wrap space-y-2 sm:space-y-0 sm:space-x-4 px-4">
+        <span class="text-center sm:text-left">MILA es una solución GovTech desarrollada por PLUS BI</span>
+        <span class="hidden sm:inline">|</span>
+        <a href="mailto:juan.ulian@pluscompol.com" class="flex items-center gap-1.5 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>juan.ulian@pluscompol.com</span>
+        </a>
+        <span class="hidden sm:inline">|</span>
+        <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <span>pluscompol.com</span>
+        </a>
+        <span class="hidden sm:inline">|</span>
+        <span class="flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Argentina</span>
+        </span>
+    </div>
   </footer>
 </body>
 </html>
