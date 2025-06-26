@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle } from 'lucide-react';
+import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -75,11 +75,19 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(suggestion.text);
+  const [isValidationLoading, setIsValidationLoading] = useState(false);
 
-  const handleSave = () => {
-    onUpdateText(editText);
-    setIsEditing(false);
-    setIsExpanded(false); 
+  const handleValidate = () => {
+    setIsValidationLoading(true);
+    setTimeout(() => {
+        // Simulate AI correction by appending text
+        const correctedText = editText + " (Este texto ha sido revisado y optimizado por IA para garantizar mayor claridad, precisión y total cumplimiento con la normativa vigente.)";
+        onUpdateText(correctedText);
+        
+        setIsValidationLoading(false);
+        setIsEditing(false);
+        setIsExpanded(false);
+    }, 5000); // 5-second delay
   };
   
   const handleCancel = () => {
@@ -160,8 +168,22 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                     <div className="flex items-center gap-2 flex-wrap">
                         {isEditing ? (
                             <>
-                                <Button size="sm" onClick={handleSave}><Save className="mr-2 h-4 w-4"/> Guardar</Button>
-                                <Button size="sm" variant="outline" onClick={handleCancel}><XCircle className="mr-2 h-4 w-4"/> Cancelar</Button>
+                                <Button size="sm" onClick={handleValidate} disabled={isValidationLoading}>
+                                    {isValidationLoading ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Validando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="mr-2 h-4 w-4" />
+                                            Validar
+                                        </>
+                                    )}
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={handleCancel} disabled={isValidationLoading}>
+                                    <XCircle className="mr-2 h-4 w-4"/> Cancelar
+                                </Button>
                             </>
                         ) : (
                             <>
@@ -240,7 +262,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
       )}
       <Card className={cn(
         "h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden transition-all duration-300",
-        isAnyCategoryFocused ? "relative z-20" : ""
+        "relative z-20"
       )}>
         <CardHeader className="p-4 border-b border-white/10">
           <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
@@ -266,14 +288,14 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                           isFocused
                             ? "scale-[1.02]"
                             : "hover:scale-[1.01] hover:shadow-xl",
-                          !isAnyCategoryFocused && "hover:shadow-primary/30 hover:border-primary/30"
+                           "hover:shadow-primary/30 hover:border-primary/30"
                         )}
                       >
                           <div 
                               className="absolute left-0 top-0 bottom-0 w-1.5"
                               style={gradientStyle}
                           />
-                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300">
+                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300 group-hover:text-primary-foreground">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary-foreground transition-colors">{category} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-50 to-amber-100">
