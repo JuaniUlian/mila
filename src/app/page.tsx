@@ -21,7 +21,7 @@ export default function LandingPage() {
           <Logo className="h-12 w-auto" />
         </Link>
         <div className="flex items-center space-x-2 sm:space-x-4">
-          <LanguageSwitcher />
+          <LanguageSwitcher variant="light" />
           <Button asChild className="hidden sm:inline-flex">
             <Link href="/prepare">Ir a Demo</Link>
           </Button>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Check } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const languages = [
@@ -17,20 +17,25 @@ const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
   { code: 'pt', name: 'Português', flag: '🇵🇹' },
-  { code: 'zh', name: '中文', flag: '🇨🇳' },
+  { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
 ];
 
-export function LanguageSwitcher() {
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+// Added a variant prop to handle different backgrounds (light/dark)
+export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'dark' }) {
+  const [currentUrl, setCurrentUrl] = useState('');
 
-  // In a real app, this would trigger i18n logic
-  const handleSelectLanguage = (lang: typeof languages[0]) => {
-    setSelectedLanguage(lang);
-    console.log(`Language changed to ${lang.name}`);
-    // Here you would typically call i18n.changeLanguage(lang.code)
+  // Get the current URL on the client side to avoid hydration errors.
+  useEffect(() => {
+    setCurrentUrl(window.location.href);
+  }, []);
+
+  const getTranslateUrl = (langCode: string) => {
+    if (!currentUrl) return '#';
+    // Using auto-detection for source language (sl=auto).
+    return `https://translate.google.com/translate?sl=auto&tl=${langCode}&u=${encodeURIComponent(currentUrl)}`;
   };
-
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -38,18 +43,23 @@ export function LanguageSwitcher() {
             variant="ghost" 
             className={cn(
                 "w-full justify-start text-base h-12 px-3 rounded-lg transition-colors duration-150 ease-in-out",
-                "text-slate-300 hover:bg-white/5 hover:text-white"
+                // Conditional styling based on the variant prop
+                variant === 'dark' && "text-slate-300 hover:bg-white/5 hover:text-white",
+                variant === 'light' && "text-gray-600 hover:bg-slate-200/50"
             )}>
-          <span className="mr-3 text-lg">{selectedLanguage.flag}</span>
-          <span className="flex-1 truncate font-medium">{selectedLanguage.name}</span>
+          <Globe className="mr-3 h-5 w-5" />
+          {/* Using a generic label as selection is now external */}
+          <span className="flex-1 truncate font-medium">Idioma</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" side="top" align="start">
+      <DropdownMenuContent className="w-56">
         {languages.map((lang) => (
-          <DropdownMenuItem key={lang.code} onSelect={() => handleSelectLanguage(lang)}>
-            <span className="mr-2 text-lg">{lang.flag}</span>
-            <span>{lang.name}</span>
-            {selectedLanguage.code === lang.code && <Check className="ml-auto h-4 w-4" />}
+          // DropdownMenuItem with asChild prop will render its child (the <a> tag) and pass props to it.
+          <DropdownMenuItem key={lang.code} asChild>
+            <a href={getTranslateUrl(lang.code)} target="_blank" rel="noopener noreferrer" className="flex items-center cursor-pointer w-full">
+                <span className="mr-2 text-lg">{lang.flag}</span>
+                <span>{lang.name}</span>
+            </a>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
