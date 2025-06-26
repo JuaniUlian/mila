@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
-import { useLayout } from '@/context/LayoutContext';
 
 interface PageHeaderProps {
     documentTitle: string;
@@ -30,14 +29,13 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
     const suggestionProgress = totalSuggestions > 0 ? (appliedSuggestionsCount / totalSuggestions) * 100 : 100;
     const { language } = useLanguage();
     const t = useTranslations(language);
-    const { focusedIncidentId } = useLayout();
     
     // Determine text color based on background lightness
     const useDarkText = overallComplianceScore >= 75;
     const primaryTextColor = useDarkText ? "text-foreground" : "text-white";
 
     return (
-        <div className={cn('transition-all duration-300', focusedIncidentId && 'blur-sm pointer-events-none')}>
+        <div className="transition-all duration-300">
             <header className="w-full">
                 <Card className="p-4 md:p-6 w-full bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
                     <CardContent className="p-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
