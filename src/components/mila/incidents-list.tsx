@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -76,7 +77,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-md hover:brightness-95 active:scale-95 transition-all duration-150 ease-in-out";
+  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-150 ease-in-out";
   const greenButtonClasses = "bg-gradient-to-br from-green-500 to-green-600";
   const blueButtonClasses = "bg-gradient-to-br from-blue-500 to-blue-600";
   const redButtonClasses = "bg-gradient-to-br from-red-500 to-red-600";
@@ -86,7 +87,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   return (
     <div className="space-y-6">
         <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700"><FileText size={16}/> Texto Original</h4>
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700"><FileText size={16}/> {t('analysisPage.originalText')}</h4>
             <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
                 <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
@@ -243,12 +244,6 @@ export function IncidentsList({
 
   const [openCategories, setOpenCategories] = useState<string[]>([]);
 
-  useEffect(() => {
-    setOpenCategories(
-      Array.from(new Set(pendingSuggestions.map(s => s.category)))
-    );
-  }, [pendingSuggestions]);
-  
   const groupedSuggestions = useMemo(() => {
     const groups: { [key in SuggestionCategory]?: SuggestionWithBlockId[] } = {};
     pendingSuggestions.forEach(suggestion => {
@@ -330,7 +325,7 @@ export function IncidentsList({
         <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-slate-100 shadow-xl border-0">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-slate-200/50 backdrop-blur-md shadow-[inset_0_-2px_4px_rgba(0,0,0,0.1)] border-b border-white/50">
+              <DialogHeader className="p-4 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 backdrop-blur-sm border-b border-white/20 shadow-md">
                   <DialogTitle className="text-slate-800">{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
