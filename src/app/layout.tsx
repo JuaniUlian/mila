@@ -4,6 +4,7 @@ import { Nunito } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { LayoutProvider } from '@/context/LayoutContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import AppLayout from '@/components/layout/AppLayout';
 
 const nunito = Nunito({
@@ -27,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${nunito.variable} antialiased`}>
-        <LayoutProvider>
-          <AppLayout>{children}</AppLayout>
-        </LayoutProvider>
+        <LanguageProvider>
+          <LayoutProvider>
+            <AppLayout>{children}</AppLayout>
+          </LayoutProvider>
+        </LanguageProvider>
         <Toaster />
       </body>
     </html>

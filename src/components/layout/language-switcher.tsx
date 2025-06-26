@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,8 +11,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import type { Language } from '@/lib/translations';
 
-const languages = [
+const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'es', name: 'Español', flag: '🇪🇸' },
   { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
@@ -21,7 +23,8 @@ const languages = [
 
 // Added a variant prop to handle different backgrounds (light/dark)
 export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'dark' }) {
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+  const { language, setLanguage } = useLanguage();
+  const selectedLanguage = languages.find(l => l.code === language) || languages[0];
   
   return (
     <DropdownMenu>
@@ -42,7 +45,7 @@ export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'da
         {languages.map((lang) => (
           <DropdownMenuItem 
             key={lang.code} 
-            onSelect={() => setSelectedLanguage(lang)}
+            onSelect={() => setLanguage(lang.code)}
             className="flex items-center cursor-pointer w-full"
           >
             <span className="mr-2 text-lg">{lang.flag}</span>
