@@ -77,18 +77,18 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const neumorphicButtonClasses = "font-semibold border-transparent bg-slate-200 shadow-[3px_3px_6px_#c5cad0,-3px_-3px_6px_#ffffff] hover:shadow-[1px_1px_3px_#c5cad0,-1px_-1px_3px_#ffffff] active:shadow-[inset_2px_2px_5px_#c5cad0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out";
+  const actionButtonClasses = "font-semibold rounded-lg border bg-white/80 border-slate-300/80 shadow-sm hover:bg-white active:shadow-inner transition-all duration-150 ease-in-out";
 
   return (
     <div className="space-y-6">
         <div>
             <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
-            <div className="bg-slate-200 p-3 rounded-lg shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff]">
-                <p className="text-sm font-sans text-foreground/90 max-h-32 overflow-y-auto">{originalText}</p>
+            <div className="bg-white/50 p-3 rounded-xl shadow-inner border border-white/80">
+                <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
         </div>
 
-        <Separator className="bg-slate-300"/>
+        <Separator className="bg-slate-300/70"/>
 
         <div>
             <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600">
@@ -100,15 +100,13 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                   value={currentText}
                   onChange={(e) => setCurrentText(e.target.value)}
                   rows={5}
-                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-slate-100 shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] focus-visible:ring-primary mb-2 text-foreground"
+                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-slate-100 shadow-inner focus-visible:ring-primary mb-2 text-foreground"
                   aria-label="Editar sugerencia"
               />
             ) : (
               <div className={cn(
-                "p-3 border rounded-lg text-sm text-foreground",
-                mode === 'validated' 
-                  ? "bg-slate-200 border-slate-300 shadow-[inset_3px_3px_7px_#d1d5db,inset_-3px_-3px_7px_#ffffff]" 
-                  : "bg-slate-200 p-3 rounded-lg shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff]"
+                "p-3 border rounded-xl text-sm text-slate-800",
+                "bg-white/50 shadow-inner border-white/80"
                 )}>
                   <p className="leading-relaxed">{currentText}</p>
               </div>
@@ -116,39 +114,39 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="bg-slate-200 p-3 rounded-lg shadow-[inset_2px_2px_4px_#d1d5db,inset_-2px_-2px_4px_#ffffff]">
+            <div className="bg-white/50 p-3 rounded-xl shadow-inner border border-white/80">
                 <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><Gavel size={14}/> {t('analysisPage.legalJustification')}</h5>
-                <p className="text-muted-foreground text-xs">{suggestion.justification.legal}</p>
+                <p className="text-slate-700 text-xs">{suggestion.justification.legal}</p>
             </div>
-            <div className="bg-slate-200 p-3 rounded-lg shadow-[inset_2px_2px_4px_#d1d5db,inset_-2px_-2px_4px_#ffffff]">
+            <div className="bg-white/50 p-3 rounded-xl shadow-inner border border-white/80">
                 <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><FlaskConical size={14}/> {t('analysisPage.technicalJustification')}</h5>
-                <p className="text-muted-foreground text-xs">{suggestion.justification.technical}</p>
+                <p className="text-slate-700 text-xs">{suggestion.justification.technical}</p>
             </div>
-            <div className="bg-slate-200 p-3 rounded-lg shadow-[inset_2px_2px_4px_#d1d5db,inset_-2px_-2px_4px_#ffffff] md:col-span-2">
+            <div className="bg-white/50 p-3 rounded-xl shadow-inner border border-white/80 md:col-span-2">
                 <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><AlertTriangle size={14}/> {t('analysisPage.estimatedConsequence')}</h5>
-                <p className="text-muted-foreground text-xs">{suggestion.estimatedConsequence}</p>
+                <p className="text-slate-700 text-xs">{suggestion.estimatedConsequence}</p>
             </div>
         </div>
         
-        <Separator className="bg-slate-300"/>
+        <Separator className="bg-slate-300/70"/>
         
         <div className="flex items-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(neumorphicButtonClasses, "text-green-600")}>
+                  <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(actionButtonClasses, "text-green-600")}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(neumorphicButtonClasses, "text-blue-600")}>
+                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(actionButtonClasses, "text-blue-600")}>
                       <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(neumorphicButtonClasses, "text-red-600")}>
+                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(actionButtonClasses, "text-red-600")}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
           )}
           {mode === 'editing' && (
               <>
-                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(neumorphicButtonClasses, "text-green-600")}>
+                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(actionButtonClasses, "text-green-600")}>
                       {isValidationLoading ? (
                           <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -161,17 +159,17 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                           </>
                       )}
                   </Button>
-                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(neumorphicButtonClasses, "text-slate-700")}>
+                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(actionButtonClasses, "text-slate-700")}>
                       <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
                   </Button>
               </>
           )}
           {mode === 'validated' && (
               <>
-                  <Button size="sm" onClick={handleApply} className={cn(neumorphicButtonClasses, "text-green-600")}>
+                  <Button size="sm" onClick={handleApply} className={cn(actionButtonClasses, "text-green-600")}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardNewSuggestion} className={cn(neumorphicButtonClasses, "text-red-600")}>
+                  <Button size="sm" onClick={handleDiscardNewSuggestion} className={cn(actionButtonClasses, "text-red-600")}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
@@ -325,10 +323,10 @@ export function IncidentsList({
       </Card>
 
       <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
-        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-slate-200 shadow-[8px_8px_16px_#c5cad5,-8px_-8px_16px_#ffffff] border-t border-l border-white">
+        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-200 shadow-2xl border border-white">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-slate-200 border-b border-slate-300">
+              <DialogHeader className="p-4 bg-transparent border-b border-slate-300/70">
                   <DialogTitle>{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
@@ -353,3 +351,4 @@ export function IncidentsList({
     </div>
   );
 }
+
