@@ -111,7 +111,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="results" className="bg-white py-20">
+        <section id="results" className="py-20">
           <div className="max-w-6xl mx-auto text-center px-4">
             <h2 className="text-4xl font-bold mb-4">Resultados Reales</h2>
             <p className="mb-10 italic text-sm text-gray-600">*Basado en promedios de uso en gobiernos de distintas escalas</p>
