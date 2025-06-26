@@ -241,7 +241,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300">
                             <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary-foreground transition-colors">{category} ({s_group.length})</span>
                         </AccordionTrigger>
-                        <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-300/20 to-amber-300/5">
+                        <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-100 to-amber-50">
                             {s_group.map(suggestion => (
                             <IncidentItem 
                                 key={suggestion.id}
