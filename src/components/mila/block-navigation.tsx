@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Separator } from '../ui/separator';
+import { useLayout } from '@/context/LayoutContext';
 
 type NavItem = {
   name: string;
@@ -17,11 +18,90 @@ type NavItem = {
   onClick?: () => void;
 };
 
+const getNeumorphicClasses = (score: number | null): string => {
+    const base = "font-semibold border-transparent transition-all duration-200 ease-in-out";
+    
+    let colors = {
+        bg: "bg-slate-800",
+        text: "text-slate-200",
+        hoverText: "hover:text-slate-100",
+        shadow: "shadow-[5px_5px_10px_#1e293b,-5px_-5px_10px_#475569]",
+        hoverShadow: "hover:shadow-[2px_2px_5px_#1e293b,-2px_-2px_5px_#475569]",
+        activeShadow: "active:shadow-[inset_2px_2px_5px_#1e293b,inset_-2px_-2px_5px_#475569]",
+    };
+
+    if (score !== null) {
+        if (score === 100) { // Blue for 100
+             colors = {
+                ...colors,
+                bg: "bg-blue-800",
+                text: "text-blue-100",
+                shadow: "shadow-[5px_5px_10px_#172554,-5px_-5px_10px_#1d4ed8]",
+                hoverShadow: "hover:shadow-[2px_2px_5px_#172554,-2px_-2px_5px_#1d4ed8]",
+                activeShadow: "active:shadow-[inset_2px_2px_5px_#172554,inset_-2px_-2px_5px_#1d4ed8]",
+            };
+        } else if (score >= 95) { // Slate for 95-99
+            // It uses the default, so no change needed here.
+        } else if (score >= 85) { // Blue
+             colors = {
+                ...colors,
+                bg: "bg-blue-800",
+                text: "text-blue-100",
+                shadow: "shadow-[5px_5px_10px_#172554,-5px_-5px_10px_#1d4ed8]",
+                hoverShadow: "hover:shadow-[2px_2px_5px_#172554,-2px_-2px_5px_#1d4ed8]",
+                activeShadow: "active:shadow-[inset_2px_2px_5px_#172554,inset_-2px_-2px_5px_#1d4ed8]",
+            };
+        } else if (score >= 75) { // Lime
+            colors = {
+                ...colors,
+                bg: "bg-lime-800",
+                text: "text-lime-100",
+                shadow: "shadow-[5px_5px_10px_#1a2e05,-5px_-5px_10px_#4d7c0f]",
+                hoverShadow: "hover:shadow-[2px_2px_5px_#1a2e05,-2px_-2px_5px_#4d7c0f]",
+                activeShadow: "active:shadow-[inset_2px_2px_5px_#1a2e05,inset_-2px_-2px_5px_#4d7c0f]",
+            };
+        } else if (score >= 60) { // Amber
+            colors = {
+                ...colors,
+                bg: "bg-amber-800",
+                text: "text-amber-100",
+                shadow: "shadow-[5px_5px_10px_#451a03,-5px_-5px_10px_#b45309]",
+                hoverShadow: "hover:shadow-[2px_2px_5px_#451a03,-2px_-2px_5px_#b45309]",
+                activeShadow: "active:shadow-[inset_2px_2px_5px_#451a03,inset_-2px_-2px_5px_#b45309]",
+            };
+        } else if (score >= 40) { // Orange
+            colors = {
+                ...colors,
+                bg: "bg-orange-800",
+                text: "text-orange-100",
+                shadow: "shadow-[5px_5px_10px_#431407,-5px_-5px_10px_#c2410c]",
+                hoverShadow: "hover:shadow-[2px_2px_5px_#431407,-2px_-2px_5px_#c2410c]",
+                activeShadow: "active:shadow-[inset_2px_2px_5px_#431407,inset_-2px_-2px_5px_#c2410c]",
+            };
+        } else { // < 40 Rose
+            colors = {
+                ...colors,
+                bg: "bg-rose-800",
+                text: "text-rose-100",
+                shadow: "shadow-[5px_5px_10px_#4c0519,-5px_-5px_10px_#be123c]",
+                hoverShadow: "hover:shadow-[2px_2px_5px_#4c0519,-2px_-2px_5px_#be123c]",
+                activeShadow: "active:shadow-[inset_2px_2px_5px_#4c0519,inset_-2px_-2px_5px_#be123c]",
+            };
+        }
+    }
+    
+    const hoverBg = `hover:${colors.bg}`;
+
+    return `${base} ${colors.bg} ${colors.text} ${hoverBg} ${colors.hoverText} ${colors.shadow} ${colors.hoverShadow} ${colors.activeShadow}`;
+};
+
+
 export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => void }) {
   const pathname = usePathname();
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [isClient, setIsClient] = useState(false);
+  const { score } = useLayout();
 
   useEffect(() => {
     setIsClient(true);
@@ -40,7 +120,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
     },
   ];
 
-  const neumorphicClasses = "bg-slate-800 text-slate-200 font-semibold border-transparent shadow-[5px_5px_10px_#1f2937,-5px_-5px_10px_#475569] hover:bg-slate-800 hover:text-slate-100 hover:shadow-[2px_2px_5px_#1f2937,-2px_-2px_5px_#475569] active:shadow-[inset_2px_2px_5px_#1f2937,inset_-2px_-2px_5px_#475569] transition-shadow duration-200 ease-in-out";
+  const neumorphicClasses = getNeumorphicClasses(score);
 
   return (
     <div className="flex flex-col h-full">
@@ -52,7 +132,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
           const buttonContent = (
             <>
               <item.icon size={20} className={cn("mr-3", isClient && (isSpecialButton || isActive) ? "text-white" : "text-slate-400")} />
-              <span className="flex-1 truncate font-medium">{item.name}</span>
+              <span className="truncate font-medium">{item.name}</span>
             </>
           );
 
@@ -103,7 +183,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
         >
           <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer">
             <Globe size={20} className="mr-3 text-slate-400" />
-            <span className="flex-1 truncate font-medium">{t('sidebar.plusBI')}</span>
+            <span className="truncate font-medium">{t('sidebar.plusBI')}</span>
           </a>
         </Button>
       </div>
