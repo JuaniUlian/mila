@@ -29,7 +29,7 @@ export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
-  const { score, setScore, focusedIncidentId, setFocusedIncidentId } = useLayout();
+  const { score, setScore } = useLayout();
   const { language } = useLanguage();
   const t = useTranslations(language);
 
@@ -110,9 +110,8 @@ export default function PlanillaVivaPage() {
     // Cleanup function to reset the score when the page is left
     return () => {
       setScore(null);
-      setFocusedIncidentId(null);
     };
-  }, [documentData, setScore, setFocusedIncidentId]);
+  }, [documentData, setScore]);
   
   const backgroundClass = useMemo(() => {
     const getDynamicBackgroundClass = (score: number): string => {
@@ -268,8 +267,6 @@ export default function PlanillaVivaPage() {
                   onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
                   onUpdateSuggestionText={handleUpdateSuggestionText}
                   overallComplianceScore={overallComplianceScore}
-                  focusedIncidentId={focusedIncidentId}
-                  setFocusedIncidentId={setFocusedIncidentId}
               />
           </div>
           <div className="w-full h-full min-h-0">

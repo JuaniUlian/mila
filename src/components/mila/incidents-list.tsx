@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronDown } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronRight } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -15,21 +15,20 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
-// This is the new, stateful component that holds the content for an expanded incident.
 interface IncidentItemContentProps {
   suggestion: SuggestionWithBlockId;
   originalText: string;
   onUpdateStatus: (newStatus: Suggestion['status']) => void;
   onUpdateText: (newText: string) => void;
-  onClose: () => void; // Callback to close the accordion from the parent
+  onClose: () => void;
 }
 
 const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, originalText, onUpdateStatus, onUpdateText, onClose }) => {
@@ -79,7 +78,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   };
 
   return (
-    <div className="px-4 pb-4 border-t border-border/50 space-y-4 bg-card rounded-b-lg">
+    <div className="space-y-4">
         <div>
             <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
             <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
@@ -183,8 +182,6 @@ interface IncidentsListProps {
   onUpdateSuggestionStatus: (blockId: string, suggestionId: string, status: Suggestion['status']) => void;
   onUpdateSuggestionText: (blockId: string, suggestionId: string, newText: string) => void;
   overallComplianceScore: number;
-  focusedIncidentId: string | null;
-  setFocusedIncidentId: (id: string | null) => void;
 }
 
 const getSeverityGradientClass = (severity: SuggestionSeverity) => {
@@ -223,11 +220,10 @@ export function IncidentsList({
   onUpdateSuggestionStatus, 
   onUpdateSuggestionText, 
   overallComplianceScore,
-  focusedIncidentId,
-  setFocusedIncidentId,
 }: IncidentsListProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const [dialogSuggestion, setDialogSuggestion] = useState<SuggestionWithBlockId | null>(null);
   
   const severityOrder: { [key in SuggestionSeverity]: number } = { high: 0, medium: 1, low: 2 };
 
@@ -255,10 +251,9 @@ export function IncidentsList({
   
   const useDarkText = overallComplianceScore >= 75;
   const getTranslatedCategory = (category: SuggestionCategory) => t(`suggestionCategories.${category}`);
-  const isFocusMode = !!focusedIncidentId;
 
   return (
-    <div className="relative h-full">
+    <div className="h-full">
       <Card className="h-full flex flex-col bg-transparent border-none shadow-none overflow-visible">
         <CardHeader className="p-4 border-b border-white/10 transition-all duration-300">
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
@@ -267,17 +262,11 @@ export function IncidentsList({
           <ScrollArea className="h-full w-full pr-2">
               {pendingSuggestions.length > 0 ? (
                   <Accordion type="multiple" defaultValue={groupedSuggestions.map(g => g.category)} className="space-y-4">
-                  {groupedSuggestions.map(({ category, suggestions: s_group }) => {
-                      const isCategoryInFocus = isFocusMode && s_group.some(s => s.id === focusedIncidentId);
-
-                      return(
+                  {groupedSuggestions.map(({ category, suggestions: s_group }) => (
                       <AccordionItem
                         key={category}
                         value={category}
-                        className={cn(
-                          "group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500 bg-background/20",
-                          isCategoryInFocus && 'z-50 scale-105 bg-card shadow-2xl'
-                        )}
+                        className="group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-500 bg-background/20"
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
@@ -285,41 +274,25 @@ export function IncidentsList({
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                               {s_group.map(suggestion => (
-                                <Collapsible 
-                                  key={suggestion.id} 
-                                  open={focusedIncidentId === suggestion.id}
-                                  onOpenChange={(isOpen) => {
-                                    setFocusedIncidentId(isOpen ? suggestion.id : null);
-                                  }}
-                                  className="border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none bg-card/90"
-                                >
+                                <div key={suggestion.id} className="border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none bg-card/90">
                                   <div className="relative pl-3">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
-                                      <CollapsibleTrigger asChild>
-                                        <button className="p-4 w-full flex items-center justify-between text-left hover:bg-accent/50 transition-colors">
-                                          <div className="flex-1 space-y-1 pr-4">
-                                              <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-                                              <p className="text-sm text-muted-foreground">{t('suggestionCategories.normativa')}: {suggestion.appliedNorm}</p>
-                                          </div>
-                                          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" />
-                                        </button>
-                                      </CollapsibleTrigger>
-                                      <CollapsibleContent>
-                                        <IncidentItemContent 
-                                          suggestion={suggestion}
-                                          originalText={getOriginalText(suggestion.blockId)}
-                                          onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
-                                          onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                                          onClose={() => setFocusedIncidentId(null)}
-                                        />
-                                      </CollapsibleContent>
+                                      <button 
+                                        className="p-4 w-full flex items-center justify-between text-left hover:bg-accent/50 transition-colors"
+                                        onClick={() => setDialogSuggestion(suggestion)}
+                                      >
+                                        <div className="flex-1 space-y-1 pr-4">
+                                            <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
+                                            <p className="text-sm text-muted-foreground">{t('suggestionCategories.normativa')}: {suggestion.appliedNorm}</p>
+                                        </div>
+                                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                      </button>
                                   </div>
-                                </Collapsible>
+                                </div>
                               ))}
                           </AccordionContent>
                       </AccordionItem>
-                      )
-                  })}
+                  ))}
                   </Accordion>
               ) : (
                   <div className="h-full flex items-center justify-center">
@@ -336,6 +309,33 @@ export function IncidentsList({
           </ScrollArea>
         </CardContent>
       </Card>
+
+      <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
+        <DialogContent className="max-w-3xl w-full p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
+          {dialogSuggestion && (
+            <>
+              <DialogHeader className="p-4 bg-secondary border-b">
+                  <DialogTitle>{dialogSuggestion.errorType}</DialogTitle>
+              </DialogHeader>
+              <div className="p-6 overflow-y-auto max-h-[75vh]">
+                <IncidentItemContent 
+                  suggestion={dialogSuggestion}
+                  originalText={getOriginalText(dialogSuggestion.blockId)}
+                  onUpdateStatus={(newStatus) => {
+                      onUpdateSuggestionStatus(dialogSuggestion.blockId, dialogSuggestion.id, newStatus);
+                      setDialogSuggestion(null);
+                  }}
+                  onUpdateText={(newText) => {
+                      onUpdateSuggestionText(dialogSuggestion.blockId, dialogSuggestion.id, newText);
+                      setDialogSuggestion(null);
+                  }}
+                  onClose={() => setDialogSuggestion(null)}
+                />
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
