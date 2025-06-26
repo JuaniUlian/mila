@@ -29,15 +29,18 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
     },
   ];
 
+  const neumorphicClasses = "bg-slate-800 text-slate-200 font-semibold border-transparent shadow-[5px_5px_10px_#1f2937,-5px_-5px_10px_#475569] hover:bg-slate-800 hover:text-slate-100 hover:shadow-[2px_2px_5px_#1f2937,-2px_-2px_5px_#475569] active:shadow-[inset_2px_2px_5px_#1f2937,inset_-2px_-2px_5px_#475569] transition-shadow duration-200 ease-in-out";
+
   return (
     <div className="flex flex-col h-full">
       <nav className="space-y-2">
         {navItems.map((item) => {
           const isActive = item.href === '/' ? pathname === item.href : pathname.startsWith(item.href);
+          const isPrepareButton = item.href === '/prepare';
 
           const buttonContent = (
             <>
-              <item.icon size={20} className={cn("mr-3", isActive ? "text-white" : "text-slate-400")} />
+              <item.icon size={20} className={cn("mr-3", isPrepareButton || isActive ? "text-white" : "text-slate-400")} />
               <span className="flex-1 truncate font-medium">{item.name}</span>
             </>
           );
@@ -45,12 +48,18 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
           const buttonProps = {
             variant: "ghost" as const,
             className: cn(
-              "w-full justify-start text-base h-12 px-3 rounded-lg transition-colors duration-150 ease-in-out",
-              isActive
-                ? "bg-white/10 text-white"
-                : "text-slate-300 hover:bg-white/5 hover:text-white"
+              "w-full justify-start text-base h-12 px-3 rounded-lg",
+              isPrepareButton
+                ? neumorphicClasses
+                : cn(
+                    "transition-colors duration-150 ease-in-out",
+                    isActive
+                      ? "bg-white/10 text-white"
+                      : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  )
             ),
             title: item.name,
+            suppressHydrationWarning: true,
           };
           
           if (item.external) {
@@ -75,6 +84,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
           variant="ghost"
           className="w-full justify-start text-base h-12 px-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
           onClick={onSettingsClick}
+          suppressHydrationWarning
         >
           <Settings size={20} className="mr-3 text-slate-400" />
           <span className="flex-1 truncate font-medium">{t('sidebar.settings')}</span>
