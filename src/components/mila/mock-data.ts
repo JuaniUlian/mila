@@ -3,21 +3,6 @@ import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionCategory, Sugge
 
 const block1Suggestions: Suggestion[] = [ 
   {
-    id: 'sug1-obj',
-    category: 'Técnica',
-    severity: 'high',
-    text: "El objeto del presente proceso de contratación es la adquisición de 100 licencias de software de tipo 'Suscripción Anual' para las herramientas ofimáticas y 20 licencias 'Perpetuas' para el software de diseño especializado. Adicionalmente, se contratará el soporte técnico especializado por 12 meses, con un tiempo de respuesta máximo de 4 horas para incidentes críticos y disponibilidad 24/7. Se busca garantizar la continuidad operativa y la actualización tecnológica de las plataformas institucionales.",
-    justification: {
-      legal: "El texto original carece de la especificidad requerida por la norma en cuanto a cantidades y tipos de licencias, así como los niveles de servicio del soporte, impidiendo una correcta planeación y evaluación de ofertas.",
-      technical: "Asegura una evaluación precisa de las ofertas y evita ambigüedades que puedan generar sobrecostos o incumplimientos.",
-    },
-    appliedNorm: "Decreto 1082 de 2015, Art. 2.2.1.1.2.1.1",
-    errorType: "Omisión de información esencial",
-    estimatedConsequence: "Riesgo de recibir propuestas no ajustadas, posibles controversias contractuales.",
-    status: 'pending',
-    completenessImpact: 1.5,
-  },
-  {
     id: 'sug2-obj',
     category: 'Legal',
     severity: 'medium',
@@ -64,21 +49,6 @@ const block2Suggestions: Suggestion[] = [
     estimatedConsequence: "Riesgo de selección no objetiva, posibles demandas.",
     status: 'pending',
     completenessImpact: 1.2,
-  },
-  {
-    id: 'sug2-req',
-    category: 'Técnica',
-    severity: 'high',
-    text: "Como requisito habilitante, se requiere experiencia previa demostrable en al menos tres (3) contratos ejecutados y terminados con entidades estatales en los últimos cinco (5) años, cuyo objeto sea similar al del presente proceso y cuya sumatoria de valores sea igual o superior a quinientos (500) SMMLV. Para cada contrato acreditado, se deberá adjuntar copia del mismo y certificación de cumplimiento expedida por la entidad contratante.",
-    justification: {
-      legal: "La norma permite establecer requisitos de experiencia proporcionales. El texto original no define umbrales claros (cantidad de contratos, valor), lo que impide verificar la idoneidad del proponente.",
-      technical: "Asegura la idoneidad del contratista para ejecutar el objeto contractual.",
-    },
-    appliedNorm: "Decreto 1082 de 2015, Art. 2.2.1.1.1.5.2",
-    errorType: "Requisitos de experiencia insuficientes",
-    estimatedConsequence: "Contratación de proponentes sin la experiencia adecuada.",
-    status: 'pending',
-    completenessImpact: 1.8,
   },
   {
     id: 'sug-generic-2-req',

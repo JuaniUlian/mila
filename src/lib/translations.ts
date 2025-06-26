@@ -220,7 +220,6 @@ export const translations = {
 
   suggestionCategories: {
     'Legal': t('Legal', 'Legal'),
-    'Técnica': t('Técnica', 'Technical'),
     'Administrativa': t('Administrativa', 'Administrative'),
     'Redacción': t('Redacción', 'Wording'),
   },

@@ -1,7 +1,7 @@
 
 export type AlertLevel = 'grave' | 'media' | 'leve' | 'none';
 export type SuggestionSeverity = 'high' | 'medium' | 'low';
-export type SuggestionCategory = 'Legal' | 'Técnica' | 'Administrativa' | 'Redacción';
+export type SuggestionCategory = 'Legal' | 'Administrativa' | 'Redacción';
 
 export interface Suggestion {
   id: string;
