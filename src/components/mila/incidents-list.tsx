@@ -247,14 +247,13 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
 
   return (
     <div className="relative h-full">
-      {hasFocus && (
-        <div 
-          className="absolute inset-0 z-10 bg-black/40 backdrop-blur-sm"
-          onClick={() => setOpenIncidentId(undefined)} // Close incident by clicking overlay
-        />
-      )}
-
       <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden relative">
+        {hasFocus && (
+          <div 
+            className="absolute inset-0 z-10 bg-black/40 backdrop-blur-sm"
+            onClick={() => setOpenIncidentId(undefined)} // Close incident by clicking overlay
+          />
+        )}
         <CardHeader className="p-4 border-b border-white/10">
           <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
         </CardHeader>
@@ -272,7 +271,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         value={category}
                         className={cn(
                           "group incident-card-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300",
-                          hasFocus && !isCategoryInFocus && "opacity-30 blur-sm pointer-events-none",
+                          hasFocus && !isCategoryInFocus && "opacity-30 pointer-events-none",
                           isCategoryInFocus && "z-20"
                         )}
                       >
