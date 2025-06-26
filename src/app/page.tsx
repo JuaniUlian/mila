@@ -101,7 +101,7 @@ export default function LandingPage() {
           <div className="text-center">
             <h2 className="text-4xl font-bold mb-4">Resultados Reales</h2>
             <p className="mb-10 italic text-sm text-gray-600">*Basado en promedios de uso en gobiernos de distintas escalas</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               <div className={cardBaseClasses}>
                 <h4 className="text-5xl font-extrabold text-green-600">+67%</h4>
                 <p className="mt-2 font-medium">Errores detectados vs revisión humana</p>
