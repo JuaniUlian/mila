@@ -227,16 +227,21 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     setFocusedCategories([]);
   };
 
+  const isAnyCategoryFocused = focusedCategories.length > 0;
+
   return (
-    <>
-      {focusedCategories.length > 0 && (
+    <div className="relative h-full">
+      {isAnyCategoryFocused && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-10 animate-in fade-in-0"
           onClick={handleOverlayClick}
           aria-hidden="true"
         />
       )}
-      <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
+      <Card className={cn(
+        "h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden transition-all duration-300",
+        isAnyCategoryFocused ? "relative z-20" : ""
+      )}>
         <CardHeader className="p-4 border-b border-white/10">
           <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
         </CardHeader>
@@ -259,8 +264,9 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         className={cn(
                           "group relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300 ease-out",
                           isFocused
-                            ? "z-20 scale-[1.02]"
-                            : "hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/30 hover:border-primary/30"
+                            ? "scale-[1.02]"
+                            : "hover:scale-[1.01] hover:shadow-xl",
+                          !isAnyCategoryFocused && "hover:shadow-primary/30 hover:border-primary/30"
                         )}
                       >
                           <div 
@@ -270,7 +276,7 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary-foreground transition-colors">{category} ({s_group.length})</span>
                           </AccordionTrigger>
-                          <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-slate-50 to-slate-100">
+                          <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-50 to-amber-100">
                               {s_group.map(suggestion => (
                               <IncidentItem 
                                   key={suggestion.id}
@@ -300,6 +306,6 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
           </ScrollArea>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
