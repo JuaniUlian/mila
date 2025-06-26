@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { MilaAppPData, Suggestion } from '@/components/mila/types';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -41,6 +41,12 @@ export function ReportPreview({ data }: ReportPreviewProps) {
   const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = data;
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    // Set date on client-side to avoid hydration mismatch
+    setCurrentDate(new Date().toLocaleDateString('es-ES'));
+  }, []);
   
   const allSuggestionsWithContext = blocks.flatMap(block => 
     block.suggestions.map(suggestion => ({
@@ -93,7 +99,7 @@ export function ReportPreview({ data }: ReportPreviewProps) {
           </div>
           <div className="text-right">
              <p className="text-sm text-gray-500">{t('reportPreviewPage.generatedOn')}</p>
-             <p className="font-semibold text-gray-700">{new Date().toLocaleDateString('es-ES')}</p>
+             <p className="font-semibold text-gray-700">{currentDate}</p>
           </div>
         </header>
         
