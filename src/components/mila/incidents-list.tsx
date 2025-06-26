@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -232,13 +233,13 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                 {groupedSuggestions.map(([category, s_group]) => {
                     const gradientStyle = getCategoryGradientStyle(s_group);
                     return(
-                    <AccordionItem key={category} value={category} className="relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300">
+                    <AccordionItem key={category} value={category} className="group relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300 ease-out hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/30 hover:border-primary/30">
                         <div 
                             className="absolute left-0 top-0 bottom-0 w-1.5"
                             style={gradientStyle}
                         />
                         <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10">
-                            <span className="text-lg font-semibold flex-1 text-left">{category} ({s_group.length})</span>
+                            <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary transition-colors">{category} ({s_group.length})</span>
                         </AccordionTrigger>
                         <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                             {s_group.map(suggestion => (
