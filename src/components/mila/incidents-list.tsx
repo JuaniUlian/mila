@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { useToast } from '@/hooks/use-toast';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -73,48 +74,62 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
 
 const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, onUpdateStatus, onUpdateText }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(suggestion.text);
+  const [mode, setMode] = useState<'view' | 'editing' | 'validated'>('view');
+  const [currentText, setCurrentText] = useState(suggestion.text);
   const [isValidationLoading, setIsValidationLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleValidate = () => {
     setIsValidationLoading(true);
     setTimeout(() => {
-        // Simulate AI correction by appending text
-        const correctedText = editText + " (Este texto ha sido revisado y optimizado por IA para garantizar mayor claridad, precisión y total cumplimiento con la normativa vigente.)";
-        onUpdateText(correctedText);
-        
+        const correctedText = currentText + " (Este texto ha sido revisado y optimizado por IA para garantizar mayor claridad, precisión y total cumplimiento con la normativa vigente.)";
+        setCurrentText(correctedText);
+        setMode('validated');
         setIsValidationLoading(false);
-        setIsEditing(false);
-        setIsExpanded(false);
-    }, 5000); // 5-second delay
+        toast({
+            title: "✅ Nueva Sugerencia Generada",
+            description: "La IA ha procesado tu edición y ha generado una nueva propuesta.",
+        });
+    }, 5000);
   };
-  
-  const handleCancel = () => {
-    setEditText(suggestion.text);
-    setIsEditing(false);
+
+  const handleCancelEdit = () => {
+    setCurrentText(suggestion.text);
+    setMode('view');
   };
 
   const handleApply = () => {
-    onUpdateStatus('applied');
-    setIsExpanded(false);
+    onUpdateText(currentText);
   };
 
-  const handleDiscard = () => {
+  const handleDiscardOriginal = () => {
     onUpdateStatus('discarded');
-    setIsExpanded(false);
-  }
+  };
+
+  const handleDiscardNewSuggestion = () => {
+    setCurrentText(suggestion.text);
+    setMode('view');
+    setIsExpanded(true); 
+  };
 
   const handleEdit = () => {
-    setIsEditing(true);
+    setMode('editing');
     setIsExpanded(true);
-  }
+  };
+
+  const toggleExpand = () => {
+    if (mode === 'editing' || mode === 'validated') {
+      setIsExpanded(true);
+    } else {
+      setIsExpanded(!isExpanded);
+    }
+  };
 
   return (
     <div className="relative pl-3">
         <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b", getSeverityGradientClass(suggestion.severity))} />
         <div className="bg-card/90 border rounded-lg shadow-sm transition-all duration-200 hover:shadow-md overflow-hidden">
-            <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+            <div className="p-4 flex items-center justify-between cursor-pointer" onClick={toggleExpand}>
                 <div className="flex-1 space-y-1 pr-8">
                 <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
                 <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
@@ -132,19 +147,25 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                     <Separator />
 
                     <div>
-                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16} className="text-primary"/> Propuesta de Redacción</h4>
-                        {isEditing ? (
-                        <Textarea
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            rows={4}
-                            className="w-full text-sm p-2 border-primary/50 rounded-md bg-background focus-visible:ring-primary mb-2 text-foreground"
-                            aria-label="Editar sugerencia"
-                        />
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                          <Lightbulb size={16} className="text-primary"/> 
+                          {mode === 'validated' ? 'Propuesta Mejorada por IA' : 'Propuesta de Redacción'}
+                        </h4>
+                        {mode === 'editing' ? (
+                          <Textarea
+                              value={currentText}
+                              onChange={(e) => setCurrentText(e.target.value)}
+                              rows={4}
+                              className="w-full text-sm p-2 border-primary/50 rounded-md bg-background focus-visible:ring-primary mb-2 text-foreground"
+                              aria-label="Editar sugerencia"
+                          />
                         ) : (
-                        <div className="p-3 border rounded-md bg-secondary text-sm text-foreground">
-                            <p className="leading-relaxed">{suggestion.text}</p>
-                        </div>
+                          <div className={cn(
+                            "p-3 border rounded-md text-sm text-foreground",
+                            mode === 'validated' ? "bg-blue-100/70 border-blue-300" : "bg-secondary"
+                            )}>
+                              <p className="leading-relaxed">{currentText}</p>
+                          </div>
                         )}
                     </div>
 
@@ -166,38 +187,49 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                     <Separator />
                     
                     <div className="flex items-center gap-2 flex-wrap">
-                        {isEditing ? (
-                            <>
-                                <Button size="sm" onClick={handleValidate} disabled={isValidationLoading}>
-                                    {isValidationLoading ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Validando...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Save className="mr-2 h-4 w-4" />
-                                            Validar
-                                        </>
-                                    )}
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={handleCancel} disabled={isValidationLoading}>
-                                    <XCircle className="mr-2 h-4 w-4"/> Cancelar
-                                </Button>
-                            </>
-                        ) : (
-                            <>
-                                <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
-                                    <Check className="mr-2 h-4 w-4"/> Aplicar
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
-                                    <Edit3 className="mr-2 h-4 w-4"/> Editar
-                                </Button>
-                                <Button size="sm" variant="destructive" onClick={handleDiscard} disabled={suggestion.status !== 'pending'}>
-                                    <Trash2 className="mr-2 h-4 w-4"/> Descartar
-                                </Button>
-                            </>
-                        )}
+                      {mode === 'view' && (
+                          <>
+                              <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'}>
+                                  <Check className="mr-2 h-4 w-4"/> Aplicar
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
+                                  <Edit3 className="mr-2 h-4 w-4"/> Editar
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'}>
+                                  <Trash2 className="mr-2 h-4 w-4"/> Descartar
+                              </Button>
+                          </>
+                      )}
+                      {mode === 'editing' && (
+                          <>
+                              <Button size="sm" onClick={handleValidate} disabled={isValidationLoading}>
+                                  {isValidationLoading ? (
+                                      <>
+                                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                          Validando...
+                                      </>
+                                  ) : (
+                                      <>
+                                          <Save className="mr-2 h-4 w-4" />
+                                          Validar
+                                      </>
+                                  )}
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={handleCancelEdit} disabled={isValidationLoading}>
+                                  <XCircle className="mr-2 h-4 w-4"/> Cancelar
+                              </Button>
+                          </>
+                      )}
+                      {mode === 'validated' && (
+                          <>
+                              <Button size="sm" onClick={handleApply}>
+                                  <Check className="mr-2 h-4 w-4"/> Aplicar
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={handleDiscardNewSuggestion}>
+                                  <Trash2 className="mr-2 h-4 w-4"/> Descartar
+                              </Button>
+                          </>
+                      )}
                     </div>
                 </div>
             )}
