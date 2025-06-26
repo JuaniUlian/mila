@@ -120,7 +120,7 @@ export default function PlanillaVivaPage() {
       newCompletenessIndex: Math.min(10, Math.max(0, newCompletenessIndex)),
     };
 
-  }, [totalSeverityWeight]);
+  }, [totalSeverityWeight, t]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
@@ -257,9 +257,9 @@ export default function PlanillaVivaPage() {
         </main>
       </div>
       <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
-        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0">
-          <DialogHeader>
-            <DialogTitle className="sr-only">{t('analysisPage.reportPreviewTitle')}</DialogTitle>
+        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
+          <DialogHeader className="p-4 bg-white/30 backdrop-blur-sm border-b border-white/20 shadow-md">
+            <DialogTitle>{t('analysisPage.reportPreviewTitle')}</DialogTitle>
           </DialogHeader>
           <iframe src="/report-preview" className="w-full h-full border-0" title={t('analysisPage.reportPreviewTitle')} />
         </DialogContent>
