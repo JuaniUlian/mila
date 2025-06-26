@@ -49,9 +49,9 @@ export default function LandingPage() {
             </div>
         </section>
 
-        <section id="features" className="max-w-6xl mx-auto py-16 px-6">
+        <section id="features" className="py-20 px-6 max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">¿Qué hace MILA?</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className={cardBaseClasses}>
               <Search className="h-8 w-8 text-blue-600 mb-3" />
               <h3 className="text-2xl font-semibold mb-3">Análisis inteligente</h3>
@@ -85,37 +85,11 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section id="differentiators" className="py-20 px-6 max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className={cardBaseClasses}>
-              <BrainCircuit className="h-8 w-8 text-blue-600 mb-2"/>
-              <h3 className="text-2xl font-semibold mb-2">Entrenamiento especializado</h3>
-              <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
-            </div>
-            <div className={cardBaseClasses}>
-              <FileSignature className="h-8 w-8 text-blue-600 mb-2"/>
-              <h3 className="text-2xl font-semibold mb-2">Entiende documentos públicos</h3>
-              <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
-            </div>
-            <div className={cardBaseClasses}>
-              <ShieldCheck className="h-8 w-8 text-blue-600 mb-2"/>
-              <h3 className="text-2xl font-semibold mb-2">Detecta riesgos, no solo errores</h3>
-              <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
-            </div>
-            <div className={cardBaseClasses}>
-              <Target className="h-8 w-8 text-blue-600 mb-2"/>
-              <h3 className="text-2xl font-semibold mb-2">Diseñada para gobiernos</h3>
-              <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="results" className="py-20">
-          <div className="max-w-6xl mx-auto text-center px-4">
+        <section id="results" className="py-20 px-6 max-w-6xl mx-auto">
+          <div className="text-center">
             <h2 className="text-4xl font-bold mb-4">Resultados Reales</h2>
             <p className="mb-10 italic text-sm text-gray-600">*Basado en promedios de uso en gobiernos de distintas escalas</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               <div className={cardBaseClasses}>
                 <h4 className="text-5xl font-extrabold text-green-600">+67%</h4>
                 <p className="mt-2 font-medium">Errores detectados vs revisión humana</p>
@@ -148,9 +122,35 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section id="differentiators" className="py-20 px-6 max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className={cardBaseClasses}>
+              <BrainCircuit className="h-8 w-8 text-blue-600 mb-2"/>
+              <h3 className="text-2xl font-semibold mb-2">Entrenamiento especializado</h3>
+              <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
+            </div>
+            <div className={cardBaseClasses}>
+              <FileSignature className="h-8 w-8 text-blue-600 mb-2"/>
+              <h3 className="text-2xl font-semibold mb-2">Entiende documentos públicos</h3>
+              <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
+            </div>
+            <div className={cardBaseClasses}>
+              <ShieldCheck className="h-8 w-8 text-blue-600 mb-2"/>
+              <h3 className="text-2xl font-semibold mb-2">Detecta riesgos, no solo errores</h3>
+              <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
+            </div>
+            <div className={cardBaseClasses}>
+              <Target className="h-8 w-8 text-blue-600 mb-2"/>
+              <h3 className="text-2xl font-semibold mb-2">Diseñada para gobiernos</h3>
+              <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
+            </div>
+          </div>
+        </section>
+
         <section id="faq" className="py-20 px-6 max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold mb-10 text-center">Preguntas Frecuentes</h2>
-          <div className="space-y-6">
+          <div className="space-y-8">
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">¿Reemplaza al equipo legal?</summary>
               <p className="mt-2 text-gray-700">No. Lo potencia. MILA automatiza lo repetitivo y permite al equipo enfocarse en lo importante.</p>
