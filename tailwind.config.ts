@@ -111,11 +111,23 @@ export default {
           to: {
             height: '0'
           }
+        },
+        'gradient-bg': {
+          '0%, 100%': {
+            'background-position': '0% 50%',
+          },
+          '50%': {
+            'background-position': '100% 50%',
+          },
         }
       },
       animation: { // Moved inside extend
         'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out'
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        'gradient-bg': 'gradient-bg 15s ease infinite',
+      },
+      backgroundSize: {
+        '200%': '200% 200%',
       }
     } // End of extend
   },

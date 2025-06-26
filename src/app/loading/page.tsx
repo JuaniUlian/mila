@@ -40,7 +40,7 @@ export default function LoadingPage() {
   }, [router]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-foreground">
+    <div className="flex flex-col items-center justify-center min-h-screen text-foreground bg-gradient-to-r from-white via-slate-200 to-slate-100 bg-200% animate-gradient-bg">
       <Loader2 className="h-16 w-16 animate-spin text-primary mb-6" />
       <h1 className="text-2xl font-semibold mb-2">Procesando Pliego</h1>
       <p className="text-lg text-muted-foreground">{statusText}</p>
