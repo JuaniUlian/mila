@@ -1,4 +1,6 @@
 
+import { useCallback } from 'react';
+
 export type Language = 'es' | 'en';
 
 type TextRecord = {
@@ -226,7 +228,7 @@ export const translations = {
 
 // Helper function to get translation with fallback
 export const useTranslations = (lang: Language) => {
-  return (key: string): string => {
+  return useCallback((key: string): string => {
     const path = key.split('.');
     let result: any = translations;
     for (const p of path) {
@@ -235,5 +237,5 @@ export const useTranslations = (lang: Language) => {
     }
     // Fallback to Spanish if the selected language translation is not available
     return result?.[lang] || result?.['es'] || key;
-  };
+  }, [lang]);
 };
