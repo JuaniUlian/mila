@@ -31,16 +31,7 @@ const getNeumorphicClasses = (score: number | null): string => {
     };
 
     if (score !== null) {
-        if (score === 100) { // Blue for 100
-             colors = {
-                ...colors,
-                bg: "bg-blue-800",
-                text: "text-blue-100",
-                shadow: "shadow-[5px_5px_10px_#172554,-5px_-5px_10px_#1d4ed8]",
-                hoverShadow: "hover:shadow-[2px_2px_5px_#172554,-2px_-2px_5px_#1d4ed8]",
-                activeShadow: "active:shadow-[inset_2px_2px_5px_#172554,inset_-2px_-2px_5px_#1d4ed8]",
-            };
-        } else if (score >= 95) { // Slate for 95-99
+        if (score >= 95) { // Slate for 95-100
             // It uses the default, so no change needed here.
         } else if (score >= 85) { // Blue
              colors = {
