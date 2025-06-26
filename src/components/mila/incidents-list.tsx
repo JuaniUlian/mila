@@ -77,7 +77,11 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const actionButtonClasses = "font-semibold rounded-lg border bg-white/80 border-slate-300/80 shadow-sm hover:bg-white active:shadow-inner transition-all duration-150 ease-in-out";
+  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-150 ease-in-out";
+  const greenButtonClasses = "bg-gradient-to-br from-green-500 to-green-600";
+  const blueButtonClasses = "bg-gradient-to-br from-blue-500 to-blue-600";
+  const redButtonClasses = "bg-gradient-to-br from-red-500 to-red-600";
+  const neutralButtonClasses = "bg-slate-600 hover:bg-slate-700";
 
   return (
     <div className="space-y-6">
@@ -133,20 +137,20 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div className="flex items-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(actionButtonClasses, "text-green-600")}>
+                  <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(actionButtonClasses, "text-blue-600")}>
+                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
                       <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(actionButtonClasses, "text-red-600")}>
+                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, redButtonClasses)}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
           )}
           {mode === 'editing' && (
               <>
-                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(actionButtonClasses, "text-green-600")}>
+                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(baseButtonClasses, greenButtonClasses)}>
                       {isValidationLoading ? (
                           <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -159,17 +163,17 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                           </>
                       )}
                   </Button>
-                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(actionButtonClasses, "text-slate-700")}>
+                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(baseButtonClasses, neutralButtonClasses)}>
                       <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
                   </Button>
               </>
           )}
           {mode === 'validated' && (
               <>
-                  <Button size="sm" onClick={handleApply} className={cn(actionButtonClasses, "text-green-600")}>
+                  <Button size="sm" onClick={handleApply} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardNewSuggestion} className={cn(actionButtonClasses, "text-red-600")}>
+                  <Button size="sm" onClick={handleDiscardNewSuggestion} className={cn(baseButtonClasses, redButtonClasses)}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
@@ -278,7 +282,7 @@ export function IncidentsList({
                       <AccordionItem
                         key={category}
                         value={category}
-                        className="group incident-card-hover relative border rounded-2xl border-white/20 overflow-hidden shadow-lg transition-all duration-500 bg-white/20 backdrop-blur-md"
+                        className="group incident-card-hover relative border rounded-2xl border-white/20 overflow-hidden shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md"
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300">
@@ -286,7 +290,7 @@ export function IncidentsList({
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                               {s_group.map(suggestion => (
-                                <div key={suggestion.id} className="rounded-lg shadow-sm overflow-hidden incident-card-hover border border-white/20 bg-white/20 backdrop-blur-sm">
+                                <div key={suggestion.id} className="rounded-lg shadow-sm overflow-hidden incident-card-hover border border-white/20 bg-white/40 backdrop-blur-sm">
                                   <div className="relative pl-3">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
                                       <button 
@@ -326,8 +330,8 @@ export function IncidentsList({
         <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-200 shadow-2xl border border-white">
           {dialogSuggestion && (
             <>
-              <DialogHeader className="p-4 bg-transparent border-b border-slate-300/70">
-                  <DialogTitle>{dialogSuggestion.errorType}</DialogTitle>
+              <DialogHeader className="p-4 bg-gradient-to-r from-slate-300/50 via-slate-100/50 to-slate-300/50 backdrop-blur-sm border-b border-white/20 shadow-md">
+                  <DialogTitle className="text-slate-800">{dialogSuggestion.errorType}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto max-h-[75vh]">
                 <IncidentItemContent 
@@ -351,4 +355,3 @@ export function IncidentsList({
     </div>
   );
 }
-
