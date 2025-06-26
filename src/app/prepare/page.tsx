@@ -33,7 +33,6 @@ import { useTranslations } from '@/lib/translations';
 const initialFolders = [
   { id: 'f1', name: 'Pliegos 2025', files: [
     { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf' },
-    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)' },
     { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx' },
     { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
   ]},
@@ -296,3 +295,5 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
