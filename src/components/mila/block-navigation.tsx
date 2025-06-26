@@ -124,7 +124,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
 
   return (
     <div className="flex flex-col h-full">
-      <nav className="space-y-2">
+      <nav className="space-y-4">
         {navItems.map((item) => {
           const isActive = isClient && item.href ? (item.href === '/' ? pathname === item.href : pathname.startsWith(item.href)) : false;
           const isSpecialButton = item.name === t('sidebar.prepare') || item.name === t('sidebar.settings');
@@ -139,7 +139,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
           const buttonProps = {
             variant: "ghost" as const,
             className: cn(
-              "w-full text-base h-12 px-3 rounded-lg",
+              "w-full text-base h-12 px-3 rounded-lg justify-center",
               isSpecialButton
                 ? neumorphicClasses
                 : cn(
@@ -177,7 +177,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
         <Separator className="my-2 bg-white/10" />
         <Button
           variant="ghost"
-          className="w-full text-base h-12 px-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
+          className="w-full text-base h-12 px-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white justify-center"
           asChild
           suppressHydrationWarning
         >
