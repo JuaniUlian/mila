@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -192,20 +193,20 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                     <div className="flex items-center gap-2 flex-wrap">
                       {mode === 'view' && (
                           <>
-                              <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className="bg-green-600 text-white hover:bg-green-700">
+                              <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className="bg-green-600 text-white hover:bg-green-700 font-semibold shadow-[2px_2px_4px_#14532d,-2px_-2px_4px_#86efac] active:shadow-[inset_2px_2px_4px_#14532d,inset_-2px_-2px_4px_#86efac] transition-shadow duration-200">
                                   <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                               </Button>
-                              <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'}>
+                              <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className="bg-blue-600 text-white hover:bg-blue-700 font-semibold shadow-[2px_2px_4px_#1e40af,-2px_-2px_4px_#93c5fd] active:shadow-[inset_2px_2px_4px_#1e40af,inset_-2px_-2px_4px_#93c5fd] transition-shadow duration-200">
                                   <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                               </Button>
-                              <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} variant="destructive">
+                              <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className="bg-red-600 text-white hover:bg-red-700 font-semibold shadow-[2px_2px_4px_#991b1b,-2px_-2px_4px_#fca5a5] active:shadow-[inset_2px_2px_4px_#991b1b,inset_-2px_-2px_4px_#fca5a5] transition-shadow duration-200">
                                   <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                               </Button>
                           </>
                       )}
                       {mode === 'editing' && (
                           <>
-                              <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className="bg-green-600 text-white hover:bg-green-700">
+                              <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className="bg-green-600 text-white hover:bg-green-700 font-semibold shadow-[2px_2px_4px_#14532d,-2px_-2px_4px_#86efac] active:shadow-[inset_2px_2px_4px_#14532d,inset_-2px_-2px_4px_#86efac] transition-shadow duration-200">
                                   {isValidationLoading ? (
                                       <>
                                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -218,17 +219,17 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                                       </>
                                   )}
                               </Button>
-                              <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} variant="outline">
+                              <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className="bg-slate-100 text-slate-700 font-semibold border-transparent shadow-[2px_2px_4px_#d1d5db,-2px_-2px_4px_#ffffff] hover:shadow-[1px_1px_2px_#d1d5db,-1px_-1px_2px_#ffffff] active:shadow-[inset_1px_1px_2px_#d1d5db,inset_-1px_-1px_2px_#ffffff] transition-shadow duration-200">
                                   <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
                               </Button>
                           </>
                       )}
                       {mode === 'validated' && (
                           <>
-                              <Button size="sm" onClick={handleApply} className="bg-green-600 text-white hover:bg-green-700">
+                              <Button size="sm" onClick={handleApply} className="bg-green-600 text-white hover:bg-green-700 font-semibold shadow-[2px_2px_4px_#14532d,-2px_-2px_4px_#86efac] active:shadow-[inset_2px_2px_4px_#14532d,inset_-2px_-2px_4px_#86efac] transition-shadow duration-200">
                                   <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                               </Button>
-                              <Button size="sm" onClick={handleDiscardNewSuggestion} variant="destructive">
+                              <Button size="sm" onClick={handleDiscardNewSuggestion} className="bg-red-600 text-white hover:bg-red-700 font-semibold shadow-[2px_2px_4px_#991b1b,-2px_-2px_4px_#fca5a5] active:shadow-[inset_2px_2px_4px_#991b1b,inset_-2px_-2px_4px_#fca5a5] transition-shadow duration-200">
                                   <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                               </Button>
                           </>
@@ -368,3 +369,5 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
     </div>
   );
 }
+
+    
