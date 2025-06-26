@@ -265,9 +265,9 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                         key={category}
                         value={category}
                         className={cn(
-                          "group incident-card-hover relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300",
+                          "group incident-card-hover relative border rounded-lg border-white/10 overflow-hidden shadow-md transition-all duration-300",
                           hasFocus && !isCategoryInFocus && "opacity-30 pointer-events-none",
-                          isCategoryInFocus && "z-20"
+                          isCategoryInFocus ? "z-20 bg-background" : "bg-background/20"
                         )}
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={gradientStyle}/>
@@ -279,7 +279,10 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
                                 {s_group.map(suggestion => (
                                   <div key={suggestion.id} className="relative pl-3 rounded-lg">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
-                                    <AccordionItem value={suggestion.id} className="bg-card/90 border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none">
+                                    <AccordionItem value={suggestion.id} className={cn(
+                                      "border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none",
+                                      isCategoryInFocus ? "bg-card" : "bg-card/90"
+                                    )}>
                                         <AccordionTrigger className="p-4 w-full hover:no-underline [&_svg]:data-[state=open]:text-primary">
                                             <div className="flex-1 space-y-1 pr-4 text-left">
                                                 <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
