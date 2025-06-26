@@ -26,11 +26,13 @@
 <body class="text-gray-900">
   <header class="glass max-w-7xl mx-auto mt-6 px-4 py-6 flex justify-between items-center">
     <svg
-        width="auto"
-        height="48"
+        width="112"
+        height="112"
         viewBox="0 0 112 112"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        class="h-12 w-auto"
+        data-ai-hint="logo company"
       >
         <rect
           x="2"
@@ -39,33 +41,30 @@
           height="108"
           rx="20"
           ry="20"
-          fill="#064E3B"
-          stroke="url(#border-grad-landing)"
+          fill="none"
+          stroke="url(#border-grad)"
           strokeWidth="3"
         />
-        
-        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad-landing)" textAnchor="middle">
+        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
             <text x="34" y="48">M</text>
             <text x="78" y="48">I</text>
-
             <text x="34" y="92">L</text>
             <text x="78" y="92">A</text>
         </g>
-
         <defs>
-            <linearGradient id="text-grad-landing" x1="0" y1="0" x2="0" y2="112">
+            <linearGradient id="text-grad" x1="0" y1="0" x2="0" y2="112">
                 <stop offset="0%" stopColor="#EAEAEA" />
                 <stop offset="100%" stopColor="#A0A0A0" />
             </linearGradient>
-             <linearGradient id="border-grad-landing" x1="0%" y1="0%" x2="0%" y2="100%">
+             <linearGradient id="border-grad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#FFFFFF" />
                 <stop offset="100%" stopColor="#A9A9A9" />
             </linearGradient>
         </defs>
       </svg>
     <div class="space-x-4">
-      <a href="/" class="bg-blue-600 text-white px-4 py-2 rounded shadow transition-hover">Ir a Demo</a>
-      <button class="border border-blue-600 text-blue-600 px-4 py-2 rounded shadow transition-hover">Descargá el dossier</button>
+      <a href="/prepare" class="bg-blue-600 text-white px-4 py-2 rounded shadow transition-hover">Ir a Demo</a>
+      <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" class="border border-blue-600 text-blue-600 px-4 py-2 rounded shadow transition-hover">Descargá el dossier</a>
     </div>
   </header>
 
@@ -161,7 +160,7 @@
         <p class="mt-2">MILA es intuitiva. En promedio, en menos de 2 horas tu equipo puede usarla con autonomía total.</p>
       </details>
       <details class="glass p-4 rounded shadow">
-        <summary class="font-semibold cursor-pointer">¿Qué costo tiene para un municipio chico?</summary>
+        <summary class="font-semibold cursor-pointer">¿Qué costo tiene?</summary>
         <p class="mt-2">Hay planes adaptados a cada tamaño de municipio. Además, ofrecemos licencias promocionales para primeros adoptantes.</p>
       </details>
       <details class="glass p-4 rounded shadow">
@@ -174,29 +173,28 @@
   <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-16">
     <h3 class="text-3xl font-bold mb-6">¿Querés MILA en tu municipio?</h3>
     <div class="space-x-4">
-      <a href="/" class="bg-white text-blue-800 px-6 py-3 font-semibold rounded shadow transition-hover">Ir a Demo</a>
+      <a href="/prepare" class="bg-white text-blue-800 px-6 py-3 font-semibold rounded shadow transition-hover">Ir a Demo</a>
       <a href="mailto:juan.ulian@pluscompol.com?subject=Solicitud%20de%20reuni%C3%B3n%20por%20MILA&body=Hola%20Juan%2C%0D%0A%0D%0AEstoy%20interesado%2Fa%20en%20coordinar%20una%20reuni%C3%B3n%20para%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20MILA%20y%20evaluar%20su%20implementaci%C3%B3n%20en%20nuestro%20gobierno.%0D%0AQuedo%20a%20disposici%C3%B3n%20para%20coordinar%20d%C3%ADa%20y%20horario.%0D%0A%0D%0AMuchas%20gracias.%0D%0A%0D%0ASaludos%2C%0D%0A" class="border border-white px-6 py-3 font-semibold rounded shadow transition-hover inline-block">Contactar</a>
     </div>
   </section>
 
-  <footer class="bg-gray-900 text-gray-300 py-8 text-sm">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center items-center flex-wrap space-y-2 sm:space-y-0 sm:space-x-4 px-4">
-        <span class="text-center sm:text-left">MILA es una solución GovTech desarrollada por PLUS BI</span>
-        <span class="hidden sm:inline">|</span>
-        <a href="mailto:juan.ulian@pluscompol.com" class="flex items-center gap-1.5 hover:text-white transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            <span>juan.ulian@pluscompol.com</span>
-        </a>
-        <span class="hidden sm:inline">|</span>
-        <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 hover:text-white transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <span>pluscompol.com</span>
-        </a>
-        <span class="hidden sm:inline">|</span>
-        <span class="flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            <span>Argentina</span>
-        </span>
+  <footer class="bg-gray-900 text-gray-300 py-8 px-4 text-center text-sm">
+    <div class="max-w-4xl mx-auto flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+      <div class="flex items-center">
+        MILA es una solución GovTech desarrollada por PLUS BI
+      </div>
+      <div class="flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg>
+        <span>juan.ulian@pluscompol.com</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v1.5a1.5 1.5 0 01-3 0V12a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd" /></svg>
+        <span>pluscompol.com</span>
+      </div>
+      <div class="flex items-center space-x-2">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+        <span>Argentina</span>
+      </div>
     </div>
   </footer>
 </body>
