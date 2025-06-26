@@ -31,20 +31,24 @@ export function Logo({ className }: { className?: string }) {
         />
         
         {/* Text with gradient */}
-        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
+        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" textAnchor="middle">
             {/* Top Row: MI */}
-            <text x="34" y="48">M</text>
-            <text x="78" y="48">I</text>
+            <text x="34" y="48" fill="url(#blue-grad)">M</text>
+            <text x="78" y="48" fill="url(#orange-grad)">I</text>
 
             {/* Bottom Row: LA */}
-            <text x="34" y="92">L</text>
-            <text x="78" y="92">A</text>
+            <text x="34" y="92" fill="url(#blue-grad)">L</text>
+            <text x="78" y="92" fill="url(#orange-grad)">A</text>
         </g>
 
         <defs>
-            <linearGradient id="text-grad" x1="0" y1="0" x2="0" y2="112">
-                <stop offset="0%" stopColor="#EAEAEA" />
-                <stop offset="100%" stopColor="#A0A0A0" />
+            <linearGradient id="blue-grad" x1="0" y1="0" x2="0" y2="112">
+                <stop offset="0%" stopColor="#1E3A8A" />
+                <stop offset="100%" stopColor="#3B82F6" />
+            </linearGradient>
+            <linearGradient id="orange-grad" x1="0" y1="0" x2="0" y2="112">
+                <stop offset="0%" stopColor="#F97316" />
+                <stop offset="100%" stopColor="#FBBF24" />
             </linearGradient>
              <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#1E40AF" />
