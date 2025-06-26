@@ -74,7 +74,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   };
 
   return (
-    <div className="px-4 pb-4 border-t border-border/50 space-y-4 bg-background/50 rounded-b-lg">
+    <div className="px-4 pb-4 border-t border-border/50 space-y-4 bg-card rounded-b-lg">
         <div>
             <h4 className="text-sm font-semibold mb-1 flex items-center gap-2 text-muted-foreground"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
             <p className="text-xs bg-secondary p-2 rounded-md font-mono text-foreground/80 max-h-28 overflow-y-auto">{originalText}</p>
