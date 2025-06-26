@@ -77,7 +77,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     setMode('editing');
   };
   
-  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-150 ease-in-out";
+  const baseButtonClasses = "font-semibold rounded-lg text-white transition-shadow duration-200 ease-in-out shadow-[5px_5px_10px_#cbd5e1,-5px_-5px_10px_#ffffff] hover:shadow-[2px_2px_5px_#cbd5e1,-2px_-2px_5px_#ffffff] hover:brightness-95 active:shadow-[inset_2px_2px_5px_#cbd5e1,inset_-2px_-2px_5px_#ffffff]";
   const greenButtonClasses = "bg-gradient-to-br from-green-500 to-green-600";
   const blueButtonClasses = "bg-gradient-to-br from-blue-500 to-blue-600";
   const redButtonClasses = "bg-gradient-to-br from-red-500 to-red-600";
@@ -86,7 +86,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   return (
     <div className="space-y-6">
         <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> {t('analysisPage.originalTextContext')}</h4>
+            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-600"><FileText size={16}/> {t('analysisPage.originalText')}</h4>
             <div className="bg-white/50 p-3 rounded-xl shadow-inner border border-white/80">
                 <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
@@ -327,7 +327,7 @@ export function IncidentsList({
       </Card>
 
       <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
-        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-50 to-slate-200 shadow-2xl border border-white">
+        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl shadow-xl border border-white bg-gradient-to-b from-slate-50 to-slate-200">
           {dialogSuggestion && (
             <>
               <DialogHeader className="p-4 bg-gradient-to-r from-slate-300/50 via-slate-100/50 to-slate-300/50 backdrop-blur-sm border-b border-white/20 shadow-md">
