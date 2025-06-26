@@ -6,6 +6,8 @@ import { Logo } from './logo';
 import { BlockNavigation } from '../mila/block-navigation';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
+import { LanguageSwitcher } from './language-switcher';
+import { Separator } from '../ui/separator';
 
 export function MainSidebar() {
     const { score } = useLayout();
@@ -16,7 +18,7 @@ export function MainSidebar() {
         
         if (currentScore === null) return defaultBg; // Default style for other pages
         if (currentScore === 100) return `bg-blue-900/90 ${baseStyle}`; // Special blue for 100%
-        if (currentScore >= 95) return defaultBg; // Slate for 95-99
+        if (currentScore >= 95) return `bg-slate-900/90 ${baseStyle}`; // Slate for 95-99
         if (currentScore < 40) return `bg-rose-900/90 ${baseStyle}`;
         if (currentScore < 60) return `bg-orange-900/90 ${baseStyle}`;
         if (currentScore < 75) return `bg-amber-900/90 ${baseStyle}`;
@@ -39,6 +41,10 @@ export function MainSidebar() {
             <nav className="mt-8 flex-1">
                 <BlockNavigation />
             </nav>
+            <div className="mt-auto">
+                <Separator className="my-2 bg-white/10" />
+                <LanguageSwitcher />
+            </div>
         </aside>
     );
 };
