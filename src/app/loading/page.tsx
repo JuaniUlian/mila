@@ -34,10 +34,10 @@ export default function LoadingPage() {
       });
     }, 3000); // Change text every 3 seconds
 
-    // Redirect after 15 seconds
+    // Redirect after 10 seconds
     const redirectTimeout = setTimeout(() => {
       router.push('/analysis'); // Redirect to the main "plantilla viva" page
-    }, 15000);
+    }, 10000);
 
     // Cleanup timeouts and intervals on component unmount
     return () => {
