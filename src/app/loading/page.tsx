@@ -42,10 +42,10 @@ export default function LoadingPage() {
   }, [router]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-sky-900 via-blue-800 to-indigo-900 bg-200% animate-gradient-bg">
-      <Loader2 className="h-16 w-16 animate-spin text-white mb-6" />
-      <h1 className="text-2xl font-semibold mb-2 text-slate-100">Procesando Pliego</h1>
-      <p className="text-lg text-slate-300">{statusText}</p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-white via-slate-200 to-blue-100 bg-200% animate-gradient-bg">
+      <Loader2 className="h-16 w-16 animate-spin text-blue-600 mb-6" />
+      <h1 className="text-2xl font-semibold mb-2 text-gray-800">Procesando Pliego</h1>
+      <p className="text-lg text-gray-600">{statusText}</p>
     </div>
   );
 }
