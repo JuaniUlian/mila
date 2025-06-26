@@ -44,7 +44,7 @@ export function Logo({ className }: { className?: string }) {
         <defs>
             <linearGradient id="blue-grad" x1="0" y1="0" x2="0" y2="112">
                 <stop offset="0%" stopColor="#1E3A8A" />
-                <stop offset="100%" stopColor="#3B82F6" />
+                <stop offset="100%" stopColor="#1E40AF" />
             </linearGradient>
             <linearGradient id="orange-grad" x1="0" y1="0" x2="0" y2="112">
                 <stop offset="0%" stopColor="#F97316" />
