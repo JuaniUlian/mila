@@ -37,6 +37,7 @@ const initialFolders = [
     { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
   ]},
   { id: 'f2', name: 'Contrataciones Directas', files: [
+    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)' },
     { id: 'file4', name: 'Informe de Contratación Directa.docx' }
   ]},
   { id: 'f3', name: 'Expedientes', files: [
@@ -214,6 +215,7 @@ export default function PreparePage() {
               </FileUploadButton>
               <Button
                 variant="ghost"
+                suppressHydrationWarning
                 className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
                 onClick={() => setIsCreateFolderModalOpen(true)}
               >
@@ -234,7 +236,7 @@ export default function PreparePage() {
         <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
             <AccordionItem value="item-1" className="border-none">
                 <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-                <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
                     <div className="p-6 w-full text-left flex items-center justify-between">
                         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                             <BookCheck className="h-8 w-8 text-primary"/>
@@ -258,6 +260,7 @@ export default function PreparePage() {
 
         <div className="flex justify-center pt-4">
             <Button
+              suppressHydrationWarning
               className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
               onClick={handleValidate}
               disabled={!isValidationReady}
@@ -288,7 +291,7 @@ export default function PreparePage() {
             <DialogClose asChild>
               <Button variant="ghost" onClick={() => setNewFolderName('')}>{t('preparePage.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleCreateFolder}>{t('preparePage.create')}</Button>
+            <Button suppressHydrationWarning onClick={handleCreateFolder}>{t('preparePage.create')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
