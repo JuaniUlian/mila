@@ -52,6 +52,7 @@ const initialRegulations = [
     { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...' },
     { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...' },
     { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...' },
+    { id: 'reg5', name: 'Decreto 795/96', content: 'Contenido del Decreto 795/96...' },
 ];
 
 export default function PreparePage() {
