@@ -128,7 +128,7 @@ export const translations = {
     noPendingIncidents: t('No hay incidencias pendientes de revisión.', 'No pending incidents to review.'),
     documentValidated: t('El documento ha sido completamente validado.', 'The document has been fully validated.'),
     // IncidentItem
-    originalTextContext: t('Contexto del Texto Original', 'Original Text Context'),
+    originalTextContext: t('Texto Original', 'Original Text'),
     improvedProposal: t('Propuesta Mejorada por IA', 'AI-Improved Proposal'),
     draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
     legalJustification: t('Justificación Legal', 'Legal Justification'),
