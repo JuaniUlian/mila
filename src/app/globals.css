@@ -72,4 +72,23 @@
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/30 backdrop-blur-sm border border-white/20 shadow-md;
+  }
+  .card-hud-hover {
+    @apply transition-all duration-300;
+  }
+  .card-hud-hover:hover {
+    @apply bg-white/50 backdrop-blur-lg border-white/30 shadow-2xl scale-105;
+    box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
+  }
 }

@@ -12,8 +12,11 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: 'MILA | Más Inteligencia Legal y Administrativa',
+  title: 'MILA | Gobernar bien es revisar bien',
   description: 'AI-Powered Normative Document Improvement',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
