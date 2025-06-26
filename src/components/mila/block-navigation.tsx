@@ -10,6 +10,13 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Separator } from '../ui/separator';
 
+type NavItem = {
+  name: string;
+  icon: React.ElementType;
+  href?: string;
+  onClick?: () => void;
+};
+
 export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => void }) {
   const pathname = usePathname();
   const { language } = useLanguage();
@@ -20,17 +27,16 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
     setIsClient(true);
   }, []);
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       name: t('sidebar.prepare'),
       icon: FilePlus2,
       href: '/prepare',
     },
     {
-      name: t('sidebar.plusBI'),
-      icon: Globe,
-      href: 'https://pluscompol.com',
-      external: true,
+      name: t('sidebar.settings'),
+      icon: Settings,
+      onClick: onSettingsClick,
     },
   ];
 
@@ -40,12 +46,12 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
     <div className="flex flex-col h-full">
       <nav className="space-y-2">
         {navItems.map((item) => {
-          const isActive = isClient && (item.href === '/' ? pathname === item.href : pathname.startsWith(item.href));
-          const isPrepareButton = item.href === '/prepare';
+          const isActive = isClient && item.href ? (item.href === '/' ? pathname === item.href : pathname.startsWith(item.href)) : false;
+          const isSpecialButton = item.href === '/prepare' || item.name === t('sidebar.settings');
 
           const buttonContent = (
             <>
-              <item.icon size={20} className={cn("mr-3", isPrepareButton || isActive ? "text-white" : "text-slate-400")} />
+              <item.icon size={20} className={cn("mr-3", isSpecialButton || isActive ? "text-white" : "text-slate-400")} />
               <span className="flex-1 truncate font-medium">{item.name}</span>
             </>
           );
@@ -54,7 +60,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
             variant: "ghost" as const,
             className: cn(
               "w-full justify-start text-base h-12 px-3 rounded-lg",
-              isPrepareButton
+              isSpecialButton
                 ? neumorphicClasses
                 : cn(
                     "transition-colors duration-150 ease-in-out",
@@ -67,19 +73,23 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
             suppressHydrationWarning: true,
           };
           
-          if (item.external) {
+          if (item.onClick) {
             return (
-              <Button key={item.name} {...buttonProps} asChild>
-                  <a href={item.href} target="_blank" rel="noopener noreferrer">{buttonContent}</a>
+              <Button key={item.name} {...buttonProps} onClick={item.onClick}>
+                {buttonContent}
               </Button>
             );
           }
 
-          return (
-            <Button key={item.name} {...buttonProps} asChild>
-              <Link href={item.href}>{buttonContent}</Link>
-            </Button>
-          );
+          if (item.href) {
+            return (
+              <Button key={item.name} {...buttonProps} asChild>
+                <Link href={item.href}>{buttonContent}</Link>
+              </Button>
+            );
+          }
+          
+          return null;
         })}
       </nav>
 
@@ -88,11 +98,13 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
         <Button
           variant="ghost"
           className="w-full justify-start text-base h-12 px-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
-          onClick={onSettingsClick}
+          asChild
           suppressHydrationWarning
         >
-          <Settings size={20} className="mr-3 text-slate-400" />
-          <span className="flex-1 truncate font-medium">{t('sidebar.settings')}</span>
+          <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer">
+            <Globe size={20} className="mr-3 text-slate-400" />
+            <span className="flex-1 truncate font-medium">{t('sidebar.plusBI')}</span>
+          </a>
         </Button>
       </div>
     </div>
