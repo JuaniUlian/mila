@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,24 +17,11 @@ const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
   { code: 'pt', name: 'Português', flag: '🇵🇹' },
-  { code: 'zh-CN', name: '中文', flag: '🇨🇳' },
-  { code: 'ja', name: '日本語', flag: '🇯🇵' },
 ];
 
 // Added a variant prop to handle different backgrounds (light/dark)
 export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'dark' }) {
-  const [currentUrl, setCurrentUrl] = useState('');
-
-  // Get the current URL on the client side to avoid hydration errors.
-  useEffect(() => {
-    setCurrentUrl(window.location.href);
-  }, []);
-
-  const getTranslateUrl = (langCode: string) => {
-    if (!currentUrl) return '#';
-    // Using auto-detection for source language (sl=auto).
-    return `https://translate.google.com/translate?sl=auto&tl=${langCode}&u=${encodeURIComponent(currentUrl)}`;
-  };
+  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   
   return (
     <DropdownMenu>
@@ -48,18 +35,18 @@ export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'da
                 variant === 'light' && "text-gray-600 hover:bg-slate-200/50"
             )}>
           <Globe className="mr-3 h-5 w-5" />
-          {/* Using a generic label as selection is now external */}
-          <span className="flex-1 truncate font-medium">Idioma</span>
+          <span className="flex-1 truncate font-medium">{selectedLanguage.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         {languages.map((lang) => (
-          // DropdownMenuItem with asChild prop will render its child (the <a> tag) and pass props to it.
-          <DropdownMenuItem key={lang.code} asChild>
-            <a href={getTranslateUrl(lang.code)} className="flex items-center cursor-pointer w-full">
-                <span className="mr-2 text-lg">{lang.flag}</span>
-                <span>{lang.name}</span>
-            </a>
+          <DropdownMenuItem 
+            key={lang.code} 
+            onSelect={() => setSelectedLanguage(lang)}
+            className="flex items-center cursor-pointer w-full"
+          >
+            <span className="mr-2 text-lg">{lang.flag}</span>
+            <span>{lang.name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
