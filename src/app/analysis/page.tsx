@@ -3,7 +3,8 @@
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { mockData as initialMockData } from '@/components/mila/mock-data';
+import { mockData as defaultMockData } from '@/components/mila/mock-data';
+import { upsMockData } from '@/components/mila/mock-data-ups';
 import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/types';
 import { useLayout } from '@/context/LayoutContext';
 
@@ -14,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { Loader2 } from 'lucide-react';
 
 // Define severity weights for score calculation
 const severityWeights: { [key in Suggestion['severity']]: number } = {
@@ -23,7 +25,8 @@ const severityWeights: { [key in Suggestion['severity']]: number } = {
 };
 
 export default function PlanillaVivaPage() {
-  const [documentData, setDocumentData] = useState<MilaAppPData>(initialMockData);
+  const [initialData, setInitialData] = useState<MilaAppPData | null>(null);
+  const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
   const { setScore } = useLayout();
@@ -32,57 +35,36 @@ export default function PlanillaVivaPage() {
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
-  }, []);
 
-  useEffect(() => {
     const savedFileName = localStorage.getItem('selectedDocumentName');
-    if (savedFileName) {
-      setDocumentData(prevData => ({
-        ...prevData,
-        documentTitle: `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`,
-      }));
+    let dataToLoad: MilaAppPData;
+
+    if (savedFileName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
+      dataToLoad = upsMockData;
+    } else {
+      // Make a copy to avoid mutation issues
+      dataToLoad = JSON.parse(JSON.stringify(defaultMockData));
+      if (savedFileName) {
+        dataToLoad.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
+      }
     }
+    setInitialData(dataToLoad);
+    setDocumentData(dataToLoad);
   }, [t]);
 
-  const { documentTitle, blocks, overallComplianceScore } = documentData;
-
-  useEffect(() => {
-    setScore(overallComplianceScore);
-    // Cleanup function to reset the score when the page is left
-    return () => {
-      setScore(null);
-    };
-  }, [overallComplianceScore, setScore]);
-  
-  // Calculate total possible severity weight from all suggestions in the initial data
   const totalSeverityWeight = useMemo(() => {
-    return initialMockData.blocks.reduce((total, block) => {
+    if (!initialData) return 0;
+    return initialData.blocks.reduce((total, block) => {
       return total + block.suggestions.reduce((blockTotal, suggestion) => {
         return blockTotal + (severityWeights[suggestion.severity] || 0);
       }, 0);
     }, 0);
-  }, []);
-
-  const allSuggestions = useMemo(() => blocks.flatMap(block => 
-    block.suggestions.map(s => ({ ...s, blockId: block.id }))
-  ), [blocks]);
-
-  const totalSuggestions = useMemo(() => allSuggestions.length, [allSuggestions]);
-  const appliedSuggestionsCount = useMemo(() => allSuggestions.filter(s => s.status === 'applied').length, [allSuggestions]);
-
-  const getDynamicBackgroundClass = useCallback((score: number): string => {
-    if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white'; // Dark Red for very low scores
-    if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white'; // Orange for low scores
-    if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white'; // Yellow for medium scores
-    if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white'; // Green for good scores
-    if (score < 95) return 'from-slate-500/50 via-slate-100/50 to-white'; // Muted Blue for very good scores
-    return 'from-slate-200/50 via-slate-100/50 to-white'; // Almost white for excellent scores
-  }, []);
-
-  const backgroundClass = useMemo(() => getDynamicBackgroundClass(overallComplianceScore), [overallComplianceScore, getDynamicBackgroundClass]);
+  }, [initialData]);
 
   const recalculateScores = useCallback((updatedBlocks: DocumentBlock[]): { newComplianceScore: number, newCompletenessIndex: number } => {
-    const baseScore = initialMockData.overallComplianceScore; // Start from the initial score
+    if (!initialData) return { newComplianceScore: 0, newCompletenessIndex: 0 };
+
+    const baseScore = initialData.overallComplianceScore;
     const maxScore = 100;
     const pointsToGain = maxScore - baseScore;
 
@@ -90,7 +72,6 @@ export default function PlanillaVivaPage() {
     let resolvedSeverityWeight = 0;
     updatedBlocks.forEach(block => {
       block.suggestions.forEach(suggestion => {
-        // Only count 'applied' suggestions for score increase.
         if (suggestion.status === 'applied') {
           resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
         }
@@ -119,11 +100,33 @@ export default function PlanillaVivaPage() {
       newComplianceScore,
       newCompletenessIndex: Math.min(10, Math.max(0, newCompletenessIndex)),
     };
+  }, [totalSeverityWeight, t, initialData]);
 
-  }, [totalSeverityWeight, t]);
+  useEffect(() => {
+    if (documentData) {
+        setScore(documentData.overallComplianceScore);
+    }
+    // Cleanup function to reset the score when the page is left
+    return () => {
+      setScore(null);
+    };
+  }, [documentData, setScore]);
+  
+  const backgroundClass = useMemo(() => {
+    const getDynamicBackgroundClass = (score: number): string => {
+        if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white';
+        if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white';
+        if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white';
+        if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white';
+        if (score < 95) return 'from-slate-500/50 via-slate-100/50 to-white';
+        return 'from-slate-200/50 via-slate-100/50 to-white';
+    };
+    return documentData ? getDynamicBackgroundClass(documentData.overallComplianceScore) : 'from-slate-200/50 via-slate-100/50 to-white';
+  }, [documentData]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
+      if (!prevData) return null;
       const updatedBlocks = [...prevData.blocks];
       const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
       if (blockIndex === -1) return prevData;
@@ -135,7 +138,6 @@ export default function PlanillaVivaPage() {
       const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
       if (suggestionToUpdate.status === newStatus) return prevData; 
 
-      // Only update completeness if a pending suggestion is applied
       if (suggestionToUpdate.status === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
         blockToUpdate.completenessIndex = Math.min(
           blockToUpdate.maxCompleteness, 
@@ -174,6 +176,7 @@ export default function PlanillaVivaPage() {
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
     setDocumentData(prevData => {
+      if (!prevData) return null;
       const updatedBlocks = [...prevData.blocks];
       const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
       if (blockIndex === -1) return prevData;
@@ -184,7 +187,6 @@ export default function PlanillaVivaPage() {
 
       const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
 
-      // Apply completeness impact only if it was pending before this edit
       if (suggestionToUpdate.status === 'pending' && suggestionToUpdate.completenessImpact) {
         blockToUpdate.completenessIndex = Math.min(
           blockToUpdate.maxCompleteness, 
@@ -193,7 +195,7 @@ export default function PlanillaVivaPage() {
       }
 
       suggestionToUpdate.text = newText;
-      suggestionToUpdate.status = 'applied'; // Editing and saving applies the change
+      suggestionToUpdate.status = 'applied';
 
       blockToUpdate.suggestions = [...blockToUpdate.suggestions];
       blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
@@ -216,6 +218,7 @@ export default function PlanillaVivaPage() {
   }, [toast, recalculateScores, t]);
 
   const handleDownloadReport = () => {
+    if (!documentData) return;
     try {
       localStorage.setItem('milaReportData', JSON.stringify(documentData));
       setIsReportModalOpen(true);
@@ -228,6 +231,22 @@ export default function PlanillaVivaPage() {
       });
     }
   };
+
+  if (!documentData || !initialData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-100">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const { documentTitle, blocks, overallComplianceScore } = documentData;
+  
+  const allSuggestions = blocks.flatMap(block => 
+    block.suggestions.map(s => ({ ...s, blockId: block.id }))
+  );
+  const totalSuggestions = allSuggestions.length;
+  const appliedSuggestionsCount = allSuggestions.filter(s => s.status === 'applied').length;
 
   return (
     <div className={cn("bg-gradient-to-b transition-all duration-1000", backgroundClass)}>

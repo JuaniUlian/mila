@@ -33,6 +33,7 @@ import { useTranslations } from '@/lib/translations';
 const initialFolders = [
   { id: 'f1', name: 'Pliegos 2025', files: [
     { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf' },
+    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)' },
     { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx' },
     { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
   ]},
@@ -197,6 +198,7 @@ export default function PreparePage() {
               <div className="relative flex-grow w-full">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
+                  suppressHydrationWarning
                   placeholder={t('preparePage.searchPlaceholder')}
                   className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
                   value={searchQuery}
