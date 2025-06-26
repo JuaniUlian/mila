@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -113,10 +112,6 @@ export default function LandingPage() {
               <div className={cardBaseClasses}>
                 <h4 className="text-5xl font-extrabold text-pink-600">100%</h4>
                 <p className="mt-2 font-medium">Conformidad con criterios de control legal y administrativo</p>
-              </div>
-              <div className={cardBaseClasses}>
-                <h4 className="text-5xl font-extrabold text-teal-500">24 hs</h4>
-                <p className="mt-2 font-medium">Tiempo de puesta en marcha promedio</p>
               </div>
             </div>
           </div>
