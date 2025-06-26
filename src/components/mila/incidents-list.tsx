@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Check, Edit3, Trash2, Save, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2 } from 'lucide-react';
+import { ChevronDown, Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -210,7 +210,7 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
                                       </>
                                   ) : (
                                       <>
-                                          <Save className="mr-2 h-4 w-4" />
+                                          <Sparkles className="mr-2 h-4 w-4" />
                                           Validar
                                       </>
                                   )}
