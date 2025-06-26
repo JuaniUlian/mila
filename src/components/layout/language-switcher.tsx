@@ -56,7 +56,7 @@ export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'da
         {languages.map((lang) => (
           // DropdownMenuItem with asChild prop will render its child (the <a> tag) and pass props to it.
           <DropdownMenuItem key={lang.code} asChild>
-            <a href={getTranslateUrl(lang.code)} target="_blank" rel="noopener noreferrer" className="flex items-center cursor-pointer w-full">
+            <a href={getTranslateUrl(lang.code)} className="flex items-center cursor-pointer w-full">
                 <span className="mr-2 text-lg">{lang.flag}</span>
                 <span>{lang.name}</span>
             </a>
