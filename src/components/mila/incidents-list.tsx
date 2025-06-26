@@ -186,6 +186,8 @@ const IncidentItem: React.FC<IncidentItemProps> = ({ suggestion, originalText, o
 
 
 export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, onUpdateSuggestionText, overallComplianceScore }: IncidentsListProps) {
+  const [focusedCategories, setFocusedCategories] = useState<string[]>([]);
+  
   const severityOrder: { [key in SuggestionSeverity]: number } = {
     high: 0,
     medium: 1,
@@ -221,55 +223,83 @@ export function IncidentsList({ suggestions, blocks, onUpdateSuggestionStatus, o
   
   const useDarkText = overallComplianceScore >= 75;
 
+  const handleOverlayClick = () => {
+    setFocusedCategories([]);
+  };
+
   return (
-    <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-      <CardHeader className="p-4 border-b border-white/10">
-        <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto p-4">
-        <ScrollArea className="h-full w-full pr-2">
-            {pendingSuggestions.length > 0 ? (
-                <Accordion type="multiple" className="space-y-4">
-                {groupedSuggestions.map(([category, s_group]) => {
-                    const gradientStyle = getCategoryGradientStyle(s_group);
-                    return(
-                    <AccordionItem key={category} value={category} className="group relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300 ease-out hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/30 hover:border-primary/30">
-                        <div 
-                            className="absolute left-0 top-0 bottom-0 w-1.5"
-                            style={gradientStyle}
-                        />
-                        <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300">
-                            <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary-foreground transition-colors">{category} ({s_group.length})</span>
-                        </AccordionTrigger>
-                        <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-amber-100 to-amber-50">
-                            {s_group.map(suggestion => (
-                            <IncidentItem 
-                                key={suggestion.id}
-                                suggestion={suggestion}
-                                originalText={getOriginalText(suggestion.blockId)}
-                                onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
-                                onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                            />
-                            ))}
-                        </AccordionContent>
-                    </AccordionItem>
-                    )
-                })}
-                </Accordion>
-            ) : (
-                <div className="h-full flex items-center justify-center">
-                    <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
-                        <CardContent className="p-0 flex flex-col items-center justify-center text-center">
-                            <Check className="w-16 h-16 text-green-400 mb-4" />
-                            <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>¡Excelente!</h3>
-                            <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>No hay incidencias pendientes de revisión.</p>
-                            <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>El documento ha sido completamente validado.</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
-        </ScrollArea>
-      </CardContent>
-    </Card>
+    <>
+      {focusedCategories.length > 0 && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-10 animate-in fade-in-0"
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        />
+      )}
+      <Card className="h-full flex flex-col bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
+        <CardHeader className="p-4 border-b border-white/10">
+          <CardTitle className="text-xl font-bold text-card-foreground">Incidencias y Sugerencias</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 overflow-y-auto p-4">
+          <ScrollArea className="h-full w-full pr-2">
+              {pendingSuggestions.length > 0 ? (
+                  <Accordion
+                    type="multiple"
+                    className="space-y-4"
+                    value={focusedCategories}
+                    onValueChange={setFocusedCategories}
+                  >
+                  {groupedSuggestions.map(([category, s_group]) => {
+                      const gradientStyle = getCategoryGradientStyle(s_group);
+                      const isFocused = focusedCategories.includes(category);
+                      return(
+                      <AccordionItem
+                        key={category}
+                        value={category}
+                        className={cn(
+                          "group relative border rounded-lg border-white/10 bg-background/20 overflow-hidden shadow-md transition-all duration-300 ease-out",
+                          isFocused
+                            ? "z-20 scale-[1.02]"
+                            : "hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/30 hover:border-primary/30"
+                        )}
+                      >
+                          <div 
+                              className="absolute left-0 top-0 bottom-0 w-1.5"
+                              style={gradientStyle}
+                          />
+                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none group-hover:bg-primary/90 transition-colors duration-300">
+                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground group-hover:text-primary-foreground transition-colors">{category} ({s_group.length})</span>
+                          </AccordionTrigger>
+                          <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3 bg-gradient-to-b from-slate-50 to-slate-100">
+                              {s_group.map(suggestion => (
+                              <IncidentItem 
+                                  key={suggestion.id}
+                                  suggestion={suggestion}
+                                  originalText={getOriginalText(suggestion.blockId)}
+                                  onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
+                                  onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
+                              />
+                              ))}
+                          </AccordionContent>
+                      </AccordionItem>
+                      )
+                  })}
+                  </Accordion>
+              ) : (
+                  <div className="h-full flex items-center justify-center">
+                      <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
+                          <CardContent className="p-0 flex flex-col items-center justify-center text-center">
+                              <Check className="w-16 h-16 text-green-400 mb-4" />
+                              <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>¡Excelente!</h3>
+                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>No hay incidencias pendientes de revisión.</p>
+                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>El documento ha sido completamente validado.</p>
+                          </CardContent>
+                      </Card>
+                  </div>
+              )}
+          </ScrollArea>
+        </CardContent>
+      </Card>
+    </>
   );
 }
