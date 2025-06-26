@@ -12,7 +12,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: 'Mila - Plantilla Viva',
+  title: 'MILA | Más Inteligencia Legal y Administrativa',
   description: 'AI-Powered Normative Document Improvement',
 };
 

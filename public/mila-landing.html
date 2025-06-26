@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MILA | Gobernar bien es revisar bien.</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="icon" href="https://drive.usercontent.google.com/download?id=1-18m2y9f12dD_2dE_J4f9vB-vQ3j-4Cg" type="image/png">
+  <link rel="icon" href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" type="image/png">
   <style>
     body {
       background: linear-gradient(to bottom right, #ffffff, #d4d4d4);
@@ -26,55 +26,28 @@
 </head>
 <body class="text-gray-900">
   <header class="glass max-w-7xl mx-auto mt-6 px-4 py-6 flex justify-between items-center">
-    <div class="flex-shrink-0">
-       <svg
-        width="112"
-        height="112"
-        viewBox="0 0 112 112"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        data-ai-hint="logo company"
-        class="h-12 w-auto"
-      >
-        {/* Rounded rectangle border with gradient */}
-        <rect
-          x="2"
-          y="2"
-          width="108"
-          height="108"
-          rx="20"
-          ry="20"
-          fill="none"
-          stroke="url(#border-grad)"
-          strokeWidth="3"
-        />
-        
-        {/* Text with gradient */}
-        <g fontFamily="sans-serif" fontSize="48" fontWeight="600" fill="url(#text-grad)" textAnchor="middle">
-            {/* Top Row: MI */}
-            <text x="34" y="48">M</text>
-            <text x="78" y="48">I</text>
-
-            {/* Bottom Row: LA */}
-            <text x="34" y="92">L</text>
-            <text x="78" y="92">A</text>
-        </g>
-
-        <defs>
-            <linearGradient id="text-grad" x1="0" y1="0" x2="0" y2="112">
-                <stop offset="0%" stopColor="#EAEAEA" />
-                <stop offset="100%" stopColor="#A0A0A0" />
-            </linearGradient>
-             <linearGradient id="border-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="100%" stopColor="#A9A9A9" />
-            </linearGradient>
-        </defs>
-      </svg>
-    </div>
+    <svg class="h-12 w-auto" width="112" height="112" viewBox="0 0 112 112" fill="none" xmlns="http://www.w3.org/2000/svg" data-ai-hint="logo company">
+      <rect x="2" y="2" width="108" height="108" rx="20" ry="20" fill="none" stroke="url(#border-grad-landing)" stroke-width="3"></rect>
+      <g font-family="sans-serif" font-size="48" font-weight="600" fill="url(#text-grad-landing)" text-anchor="middle">
+        <text x="34" y="48">M</text>
+        <text x="78" y="48">I</text>
+        <text x="34" y="92">L</text>
+        <text x="78" y="92">A</text>
+      </g>
+      <defs>
+        <linearGradient id="text-grad-landing" x1="0" y1="0" x2="0" y2="112">
+          <stop offset="0%" stop-color="#737373"></stop>
+          <stop offset="100%" stop-color="#1a1a1a"></stop>
+        </linearGradient>
+        <linearGradient id="border-grad-landing" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFFFF"></stop>
+          <stop offset="100%" stop-color="#A9A9A9"></stop>
+        </linearGradient>
+      </defs>
+    </svg>
     <div class="space-x-4">
       <a href="/prepare" class="bg-blue-600 text-white px-4 py-2 rounded shadow transition-hover">Ir a Demo</a>
-      <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" class="border border-blue-600 text-blue-600 px-4 py-2 rounded shadow transition-hover">Descargá el dossier</a>
+      <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" class="border border-blue-600 text-blue-600 px-4 py-2 rounded shadow transition-hover">Descargá el dossier</a>
     </div>
   </header>
 
@@ -113,64 +86,84 @@
     </div>
   </section>
 
-  <section class="py-20 px-6 max-w-6xl mx-auto">
-    <h3 class="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h3>
-    <div class="grid md:grid-cols-2 gap-8">
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-2">Entrenamiento especializado</h4>
-        <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
-      </div>
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-2">Entiende documentos públicos</h4>
-        <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
-      </div>
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-2">Detecta riesgos, no solo errores</h4>
-        <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
-      </div>
-      <div class="glass p-6 rounded shadow">
-        <h4 class="text-2xl font-semibold mb-2">Diseñada para gobiernos</h4>
-        <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
+  <section class="bg-white py-20">
+    <div class="max-w-6xl mx-auto text-center px-6">
+      <h3 class="text-4xl font-bold mb-4">Resultados Reales</h3>
+      <p class="mb-10 italic text-sm text-gray-600">*Basado en promedios de uso en gobiernos de distintas escalas</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-5xl font-extrabold text-green-600">+67%</h4>
+          <p class="mt-2 font-medium">Errores detectados vs revisión humana</p>
+        </div>
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-3xl font-extrabold text-blue-600">3 min vs 80 días</h4>
+          <p class="mt-2 font-medium">Tiempo de revisión MILA vs circuito tradicional</p>
+        </div>
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-5xl font-extrabold text-purple-600">+82%</h4>
+          <p class="mt-2 font-medium">Gobiernos reportan mejoras en control interno</p>
+        </div>
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-5xl font-extrabold text-yellow-500">76%</h4>
+          <p class="mt-2 font-medium">Reducción de tiempos en validación de circuitos internos</p>
+        </div>
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-5xl font-extrabold text-indigo-500">+15</h4>
+          <p class="mt-2 font-medium">Tipos de documentos ya validados en municipios reales</p>
+        </div>
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-5xl font-extrabold text-pink-600">100%</h4>
+          <p class="mt-2 font-medium">Conformidad con criterios de control legal y administrativo</p>
+        </div>
+        <div class="glass p-6 rounded shadow text-center">
+          <h4 class="text-5xl font-extrabold text-teal-500">24 hs</h4>
+          <p class="mt-2 font-medium">Tiempo de puesta en marcha promedio</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="bg-white py-20">
-  <div class="max-w-6xl mx-auto text-center">
-    <h3 class="text-4xl font-bold mb-4">Resultados Reales</h3>
-    <p class="mb-10 italic text-sm text-gray-600">*Basado en promedios de uso en gobiernos de distintas escalas</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-5xl font-extrabold text-green-600">+67%</h4>
-        <p class="mt-2 font-medium">Errores detectados vs revisión humana</p>
+  <section class="py-20 px-6 max-w-6xl mx-auto">
+    <h3 class="text-4xl font-bold mb-10 text-center">¿En qué se diferencia de ChatGPT y otras IA?</h3>
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-3 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"></path>
+          </svg>
+          <span>Entrenamiento especializado</span>
+        </h4>
+        <p>MILA está entrenada específicamente con normativa local que le cargues, prácticas de control interno y criterios de auditoría. No es una IA genérica.</p>
       </div>
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-3xl font-extrabold text-blue-600">3 min vs 80 días</h4>
-        <p class="mt-2 font-medium">Tiempo de revisión MILA vs circuito tradicional</p>
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-3 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>Entiende documentos públicos</span>
+        </h4>
+        <p>Puede identificar contratos, decretos, resoluciones y documentos administrativos con lógica jurídica-administrativa, no solo texto libre.</p>
       </div>
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-5xl font-extrabold text-purple-600">+82%</h4>
-        <p class="mt-2 font-medium">Gobiernos reportan mejoras en control interno</p>
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-3 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <span>Detecta riesgos, no solo errores</span>
+        </h4>
+        <p>MILA no corrige ortografía: clasifica observaciones por riesgo legal, operativo o de control, con semáforo y recomendaciones aplicables.</p>
       </div>
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-5xl font-extrabold text-yellow-500">76%</h4>
-        <p class="mt-2 font-medium">Reducción de tiempos en validación de circuitos internos</p>
-      </div>
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-5xl font-extrabold text-indigo-500">+15</h4>
-        <p class="mt-2 font-medium">Tipos de documentos ya validados en municipios reales</p>
-      </div>
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-5xl font-extrabold text-pink-600">100%</h4>
-        <p class="mt-2 font-medium">Conformidad con criterios de control legal y administrativo</p>
-      </div>
-      <div class="glass p-6 rounded shadow text-center">
-        <h4 class="text-5xl font-extrabold text-teal-500">24 hs</h4>
-        <p class="mt-2 font-medium">Tiempo de puesta en marcha promedio</p>
+      <div class="glass p-6 rounded shadow">
+        <h4 class="text-2xl font-semibold mb-3 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-4 text-blue-700 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h6M9 12h6m-6 5.25h6M5.25 21v-2.25a2.25 2.25 0 012.25-2.25h8.5a2.25 2.25 0 012.25 2.25V21"></path>
+          </svg>
+          <span>Diseñada para gobiernos</span>
+        </h4>
+        <p>Desde la carga hasta los reportes, todo está pensado para secretarías legales, equipos técnicos y áreas administrativas del Estado.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <section class="py-20 px-6 max-w-6xl mx-auto">
     <h3 class="text-4xl font-bold mb-10 text-center">Preguntas Frecuentes</h3>
@@ -189,7 +182,7 @@
       </details>
       <details class="glass p-4 rounded shadow">
         <summary class="font-semibold cursor-pointer">¿Cuánto tiempo toma capacitar a mi equipo?</summary>
-        <p class="mt-2">MILA es intuitiva. En menos de 2 horas tu equipo puede usarla con autonomía total.</p>
+        <p class="mt-2">MILA es intuitiva. En promedio, en menos de 2 horas tu equipo puede usarla con autonomía total.</p>
       </details>
       <details class="glass p-4 rounded shadow">
         <summary class="font-semibold cursor-pointer">¿Qué costo tiene?</summary>
@@ -210,24 +203,31 @@
     </div>
   </section>
 
-  <footer class="bg-gray-900 text-gray-300 py-8 text-center text-sm">
-    <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6">
-        <span>MILA es una solución GovTech desarrollada por PLUS BI</span>
+  <footer class="bg-gray-900 text-gray-300 py-8 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6 text-center text-sm">
+        <span class="font-semibold">MILA es una solución GovTech desarrollada por PLUS BI</span>
         <span class="hidden md:inline">|</span>
-        <a href="mailto:juan.ulian@pluscompol.com" class="flex items-center gap-2 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-            juan.ulian@pluscompol.com
-        </a>
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <span>juan.ulian@pluscompol.com</span>
+        </div>
         <span class="hidden md:inline">|</span>
-        <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h8a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.938 6.062a11 11 0 001-5.625m1-5.625a11 11 0 0110.125 0M3.055 11a11.002 11.002 0 010 2m17.89 0a11.002 11.002 0 010-2M7.938 17.938a11 11 0 00-1-5.625m-1-5.625a11 11 0 00-10.125 0M20.945 11a11.002 11.002 0 000 2m-17.89 0a11.002 11.002 0 000-2"></path></svg>
-            pluscompol.com
-        </a>
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m0 18a9 9 0 009-9m-9 9a9 9 0 00-9-9"></path>
+            </svg>
+            <span>pluscompol.com</span>
+        </div>
         <span class="hidden md:inline">|</span>
-        <span class="flex items-center gap-2">
-           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            Argentina
-        </span>
+        <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>Argentina</span>
+        </div>
     </div>
   </footer>
 </body>
