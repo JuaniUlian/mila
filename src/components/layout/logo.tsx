@@ -46,9 +46,9 @@ export function Logo({ className }: { className?: string }) {
                 <stop offset="0%" stopColor="#EAEAEA" />
                 <stop offset="100%" stopColor="#A0A0A0" />
             </linearGradient>
-             <linearGradient id="border-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="100%" stopColor="#A9A9A9" />
+             <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#1E40AF" />
+                <stop offset="100%" stopColor="#F97316" />
             </linearGradient>
         </defs>
       </svg>

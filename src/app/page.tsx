@@ -18,7 +18,7 @@ export default function LandingPage() {
       <header className="glass max-w-7xl mx-auto mt-6 px-4 py-3 flex justify-between items-center sticky top-4 z-50">
         <Link href="/">
           <span className="sr-only">MILA Home</span>
-          <Logo className="h-10 w-auto" />
+          <Logo className="h-8 w-auto" />
         </Link>
         <div className="flex items-center space-x-2 sm:space-x-4">
           <LanguageSwitcher variant="light" />
