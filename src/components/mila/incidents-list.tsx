@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2 } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronDown } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -14,6 +14,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -222,7 +228,6 @@ export function IncidentsList({
 }: IncidentsListProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const [openCategories, setOpenCategories] = useState<string[]>([]);
   
   const severityOrder: { [key in SuggestionSeverity]: number } = { high: 0, medium: 1, low: 2 };
 
@@ -244,25 +249,13 @@ export function IncidentsList({
       .filter(group => group.suggestions.length > 0);
   }, [pendingSuggestions]);
 
-  const focusedCategory = useMemo(() => {
-    if (!focusedIncidentId) return null;
-    return groupedSuggestions.find(g => g.suggestions.some(s => s.id === focusedIncidentId))?.category;
-  }, [focusedIncidentId, groupedSuggestions]);
-
-  useEffect(() => {
-    if (focusedCategory && !openCategories.includes(focusedCategory)) {
-        setOpenCategories(prev => [...prev, focusedCategory]);
-    }
-  }, [focusedCategory, openCategories]);
-
-
   const getOriginalText = (blockId: string) => {
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
   }
   
   const useDarkText = overallComplianceScore >= 75;
   const getTranslatedCategory = (category: SuggestionCategory) => t(`suggestionCategories.${category}`);
-  const isAnyIncidentFocused = !!focusedIncidentId;
+  const isFocusMode = !!focusedIncidentId;
 
   return (
     <div className="relative h-full">
@@ -273,10 +266,9 @@ export function IncidentsList({
         <CardContent className="flex-1 overflow-y-auto p-4">
           <ScrollArea className="h-full w-full pr-2">
               {pendingSuggestions.length > 0 ? (
-                  <Accordion type="multiple" value={openCategories} onValueChange={setOpenCategories} className="space-y-4">
+                  <div className="space-y-4">
                   {groupedSuggestions.map(({ category, suggestions: s_group }) => {
-                      const gradientStyle = getCategoryGradientStyle(s_group);
-                      const isCategoryInFocus = category === focusedCategory;
+                      const isCategoryInFocus = isFocusMode && s_group.some(s => s.id === focusedIncidentId);
 
                       return(
                       <AccordionItem
@@ -287,40 +279,48 @@ export function IncidentsList({
                           isCategoryInFocus && 'z-50 scale-105 bg-card shadow-2xl'
                         )}
                       >
-                          <div className="absolute left-0 top-0 bottom-0 w-1.5" style={gradientStyle}/>
+                          <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/10 rounded-lg data-[state=open]:rounded-b-none transition-colors duration-300">
                               <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
-                              <Accordion type="single" collapsible className="w-full space-y-3" value={focusedIncidentId || undefined} onValueChange={(v) => setFocusedIncidentId(v || null)}>
-                                {s_group.map(suggestion => (
-                                  <div key={suggestion.id} className="relative pl-3 rounded-lg">
+                              {s_group.map(suggestion => (
+                                <Collapsible 
+                                  key={suggestion.id} 
+                                  open={focusedIncidentId === suggestion.id}
+                                  onOpenChange={(isOpen) => {
+                                    setFocusedIncidentId(isOpen ? suggestion.id : null);
+                                  }}
+                                  className="border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none bg-card/90"
+                                >
+                                  <div className="relative pl-3">
                                     <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
-                                    <AccordionItem value={suggestion.id} className="border rounded-lg shadow-sm overflow-hidden incident-card-hover border-none bg-card/90">
-                                        <AccordionTrigger className="p-4 w-full hover:no-underline [&_svg]:data-[state=open]:text-primary">
-                                            <div className="flex-1 space-y-1 pr-4 text-left">
-                                                <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-                                                <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
-                                            </div>
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                          <IncidentItemContent 
-                                            suggestion={suggestion}
-                                            originalText={getOriginalText(suggestion.blockId)}
-                                            onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
-                                            onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
-                                            onClose={() => setFocusedIncidentId(null)}
-                                          />
-                                        </AccordionContent>
-                                    </AccordionItem>
+                                      <CollapsibleTrigger asChild>
+                                        <button className="p-4 w-full flex items-center justify-between text-left hover:bg-accent/50 transition-colors">
+                                          <div className="flex-1 space-y-1 pr-4">
+                                              <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
+                                              <p className="text-sm text-muted-foreground">Normativa: {suggestion.appliedNorm}</p>
+                                          </div>
+                                          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 data-[state=open]:rotate-180" />
+                                        </button>
+                                      </CollapsibleTrigger>
+                                      <CollapsibleContent>
+                                        <IncidentItemContent 
+                                          suggestion={suggestion}
+                                          originalText={getOriginalText(suggestion.blockId)}
+                                          onUpdateStatus={(newStatus) => onUpdateSuggestionStatus(suggestion.blockId, suggestion.id, newStatus)}
+                                          onUpdateText={(newText) => onUpdateSuggestionText(suggestion.blockId, suggestion.id, newText)}
+                                          onClose={() => setFocusedIncidentId(null)}
+                                        />
+                                      </CollapsibleContent>
                                   </div>
-                                ))}
-                              </Accordion>
+                                </Collapsible>
+                              ))}
                           </AccordionContent>
                       </AccordionItem>
                       )
                   })}
-                  </Accordion>
+                  </div>
               ) : (
                   <div className="h-full flex items-center justify-center">
                       <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
