@@ -19,7 +19,7 @@ export function BlockNavigation({ onSettingsClick }: { onSettingsClick: () => vo
     {
       name: t('sidebar.prepare'),
       icon: FilePlus2,
-      href: '/',
+      href: '/prepare',
     },
     {
       name: t('sidebar.plusBI'),
