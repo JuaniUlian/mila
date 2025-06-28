@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FileSignature } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -240,9 +240,9 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
 };
 
 const categoryIcons: { [key in SuggestionCategory]: React.ElementType } = {
-  Legal: Gavel,
+  Legal: Scale,
   Administrativa: ClipboardList,
-  Redacción: FileSignature,
+  Redacción: FilePen,
 };
 
 const getHighestSeverityColorClass = (suggestions: SuggestionWithBlockId[]): string => {
@@ -325,7 +325,10 @@ export function IncidentsList({
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300">
                               <div className="flex items-center gap-3 flex-1">
                                 {Icon && <Icon className={cn("h-6 w-6", iconColorClass)} />}
-                                <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length} {s_group.length === 1 ? t('analysisPage.pendingSingular') : t('analysisPage.pendingPlural')})</span>
+                                <span className="text-lg font-semibold text-left text-card-foreground transition-colors">{getTranslatedCategory(category)}</span>
+                              </div>
+                              <div className="bg-white/40 backdrop-blur-sm text-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-inner mr-2">
+                                  {s_group.length} {s_group.length === 1 ? t('analysisPage.pendingSingular') : t('analysisPage.pendingPlural')}
                               </div>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
