@@ -17,6 +17,7 @@ export interface Suggestion {
   completenessImpact: number; // How much applying this suggestion contributes to completeness
   severity: SuggestionSeverity;
   category: SuggestionCategory;
+  isEditable?: boolean;
 }
 
 export interface DocumentBlock {

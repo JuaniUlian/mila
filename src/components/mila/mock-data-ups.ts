@@ -33,6 +33,7 @@ const block2Suggestions: Suggestion[] = [
     estimatedConsequence: "Nulidad del proceso por vicios de procedimiento, rechazo por parte de los organismos de control.",
     status: 'pending',
     completenessImpact: 2.5,
+    isEditable: true,
   },
 ];
 
@@ -69,6 +70,7 @@ const block4Suggestions: Suggestion[] = [
     estimatedConsequence: "Riesgo de impugnaciones, anulación del proceso por favorecer a un oferente, y cuestionamientos de los organismos de control.",
     status: 'pending',
     completenessImpact: 3.0,
+    isEditable: true,
   },
 ];
 
@@ -87,6 +89,7 @@ const block5Suggestions: Suggestion[] = [
     estimatedConsequence: "Debilitamiento de la justificación de urgencia, posibles observaciones de los organismos de control por inconsistencias en el pliego.",
     status: 'pending',
     completenessImpact: 1.5,
+    isEditable: true,
   },
 ];
 

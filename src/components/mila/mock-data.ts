@@ -16,6 +16,7 @@ const block1Suggestions: Suggestion[] = [
     estimatedConsequence: "Posibles costos adicionales no presupuestados para actualizaciones.",
     status: 'pending',
     completenessImpact: 1.0,
+    isEditable: true,
   },
   {
     id: 'sug-generic-1-obj',
@@ -31,6 +32,7 @@ const block1Suggestions: Suggestion[] = [
     estimatedConsequence: "Consultas recurrentes, posibles protestas o impugnaciones.",
     status: 'pending',
     completenessImpact: 0.8,
+    isEditable: true,
   },
 ];
 
@@ -49,6 +51,7 @@ const block2Suggestions: Suggestion[] = [
     estimatedConsequence: "Riesgo de selección no objetiva, posibles demandas.",
     status: 'pending',
     completenessImpact: 1.2,
+    isEditable: true,
   },
   {
     id: 'sug-generic-2-req',
@@ -64,6 +67,7 @@ const block2Suggestions: Suggestion[] = [
     estimatedConsequence: "Dificultad en la interpretación y aplicación del pliego.",
     status: 'pending',
     completenessImpact: 0.7,
+    isEditable: true,
   },
 ];
 
@@ -137,6 +141,7 @@ export const mockData: MilaAppPData = {
           },
           appliedNorm: "Ley 1150 de 2007, Art. 5", errorType: "Falta de detalle en criterios", estimatedConsequence: "Riesgo de impugnaciones por subjetividad.", status: 'pending',
           completenessImpact: 1.0,
+          isEditable: true,
         }
       ],
       alerts: [
@@ -168,6 +173,7 @@ export const mockData: MilaAppPData = {
           },
           appliedNorm: "Ley 1437 de 2011", errorType: "Omisión procedimental", estimatedConsequence: "Posibles nulidades en la imposición de sanciones.", status: 'pending',
           completenessImpact: 0.5,
+          isEditable: true,
         }
       ],
       alerts: [],

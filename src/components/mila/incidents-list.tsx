@@ -166,9 +166,11 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                   <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
-                      <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
-                  </Button>
+                  {suggestion.isEditable && (
+                    <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
+                        <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
+                    </Button>
+                  )}
                   <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, redButtonClasses)}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
