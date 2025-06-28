@@ -8,7 +8,7 @@ import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Scale, Search, FolderCheck, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark, Network } from 'lucide-react';
+import { Scale, Search, AlertTriangle, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark, Network } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
@@ -66,7 +66,7 @@ export default function LandingPage() {
             </div>
             <div className={cardBaseClasses}>
               <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <FolderCheck className="h-8 w-8 text-blue-600" />
+                <AlertTriangle className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.alertsTitle')}</h3>
               <p>{t('whatIsMila.alertsText')}</p>
