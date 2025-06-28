@@ -121,10 +121,10 @@ export default {
         },
         'subtle-breathing': {
           '0%, 100%': {
-            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07)',
+            transform: 'scale(1)',
           },
           '50%': {
-            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+            transform: 'scale(1.03)',
           },
         },
       },
@@ -132,7 +132,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
-        'subtle-breathing': 'subtle-breathing 5s ease-in-out infinite',
+        'subtle-breathing': 'subtle-breathing 4s ease-in-out infinite',
       },
       backgroundSize: {
         '200%': '200% 200%',
