@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronRight } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -26,12 +26,13 @@ type SuggestionWithBlockId = Suggestion & { blockId: string };
 interface IncidentItemContentProps {
   suggestion: SuggestionWithBlockId;
   originalText: string;
+  regulationContent?: string;
   onUpdateStatus: (newStatus: Suggestion['status']) => void;
   onUpdateText: (newText: string) => void;
   onClose: () => void;
 }
 
-const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, originalText, onUpdateStatus, onUpdateText, onClose }) => {
+const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, originalText, regulationContent, onUpdateStatus, onUpdateText, onClose }) => {
   const [mode, setMode] = useState<'view' | 'editing' | 'validated'>('view');
   const [currentText, setCurrentText] = useState(suggestion.text);
   const [isValidationLoading, setIsValidationLoading] = useState(false);
@@ -92,6 +93,20 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                 <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
             </div>
         </div>
+
+        {regulationContent && (
+           <>
+            <Separator className="bg-slate-300/70"/>
+            <div>
+                <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
+                  <BookCheck size={16}/> {t('analysisPage.citedRegulation')}: {suggestion.appliedNorm}
+                </h4>
+                <div className="bg-blue-50 p-3 rounded-xl shadow-inner border border-blue-200">
+                    <p className="text-sm font-sans text-blue-900 max-h-32 overflow-y-auto">{regulationContent}</p>
+                </div>
+            </div>
+          </>
+        )}
 
         <Separator className="bg-slate-300/70"/>
 
@@ -188,6 +203,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
 interface IncidentsListProps {
   suggestions: SuggestionWithBlockId[];
   blocks: DocumentBlock[];
+  selectedRegulations: {name: string, content: string}[];
   onUpdateSuggestionStatus: (blockId: string, suggestionId: string, status: Suggestion['status']) => void;
   onUpdateSuggestionText: (blockId: string, suggestionId: string, newText: string) => void;
   overallComplianceScore: number;
@@ -226,6 +242,7 @@ const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.C
 export function IncidentsList({ 
   suggestions, 
   blocks, 
+  selectedRegulations,
   onUpdateSuggestionStatus, 
   onUpdateSuggestionText, 
   overallComplianceScore,
@@ -259,6 +276,12 @@ export function IncidentsList({
   const getOriginalText = (blockId: string) => {
     return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
   }
+
+  const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
+    if (!suggestion) return undefined;
+    const regulation = selectedRegulations.find(r => suggestion.appliedNorm.includes(r.name.split(' - ')[0]));
+    return regulation?.content;
+  };
   
   const useDarkText = overallComplianceScore >= 75;
   const getTranslatedCategory = (category: SuggestionCategory) => t(`suggestionCategories.${category}`);
@@ -332,6 +355,7 @@ export function IncidentsList({
                 <IncidentItemContent 
                   suggestion={dialogSuggestion}
                   originalText={getOriginalText(dialogSuggestion.blockId)}
+                  regulationContent={getRegulationContent(dialogSuggestion)}
                   onUpdateStatus={(newStatus) => {
                       onUpdateSuggestionStatus(dialogSuggestion.blockId, dialogSuggestion.id, newStatus);
                       setDialogSuggestion(null);

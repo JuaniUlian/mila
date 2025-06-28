@@ -146,6 +146,7 @@ export const translations = {
     validating: t('Validando...', 'Validating...'),
     validate: t('Validar', 'Validate'),
     cancel: t('Cancelar', 'Cancel'),
+    citedRegulation: t('Normativa Citada', 'Cited Regulation'),
     // RisksPanel
     partialResults: t('Resultados Parciales', 'Partial Results'),
     realTimeSummary: t('Resumen del análisis en tiempo real.', 'Real-time analysis summary.'),

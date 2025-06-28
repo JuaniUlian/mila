@@ -98,11 +98,11 @@ export default function PreparePage() {
 
   const handleValidate = () => {
     if (isValidationReady && selectedFile) {
-        const selectedRegulationNames = regulations
+        const selectedRegulationsData = regulations
             .filter(r => selectedRegulationIds.includes(r.id))
-            .map(r => r.name);
+            .map(r => ({ name: r.name, content: r.content }));
         
-        localStorage.setItem('selectedRegulationNames', JSON.stringify(selectedRegulationNames));
+        localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
         localStorage.setItem('selectedDocumentName', selectedFile.name);
         router.push('/loading');
     }

@@ -32,14 +32,16 @@ export default function PlanillaVivaPage() {
   const { score, setScore } = useLayout();
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const [selectedRegulations, setSelectedRegulations] = useState<{name: string, content: string}[]>([]);
 
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
 
     const savedFileName = localStorage.getItem('selectedDocumentName');
-    const savedRegulationNamesRaw = localStorage.getItem('selectedRegulationNames');
-    const savedRegulationNames: string[] = savedRegulationNamesRaw ? JSON.parse(savedRegulationNamesRaw) : [];
+    const savedRegulationsRaw = localStorage.getItem('selectedRegulations');
+    const savedRegulations: {name: string, content: string}[] = savedRegulationsRaw ? JSON.parse(savedRegulationsRaw) : [];
+    setSelectedRegulations(savedRegulations);
 
     let dataToLoad: MilaAppPData;
 
@@ -51,18 +53,6 @@ export default function PlanillaVivaPage() {
 
     if (savedFileName) {
         dataToLoad.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
-    }
-
-    // Filter suggestions based on selected regulations
-    if (savedRegulationNames.length > 0) {
-      dataToLoad.blocks = dataToLoad.blocks.map(block => {
-        const filteredSuggestions = block.suggestions.filter(suggestion => 
-          savedRegulationNames.some(selectedName => 
-            suggestion.appliedNorm.includes(selectedName.split(' - ')[0])
-          )
-        );
-        return { ...block, suggestions: filteredSuggestions };
-      });
     }
 
     setInitialData(dataToLoad);
@@ -283,6 +273,7 @@ export default function PlanillaVivaPage() {
                   onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
                   onUpdateSuggestionText={handleUpdateSuggestionText}
                   overallComplianceScore={overallComplianceScore}
+                  selectedRegulations={selectedRegulations}
               />
           </div>
           <div className="w-full h-full min-h-0">
