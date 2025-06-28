@@ -36,11 +36,6 @@ export default function LandingPage() {
           <Button onClick={handleDemoClick} className="hidden sm:inline-flex btn-neu-light rounded-full">
             {t('nav.demo')}
           </Button>
-          <Button asChild className="hidden sm:inline-flex btn-neu-light rounded-full">
-            <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
-              {t('nav.deck')}
-            </a>
-          </Button>
         </div>
       </header>
 
@@ -54,11 +49,6 @@ export default function LandingPage() {
            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 sm:hidden">
               <Button onClick={handleDemoClick} size="lg" className="btn-neu-light rounded-full">
                 {t('nav.demo')}
-              </Button>
-              <Button asChild size="lg" className="btn-neu-light rounded-full">
-                <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
-                  {t('nav.deck')}
-                </a>
               </Button>
             </div>
         </section>

@@ -13,7 +13,6 @@ const t = (es: string, en: string): TextRecord => ({ es, en });
 export const translations = {
   nav: {
     demo: t('Probar ahora', 'Try now'),
-    deck: t('Descargar Deck', 'Download Deck'),
   },
   hero: {
     title: t('MILA', 'MILA'),
