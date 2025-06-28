@@ -33,7 +33,15 @@ export default function PlanillaVivaPage() {
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [selectedRegulations, setSelectedRegulations] = useState<{name: string, content: string}[]>([]);
+  const [isInitialBackground, setIsInitialBackground] = useState(true);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialBackground(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
@@ -132,6 +140,9 @@ export default function PlanillaVivaPage() {
   }, [documentData, setScore]);
   
   const backgroundClass = useMemo(() => {
+    if (isInitialBackground) {
+        return 'from-slate-200/50 via-slate-100/50 to-white';
+    }
     const getDynamicBackgroundClass = (score: number): string => {
         if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white';
         if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white';
@@ -142,7 +153,7 @@ export default function PlanillaVivaPage() {
         return 'from-slate-500/50 via-slate-100/50 to-white';
     };
     return documentData ? getDynamicBackgroundClass(documentData.overallComplianceScore) : 'from-slate-200/50 via-slate-100/50 to-white';
-  }, [documentData]);
+  }, [documentData, isInitialBackground]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
