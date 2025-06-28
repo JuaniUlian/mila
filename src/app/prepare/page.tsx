@@ -54,10 +54,7 @@ const initialRegulations = [
     { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...' },
     { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...' },
     { id: 'reg5', name: 'Decreto 795/96', content: 'Contenido del Decreto 795/96...' },
-    { id: 'reg-cc', name: 'Código Civil', content: 'Contenido del Código Civil...' },
-    { id: 'reg-cce', name: 'Colombia Compra Eficiente', content: 'Guías y pliegos tipo.' },
-    { id: 'reg-1474', name: 'Ley 1474 de 2011', content: 'Estatuto Anticorrupción.' },
-    { id: 'reg-1437', name: 'Ley 1437 de 2011', content: 'CPACA.' },
+    { id: 'reg-9353', name: 'Ley 9353', content: 'Contenido detallado de la Ley 9353...' },
 ];
 
 export default function PreparePage() {
