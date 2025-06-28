@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -25,9 +24,9 @@ const getNeumorphicClasses = (score: number | null): string => {
         bg: "bg-slate-800",
         text: "text-slate-200",
         hoverText: "hover:text-slate-100",
-        shadow: "shadow-[5px_5px_10px_#1e293b,-5px_-5px_10px_#475569]",
-        hoverShadow: "hover:shadow-[2px_2px_5px_#1e293b,-2px_-2px_5px_#475569]",
-        activeShadow: "active:shadow-[inset_2px_2px_5px_#1e293b,inset_-2px_-2px_5px_#475569]",
+        shadow: "shadow-[4px_4px_8px_#1e293b,-4px_-4px_8px_#475569]",
+        hoverShadow: "hover:shadow-[2px_2px_4px_#1e293b,-2px_-2px_4px_#475569]",
+        activeShadow: "active:shadow-[inset_2px_2px_4px_#1e293b,inset_-2px_-2px_4px_#475569]",
     };
 
     if (score !== null) {
@@ -38,45 +37,45 @@ const getNeumorphicClasses = (score: number | null): string => {
                 ...colors,
                 bg: "bg-blue-800",
                 text: "text-blue-100",
-                shadow: "shadow-[5px_5px_10px_#172554,-5px_-5px_10px_#1d4ed8]",
-                hoverShadow: "hover:shadow-[2px_2px_5px_#172554,-2px_-2px_5px_#1d4ed8]",
-                activeShadow: "active:shadow-[inset_2px_2px_5px_#172554,inset_-2px_-2px_5px_#1d4ed8]",
+                shadow: "shadow-[4px_4px_8px_#172554,-4px_-4px_8px_#1d4ed8]",
+                hoverShadow: "hover:shadow-[2px_2px_4px_#172554,-2px_-2px_4px_#1d4ed8]",
+                activeShadow: "active:shadow-[inset_2px_2px_4px_#172554,inset_-2px_-2px_4px_#1d4ed8]",
             };
         } else if (score >= 75) { // Lime
             colors = {
                 ...colors,
                 bg: "bg-lime-800",
                 text: "text-lime-100",
-                shadow: "shadow-[5px_5px_10px_#1a2e05,-5px_-5px_10px_#4d7c0f]",
-                hoverShadow: "hover:shadow-[2px_2px_5px_#1a2e05,-2px_-2px_5px_#4d7c0f]",
-                activeShadow: "active:shadow-[inset_2px_2px_5px_#1a2e05,inset_-2px_-2px_5px_#4d7c0f]",
+                shadow: "shadow-[4px_4px_8px_#1a2e05,-4px_-4px_8px_#4d7c0f]",
+                hoverShadow: "hover:shadow-[2px_2px_4px_#1a2e05,-2px_-2px_4px_#4d7c0f]",
+                activeShadow: "active:shadow-[inset_2px_2px_4px_#1a2e05,inset_-2px_-2px_4px_#4d7c0f]",
             };
         } else if (score >= 60) { // Amber
             colors = {
                 ...colors,
                 bg: "bg-amber-800",
                 text: "text-amber-100",
-                shadow: "shadow-[5px_5px_10px_#451a03,-5px_-5px_10px_#b45309]",
-                hoverShadow: "hover:shadow-[2px_2px_5px_#451a03,-2px_-2px_5px_#b45309]",
-                activeShadow: "active:shadow-[inset_2px_2px_5px_#451a03,inset_-2px_-2px_5px_#b45309]",
+                shadow: "shadow-[4px_4px_8px_#451a03,-4px_-4px_8px_#b45309]",
+                hoverShadow: "hover:shadow-[2px_2px_4px_#451a03,-2px_-2px_4px_#b45309]",
+                activeShadow: "active:shadow-[inset_2px_2px_4px_#451a03,inset_-2px_-2px_4px_#b45309]",
             };
         } else if (score >= 40) { // Orange
             colors = {
                 ...colors,
                 bg: "bg-orange-800",
                 text: "text-orange-100",
-                shadow: "shadow-[5px_5px_10px_#431407,-5px_-5px_10px_#c2410c]",
-                hoverShadow: "hover:shadow-[2px_2px_5px_#431407,-2px_-2px_5px_#c2410c]",
-                activeShadow: "active:shadow-[inset_2px_2px_5px_#431407,inset_-2px_-2px_5px_#c2410c]",
+                shadow: "shadow-[4px_4px_8px_#431407,-4px_-4px_8px_#c2410c]",
+                hoverShadow: "hover:shadow-[2px_2px_4px_#431407,-2px_-2px_4px_#c2410c]",
+                activeShadow: "active:shadow-[inset_2px_2px_4px_#431407,inset_-2px_-2px_4px_#c2410c]",
             };
         } else { // < 40 Rose
             colors = {
                 ...colors,
                 bg: "bg-rose-800",
                 text: "text-rose-100",
-                shadow: "shadow-[5px_5px_10px_#4c0519,-5px_-5px_10px_#be123c]",
-                hoverShadow: "hover:shadow-[2px_2px_5px_#4c0519,-2px_-2px_5px_#be123c]",
-                activeShadow: "active:shadow-[inset_2px_2px_5px_#4c0519,inset_-2px_-2px_5px_#be123c]",
+                shadow: "shadow-[4px_4px_8px_#4c0519,-4px_-4px_8px_#be123c]",
+                hoverShadow: "hover:shadow-[2px_2px_4px_#4c0519,-2px_-2px_4px_#be123c]",
+                activeShadow: "active:shadow-[inset_2px_2px_4px_#4c0519,inset_-2px_-2px_4px_#be123c]",
             };
         }
     }
