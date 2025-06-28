@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -39,6 +39,16 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
+
+  const getProposalTitle = () => {
+    if (mode === 'validated') {
+      return t('analysisPage.improvedProposal');
+    }
+    if (suggestion.category === 'Redacción') {
+      return t('analysisPage.draftingProposal');
+    }
+    return t('analysisPage.solutionProposal');
+  };
 
   const handleValidate = () => {
     setIsValidationLoading(true);
@@ -113,7 +123,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div>
             <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
               <Lightbulb size={16} className="text-primary"/> 
-              {mode === 'validated' ? t('analysisPage.improvedProposal') : t('analysisPage.draftingProposal')}
+              {getProposalTitle()}
             </h4>
             {mode === 'editing' ? (
               <Textarea
@@ -135,7 +145,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
-                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><Gavel size={14}/> {t('analysisPage.legalJustification')}</h5>
+                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><Scale size={14}/> {t('analysisPage.legalJustification')}</h5>
                 <p className="text-slate-700 text-xs">{suggestion.justification.legal}</p>
             </div>
             <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">

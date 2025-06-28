@@ -139,6 +139,7 @@ export const translations = {
     // IncidentItem
     improvedProposal: t('Propuesta Mejorada por IA', 'AI-Improved Proposal'),
     draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
+    solutionProposal: t('Propuesta de Solución', 'Solution Proposal'),
     legalJustification: t('Justificación Legal', 'Legal Justification'),
     technicalJustification: t('Justificación Técnica', 'Technical Justification'),
     estimatedConsequence: t('Consecuencia Estimada', 'Estimated Consequence'),
