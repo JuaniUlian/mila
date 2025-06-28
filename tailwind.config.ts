@@ -129,7 +129,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
-        'pulse-subtle': 'pulse-subtle 6s ease-in-out infinite',
+        'pulse-subtle': 'pulse-subtle 10s ease-in-out infinite',
       },
       backgroundSize: {
         '200%': '200% 200%',
