@@ -112,6 +112,7 @@ export const translations = {
     readyToValidate: t('Listo para Validar', 'Ready to Validate'),
     regulationSelected: t('normativa seleccionada', 'regulation selected'),
     regulationsSelected: t('normativas seleccionadas', 'regulations selected'),
+    selectRegulationsPrompt: t('Seleccione una o más normativas', 'Select one or more regulations'),
   },
 
   loadingPage: {
