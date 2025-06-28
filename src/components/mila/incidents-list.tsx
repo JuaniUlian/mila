@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, Gavel, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
