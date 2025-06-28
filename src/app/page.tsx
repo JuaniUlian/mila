@@ -23,10 +23,10 @@ export default function LandingPage() {
       <header className="glass max-w-7xl mx-auto mt-6 px-4 py-3 flex justify-end items-center sticky top-4 z-50">
         <div className="flex items-center space-x-2 sm:space-x-4">
           <LanguageSwitcher variant="light" />
-          <Button asChild className="hidden sm:inline-flex bg-gradient-to-r from-blue-900 via-primary to-blue-900 bg-[length:200%_auto] animate-subtle-gradient text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-px">
+          <Button asChild className="hidden sm:inline-flex btn-neu-light rounded-full">
             <Link href="/prepare">{t('nav.demo')}</Link>
           </Button>
-          <Button asChild className="hidden sm:inline-flex btn-neu-light">
+          <Button asChild className="hidden sm:inline-flex btn-neu-light rounded-full">
             <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
               {t('nav.deck')}
             </a>
@@ -42,10 +42,10 @@ export default function LandingPage() {
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900">{t('hero.title')}</h1>
           <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600">{t('hero.subtitle')}</p>
            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 sm:hidden">
-              <Button asChild size="lg" className="bg-gradient-to-r from-blue-900 via-primary to-blue-900 bg-[length:200%_auto] animate-subtle-gradient text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-px">
+              <Button asChild size="lg" className="btn-neu-light rounded-full">
                 <Link href="/prepare">{t('nav.demo')}</Link>
               </Button>
-              <Button asChild size="lg" className="btn-neu-light">
+              <Button asChild size="lg" className="btn-neu-light rounded-full">
                 <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
                   {t('nav.deck')}
                 </a>
@@ -201,10 +201,10 @@ export default function LandingPage() {
         <section className="bg-slate-800 text-white text-center py-16">
           <h2 className="text-3xl font-bold mb-6">{t('cta.title')}</h2>
           <div className="space-x-4">
-            <Button asChild size="lg" className="bg-gradient-to-r from-blue-900 via-primary to-blue-900 bg-[length:200%_auto] animate-subtle-gradient text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-px">
+            <Button asChild size="lg" className="btn-neu-dark rounded-full">
                 <Link href="/prepare">{t('nav.demo')}</Link>
             </Button>
-            <Button asChild size="lg" className="btn-neu-dark">
+            <Button asChild size="lg" className="btn-neu-dark rounded-full">
                 <a href="mailto:juan.ulian@pluscompol.com?subject=Solicitud%20de%20reuni%C3%B3n%20por%20MILA&body=Hola%20Juan%2C%0D%0A%0D%0AEstoy%20interesado%2Fa%20en%20coordinar%20una%20reuni%C3%B3n%20para%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20MILA%20y%20evaluar%20su%20implementaci%C3%B3n%20en%20nuestro%20gobierno.%0D%0AQuedo%20a%20disposici%C3%B3n%20para%20coordinar%20d%C3%ADa%20y%20horario.%0D%0A%0D%0AMuchas%20gracias.%0D%0A%0D%0ASaludos%2C%0D%0A">{t('cta.contact')}</a>
             </Button>
           </div>
