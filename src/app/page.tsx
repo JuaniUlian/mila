@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { BrainCircuit, Scale, ShieldCheck, Target, Search, FolderCheck, BookCheck, FileSignature, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
@@ -240,7 +240,10 @@ export default function LandingPage() {
       </footer>
 
       <Dialog open={isLoading} onOpenChange={setIsLoading}>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl sm:max-w-md p-0">
+        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl sm:max-w-md p-0 overflow-hidden">
+           <DialogHeader className="p-4 border-b border-white/30 bg-white/30">
+            <DialogTitle>Espere por favor</DialogTitle>
+           </DialogHeader>
            <div className="flex flex-col items-center justify-center p-10 space-y-4">
               <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-primary">
                 <g fill="currentColor">
