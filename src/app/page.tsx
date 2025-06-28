@@ -28,7 +28,7 @@ export default function LandingPage() {
           <Button asChild className={`hidden sm:inline-flex ${ctaButtonClasses}`}>
             <Link href="/prepare">{t('nav.demo')}</Link>
           </Button>
-          <Button asChild className="hidden sm:inline-flex bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out">
+          <Button asChild className={`hidden sm:inline-flex ${ctaButtonClasses}`}>
             <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
               {t('nav.deck')}
             </a>
@@ -47,7 +47,7 @@ export default function LandingPage() {
               <Button asChild size="lg" className={ctaButtonClasses}>
                 <Link href="/prepare">{t('nav.demo')}</Link>
               </Button>
-              <Button asChild size="lg" className="bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out">
+              <Button asChild size="lg" className={ctaButtonClasses}>
                 <a href="https://drive.usercontent.google.com/download?id=1dbhoCDpThH1n0K6Aw4sNnhWVEilxvyEa" target="_blank" rel="noopener noreferrer">
                   {t('nav.deck')}
                 </a>
