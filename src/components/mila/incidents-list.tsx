@@ -301,11 +301,11 @@ export function IncidentsList({
                       <AccordionItem
                         key={category}
                         value={category}
-                        className="group incident-card-hover relative border rounded-2xl border-white/20 overflow-hidden shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md"
+                        className="group incident-card-hover relative border rounded-2xl border-white/20 overflow-hidden shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md animate-subtle-breathing"
                       >
                           <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
                           <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300">
-                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length})</span>
+                              <span className="text-lg font-semibold flex-1 text-left text-card-foreground transition-colors">{getTranslatedCategory(category)} ({s_group.length} {s_group.length === 1 ? t('analysisPage.pendingSingular') : t('analysisPage.pendingPlural')})</span>
                           </AccordionTrigger>
                           <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
                               {s_group.map(suggestion => (

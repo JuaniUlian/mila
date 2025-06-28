@@ -119,11 +119,20 @@ export default {
             'background-position': '100% 50%',
           },
         },
+        'subtle-breathing': {
+          '0%, 100%': {
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07)',
+          },
+          '50%': {
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+          },
+        },
       },
       animation: { // Moved inside extend
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
+        'subtle-breathing': 'subtle-breathing 5s ease-in-out infinite',
       },
       backgroundSize: {
         '200%': '200% 200%',

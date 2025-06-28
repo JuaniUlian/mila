@@ -133,7 +133,9 @@ export const translations = {
     incidentsTitle: t('Incidencias y Sugerencias', 'Incidents and Suggestions'),
     excellent: t('¡Excelente!', 'Excellent!'),
     noPendingIncidents: t('No hay incidencias pendientes de revisión.', 'No pending incidents to review.'),
-    documentValidated: t('El documento ha sido completamente validado.', 'The document has been fully validated.'),
+    documentValidated: t('El documento ha sido completamente validado.', 'The document has been completely validated.'),
+    pendingSingular: t('pendiente', 'pending'),
+    pendingPlural: t('pendientes', 'pending'),
     // IncidentItem
     improvedProposal: t('Propuesta Mejorada por IA', 'AI-Improved Proposal'),
     draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
