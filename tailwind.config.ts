@@ -122,14 +122,14 @@ export default {
         },
         'pulse-subtle': {
           '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.01)' },
+          '50%': { transform: 'scale(1.005)' },
         }
       },
       animation: { // Moved inside extend
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
-        'pulse-subtle': 'pulse-subtle 10s ease-in-out infinite',
+        'pulse-subtle': 'pulse-subtle 12s ease-in-out infinite',
       },
       backgroundSize: {
         '200%': '200% 200%',
