@@ -38,17 +38,33 @@ export default function PlanillaVivaPage() {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
 
     const savedFileName = localStorage.getItem('selectedDocumentName');
+    const savedRegulationNamesRaw = localStorage.getItem('selectedRegulationNames');
+    const savedRegulationNames: string[] = savedRegulationNamesRaw ? JSON.parse(savedRegulationNamesRaw) : [];
+
     let dataToLoad: MilaAppPData;
 
     if (savedFileName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
-      dataToLoad = upsMockData;
+      dataToLoad = JSON.parse(JSON.stringify(upsMockData));
     } else {
-      // Make a copy to avoid mutation issues
       dataToLoad = JSON.parse(JSON.stringify(defaultMockData));
-      if (savedFileName) {
-        dataToLoad.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
-      }
     }
+
+    if (savedFileName) {
+        dataToLoad.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
+    }
+
+    // Filter suggestions based on selected regulations
+    if (savedRegulationNames.length > 0) {
+      dataToLoad.blocks = dataToLoad.blocks.map(block => {
+        const filteredSuggestions = block.suggestions.filter(suggestion => 
+          savedRegulationNames.some(selectedName => 
+            suggestion.appliedNorm.includes(selectedName.split(' - ')[0])
+          )
+        );
+        return { ...block, suggestions: filteredSuggestions };
+      });
+    }
+
     setInitialData(dataToLoad);
     setDocumentData(dataToLoad);
   }, [t]);
