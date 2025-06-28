@@ -11,6 +11,7 @@ interface PageHeaderProps {
     overallComplianceScore: number;
     appliedSuggestionsCount: number;
     totalSuggestions: number;
+    isInitialPageLoad: boolean;
 }
 
 const getScoreColor = (score: number) => {
@@ -25,14 +26,22 @@ const getProgressColorClass = (score: number) => {
     return "bg-green-500";
 }
 
-export function PageHeader({ documentTitle, overallComplianceScore, appliedSuggestionsCount, totalSuggestions }: PageHeaderProps) {
+export function PageHeader({ documentTitle, overallComplianceScore, appliedSuggestionsCount, totalSuggestions, isInitialPageLoad }: PageHeaderProps) {
     const suggestionProgress = totalSuggestions > 0 ? (appliedSuggestionsCount / totalSuggestions) * 100 : 100;
     const { language } = useLanguage();
     const t = useTranslations(language);
     
-    // Determine text color based on background lightness
-    const useDarkText = overallComplianceScore >= 75;
-    const primaryTextColor = useDarkText ? "text-foreground" : "text-white";
+    // Determine title text color based on score for better contrast and visual feedback.
+    const getTitleColorClass = () => {
+        if (isInitialPageLoad) {
+            return "text-foreground";
+        }
+        if (overallComplianceScore < 40) return "text-red-700";
+        if (overallComplianceScore < 75) return "text-amber-700";
+        return "text-green-700";
+    };
+
+    const primaryTextColor = getTitleColorClass();
 
     return (
         <div className="transition-all duration-300">
@@ -41,7 +50,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
                     <CardContent className="p-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         {/* Title */}
                         <div className="flex-1">
-                            <h1 className={cn("text-3xl font-bold", primaryTextColor)}>{documentTitle}</h1>
+                            <h1 className={cn("text-3xl font-bold transition-colors duration-500", primaryTextColor)}>{documentTitle}</h1>
                         </div>
                         
                         <div className="w-full md:w-auto flex items-center gap-x-6 gap-y-4 flex-wrap">

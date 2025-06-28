@@ -9,14 +9,14 @@ import { cn } from '@/lib/utils';
 import { SettingsDialog } from './settings-dialog';
 
 export function MainSidebar() {
-    const { score } = useLayout();
+    const { score, isInitialPageLoad } = useLayout();
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
 
-    const getSidebarBackgroundClass = (currentScore: number | null): string => {
+    const getSidebarBackgroundClass = (currentScore: number | null, isInitial: boolean): string => {
         const baseStyle = "bg-[linear-gradient(180deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0.03)_15%,transparent_100%)]";
         const defaultBg = `bg-slate-900/80 ${baseStyle}`;
         
-        if (currentScore === null) return defaultBg; // Default style for other pages
+        if (isInitial || currentScore === null) return defaultBg; // Default style for initial load or other pages
         if (currentScore === 100) return `bg-slate-900/80 ${baseStyle}`;
         if (currentScore >= 95) return `bg-slate-900/90 ${baseStyle}`; // Slate for 95-99
         if (currentScore < 40) return `bg-rose-900/90 ${baseStyle}`;
@@ -28,7 +28,7 @@ export function MainSidebar() {
         return defaultBg; // Fallback
     };
 
-    const backgroundClass = getSidebarBackgroundClass(score);
+    const backgroundClass = getSidebarBackgroundClass(score, isInitialPageLoad);
 
     return (
         <aside className={cn(

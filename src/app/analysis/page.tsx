@@ -29,19 +29,25 @@ export default function PlanillaVivaPage() {
   const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { toast } = useToast();
-  const { score, setScore } = useLayout();
+  const { score, setScore, isInitialPageLoad, setIsInitialPageLoad } = useLayout();
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [selectedRegulations, setSelectedRegulations] = useState<{name: string, content: string}[]>([]);
-  const [isInitialBackground, setIsInitialBackground] = useState(true);
 
   useEffect(() => {
+    // Set initial state to true when component mounts
+    setIsInitialPageLoad(true);
     const timer = setTimeout(() => {
-      setIsInitialBackground(false);
+      setIsInitialPageLoad(false);
     }, 1000);
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Cleanup on unmount
+    return () => {
+      clearTimeout(timer);
+      // Reset to true when leaving the page to ensure transition runs again
+      setIsInitialPageLoad(true); 
+    };
+  }, [setIsInitialPageLoad]);
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
@@ -140,7 +146,7 @@ export default function PlanillaVivaPage() {
   }, [documentData, setScore]);
   
   const backgroundClass = useMemo(() => {
-    if (isInitialBackground) {
+    if (isInitialPageLoad) {
         return 'from-slate-200/50 via-slate-100/50 to-white';
     }
     const getDynamicBackgroundClass = (score: number): string => {
@@ -153,7 +159,7 @@ export default function PlanillaVivaPage() {
         return 'from-slate-500/50 via-slate-100/50 to-white';
     };
     return documentData ? getDynamicBackgroundClass(documentData.overallComplianceScore) : 'from-slate-200/50 via-slate-100/50 to-white';
-  }, [documentData, isInitialBackground]);
+  }, [documentData, isInitialPageLoad]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     setDocumentData(prevData => {
@@ -287,6 +293,7 @@ export default function PlanillaVivaPage() {
           overallComplianceScore={overallComplianceScore}
           appliedSuggestionsCount={appliedSuggestionsCount}
           totalSuggestions={totalSuggestions}
+          isInitialPageLoad={isInitialPageLoad}
         />
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           <div className="lg:col-span-2 w-full h-full min-h-0">
