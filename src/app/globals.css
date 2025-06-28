@@ -80,12 +80,6 @@
   }
 }
 
-@keyframes border-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 @layer components {
   .glass {
     @apply bg-white/30 backdrop-blur-sm border border-white/20 shadow-md;
@@ -103,21 +97,5 @@
   .incident-card-hover:hover {
     @apply shadow-2xl scale-[1.02];
     box-shadow: 0 0 20px rgba(0, 128, 255, 0.15), 0 0 6px rgba(255, 255, 255, 0.4) inset;
-  }
-
-  .btn-animated-glow {
-      @apply relative overflow-hidden z-0;
-  }
-  .btn-animated-glow::before {
-      content: '';
-      @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%];
-      background-image: conic-gradient(
-          from 180deg at 50% 50%,
-          transparent 0%,
-          transparent 75%,
-          hsl(var(--primary)) 100%
-      );
-      animation: border-spin 4s linear infinite;
-      z-index: -1;
   }
 }
