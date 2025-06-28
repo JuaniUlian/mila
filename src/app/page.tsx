@@ -240,8 +240,8 @@ export default function LandingPage() {
       </footer>
 
       <Dialog open={isLoading} onOpenChange={setIsLoading}>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="bg-gradient-to-br from-white via-slate-200 to-blue-100 bg-200% animate-gradient-bg rounded-2xl sm:max-w-md p-0 overflow-hidden shadow-2xl">
-           <DialogHeader className="p-4 border-b border-slate-300/50 bg-transparent">
+        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl sm:max-w-md p-0 overflow-hidden shadow-2xl">
+           <DialogHeader className="p-4 border-b border-white/30 bg-transparent">
             <DialogTitle className="text-slate-800">Espere por favor</DialogTitle>
            </DialogHeader>
            <div className="flex flex-col items-center justify-center p-10 space-y-4">
