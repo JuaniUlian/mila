@@ -177,12 +177,20 @@ export default function LandingPage() {
               <p className="mt-2 text-gray-700">{t('faq.a1')}</p>
             </details>
             <details className={detailsBaseClasses}>
+              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q7')}</summary>
+              <p className="mt-2 text-gray-700">{t('faq.a7')}</p>
+            </details>
+            <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q2')}</summary>
               <p className="mt-2 text-gray-700">{t('faq.a2')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q3')}</summary>
               <p className="mt-2 text-gray-700">{t('faq.a3')}</p>
+            </details>
+            <details className={detailsBaseClasses}>
+              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q8')}</summary>
+              <p className="mt-2 text-gray-700">{t('faq.a8')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q4')}</summary>
@@ -195,14 +203,6 @@ export default function LandingPage() {
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q6')}</summary>
               <p className="mt-2 text-gray-700">{t('faq.a6')}</p>
-            </details>
-            <details className={detailsBaseClasses}>
-              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q7')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a7')}</p>
-            </details>
-            <details className={detailsBaseClasses}>
-              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q8')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a8')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q9')}</summary>
