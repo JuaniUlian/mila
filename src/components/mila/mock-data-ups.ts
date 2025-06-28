@@ -5,7 +5,7 @@ const block1Suggestions: Suggestion[] = [
     id: 'sug-ups-1',
     category: 'Legal',
     severity: 'high',
-    text: "Debe fundamentarse de manera fehaciente la urgencia, adjuntando informes técnicos que demuestren el estado crítico de los equipos actuales o los riesgos inminentes de su falla, de acuerdo al Art. 1422 del Reglamento de Contrataciones.",
+    text: "Se solicita la adquisición con carácter de URGENCIA, fundamentado en el informe técnico adjunto (fs. X) que detalla el estado crítico de los equipos y el riesgo inminente de falla que compromete la continuidad del servicio, de acuerdo al Art. 1422 del Reglamento de Contrataciones. Se recomienda adjuntar dicho informe para cumplir con el requisito de 'fundarse fehacientemente'.",
     justification: {
       legal: "El Art. 1422 del Reglamento de Contrataciones exige que las razones de urgencia 'deberán fundarse fehacientemente'. La simple mención de la palabra 'URGENTE' sin pruebas documentales es insuficiente y puede llevar al rechazo del procedimiento.",
       technical: "Aporta la evidencia necesaria para que los organismos de control y la autoridad competente puedan validar la procedencia de un trámite acelerado, si correspondiera.",
@@ -23,7 +23,7 @@ const block2Suggestions: Suggestion[] = [
     id: 'sug-ups-2',
     category: 'Administrativa',
     severity: 'high',
-    text: "Debe definirse claramente el procedimiento. Si se trata de una Licitación Pública regular, la mención de 'URGENTE' debe eliminarse para evitar contradicciones. Si se busca un procedimiento de excepción por urgencia, debe invocarse y justificarse explícitamente dicha vía.",
+    text: "Para alinear el procedimiento con la urgencia declarada, se debe optar por una de las siguientes vías: a) Tramitar la contratación bajo la modalidad de Contratación Directa por Urgencia, invocando explícitamente el Art. X de la Ley de Contrataciones, o b) Eliminar la mención 'URGENTE' del objeto y proceder como Licitación Pública regular para evitar vicios de procedimiento.",
     justification: {
       legal: "Existe una contradicción insalvable entre tramitar una Licitación Pública con plazos y pasos regulares, y declarar una urgencia no fundamentada. Esto crea inseguridad jurídica y vicia el procedimiento.",
       technical: "La coherencia del documento es clave para la correcta interpretación por parte de los oferentes y fiscalizadores. Procedimientos contradictorios generan confusión.",
@@ -41,7 +41,7 @@ const block3Suggestions: Suggestion[] = [
     id: 'sug-ups-3',
     category: 'Administrativa',
     severity: 'low',
-    text: "Para fortalecer la justificación de cotizar en dólares, se recomienda adjuntar un breve informe de mercado o consultas a proveedores que demuestren que los bienes de origen importado solo se cotizan en esa moneda, a fin de garantizar la mayor concurrencia de ofertas.",
+    text: "Se solicita que la cotización se realice en dólares estadounidenses. Para robustecer la justificación, se adjunta un informe de mercado (fs. Y) que demuestra que los bienes a adquirir, por su origen importado, son exclusiva o mayoritariamente cotizados en dicha moneda, a fin de garantizar la mayor concurrencia de ofertas y dar cumplimiento al Art. 150 del Reglamento.",
     justification: {
       legal: "Si bien la normativa permite cotizar en moneda extranjera con justificación, la solidez de dicha justificación es clave para evitar observaciones de los organismos de control sobre la transparencia y conveniencia económica.",
       technical: "Un informe de mercado proporciona evidencia objetiva que respalda la decisión administrativa y protege al proceso de futuros cuestionamientos.",
@@ -59,7 +59,7 @@ const block4Suggestions: Suggestion[] = [
     id: 'sug-ups-4',
     category: 'Administrativa',
     severity: 'high',
-    text: "Debe eliminarse cualquier referencia a presupuestos de firmas específicas (ej. EXCELCOM S.A.) en los pliegos iniciales. Las especificaciones técnicas deben ser genéricas y no estar basadas en un único proveedor para garantizar la imparcialidad y la libre competencia, conforme al Art. 11 de la Ley de Contrataciones.",
+    text: "Las especificaciones técnicas del presente pliego deben ser genéricas y objetivas. Se debe eliminar cualquier referencia a marcas o presupuestos de proveedores específicos (ej. EXCELCOM S.A.) para garantizar la libre competencia e imparcialidad, conforme al Art. 11 de la Ley de Contrataciones. Se sugiere reemplazarlo por un presupuesto oficial desglosado y anónimo.",
     justification: {
       legal: "El Art. 11 de la Ley de Contrataciones prohíbe la inclusión de especificaciones que direccionen la contratación hacia un oferente particular. Incluir un presupuesto de una firma específica vulnera los principios de imparcialidad y libre concurrencia.",
       technical: "Asegura que el proceso sea competitivo y que la evaluación se base en las capacidades técnicas y económicas de todos los oferentes, no en la propuesta de uno solo.",
@@ -77,7 +77,7 @@ const block5Suggestions: Suggestion[] = [
     id: 'sug-ups-5',
     category: 'Legal',
     severity: 'medium',
-    text: "Se debe alinear el plazo de ejecución con el carácter de urgencia invocado. Un plazo de 120 días es incongruente con una necesidad urgente. Si la urgencia es crítica, se debería justificar un procedimiento de excepción con plazos abreviados. De lo contrario, se debe eliminar la mención de 'URGENTE'. Por ejemplo: 'Dado el carácter impostergable, el plazo máximo de entrega será de 30 días'.",
+    text: "Para mantener la coherencia con el carácter de urgencia invocado, se propone modificar el plazo de ejecución a un máximo de treinta (30) días corridos a partir de la firma del contrato. Un plazo de 120 días resulta incongruente con una necesidad impostergable.",
     justification: {
       legal: "El Art. 1422 del Reglamento de Contrataciones, que regula la urgencia, presupone plazos de ejecución acordes. Un plazo de 120 días debilita la justificación para cualquier tratamiento preferencial o procedimiento de excepción.",
       technical: "Aclara las expectativas reales del plazo de entrega y asegura la coherencia interna del documento, evitando confusiones a los oferentes y fiscalizadores.",
