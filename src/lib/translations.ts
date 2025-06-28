@@ -12,7 +12,7 @@ const t = (es: string, en: string): TextRecord => ({ es, en });
 
 export const translations = {
   nav: {
-    demo: t('Ir a Demo', 'Go to Demo'),
+    demo: t('Probar ahora', 'Try it now'),
     deck: t('Descargar Deck', 'Download Deck'),
   },
   hero: {
@@ -164,6 +164,7 @@ export const translations = {
     toastNewProposalGenerated: t('La IA ha procesado tu edición y ha generado una nueva propuesta.', 'The AI has processed your edit and generated a new proposal.'),
     toastReportError: t('Error al generar el informe', 'Error generating report'),
     toastReportErrorDesc: t('No se pudo guardar la información para la previsualización. Intente de nuevo.', 'Could not save data for preview. Please try again.'),
+    originalText: t('Texto Original', 'Original Text'),
   },
 
   reportPreviewPage: {
