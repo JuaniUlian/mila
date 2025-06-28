@@ -298,9 +298,9 @@ export default function PreparePage() {
         )}
 
         {currentStep === 2 && (
-            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-8 fade-in duration-500 z-20">
-                <div className={cn("glass p-3 mx-4 rounded-2xl flex items-center justify-between gap-4")}>
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-8 fade-in duration-500 z-20">
+                <div className={cn("glass p-4 mx-4 rounded-2xl flex items-center justify-between gap-6")}>
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
                         {isValidationReady ? (
                             <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
                         ) : (
@@ -310,19 +310,19 @@ export default function PreparePage() {
                             {isValidationReady ? (
                                 <>
                                     <span className="text-xs text-muted-foreground">{t('preparePage.readyToValidate')}</span>
-                                    <p className="font-semibold text-foreground truncate" title={`${selectedRegulationIds.length} ${selectedRegulationIds.length === 1 ? t('preparePage.regulationSelected') : t('preparePage.regulationsSelected')}`}>
+                                    <p className="font-semibold text-foreground" title={`${selectedRegulationIds.length} ${selectedRegulationIds.length === 1 ? t('preparePage.regulationSelected') : t('preparePage.regulationsSelected')}`}>
                                         {selectedRegulationIds.length} {selectedRegulationIds.length === 1 ? t('preparePage.regulationSelected') : t('preparePage.regulationsSelected')}
                                     </p>
                                 </>
                             ) : (
                                 <>
                                     <span className="text-xs text-muted-foreground">{t('preparePage.step2')}</span>
-                                    <p className="font-semibold text-foreground truncate">{t('preparePage.selectRegulationsPrompt')}</p>
+                                    <p className="font-semibold text-foreground">{t('preparePage.selectRegulationsPrompt')}</p>
                                 </>
                             )}
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-3 flex-shrink-0">
                         <Button
                             variant="ghost"
                             onClick={handlePrevStep}
