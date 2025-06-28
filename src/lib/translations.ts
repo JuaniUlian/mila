@@ -92,6 +92,8 @@ export const translations = {
     folderNamePlaceholder: t('Ej: Pliegos 2026', 'e.g., Bidding Documents 2026'),
     newFolder: t('Nueva Carpeta', 'New Folder'),
     nextButton: t('Siguiente', 'Next'),
+    backButton: t('Volver', 'Back'),
+    selectedFilePrompt: t('Seleccionado:', 'Selected:'),
     noFilesFound: t('No se encontraron archivos que coincidan con su búsqueda.', 'No files were found matching your search.'),
     noFoldersOrFiles: t('No hay carpetas o archivos.', 'No folders or files.'),
     searchPlaceholder: t('Buscar documento por nombre o palabra clave...', 'Search document by name or keyword...'),
@@ -240,3 +242,5 @@ export const useTranslations = (lang: Language) => {
     return result?.[lang] || result?.['es'] || key;
   }, [lang]);
 };
+
+    
