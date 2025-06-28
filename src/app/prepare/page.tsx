@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
-import { Search, Upload, FileSignature, BookCheck, FolderPlus } from 'lucide-react';
+import { Search, Upload, FileSignature, BookCheck, FolderPlus, ChevronRight } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -60,7 +60,8 @@ export default function PreparePage() {
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
-
+  
+  const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, fileCount: f.files.length })));
   const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
@@ -75,6 +76,12 @@ export default function PreparePage() {
   }, []);
 
   const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
+
+  const handleNextStep = () => {
+    if (selectedFileId) {
+        setCurrentStep(2);
+    }
+  };
 
   const handleValidate = () => {
     if (isValidationReady) {
@@ -187,88 +194,110 @@ export default function PreparePage() {
         className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8">
-        <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-          <CardHeader className="bg-white/20 border-b border-white/20 p-6">
-            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-              <FileSignature className="h-8 w-8 text-primary"/>
-              {t('preparePage.step1')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6 p-6">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="relative flex-grow w-full">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  suppressHydrationWarning
-                  placeholder={t('preparePage.searchPlaceholder')}
-                  className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-               <FileUploadButton
-                variant="ghost"
-                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
-                onFileSelect={handleFileUploadedToRoot}
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                {t('preparePage.uploadFile')}
-              </FileUploadButton>
-              <Button
-                variant="ghost"
-                suppressHydrationWarning
-                className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
-                onClick={() => setIsCreateFolderModalOpen(true)}
-              >
-                <FolderPlus className="mr-2 h-4 w-4" />
-                {t('preparePage.newFolder')}
-              </Button>
-            </div>
-            <FolderGrid 
-              folders={filteredFolders} 
-              selectedFileId={selectedFileId}
-              onSelectFile={setSelectedFileId}
-              searchQuery={searchQuery}
-              onFileUploadToFolder={handleFileUploadToFolder}
-            />
-          </CardContent>
-        </Card>
 
-        <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-            <AccordionItem value="item-1" className="border-none">
+        {currentStep === 1 && (
+            <>
                 <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-                <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
-                    <div className="p-6 w-full text-left flex items-center justify-between">
+                    <CardHeader className="bg-white/20 border-b border-white/20 p-6">
                         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <BookCheck className="h-8 w-8 text-primary"/>
-                            {t('preparePage.step2')}
+                        <FileSignature className="h-8 w-8 text-primary"/>
+                        {t('preparePage.step1')}
                         </CardTitle>
-                    </div>
-                </AccordionTrigger>
-                <AccordionContent className="p-0">
-                    <CardContent className="p-6">
-                        <RegulationList 
-                        regulations={regulations}
-                        selectedIds={selectedRegulationIds}
-                        onSelectionChange={setSelectedRegulationIds}
-                        onRegulationUpload={handleRegulationUpload}
+                    </CardHeader>
+                    <CardContent className="space-y-6 p-6">
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <div className="relative flex-grow w-full">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input
+                            suppressHydrationWarning
+                            placeholder={t('preparePage.searchPlaceholder')}
+                            className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        <FileUploadButton
+                            variant="ghost"
+                            className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
+                            onFileSelect={handleFileUploadedToRoot}
+                        >
+                            <Upload className="mr-2 h-4 w-4" />
+                            {t('preparePage.uploadFile')}
+                        </FileUploadButton>
+                        <Button
+                            variant="ghost"
+                            suppressHydrationWarning
+                            className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
+                            onClick={() => setIsCreateFolderModalOpen(true)}
+                        >
+                            <FolderPlus className="mr-2 h-4 w-4" />
+                            {t('preparePage.newFolder')}
+                        </Button>
+                        </div>
+                        <FolderGrid 
+                        folders={filteredFolders} 
+                        selectedFileId={selectedFileId}
+                        onSelectFile={setSelectedFileId}
+                        searchQuery={searchQuery}
+                        onFileUploadToFolder={handleFileUploadToFolder}
                         />
                     </CardContent>
-                </AccordionContent>
                 </Card>
-            </AccordionItem>
-        </Accordion>
 
-        <div className="flex justify-center pt-4">
-            <Button
-              suppressHydrationWarning
-              className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
-              onClick={handleValidate}
-              disabled={!isValidationReady}
-            >
-              {t('preparePage.validateButton')}
-            </Button>
-        </div>
+                {selectedFileId && (
+                    <div className="flex justify-center pt-4">
+                        <Button
+                            suppressHydrationWarning
+                            className="text-xl font-semibold px-16 py-8 rounded-2xl btn-neu-green"
+                            onClick={handleNextStep}
+                        >
+                            {t('preparePage.nextButton')}
+                            <ChevronRight className="ml-2 h-6 w-6" />
+                        </Button>
+                    </div>
+                )}
+            </>
+        )}
+
+        {currentStep === 2 && (
+            <>
+                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                    <AccordionItem value="item-1" className="border-none">
+                        <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
+                        <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                            <div className="p-6 w-full text-left flex items-center justify-between">
+                                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                                    <BookCheck className="h-8 w-8 text-primary"/>
+                                    {t('preparePage.step2')}
+                                </CardTitle>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="p-0">
+                            <CardContent className="p-6">
+                                <RegulationList 
+                                regulations={regulations}
+                                selectedIds={selectedRegulationIds}
+                                onSelectionChange={setSelectedRegulationIds}
+                                onRegulationUpload={handleRegulationUpload}
+                                />
+                            </CardContent>
+                        </AccordionContent>
+                        </Card>
+                    </AccordionItem>
+                </Accordion>
+
+                <div className="flex justify-center pt-4">
+                    <Button
+                    suppressHydrationWarning
+                    className="text-xl font-semibold px-16 py-8 rounded-2xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
+                    onClick={handleValidate}
+                    disabled={!isValidationReady}
+                    >
+                    {t('preparePage.validateButton')}
+                    </Button>
+                </div>
+            </>
+        )}
       </div>
 
       <Dialog open={isCreateFolderModalOpen} onOpenChange={setIsCreateFolderModalOpen}>
@@ -299,5 +328,3 @@ export default function PreparePage() {
     </div>
   );
 }
-
-    

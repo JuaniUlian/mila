@@ -104,4 +104,7 @@
   .btn-neu-dark {
     @apply bg-slate-800 text-slate-200 font-semibold border-transparent shadow-[5px_5px_10px_#1f2937,-5px_-5px_10px_#475569] hover:bg-slate-800 hover:shadow-[2px_2px_5px_#1f2937,-2px_-2px_5px_#475569] active:shadow-[inset_2px_2px_5px_#1f2937,inset_-2px_-2px_5px_#475569] transition-shadow duration-200 ease-in-out;
   }
+  .btn-neu-green {
+    @apply bg-green-100 text-green-800 font-semibold border-transparent shadow-[5px_5px_10px_#bbf7d0,-5px_-5px_10px_#ffffff] hover:bg-green-100 hover:shadow-[2px_2px_5px_#bbf7d0,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#bbf7d0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;
+  }
 }
