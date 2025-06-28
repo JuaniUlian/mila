@@ -121,7 +121,7 @@ export default {
         },
         'breathing': {
             '0%, 100%': { transform: 'scale(1)' },
-            '50%': { transform: 'scale(1.0025)' },
+            '50%': { transform: 'scale(1.0075)' },
         },
       },
       animation: { // Moved inside extend
