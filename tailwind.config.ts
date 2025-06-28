@@ -127,12 +127,17 @@ export default {
             boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
           },
         },
+        'slow-pulse': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.03)' },
+        },
       },
       animation: { // Moved inside extend
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
         'subtle-breathing': 'subtle-breathing 5s ease-in-out infinite',
+        'slow-pulse': 'slow-pulse 4s ease-in-out infinite',
       },
       backgroundSize: {
         '200%': '200% 200%',

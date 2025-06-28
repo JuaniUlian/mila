@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -34,7 +33,7 @@ export default function LandingPage() {
       <header className="glass max-w-7xl mx-auto mt-6 px-4 py-3 flex justify-end items-center sticky top-4 z-50">
         <div className="flex items-center space-x-2 sm:space-x-4">
           <LanguageSwitcher variant="light" />
-          <Button onClick={handleDemoClick} className="hidden sm:inline-flex btn-neu-light rounded-full">
+          <Button onClick={handleDemoClick} className="hidden sm:inline-flex btn-neu-light rounded-full animate-slow-pulse">
             {t('nav.demo')}
           </Button>
         </div>
@@ -48,7 +47,7 @@ export default function LandingPage() {
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900">{t('hero.title')}</h1>
           <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600">{t('hero.subtitle')}</p>
            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 sm:hidden">
-              <Button onClick={handleDemoClick} size="lg" className="btn-neu-light rounded-full">
+              <Button onClick={handleDemoClick} size="lg" className="btn-neu-light rounded-full animate-slow-pulse">
                 {t('nav.demo')}
               </Button>
             </div>
@@ -214,7 +213,7 @@ export default function LandingPage() {
         <section className="bg-slate-800 text-white text-center py-16">
           <h2 className="text-3xl font-bold mb-6">{t('cta.title')}</h2>
           <div className="space-x-4">
-            <Button onClick={handleDemoClick} size="lg" className="btn-neu-dark rounded-full">
+            <Button onClick={handleDemoClick} size="lg" className="btn-neu-dark rounded-full animate-slow-pulse">
                 {t('nav.demo')}
             </Button>
             <Button asChild size="lg" className="btn-neu-dark rounded-full">
