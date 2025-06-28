@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -7,7 +8,7 @@ import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { BrainCircuit, Scale, ShieldCheck, Target, Search, FolderCheck, BookCheck, FileSignature, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin } from 'lucide-react';
+import { BrainCircuit, Scale, Search, FolderCheck, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
@@ -146,21 +147,21 @@ export default function LandingPage() {
             </div>
             <div className={cardBaseClasses}>
               <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <FileSignature className="h-8 w-8 text-blue-600"/>
+                <FileStack className="h-8 w-8 text-blue-600"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.docsTitle')}</h3>
               <p>{t('differentiators.docsText')}</p>
             </div>
             <div className={cardBaseClasses}>
               <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <ShieldCheck className="h-8 w-8 text-blue-600"/>
+                <ShieldAlert className="h-8 w-8 text-blue-600"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.risksTitle')}</h3>
               <p>{t('differentiators.risksText')}</p>
             </div>
             <div className={cardBaseClasses}>
               <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Target className="h-8 w-8 text-blue-600"/>
+                <Landmark className="h-8 w-8 text-blue-600"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.govTitle')}</h3>
               <p>{t('differentiators.govText')}</p>
@@ -283,3 +284,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
