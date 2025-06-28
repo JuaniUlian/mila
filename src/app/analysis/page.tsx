@@ -50,6 +50,18 @@ export default function PlanillaVivaPage() {
     } else {
       dataToLoad = JSON.parse(JSON.stringify(defaultMockData));
     }
+    
+    // Dynamically update suggestion norms based on user selection for simulation
+    if (savedRegulations.length > 0) {
+      let regulationIndex = 0;
+      dataToLoad.blocks.forEach(block => {
+        block.suggestions.forEach(suggestion => {
+          const selectedReg = savedRegulations[regulationIndex % savedRegulations.length];
+          suggestion.appliedNorm = selectedReg.name;
+          regulationIndex++;
+        });
+      });
+    }
 
     if (savedFileName) {
         dataToLoad.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
