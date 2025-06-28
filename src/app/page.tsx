@@ -8,7 +8,7 @@ import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { BrainCircuit, Scale, Search, FolderCheck, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark } from 'lucide-react';
+import { Scale, Search, FolderCheck, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark, Network } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
@@ -140,7 +140,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <div className={cardBaseClasses}>
               <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <BrainCircuit className="h-8 w-8 text-blue-600"/>
+                <Network className="h-8 w-8 text-blue-600"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.trainingTitle')}</h3>
               <p>{t('differentiators.trainingText')}</p>
@@ -195,6 +195,18 @@ export default function LandingPage() {
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q6')}</summary>
               <p className="mt-2 text-gray-700">{t('faq.a6')}</p>
+            </details>
+            <details className={detailsBaseClasses}>
+              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q7')}</summary>
+              <p className="mt-2 text-gray-700">{t('faq.a7')}</p>
+            </details>
+            <details className={detailsBaseClasses}>
+              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q8')}</summary>
+              <p className="mt-2 text-gray-700">{t('faq.a8')}</p>
+            </details>
+            <details className={detailsBaseClasses}>
+              <summary className="font-semibold cursor-pointer text-lg">{t('faq.q9')}</summary>
+              <p className="mt-2 text-gray-700">{t('faq.a9')}</p>
             </details>
           </div>
         </section>
@@ -284,5 +296,7 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
 
     
