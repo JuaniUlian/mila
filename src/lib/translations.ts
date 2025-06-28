@@ -12,7 +12,7 @@ const t = (es: string, en: string): TextRecord => ({ es, en });
 
 export const translations = {
   nav: {
-    demo: t('Probar ahora', 'Go to Demo'),
+    demo: t('Probar ahora', 'Try now'),
     deck: t('Descargar Deck', 'Download Deck'),
   },
   hero: {
@@ -109,6 +109,9 @@ export const translations = {
     uploadFile: t('Subir nuevo archivo', 'Upload new file'),
     uploadRegulation: t('Subir nueva normativa', 'Upload new regulation'),
     validateButton: t('Validar Pliego', 'Validate Document'),
+    readyToValidate: t('Listo para Validar', 'Ready to Validate'),
+    regulationSelected: t('normativa seleccionada', 'regulation selected'),
+    regulationsSelected: t('normativas seleccionadas', 'regulations selected'),
   },
 
   loadingPage: {
@@ -242,5 +245,3 @@ export const useTranslations = (lang: Language) => {
     return result?.[lang] || result?.['es'] || key;
   }, [lang]);
 };
-
-    

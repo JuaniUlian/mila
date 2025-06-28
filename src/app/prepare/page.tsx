@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { RegulationList } from '@/components/prepare/regulation-list';
-import { Search, Upload, FileSignature, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft } from 'lucide-react';
+import { Search, Upload, FileSignature, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -272,21 +272,6 @@ export default function PreparePage() {
                         </Card>
                     </AccordionItem>
                 </Accordion>
-
-                <div className="flex justify-center items-center gap-4 pt-6">
-                    <Button variant="outline" onClick={handlePrevStep} className="py-6 px-8 rounded-xl bg-white/50 text-foreground">
-                        <ChevronLeft className="mr-2 h-5 w-5" />
-                        {t('preparePage.backButton')}
-                    </Button>
-                    <Button
-                    suppressHydrationWarning
-                    className="text-lg font-semibold px-12 py-6 rounded-xl bg-white text-foreground shadow-xl hover:shadow-lg hover:brightness-95 active:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
-                    onClick={handleValidate}
-                    disabled={!isValidationReady}
-                    >
-                    {t('preparePage.validateButton')}
-                    </Button>
-                </div>
             </div>
         )}
 
@@ -308,6 +293,42 @@ export default function PreparePage() {
                         {t('preparePage.nextButton')}
                         <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
+                </div>
+            </div>
+        )}
+
+        {currentStep === 2 && isValidationReady && (
+            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-8 fade-in duration-500 z-20">
+                <div className={cn("glass p-3 mx-4 rounded-2xl flex items-center justify-between gap-4")}>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                            <span className="text-xs text-muted-foreground">{t('preparePage.readyToValidate')}</span>
+                            <p className="font-semibold text-foreground truncate" title={`${selectedRegulationIds.length} ${selectedRegulationIds.length === 1 ? t('preparePage.regulationSelected') : t('preparePage.regulationsSelected')}`}>
+                                {selectedRegulationIds.length} {selectedRegulationIds.length === 1 ? t('preparePage.regulationSelected') : t('preparePage.regulationsSelected')}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        <Button
+                            variant="ghost"
+                            onClick={handlePrevStep}
+                            className="py-3 px-4 rounded-xl btn-neu-light"
+                            suppressHydrationWarning
+                        >
+                            <ChevronLeft className="mr-1 h-5 w-5" />
+                            {t('preparePage.backButton')}
+                        </Button>
+                        <Button
+                            suppressHydrationWarning
+                            className="py-3 px-4 rounded-xl btn-neu-green"
+                            onClick={handleValidate}
+                            disabled={!isValidationReady}
+                        >
+                            {t('preparePage.validateButton')}
+                            <ChevronRight className="ml-1 h-5 w-5" />
+                        </Button>
+                    </div>
                 </div>
             </div>
         )}
@@ -341,5 +362,3 @@ export default function PreparePage() {
     </div>
   );
 }
-
-    
