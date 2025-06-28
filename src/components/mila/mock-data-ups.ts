@@ -81,7 +81,7 @@ const block5Suggestions: Suggestion[] = [
     id: 'sug-ups-5',
     category: 'Legal',
     severity: 'medium',
-    text: "Para mantener la coherencia con el carácter de urgencia invocado, se propone modificar el plazo de ejecución a: '...un máximo de treinta (30) días corridos a partir de la firma del contrato'. Un plazo de 120 días es incongruente con una necesidad impostergable.",
+    text: "PLAZO DE EJECUCIÓN: El plazo máximo para la entrega e instalación de los equipos será de treinta (30) días corridos a partir de la firma del contrato.",
     justification: {
       legal: "El Art. 1422 del Reglamento de Contrataciones, que regula la urgencia, presupone plazos de ejecución acordes. Un plazo de 120 días debilita la justificación para cualquier tratamiento preferencial o procedimiento de excepción.",
       technical: "Aclara las expectativas reales del plazo de entrega y asegura la coherencia interna del documento, evitando confusiones a los oferentes y fiscalizadores.",
