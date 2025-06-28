@@ -119,16 +119,16 @@ export default {
             'background-position': '100% 50%',
           },
         },
-        'breathing': {
-            '0%, 100%': { transform: 'scale(1)' },
-            '50%': { transform: 'scale(1.005)' },
+        'subtle-gradient': {
+            '0%, 100%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
         },
       },
       animation: { // Moved inside extend
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
-        'breathing': 'breathing 12s ease-in-out infinite',
+        'subtle-gradient': 'subtle-gradient 8s ease infinite',
       },
       backgroundSize: {
         '200%': '200% 200%',
