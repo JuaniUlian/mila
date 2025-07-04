@@ -20,6 +20,7 @@ import { useTranslations } from '@/lib/translations';
 interface File {
     id: string;
     name: string;
+    content: string;
 }
 
 interface FolderData {
@@ -33,7 +34,7 @@ interface FolderGridProps {
     selectedFileId: string | null;
     onSelectFile: (id: string | null) => void;
     searchQuery: string;
-    onFileUploadToFolder: (folderId: string, fileName: string) => void;
+    onFileUploadToFolder: (folderId: string, file: { name: string; content: string }) => void;
     onRenameFile: (file: File, folderId: string) => void;
     onMoveFile: (file: File, folderId: string) => void;
     onDeleteFile: (file: File, folderId: string) => void;
@@ -145,7 +146,7 @@ export function FolderGrid({
                             <CardDescription>{folder.files.length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
                         <FileUploadButton
-                            onFileSelect={(fileName) => onFileUploadToFolder(folder.id, fileName)}
+                            onFileSelect={(file) => onFileUploadToFolder(folder.id, file)}
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 rounded-full flex-shrink-0"

@@ -53,6 +53,7 @@ export default function PlanillaVivaPage() {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
 
     const savedFileName = localStorage.getItem('selectedDocumentName');
+    const savedDocumentContent = localStorage.getItem('selectedDocumentContent');
     const savedRegulationsRaw = localStorage.getItem('selectedRegulations');
     const savedRegulations: {name: string, content: string}[] = savedRegulationsRaw ? JSON.parse(savedRegulationsRaw) : [];
     setSelectedRegulations(savedRegulations);
@@ -65,6 +66,14 @@ export default function PlanillaVivaPage() {
       dataToLoad = JSON.parse(JSON.stringify(defaultMockData));
     }
     
+    // If custom content was uploaded, use it.
+    if (savedDocumentContent && dataToLoad.blocks.length > 0) {
+        // Replace the originalText of the first block with the uploaded content
+        dataToLoad.blocks.forEach(block => {
+            block.originalText = savedDocumentContent;
+        });
+    }
+
     // Dynamically update suggestion norms based on user selection for simulation
     if (savedRegulations.length > 0) {
       let regulationIndex = 0;

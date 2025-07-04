@@ -29,26 +29,39 @@ import {
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
+import { RegulationList } from '@/components/prepare/regulation-list';
+
+type File = {
+  id: string;
+  name: string;
+  content: string;
+};
+
+type Regulation = {
+    id: string;
+    name: string;
+    content: string;
+};
 
 // Mock Data
 const initialFolders = [
   { id: 'f1', name: 'Pliegos 2025', files: [
-    { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf' },
-    { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx' },
-    { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf' },
+    { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf', content: 'Contenido simulado del Pliego de Bases y Condiciones. Este documento establece las reglas para la licitación.' },
+    { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx', content: 'Contenido simulado del Anexo I. Detalla los requisitos técnicos de los bienes o servicios a contratar.' },
+    { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf', content: 'Contenido simulado del Anexo II. Es el borrador del contrato que se firmará con el adjudicatario.' },
   ]},
   { id: 'f2', name: 'Contrataciones Directas', files: [
-    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)' },
-    { id: 'file4', name: 'Informe de Contratación Directa.docx' }
+    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)', content: 'SOLICITUD: Se solicita con carácter de URGENTE la adquisición e instalación de un (1) sistema de aire acondicionado de precisión y un (1) equipo UPS para el centro de datos principal de la Entidad.\nPROCEDIMIENTO: El presente trámite se sustanciará bajo la modalidad de Licitación Pública.\nPRESUPUESTO OFICIAL: Se adjunta como referencia el presupuesto N° 1234 de la firma EXCELCOM S.A. por un total de USD 50.000.\nPLAZO DE EJECUCIÓN: El plazo máximo para la entrega e instalación será de ciento veinte (120) días.' },
+    { id: 'file4', name: 'Informe de Contratación Directa.docx', content: 'Contenido simulado del Informe de Contratación Directa.' }
   ]},
   { id: 'f3', name: 'Expedientes', files: [
-    { id: 'file5', name: 'Resolución de Apertura.pdf' },
-    { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf' },
+    { id: 'file5', name: 'Resolución de Apertura.pdf', content: 'Contenido simulado de la Resolución de Apertura.' },
+    { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf', content: 'Contenido simulado del Dictamen Jurídico Previo.' },
   ]},
   { id: 'f4', name: 'Decretos', files: [] },
 ];
 
-const initialRegulations = [
+const initialRegulations: Regulation[] = [
     { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...' },
     { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...' },
     { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...' },
@@ -64,7 +77,7 @@ export default function PreparePage() {
   const t = useTranslations(language);
   
   const [currentStep, setCurrentStep] = useState(1);
-  const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, fileCount: f.files.length })));
+  const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, files: f.files, fileCount: f.files.length })));
   const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
@@ -77,7 +90,7 @@ export default function PreparePage() {
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  type FileIdentifier = { fileId: string; folderId: string; name: string } | null;
+  type FileIdentifier = { fileId: string; folderId: string; name: string; content: string } | null;
   const [fileToAction, setFileToAction] = useState<FileIdentifier>(null);
   const [newFileName, setNewFileName] = useState('');
   const [moveToFolderId, setMoveToFolderId] = useState<string | null>(null);
@@ -88,8 +101,11 @@ export default function PreparePage() {
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
-    const allFiles = folders.flatMap(folder => folder.files);
-    return allFiles.find(file => file.id === selectedFileId);
+    for (const folder of folders) {
+        const file = folder.files.find(f => f.id === selectedFileId);
+        if (file) return file;
+    }
+    return null;
   }, [selectedFileId, folders]);
 
   const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
@@ -110,6 +126,7 @@ export default function PreparePage() {
         
         localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
         localStorage.setItem('selectedDocumentName', selectedFile.name);
+        localStorage.setItem('selectedDocumentContent', selectedFile.content);
         router.push('/loading');
     }
   };
@@ -121,12 +138,12 @@ export default function PreparePage() {
     });
   };
 
-  const handleFileUploadToFolder = (folderId: string, fileName: string) => {
+  const handleFileUploadToFolder = (folderId: string, file: { name: string, content: string }) => {
     setFolders(prevFolders => {
         const newFolders = prevFolders.map(folder => {
             if (folder.id === folderId) {
                 const updatedFolder = { ...folder };
-                const newFile = { id: `file-${Date.now()}`, name: fileName };
+                const newFile = { id: `file-${Date.now()}`, name: file.name, content: file.content };
                 updatedFolder.files = [...updatedFolder.files, newFile];
                 updatedFolder.fileCount = updatedFolder.files.length;
                 return updatedFolder;
@@ -135,12 +152,12 @@ export default function PreparePage() {
         });
         return newFolders;
     });
-    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', fileName));
+    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', file.name));
   };
 
-  const handleFileUploadedToRoot = (fileName: string) => {
+  const handleFileUploadedToRoot = (file: { name: string, content: string }) => {
     if (folders.length > 0) {
-      handleFileUploadToFolder(folders[0].id, fileName);
+      handleFileUploadToFolder(folders[0].id, file);
     } else {
        toast({
           title: t('preparePage.toastError'),
@@ -150,16 +167,16 @@ export default function PreparePage() {
     }
   };
   
-  const handleRegulationUpload = (fileName: string) => {
+  const handleRegulationUpload = (file: { name: string, content: string }) => {
     setRegulations(prevRegulations => {
-        const newRegulation = {
+        const newRegulation: Regulation = {
             id: `reg-${Date.now()}`,
-            name: fileName,
-            content: 'Contenido del archivo de normativa subido...'
+            name: file.name,
+            content: file.content
         };
         return [...prevRegulations, newRegulation];
     });
-    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', fileName));
+    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', file.name));
   };
 
   const handleCreateFolder = () => {
@@ -205,8 +222,8 @@ export default function PreparePage() {
   }, [searchQuery, folders]);
 
   // File action handlers
-  const handleOpenRenameModal = (file: { id: string; name: string }, folderId: string) => {
-    setFileToAction({ fileId: file.id, folderId, name: file.name });
+  const handleOpenRenameModal = (file: File, folderId: string) => {
+    setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setNewFileName(file.name);
     setIsRenameModalOpen(true);
   };
@@ -234,8 +251,8 @@ export default function PreparePage() {
     setFileToAction(null);
   };
 
-  const handleOpenMoveModal = (file: { id: string; name: string }, folderId: string) => {
-    setFileToAction({ fileId: file.id, folderId, name: file.name });
+  const handleOpenMoveModal = (file: File, folderId: string) => {
+    setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setMoveToFolderId(null);
     setIsMoveModalOpen(true);
   };
@@ -245,7 +262,7 @@ export default function PreparePage() {
       toast({ title: t('preparePage.toastError'), description: t('preparePage.selectDestinationFolder'), variant: 'destructive' });
       return;
     }
-    let fileToMove: { id: string, name: string } | undefined;
+    let fileToMove: File | undefined;
     const foldersWithoutFile = folders.map(folder => {
       if (folder.id === fileToAction.folderId) {
         fileToMove = folder.files.find(f => f.id === fileToAction.fileId);
@@ -266,8 +283,8 @@ export default function PreparePage() {
     setFileToAction(null);
   };
 
-  const handleOpenDeleteModal = (file: { id: string; name: string }, folderId: string) => {
-    setFileToAction({ fileId: file.id, folderId, name: file.name });
+  const handleOpenDeleteModal = (file: File, folderId: string) => {
+    setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setIsDeleteModalOpen(true);
   };
 
