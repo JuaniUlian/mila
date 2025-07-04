@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { validateSuggestionEdit } from '@/ai/flows/validate-suggestion-edit';
 
 type SuggestionWithBlockId = Suggestion & { blockId: string };
 
@@ -50,18 +51,40 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     return t('analysisPage.solutionProposal');
   };
 
-  const handleValidate = () => {
+  const handleValidate = async () => {
+    if (!regulationContent) {
+        toast({ title: "Error", description: "No se encontró contenido de la normativa para validar.", variant: "destructive" });
+        return;
+    }
+
     setIsValidationLoading(true);
-    setTimeout(() => {
-        const correctedText = currentText + " (Este texto ha sido revisado y optimizado por IA para garantizar mayor claridad, precisión y total cumplimiento con la normativa vigente.)";
-        setCurrentText(correctedText);
-        setMode('validated');
-        setIsValidationLoading(false);
-        toast({
-            title: t('analysisPage.toastNewSuggestionGenerated'),
-            description: t('analysisPage.toastNewProposalGenerated'),
+
+    try {
+        const result = await validateSuggestionEdit({
+            originalText: originalText,
+            originalSuggestion: suggestion.text,
+            userEditedSuggestion: currentText,
+            legalJustification: suggestion.justification.legal,
+            regulationContent: regulationContent,
         });
-    }, 5000);
+
+        setCurrentText(result.improvedProposal);
+        setMode('validated');
+        toast({
+            title: result.isValid ? t('analysisPage.toastValidationSuccessTitle') : t('analysisPage.toastValidationNeedsReviewTitle'),
+            description: result.feedback,
+        });
+
+    } catch (error) {
+        console.error("Error during suggestion validation:", error);
+        toast({
+            title: t('analysisPage.toastValidationErrorTitle'),
+            description: t('analysisPage.toastValidationErrorDesc'),
+            variant: "destructive",
+        });
+    } finally {
+        setIsValidationLoading(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -300,14 +323,10 @@ export function IncidentsList({
       .filter(group => group.suggestions.length > 0);
   }, [pendingSuggestions]);
 
-  const getOriginalText = (blockId: string) => {
-    return blocks.find(b => b.id === blockId)?.originalText || "Contexto no encontrado.";
-  }
-
   const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
     if (!suggestion) return undefined;
     // Find the regulation where the name is an exact match for the applied norm.
-    const regulation = selectedRegulations.find(r => r.name === suggestion.appliedNorm);
+    const regulation = selectedRegulations.find(r => r.name.startsWith(suggestion.appliedNorm.split(' - ')[0]));
     return regulation?.content;
   };
   
@@ -391,7 +410,7 @@ export function IncidentsList({
               <div className="p-6 overflow-y-auto max-h-[75vh]">
                 <IncidentItemContent 
                   suggestion={dialogSuggestion}
-                  originalText={getOriginalText(dialogSuggestion.blockId)}
+                  originalText={dialogSuggestion.evidence}
                   regulationContent={getRegulationContent(dialogSuggestion)}
                   onUpdateStatus={(newStatus) => {
                       onUpdateSuggestionStatus(dialogSuggestion.blockId, dialogSuggestion.id, newStatus);

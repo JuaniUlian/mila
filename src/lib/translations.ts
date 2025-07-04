@@ -199,7 +199,11 @@ export const translations = {
     toastNewProposalGenerated: t('La IA ha procesado tu edición y ha generado una nueva propuesta.', 'The AI has processed your edit and generated a new proposal.'),
     toastReportError: t('Error al generar el informe', 'Error generating report'),
     toastReportErrorDesc: t('No se pudo guardar la información para la previsualización. Intente de nuevo.', 'Could not save data for preview. Please try again.'),
-    originalText: t('Texto Original', 'Original Text'),
+    originalText: t('Texto Original (Evidencia)', 'Original Text (Evidence)'),
+    toastValidationSuccessTitle: t('✅ Edición Validada', '✅ Edit Validated'),
+    toastValidationNeedsReviewTitle: t('⚠️ Edición Validada con Ajustes', '⚠️ Edit Validated with Adjustments'),
+    toastValidationErrorTitle: t('Error de Validación', 'Validation Error'),
+    toastValidationErrorDesc: t('La IA no pudo procesar la validación. Por favor, intente de nuevo.', 'The AI could not process the validation. Please try again.'),
   },
 
   reportPreviewPage: {

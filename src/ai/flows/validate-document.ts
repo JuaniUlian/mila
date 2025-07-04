@@ -34,6 +34,7 @@ const FindingSchema = z.object({
     gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
     evidencia: z.string().describe("Cita textual exacta o síntesis objetiva del documento analizado que respalda el hallazgo."),
     propuesta_solucion: z.string().describe("Propuesta de redacción o solución para corregir la irregularidad o capitalizar la oportunidad/fortaleza. Debe ser un texto concreto y aplicable."),
+    es_editable: z.boolean().describe("Indica si la 'propuesta_solucion' es una sugerencia de redacción directa que el usuario puede editar. Será 'false' para instrucciones procedurales (ej. 'declarar desierto') y 'true' para propuestas de texto."),
     justificacion_legal: z.string().describe("Explicación de por qué el hallazgo es relevante desde una perspectiva legal, citando los principios o reglas vulnerados o cumplidos."),
     consecuencia_estimada: z.string().describe("Cuál es el riesgo o consecuencia potencial si la irregularidad no se corrige, o el beneficio si la oportunidad se aprovecha.")
 });
@@ -79,6 +80,7 @@ Instrucciones adicionales:
 - Sé crítico.
 - Si detectás coherencia positiva con alguna norma (ej. procedimiento bien detallado, fundamentación clara, uso correcto del marco legal), etiquétalo como Fortaleza u Oportunidad.
 - Utilizá "Informativa" en el campo gravedad para observaciones sin consecuencias legales o administrativas, pero que puedan ser útiles.
+- Define el campo 'es_editable' como 'true' si tu propuesta es una redacción de texto que puede ser modificada, y 'false' si es una instrucción (ej. 'incluir más propuestas', 'declarar desierto').
 - No inventes, no generalices y no evalúes aspectos que no puedas vincular directamente con los documentos proporcionados.
 - Evalúa el documento en su totalidad para proporcionar un "complianceScore" (Cumplimiento Normativo) y un "legalRiskScore" (Riesgo Legal), ambos como porcentajes de 0 a 100.
 

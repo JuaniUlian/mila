@@ -6,6 +6,7 @@ export type SuggestionCategory = 'Legal' | 'Administrativa' | 'Redacción';
 export interface Suggestion {
   id: string;
   text: string;
+  evidence: string;
   justification: {
     legal: string; 
     technical: string; 
@@ -17,7 +18,7 @@ export interface Suggestion {
   completenessImpact: number; // How much applying this suggestion contributes to completeness
   severity: SuggestionSeverity;
   category: SuggestionCategory;
-  isEditable?: boolean;
+  isEditable: boolean;
 }
 
 export interface DocumentBlock {

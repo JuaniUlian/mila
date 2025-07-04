@@ -31,6 +31,7 @@ function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string,
     const suggestions: Suggestion[] = findings.map((finding, index): Suggestion => ({
         id: `sug-ai-${index}`,
         text: finding.propuesta_solucion,
+        evidence: finding.evidencia,
         justification: {
             legal: finding.justificacion_legal,
             technical: `Evidencia encontrada en página ${finding.pagina}.`, // Using technical for this field
@@ -42,7 +43,7 @@ function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string,
         completenessImpact: severityMap[finding.gravedad] === 'high' ? 2 : (severityMap[finding.gravedad] === 'medium' ? 1 : 0.5),
         severity: severityMap[finding.gravedad] || 'low',
         category: categoryMap[finding.tipo] || 'Redacción',
-        isEditable: true, // Let all AI suggestions be editable
+        isEditable: finding.es_editable,
     }));
 
     const mainBlock: DocumentBlock = {
