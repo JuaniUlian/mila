@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { ButtonProps } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import mammoth from 'mammoth';
+import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 
 interface FileUploadButtonProps extends ButtonProps {
   onFileSelect: (file: { name: string, content: string }) => void;
@@ -20,7 +21,7 @@ export function FileUploadButton({ onFileSelect, children, ...props }: FileUploa
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -45,11 +46,33 @@ export function FileUploadButton({ onFileSelect, children, ...props }: FileUploa
           };
           reader.readAsArrayBuffer(file);
       } else if (file.name.endsWith('.pdf')) {
-          onFileSelect({ name: file.name, content: `(Contenido de PDF simulado para '${file.name}'. La extracción de texto de PDF no está implementada en este prototipo.)` });
           toast({
-              title: "Soporte limitado para PDF",
-              description: "Se ha cargado el archivo PDF, pero la extracción de su contenido es simulada."
+            title: "Procesando PDF...",
+            description: "Extrayendo texto del archivo. Esto puede tardar unos segundos.",
           });
+          
+          reader.onload = async (e) => {
+            const fileDataUri = e.target?.result as string;
+            if (fileDataUri) {
+              try {
+                const result = await extractTextFromFile({ fileDataUri });
+                onFileSelect({ name: file.name, content: result.extractedText || `No se pudo extraer texto de '${file.name}'.` });
+                toast({
+                  title: "PDF Procesado",
+                  description: `Se ha extraído el texto de "${file.name}".`,
+                });
+              } catch (error) {
+                console.error("Error en OCR de PDF:", error);
+                toast({
+                  title: "Error de OCR",
+                  description: "No se pudo extraer el texto del archivo PDF. El modelo puede estar ocupado o el formato no ser compatible.",
+                  variant: "destructive",
+                });
+                onFileSelect({ name: file.name, content: `(Error al procesar el contenido de '${file.name}')` });
+              }
+            }
+          };
+          reader.readAsDataURL(file); // Important: read as Data URL for the AI flow
       } else if (file.type.startsWith('text/')) {
           reader.onload = (e) => {
               const content = e.target?.result as string;
