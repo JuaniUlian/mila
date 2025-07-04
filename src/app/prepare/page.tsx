@@ -70,6 +70,10 @@ const initialRegulations: Regulation[] = [
     { id: 'reg-9353', name: 'Ley 9353', content: 'Contenido detallado de la Ley 9353...' },
 ];
 
+const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
+const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
+
+
 export default function PreparePage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -94,10 +98,44 @@ export default function PreparePage() {
   const [fileToAction, setFileToAction] = useState<FileIdentifier>(null);
   const [newFileName, setNewFileName] = useState('');
   const [moveToFolderId, setMoveToFolderId] = useState<string | null>(null);
+  const [loadedFromStorage, setLoadedFromStorage] = useState(false);
 
+
+  // Load from localStorage on mount
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
+    try {
+        const savedFolders = localStorage.getItem(FOLDERS_STORAGE_KEY);
+        if (savedFolders) setFolders(JSON.parse(savedFolders));
+        
+        const savedRegulations = localStorage.getItem(REGULATIONS_STORAGE_KEY);
+        if (savedRegulations) setRegulations(JSON.parse(savedRegulations));
+    } catch (error) {
+        console.error('Error loading data from localStorage', error);
+    }
+    setLoadedFromStorage(true);
   }, []);
+
+  // Save to localStorage on changes, but only after initial load
+  useEffect(() => {
+    if (loadedFromStorage) {
+        try {
+            localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(folders));
+        } catch (error) {
+            console.error('Error saving folders to localStorage', error);
+        }
+    }
+  }, [folders, loadedFromStorage]);
+
+  useEffect(() => {
+      if (loadedFromStorage) {
+          try {
+              localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulations));
+          } catch (error) {
+              console.error('Error saving regulations to localStorage', error);
+          }
+      }
+  }, [regulations, loadedFromStorage]);
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
