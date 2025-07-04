@@ -107,7 +107,7 @@ export const translations = {
     toastError: t('Error', 'Error'),
     toastEmptyFolderName: t('El nombre de la carpeta no puede estar vacío.', 'Folder name cannot be empty.'),
     toastFileAdded: t('El archivo "{fileName}" se ha agregado.', 'The file "{fileName}" has been added.'),
-    toastFileUploaded: t('Archivo Subido (Simulado)', 'File Uploaded (Simulated)'),
+    toastFileUploaded: t('Archivo Subido', 'File Uploaded'),
     toastFolderCreated: t('Carpeta Creada', 'Folder Created'),
     toastFolderCreatedDesc: t('La carpeta "{folderName}" ha sido creada exitosamente.', 'The folder "{folderName}" has been created successfully.'),
     toastNoFolders: t('No hay carpetas para agregar el archivo.', 'There are no folders to add the file to.'),
