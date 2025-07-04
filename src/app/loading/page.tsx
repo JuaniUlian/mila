@@ -5,11 +5,75 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { validateDocument, type ValidateDocumentOutput } from '@/ai/flows/validate-document';
+import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionSeverity, SuggestionCategory } from '@/components/mila/types';
+import { useToast } from '@/hooks/use-toast';
+
+// Helper function to map AI output to the data structure needed by the analysis page
+function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string, docContent: string): MilaAppPData {
+    const { findings, complianceScore, legalRiskScore } = aiOutput;
+
+    const severityMap: { [key: string]: SuggestionSeverity } = {
+        'Alta': 'high',
+        'Media': 'medium',
+        'Baja': 'low',
+        'Informativa': 'low',
+    };
+
+    const categoryMap: { [key: string]: SuggestionCategory } = {
+        'Irregularidad': 'Legal',
+        'Fortaleza': 'Redacción',
+        'Oportunidad': 'Redacción',
+        'Sin hallazgos relevantes': 'Redacción',
+    };
+    
+    // For now, create a single block for the whole document
+    const suggestions: Suggestion[] = findings.map((finding, index): Suggestion => ({
+        id: `sug-ai-${index}`,
+        text: finding.propuesta_solucion,
+        justification: {
+            legal: finding.justificacion_legal,
+            technical: `Evidencia encontrada en página ${finding.pagina}.`, // Using technical for this field
+        },
+        appliedNorm: `${finding.nombre_archivo_normativa} - ${finding.articulo_o_seccion}`,
+        errorType: finding.categoria,
+        estimatedConsequence: finding.consecuencia_estimada,
+        status: 'pending',
+        completenessImpact: severityMap[finding.gravedad] === 'high' ? 2 : (severityMap[finding.gravedad] === 'medium' ? 1 : 0.5),
+        severity: severityMap[finding.gravedad] || 'low',
+        category: categoryMap[finding.tipo] || 'Redacción',
+        isEditable: true, // Let all AI suggestions be editable
+    }));
+
+    const mainBlock: DocumentBlock = {
+        id: 'main-document-block',
+        name: 'Análisis General del Documento',
+        category: 'Documento Completo',
+        alertLevel: legalRiskScore > 75 ? 'grave' : (legalRiskScore > 40 ? 'media' : 'leve'),
+        completenessIndex: 5, // This is a baseline, could be improved with more AI metrics
+        maxCompleteness: 10,
+        originalText: docContent,
+        suggestions: suggestions,
+        alerts: [],
+        missingConnections: [],
+        applicableNorms: [],
+        legalRisk: `El riesgo legal estimado es de ${legalRiskScore}%.`,
+    };
+
+    return {
+        documentTitle: `Evaluación de ${docName}`,
+        overallComplianceScore: complianceScore,
+        overallCompletenessIndex: 5.0, // This is a baseline
+        blocks: [mainBlock],
+    };
+}
+
 
 export default function LoadingPage() {
   const router = useRouter();
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const { toast } = useToast();
   
   const loadingTexts = useMemo(() => [
     t('loadingPage.status1'),
@@ -24,26 +88,61 @@ export default function LoadingPage() {
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
 
-    // Simulate loading process and text change
     const textInterval = setInterval(() => {
       setStatusText(prevText => {
         const currentIndex = loadingTexts.indexOf(prevText);
         const nextIndex = (currentIndex + 1) % loadingTexts.length;
         return loadingTexts[nextIndex];
       });
-    }, 3000); // Change text every 3 seconds
+    }, 3000);
 
-    // Redirect after 10 seconds
-    const redirectTimeout = setTimeout(() => {
-      router.push('/analysis'); // Redirect to the main "plantilla viva" page
-    }, 10000);
+    const processDocument = async () => {
+      try {
+        const documentName = localStorage.getItem('selectedDocumentName');
+        const documentContent = localStorage.getItem('selectedDocumentContent');
+        const regulationsRaw = localStorage.getItem('selectedRegulations');
 
-    // Cleanup timeouts and intervals on component unmount
+        if (!documentName || !documentContent || !regulationsRaw) {
+          toast({
+            title: "Error de Preparación",
+            description: "Faltan datos para el análisis. Por favor, vuelva a preparar el documento.",
+            variant: "destructive"
+          });
+          router.push('/prepare');
+          return;
+        }
+
+        const regulations = JSON.parse(regulationsRaw);
+
+        const aiResult = await validateDocument({
+          documentName,
+          documentContent,
+          regulations,
+        });
+
+        const generatedData = mapAiOutputToAppData(aiResult, documentName, documentContent);
+
+        localStorage.setItem('milaAnalysisData', JSON.stringify(generatedData));
+
+        router.push('/analysis');
+
+      } catch (error) {
+        console.error("Error durante la validación IA:", error);
+        toast({
+          title: "Error de Análisis",
+          description: "La IA no pudo procesar el documento. Por favor, intente de nuevo.",
+          variant: "destructive"
+        });
+        router.push('/prepare');
+      }
+    };
+    
+    processDocument();
+
     return () => {
       clearInterval(textInterval);
-      clearTimeout(redirectTimeout);
     };
-  }, [router, loadingTexts]);
+  }, [router, loadingTexts, t, toast]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-white via-slate-200 to-blue-100 bg-200% animate-gradient-bg">

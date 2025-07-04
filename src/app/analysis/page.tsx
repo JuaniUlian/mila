@@ -51,47 +51,67 @@ export default function PlanillaVivaPage() {
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
-
-    const savedFileName = localStorage.getItem('selectedDocumentName');
-    const savedDocumentContent = localStorage.getItem('selectedDocumentContent');
-    const savedRegulationsRaw = localStorage.getItem('selectedRegulations');
-    const savedRegulations: {name: string, content: string}[] = savedRegulationsRaw ? JSON.parse(savedRegulationsRaw) : [];
-    setSelectedRegulations(savedRegulations);
-
-    let dataToLoad: MilaAppPData;
-
-    if (savedFileName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
-      dataToLoad = JSON.parse(JSON.stringify(upsMockData));
-    } else {
-      dataToLoad = JSON.parse(JSON.stringify(defaultMockData));
-    }
     
-    // If custom content was uploaded, use it.
-    if (savedDocumentContent && dataToLoad.blocks.length > 0) {
-        // Replace the originalText of the first block with the uploaded content
-        dataToLoad.blocks.forEach(block => {
-            block.originalText = savedDocumentContent;
-        });
+    let dataToLoad: MilaAppPData | null = null;
+    
+    // PRIMARY: Try to load fully processed data from the loading page
+    const analysisDataRaw = localStorage.getItem('milaAnalysisData');
+    if (analysisDataRaw) {
+        try {
+            dataToLoad = JSON.parse(analysisDataRaw);
+            // Optional: clean up the data from localStorage after loading
+            // localStorage.removeItem('milaAnalysisData');
+        } catch (e) {
+            console.error("Failed to parse analysis data from localStorage", e);
+            dataToLoad = null;
+        }
     }
 
-    // Dynamically update suggestion norms based on user selection for simulation
-    if (savedRegulations.length > 0) {
-      let regulationIndex = 0;
-      dataToLoad.blocks.forEach(block => {
-        block.suggestions.forEach(suggestion => {
-          const selectedReg = savedRegulations[regulationIndex % savedRegulations.length];
-          suggestion.appliedNorm = selectedReg.name;
-          regulationIndex++;
-        });
-      });
+    // FALLBACK: If no processed data, use the old mock data logic
+    if (!dataToLoad) {
+        console.warn("No processed analysis data found, falling back to mock data.");
+        const savedFileName = localStorage.getItem('selectedDocumentName');
+        const savedDocumentContent = localStorage.getItem('selectedDocumentContent');
+        const savedRegulationsRaw = localStorage.getItem('selectedRegulations');
+        const regs: {name: string, content: string}[] = savedRegulationsRaw ? JSON.parse(savedRegulationsRaw) : [];
+        setSelectedRegulations(regs);
+
+        let mockDataToUse: MilaAppPData;
+
+        if (savedFileName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
+          mockDataToUse = JSON.parse(JSON.stringify(upsMockData));
+        } else {
+          mockDataToUse = JSON.parse(JSON.stringify(defaultMockData));
+        }
+        
+        if (savedDocumentContent && mockDataToUse.blocks.length > 0) {
+            mockDataToUse.blocks.forEach(block => {
+                block.originalText = savedDocumentContent;
+            });
+        }
+
+        if (regs.length > 0) {
+          let regulationIndex = 0;
+          mockDataToUse.blocks.forEach(block => {
+            block.suggestions.forEach(suggestion => {
+              const selectedReg = regs[regulationIndex % regs.length];
+              suggestion.appliedNorm = selectedReg.name;
+              regulationIndex++;
+            });
+          });
+        }
+
+        if (savedFileName) {
+            mockDataToUse.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
+        }
+        
+        dataToLoad = mockDataToUse;
     }
 
-    if (savedFileName) {
-        dataToLoad.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
+    if (dataToLoad) {
+      setInitialData(dataToLoad);
+      setDocumentData(dataToLoad);
     }
-
-    setInitialData(dataToLoad);
-    setDocumentData(dataToLoad);
   }, [t]);
 
   const totalSeverityWeight = useMemo(() => {
