@@ -47,6 +47,8 @@ type Regulation = {
     id: string;
     name: string;
     content: string;
+    status?: 'processing' | 'error' | 'success';
+    error?: string;
 };
 
 // Mock Data
@@ -68,12 +70,12 @@ const initialFolders = [
 ];
 
 const initialRegulations: Regulation[] = [
-    { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...' },
-    { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...' },
-    { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...' },
-    { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...' },
-    { id: 'reg5', name: 'Decreto 795/96', content: 'Contenido del Decreto 795/96...' },
-    { id: 'reg-9353', name: 'Ley 9353', content: 'Contenido detallado de la Ley 9353...' },
+    { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' },
+    { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...', status: 'success' },
+    { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...', status: 'success' },
+    { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...', status: 'success' },
+    { id: 'reg5', name: 'Decreto 795/96', content: 'Contenido del Decreto 795/96...', status: 'success' },
+    { id: 'reg-9353', name: 'Ley 9353', content: 'Contenido detallado de la Ley 9353...', status: 'success' },
 ];
 
 const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
@@ -88,7 +90,7 @@ export default function PreparePage() {
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
-  const [regulations, setRegulations] = useState(initialRegulations);
+  const [regulations, setRegulations] = useState<Regulation[]>(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -100,7 +102,7 @@ export default function PreparePage() {
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  type FileIdentifier = { fileId: string; folderId: string; name: string; content: string } | null;
+  type FileIdentifier = { fileId: string; folderId: string; name: string; content: string; } | null;
   const [fileToAction, setFileToAction] = useState<FileIdentifier>(null);
   const [newFileName, setNewFileName] = useState('');
   const [moveToFolderId, setMoveToFolderId] = useState<string | null>(null);
@@ -125,8 +127,16 @@ export default function PreparePage() {
             setFolders(sanitizedFolders);
         }
         
-        const savedRegulations = localStorage.getItem(REGULATIONS_STORAGE_KEY);
-        if (savedRegulations) setRegulations(JSON.parse(savedRegulations));
+        const savedRegulationsRaw = localStorage.getItem(REGULATIONS_STORAGE_KEY);
+        if (savedRegulationsRaw) {
+            const savedRegulations = JSON.parse(savedRegulationsRaw);
+            // Add status for backward compatibility
+            const sanitizedRegulations = savedRegulations.map((reg: any) => ({
+                ...reg,
+                status: reg.status || 'success'
+            }));
+            setRegulations(sanitizedRegulations);
+        }
     } catch (error) {
         console.error('Error loading data from localStorage', error);
     }
@@ -151,7 +161,8 @@ export default function PreparePage() {
   useEffect(() => {
       if (loadedFromStorage) {
           try {
-              localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulations));
+              const regulationsToSave = regulations.filter(reg => reg.status === 'success');
+              localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulationsToSave));
           } catch (error) {
               console.error('Error saving regulations to localStorage', error);
           }
@@ -180,7 +191,7 @@ export default function PreparePage() {
   const handleValidate = () => {
     if (isValidationReady && selectedFile) {
         const selectedRegulationsData = regulations
-            .filter(r => selectedRegulationIds.includes(r.id))
+            .filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success')
             .map(r => ({ name: r.name, content: r.content }));
         
         localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
@@ -291,15 +302,24 @@ export default function PreparePage() {
   };
   
   const handleRegulationUpload = async (rawFile: globalThis.File) => {
-    const addRegulation = (newRegulation: Regulation) => {
-      setRegulations(prev => [...prev, newRegulation]);
-      toast({
-        title: t('preparePage.toastFileUploaded'),
-        description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
-      });
+    const tempId = `reg-${Date.now()}`;
+    const regulationPlaceholder: Regulation = {
+        id: tempId,
+        name: rawFile.name,
+        content: '',
+        status: 'processing',
+    };
+
+    setRegulations(prev => [...prev, regulationPlaceholder]);
+
+    const updateRegulationState = (id: string, update: Partial<Regulation>) => {
+      setRegulations(prev =>
+        prev.map(reg => (reg.id === id ? { ...reg, ...update } : reg))
+      );
     };
 
     const handleError = (errorMsg: string) => {
+      updateRegulationState(tempId, { status: 'error', error: errorMsg });
       toast({
         title: `Error al procesar ${rawFile.name}`,
         description: errorMsg,
@@ -316,10 +336,13 @@ export default function PreparePage() {
           if (arrayBuffer) {
             try {
               const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer as ArrayBuffer });
-              addRegulation({
-                id: `reg-${Date.now()}`,
-                name: rawFile.name,
-                content: result.value || 'No se pudo extraer contenido.',
+              updateRegulationState(tempId, { 
+                  content: result.value || 'No se pudo extraer contenido.',
+                  status: 'success'
+              });
+              toast({
+                title: t('preparePage.toastFileUploaded'),
+                description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
               });
             } catch (err) {
                handleError('Falló al analizar el archivo .docx.');
@@ -333,10 +356,13 @@ export default function PreparePage() {
           if (fileDataUri) {
             try {
               const result = await extractTextFromFile({ fileDataUri });
-              addRegulation({
-                id: `reg-${Date.now()}`,
-                name: rawFile.name,
-                content: result.extractedText || 'No se pudo extraer texto del PDF.',
+              updateRegulationState(tempId, { 
+                  content: result.extractedText || 'No se pudo extraer texto del PDF.',
+                  status: 'success'
+              });
+              toast({
+                title: t('preparePage.toastFileUploaded'),
+                description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
               });
             } catch (error) {
               console.error("Error in OCR:", error);
@@ -348,10 +374,13 @@ export default function PreparePage() {
       } else if (rawFile.type.startsWith('text/')) {
         reader.onload = (e) => {
           const content = e.target?.result as string;
-          addRegulation({
-            id: `reg-${Date.now()}`,
-            name: rawFile.name,
-            content: content || "No se pudo leer el contenido.",
+          updateRegulationState(tempId, { 
+              content: content || "No se pudo leer el contenido.",
+              status: 'success'
+          });
+          toast({
+            title: t('preparePage.toastFileUploaded'),
+            description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
           });
         };
         reader.readAsText(rawFile);
@@ -363,6 +392,11 @@ export default function PreparePage() {
       handleError(errorMessage);
     }
   };
+
+  const handleDismissRegulationError = (regulationId: string) => {
+    setRegulations(prev => prev.filter(r => r.id !== regulationId));
+  };
+
 
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) {
@@ -586,6 +620,7 @@ export default function PreparePage() {
                                 selectedIds={selectedRegulationIds}
                                 onSelectionChange={setSelectedRegulationIds}
                                 onRegulationUpload={handleRegulationUpload}
+                                onDismissError={handleDismissRegulationError}
                                 />
                             </CardContent>
                         </AccordionContent>
