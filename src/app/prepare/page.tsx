@@ -446,26 +446,28 @@ export default function PreparePage() {
 
   const handleMoveFile = () => {
     if (!fileToAction || !moveToFolderId) {
-      toast({ title: t('preparePage.toastError'), description: t('preparePage.selectDestinationFolder'), variant: 'destructive' });
-      return;
+        toast({ title: t('preparePage.toastError'), description: t('preparePage.selectDestinationFolder'), variant: 'destructive' });
+        return;
     }
     let fileToMove: File | undefined;
     const foldersWithoutFile = folders.map(folder => {
-      if (folder.id === fileToAction.folderId) {
-        fileToMove = folder.files.find(f => f.id === fileToAction.fileId);
-        return { ...folder, files: folder.files.filter(f => f.id !== fileToAction.fileId), fileCount: folder.files.length - 1 };
-      }
-      return folder;
+        if (folder.id === fileToAction.folderId) {
+            fileToMove = folder.files.find(f => f.id === fileToAction.fileId);
+            const updatedFiles = folder.files.filter(f => f.id !== fileToAction.fileId);
+            return { ...folder, files: updatedFiles, fileCount: updatedFiles.length };
+        }
+        return folder;
     });
     if (!fileToMove) return;
     const foldersWithMovedFile = foldersWithoutFile.map(folder => {
-      if (folder.id === moveToFolderId) {
-        return { ...folder, files: [...folder.files, fileToMove!], fileCount: folder.files.length + 1 };
-      }
-      return folder;
+        if (folder.id === moveToFolderId) {
+            const updatedFiles = [...folder.files, fileToMove!];
+            return { ...folder, files: updatedFiles, fileCount: updatedFiles.length };
+        }
+        return folder;
     });
     setFolders(foldersWithMovedFile);
-    toast({ title: t('preparePage.moveFile'), description: `"${fileToMove.name}" ${t('preparePage.movedTo')} "${folders.find(f=>f.id === moveToFolderId)?.name}".` });
+    toast({ title: t('preparePage.moveFile'), description: `"${fileToMove.name}" ${t('preparePage.movedTo')} "${folders.find(f => f.id === moveToFolderId)?.name}".` });
     setIsMoveModalOpen(false);
     setFileToAction(null);
   };
@@ -481,17 +483,22 @@ export default function PreparePage() {
 
     if (!targetFile || !targetFolderId) return;
 
+    // The ID of the file to be deleted. Check for `fileId` from state or `id` from direct param.
+    const fileIdToDelete = (targetFile as any).fileId || (targetFile as any).id;
+    
     setFolders(prevFolders =>
       prevFolders.map(folder => {
         if (folder.id === targetFolderId) {
-          return { ...folder, files: folder.files.filter(f => f.id !== targetFile.id), fileCount: folder.files.length - 1 };
+          const updatedFiles = folder.files.filter(f => f.id !== fileIdToDelete);
+          return { ...folder, files: updatedFiles, fileCount: updatedFiles.length };
         }
         return folder;
       })
     );
-    if (selectedFileId === targetFile.id) {
+    if (selectedFileId === fileIdToDelete) {
       setSelectedFileId(null);
     }
+
     if (fileToAction) { // only show toast if it came from the modal
         toast({ title: t('preparePage.deleteFile'), description: `"${targetFile.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     }
