@@ -3,13 +3,13 @@
  * @fileOverview A flow to extract text from various file formats using OCR.
  *
  * - extractTextFromFile - A function that handles file text extraction.
- * - ExtractTextFromFileInputSchema - The input type for the function.
- * - ExtractTextFromFileOutputSchema - The return type for the function.
+ * - ExtractTextFromFileInput - The input type for the function.
+ * - ExtractTextFromFileOutput - The return type for the function.
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const ExtractTextFromFileInputSchema = z.object({
+const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z
     .string()
     .describe(
@@ -18,7 +18,7 @@ export const ExtractTextFromFileInputSchema = z.object({
 });
 export type ExtractTextFromFileInput = z.infer<typeof ExtractTextFromFileInputSchema>;
 
-export const ExtractTextFromFileOutputSchema = z.object({
+const ExtractTextFromFileOutputSchema = z.object({
   extractedText: z.string().describe('The full text content extracted from the file.'),
 });
 export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
