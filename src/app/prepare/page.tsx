@@ -30,11 +30,17 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
+import mammoth from 'mammoth';
+import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
+
 
 type File = {
   id: string;
   name: string;
   content: string;
+  status?: 'uploading' | 'processing' | 'error' | 'success';
+  progress?: number;
+  error?: string;
 };
 
 type Regulation = {
@@ -46,17 +52,17 @@ type Regulation = {
 // Mock Data
 const initialFolders = [
   { id: 'f1', name: 'Pliegos 2025', files: [
-    { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf', content: 'Contenido simulado del Pliego de Bases y Condiciones. Este documento establece las reglas para la licitación.' },
-    { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx', content: 'Contenido simulado del Anexo I. Detalla los requisitos técnicos de los bienes o servicios a contratar.' },
-    { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf', content: 'Contenido simulado del Anexo II. Es el borrador del contrato que se firmará con el adjudicatario.' },
+    { id: 'file1', name: 'Pliego de Bases y Condiciones.pdf', content: 'Contenido simulado del Pliego de Bases y Condiciones. Este documento establece las reglas para la licitación.', status: 'success' as const },
+    { id: 'file2', name: 'Anexo I - Especificaciones Técnicas.docx', content: 'Contenido simulado del Anexo I. Detalla los requisitos técnicos de los bienes o servicios a contratar.', status: 'success' as const },
+    { id: 'file3', name: 'Anexo II - Minuta de Contrato.pdf', content: 'Contenido simulado del Anexo II. Es el borrador del contrato que se firmará con el adjudicatario.', status: 'success' as const },
   ]},
   { id: 'f2', name: 'Contrataciones Directas', files: [
-    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)', content: 'SOLICITUD: Se solicita con carácter de URGENTE la adquisición e instalación de un (1) sistema de aire acondicionado de precisión y un (1) equipo UPS para el centro de datos principal de la Entidad.\nPROCEDIMIENTO: El presente trámite se sustanciará bajo la modalidad de Licitación Pública.\nPRESUPUESTO OFICIAL: Se adjunta como referencia el presupuesto N° 1234 de la firma EXCELCOM S.A. por un total de USD 50.000.\nPLAZO DE EJECUCIÓN: El plazo máximo para la entrega e instalación será de ciento veinte (120) días.' },
-    { id: 'file4', name: 'Informe de Contratación Directa.docx', content: 'Contenido simulado del Informe de Contratación Directa.' }
+    { id: 'file-ups', name: '3118772 SERV RECAMBIO UPS 96 FJS (1)', content: 'SOLICITUD: Se solicita con carácter de URGENTE la adquisición e instalación de un (1) sistema de aire acondicionado de precisión y un (1) equipo UPS para el centro de datos principal de la Entidad.\nPROCEDIMIENTO: El presente trámite se sustanciará bajo la modalidad de Licitación Pública.\nPRESUPUESTO OFICIAL: Se adjunta como referencia el presupuesto N° 1234 de la firma EXCELCOM S.A. por un total de USD 50.000.\nPLAZO DE EJECUCIÓN: El plazo máximo para la entrega e instalación será de ciento veinte (120) días.', status: 'success' as const },
+    { id: 'file4', name: 'Informe de Contratación Directa.docx', content: 'Contenido simulado del Informe de Contratación Directa.', status: 'success' as const }
   ]},
   { id: 'f3', name: 'Expedientes', files: [
-    { id: 'file5', name: 'Resolución de Apertura.pdf', content: 'Contenido simulado de la Resolución de Apertura.' },
-    { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf', content: 'Contenido simulado del Dictamen Jurídico Previo.' },
+    { id: 'file5', name: 'Resolución de Apertura.pdf', content: 'Contenido simulado de la Resolución de Apertura.', status: 'success' as const },
+    { id: 'file6', 'name': 'Dictamen Jurídico Previo.pdf', content: 'Contenido simulado del Dictamen Jurídico Previo.', status: 'success' as const },
   ]},
   { id: 'f4', name: 'Decretos', files: [] },
 ];
@@ -81,7 +87,7 @@ export default function PreparePage() {
   const t = useTranslations(language);
   
   const [currentStep, setCurrentStep] = useState(1);
-  const [folders, setFolders] = useState(initialFolders.map(f => ({ ...f, files: f.files, fileCount: f.files.length })));
+  const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
   const [regulations, setRegulations] = useState(initialRegulations);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
@@ -105,8 +111,19 @@ export default function PreparePage() {
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
     try {
-        const savedFolders = localStorage.getItem(FOLDERS_STORAGE_KEY);
-        if (savedFolders) setFolders(JSON.parse(savedFolders));
+        const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
+        if (savedFoldersRaw) {
+            const savedFolders = JSON.parse(savedFoldersRaw);
+            // Ensure all files have a success status if they don't have one
+            const sanitizedFolders = savedFolders.map((folder: any) => ({
+                ...folder,
+                files: folder.files.map((file: any) => ({
+                    ...file,
+                    status: file.status || 'success'
+                }))
+            }));
+            setFolders(sanitizedFolders);
+        }
         
         const savedRegulations = localStorage.getItem(REGULATIONS_STORAGE_KEY);
         if (savedRegulations) setRegulations(JSON.parse(savedRegulations));
@@ -120,7 +137,11 @@ export default function PreparePage() {
   useEffect(() => {
     if (loadedFromStorage) {
         try {
-            localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(folders));
+            const foldersToSave = folders.map(folder => ({
+                ...folder,
+                files: folder.files.filter(file => file.status === 'success') // Only save successful files
+            }));
+            localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(foldersToSave));
         } catch (error) {
             console.error('Error saving folders to localStorage', error);
         }
@@ -176,26 +197,90 @@ export default function PreparePage() {
     });
   };
 
-  const handleFileUploadToFolder = (folderId: string, file: { name: string, content: string }) => {
-    setFolders(prevFolders => {
-        const newFolders = prevFolders.map(folder => {
-            if (folder.id === folderId) {
-                const updatedFolder = { ...folder };
-                const newFile = { id: `file-${Date.now()}`, name: file.name, content: file.content };
-                updatedFolder.files = [...updatedFolder.files, newFile];
-                updatedFolder.fileCount = updatedFolder.files.length;
-                return updatedFolder;
+  const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
+    const tempId = `temp-${Date.now()}`;
+    const filePlaceholder: File = {
+      id: tempId,
+      name: rawFile.name,
+      content: '',
+      status: 'uploading',
+      progress: 10,
+    };
+
+    setFolders(prevFolders =>
+      prevFolders.map(folder => 
+        folder.id === folderId 
+          ? { ...folder, files: [...folder.files, filePlaceholder] }
+          : folder
+      )
+    );
+
+    const updateFileState = (id: string, update: Partial<File>) => {
+      setFolders(prevFolders =>
+        prevFolders.map(folder => ({
+          ...folder,
+          files: folder.files.map(f => (f.id === id ? { ...f, ...update } : f)),
+        }))
+      );
+    };
+
+    const reader = new FileReader();
+
+    try {
+      if (rawFile.name.endsWith('.docx')) {
+        reader.onload = async (e) => {
+          const arrayBuffer = e.target?.result;
+          if (arrayBuffer) {
+            updateFileState(tempId, { progress: 50 });
+            try {
+              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer as ArrayBuffer });
+              updateFileState(tempId, { content: result.value || "No content extracted.", status: 'success', progress: 100 });
+              showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
+            } catch (err) {
+               updateFileState(tempId, { status: 'error', error: 'Failed to parse .docx file.', progress: 100 });
             }
-            return folder;
-        });
-        return newFolders;
-    });
-    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', file.name));
+          }
+        };
+        reader.readAsArrayBuffer(rawFile);
+      } else if (rawFile.name.endsWith('.pdf')) {
+        reader.onload = async (e) => {
+          const fileDataUri = e.target?.result as string;
+          if (fileDataUri) {
+            updateFileState(tempId, { status: 'processing', progress: 50 });
+            try {
+              const result = await extractTextFromFile({ fileDataUri });
+              updateFileState(tempId, { content: result.extractedText, status: 'success', progress: 100 });
+              showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
+            } catch (error) {
+              console.error("Error in OCR:", error);
+              updateFileState(tempId, { status: 'error', error: 'Failed to extract text via OCR.', progress: 100 });
+            }
+          }
+        };
+        reader.readAsDataURL(rawFile);
+      } else if (rawFile.type.startsWith('text/')) {
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          updateFileState(tempId, { content: content, status: 'success', progress: 100 });
+          showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
+        };
+        reader.readAsText(rawFile);
+      } else {
+        updateFileState(tempId, { status: 'error', error: 'Unsupported file type.', progress: 100 });
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      updateFileState(tempId, { status: 'error', error: errorMessage, progress: 100 });
+    }
   };
 
-  const handleFileUploadedToRoot = (file: { name: string, content: string }) => {
+  const handleFileUploadToFolder = (rawFile: globalThis.File, folderId: string) => {
+    handleFileUpload(rawFile, folderId);
+  };
+  
+  const handleFileUploadedToRoot = (rawFile: globalThis.File) => {
     if (folders.length > 0) {
-      handleFileUploadToFolder(folders[0].id, file);
+      handleFileUpload(rawFile, folders[0].id);
     } else {
        toast({
           title: t('preparePage.toastError'),
@@ -205,16 +290,21 @@ export default function PreparePage() {
     }
   };
   
-  const handleRegulationUpload = (file: { name: string, content: string }) => {
-    setRegulations(prevRegulations => {
-        const newRegulation: Regulation = {
-            id: `reg-${Date.now()}`,
-            name: file.name,
-            content: file.content
-        };
-        return [...prevRegulations, newRegulation];
-    });
-    showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', file.name));
+  const handleRegulationUpload = (file: globalThis.File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setRegulations(prevRegulations => {
+            const newRegulation: Regulation = {
+                id: `reg-${Date.now()}`,
+                name: file.name,
+                content: content || "No se pudo leer el contenido."
+            };
+            return [...prevRegulations, newRegulation];
+        });
+        showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', file.name));
+    };
+    reader.readAsText(file);
   };
 
   const handleCreateFolder = () => {
@@ -254,7 +344,9 @@ export default function PreparePage() {
         const matchingFiles = folder.files.filter(file =>
           file.name.toLowerCase().includes(lowercasedQuery)
         );
-        return { ...folder, files: matchingFiles, fileCount: matchingFiles.length };
+        // We don't change fileCount here, as it's part of the persistent folder data.
+        // We just return the folder with filtered files for display.
+        return { ...folder, files: matchingFiles };
       })
       .filter(folder => folder.files.length > 0);
   }, [searchQuery, folders]);
@@ -326,20 +418,26 @@ export default function PreparePage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteFile = () => {
-    if (!fileToAction) return;
+  const handleDeleteFile = (fileToDelete?: File, folderIdOfFile?: string) => {
+    const targetFile = fileToDelete || fileToAction;
+    const targetFolderId = folderIdOfFile || fileToAction?.folderId;
+
+    if (!targetFile || !targetFolderId) return;
+
     setFolders(prevFolders =>
       prevFolders.map(folder => {
-        if (folder.id === fileToAction.folderId) {
-          return { ...folder, files: folder.files.filter(f => f.id !== fileToAction.fileId), fileCount: folder.files.length - 1 };
+        if (folder.id === targetFolderId) {
+          return { ...folder, files: folder.files.filter(f => f.id !== targetFile.id), fileCount: folder.files.length - 1 };
         }
         return folder;
       })
     );
-    if (selectedFileId === fileToAction.fileId) {
+    if (selectedFileId === targetFile.id) {
       setSelectedFileId(null);
     }
-    toast({ title: t('preparePage.deleteFile'), description: `"${fileToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
+    if (fileToAction) { // only show toast if it came from the modal
+        toast({ title: t('preparePage.deleteFile'), description: `"${targetFile.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
+    }
     setIsDeleteModalOpen(false);
     setFileToAction(null);
   };
@@ -397,6 +495,7 @@ export default function PreparePage() {
                           onRenameFile={handleOpenRenameModal}
                           onMoveFile={handleOpenMoveModal}
                           onDeleteFile={handleOpenDeleteModal}
+                          onDismissError={handleDeleteFile}
                         />
                     </CardContent>
                 </Card>
@@ -578,7 +677,7 @@ export default function PreparePage() {
           <p dangerouslySetInnerHTML={{ __html: t('preparePage.confirmDeleteDesc').replace('{fileName}', `<strong>${fileToAction?.name || ''}</strong>`)}} />
           <DialogFooter>
             <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
-            <Button variant="destructive" onClick={handleDeleteFile}>{t('preparePage.delete')}</Button>
+            <Button variant="destructive" onClick={() => handleDeleteFile()}>{t('preparePage.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

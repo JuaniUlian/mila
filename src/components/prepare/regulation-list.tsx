@@ -19,7 +19,7 @@ interface RegulationListProps {
     regulations: Regulation[];
     selectedIds: string[];
     onSelectionChange: (ids: string[]) => void;
-    onRegulationUpload: (file: { name: string; content: string }) => void;
+    onRegulationUpload: (file: File) => void;
 }
 
 export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload }: RegulationListProps) {

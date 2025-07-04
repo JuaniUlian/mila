@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2 } from 'lucide-react';
+import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,15 @@ import {
 import { FileUploadButton } from './file-upload-button';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { Progress } from '@/components/ui/progress';
 
 interface File {
     id: string;
     name: string;
     content: string;
+    status?: 'uploading' | 'processing' | 'error' | 'success';
+    progress?: number;
+    error?: string;
 }
 
 interface FolderData {
@@ -34,10 +38,11 @@ interface FolderGridProps {
     selectedFileId: string | null;
     onSelectFile: (id: string | null) => void;
     searchQuery: string;
-    onFileUploadToFolder: (folderId: string, file: { name: string; content: string }) => void;
+    onFileUploadToFolder: (file: globalThis.File, folderId: string) => void;
     onRenameFile: (file: File, folderId: string) => void;
     onMoveFile: (file: File, folderId: string) => void;
     onDeleteFile: (file: File, folderId: string) => void;
+    onDismissError: (file: File, folderId: string) => void;
 }
 
 const FileItem: React.FC<{
@@ -48,9 +53,40 @@ const FileItem: React.FC<{
   onRename: (file: File, folderId: string) => void;
   onMove: (file: File, folderId: string) => void;
   onDelete: (file: File, folderId: string) => void;
-}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete }) => {
+  onDismissError: (file: File, folderId: string) => void;
+}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
+
+  if (file.status === 'uploading' || file.status === 'processing') {
+    return (
+      <div className="p-2 text-sm rounded-lg border border-transparent">
+        <div className="flex items-center gap-3">
+          <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+          <span className="font-medium text-foreground truncate">{file.name}</span>
+        </div>
+        <Progress value={file.progress} className="h-1 mt-1" />
+        <p className="text-xs text-muted-foreground mt-1">
+            {file.status === 'uploading' ? t('preparePage.uploadingStatus') : t('preparePage.processingStatus')}
+        </p>
+      </div>
+    );
+  }
+
+  if (file.status === 'error') {
+    return (
+      <div className="p-2 text-sm bg-destructive/10 rounded-lg border border-destructive/20">
+        <div className="flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
+          <span className="font-medium text-destructive truncate">{file.name}</span>
+        </div>
+        <p className="text-xs text-destructive mt-1">{file.error}</p>
+        <Button variant="ghost" size="sm" onClick={() => onDismissError(file, folderId)} className="text-xs h-auto p-1 mt-1 text-destructive hover:bg-destructive/20">
+            {t('preparePage.dismissError')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -115,7 +151,8 @@ export function FolderGrid({
     onFileUploadToFolder,
     onRenameFile,
     onMoveFile,
-    onDeleteFile
+    onDeleteFile,
+    onDismissError,
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
@@ -143,10 +180,10 @@ export function FolderGrid({
                                 <Folder className="h-6 w-6 text-primary" />
                                 {folder.name}
                             </CardTitle>
-                            <CardDescription>{folder.files.length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
+                            <CardDescription>{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
                         <FileUploadButton
-                            onFileSelect={(file) => onFileUploadToFolder(folder.id, file)}
+                            onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 rounded-full flex-shrink-0"
@@ -163,11 +200,12 @@ export function FolderGrid({
                                     key={file.id}
                                     file={file}
                                     folderId={folder.id}
-                                    isSelected={selectedFileId === file.id}
-                                    onSelect={() => onSelectFile(selectedFileId === file.id ? null : file.id)}
+                                    isSelected={selectedFileId === file.id && file.status === 'success'}
+                                    onSelect={() => file.status === 'success' && onSelectFile(selectedFileId === file.id ? null : file.id)}
                                     onRename={onRenameFile}
                                     onMove={onMoveFile}
                                     onDelete={onDeleteFile}
+                                    onDismissError={onDismissError}
                                 />
                             ))
                         ) : (

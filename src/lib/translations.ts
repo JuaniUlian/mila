@@ -134,6 +134,9 @@ export const translations = {
     movedTo: t('ha sido movido a', 'has been moved to'),
     selectDestinationFolder: t('Debe seleccionar una carpeta de destino.', 'You must select a destination folder.'),
     deletedSuccess: t('ha sido eliminado.', 'has been deleted.'),
+    uploadingStatus: t('Subiendo...', 'Uploading...'),
+    processingStatus: t('Procesando con IA...', 'Processing with AI...'),
+    dismissError: t('Descartar', 'Dismiss'),
   },
 
   loadingPage: {
@@ -271,5 +274,3 @@ export const useTranslations = (lang: Language) => {
     return result?.[lang] || result?.['es'] || key;
   }, [lang]);
 };
-
-    
