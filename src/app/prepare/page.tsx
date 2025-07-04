@@ -290,21 +290,78 @@ export default function PreparePage() {
     }
   };
   
-  const handleRegulationUpload = (file: globalThis.File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setRegulations(prevRegulations => {
-            const newRegulation: Regulation = {
-                id: `reg-${Date.now()}`,
-                name: file.name,
-                content: content || "No se pudo leer el contenido."
-            };
-            return [...prevRegulations, newRegulation];
-        });
-        showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', file.name));
+  const handleRegulationUpload = async (rawFile: globalThis.File) => {
+    const addRegulation = (newRegulation: Regulation) => {
+      setRegulations(prev => [...prev, newRegulation]);
+      toast({
+        title: t('preparePage.toastFileUploaded'),
+        description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
+      });
     };
-    reader.readAsText(file);
+
+    const handleError = (errorMsg: string) => {
+      toast({
+        title: `Error al procesar ${rawFile.name}`,
+        description: errorMsg,
+        variant: 'destructive',
+      });
+    };
+    
+    const reader = new FileReader();
+
+    try {
+      if (rawFile.name.endsWith('.docx')) {
+        reader.onload = async (e) => {
+          const arrayBuffer = e.target?.result;
+          if (arrayBuffer) {
+            try {
+              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer as ArrayBuffer });
+              addRegulation({
+                id: `reg-${Date.now()}`,
+                name: rawFile.name,
+                content: result.value || 'No se pudo extraer contenido.',
+              });
+            } catch (err) {
+               handleError('Falló al analizar el archivo .docx.');
+            }
+          }
+        };
+        reader.readAsArrayBuffer(rawFile);
+      } else if (rawFile.name.endsWith('.pdf')) {
+        reader.onload = async (e) => {
+          const fileDataUri = e.target?.result as string;
+          if (fileDataUri) {
+            try {
+              const result = await extractTextFromFile({ fileDataUri });
+              addRegulation({
+                id: `reg-${Date.now()}`,
+                name: rawFile.name,
+                content: result.extractedText || 'No se pudo extraer texto del PDF.',
+              });
+            } catch (error) {
+              console.error("Error in OCR:", error);
+              handleError('Falló al extraer texto del PDF con OCR.');
+            }
+          }
+        };
+        reader.readAsDataURL(rawFile);
+      } else if (rawFile.type.startsWith('text/')) {
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          addRegulation({
+            id: `reg-${Date.now()}`,
+            name: rawFile.name,
+            content: content || "No se pudo leer el contenido.",
+          });
+        };
+        reader.readAsText(rawFile);
+      } else {
+        handleError('Tipo de archivo no soportado para normativas.');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error desconocido.';
+      handleError(errorMessage);
+    }
   };
 
   const handleCreateFolder = () => {

@@ -36,6 +36,16 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
 
     return (
         <div className="space-y-4">
+            <div className="flex justify-end">
+                <FileUploadButton
+                    variant="outline"
+                    className="rounded-lg border-dashed py-3 px-5"
+                    onFileSelect={onRegulationUpload}
+                >
+                    <Plus className="mr-2 h-4 w-4" />
+                    {t('preparePage.uploadRegulation')}
+                </FileUploadButton>
+            </div>
             <div className="w-full space-y-3">
                 {regulations.map(regulation => (
                     <div 
@@ -59,16 +69,6 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                         </div>
                     </div>
                 ))}
-            </div>
-            <div className="flex justify-end pt-4">
-                <FileUploadButton
-                    variant="outline"
-                    className="rounded-lg border-dashed py-3 px-5"
-                    onFileSelect={onRegulationUpload}
-                >
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t('preparePage.uploadRegulation')}
-                </FileUploadButton>
             </div>
         </div>
     );
