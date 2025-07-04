@@ -118,6 +118,22 @@ export const translations = {
     regulationSelected: t('normativa seleccionada', 'regulation selected'),
     regulationsSelected: t('normativas seleccionadas', 'regulations selected'),
     selectRegulationsPrompt: t('Seleccione una o más normativas', 'Select one or more regulations'),
+    // File actions
+    rename: t('Renombrar', 'Rename'),
+    move: t('Mover', 'Move'),
+    delete: t('Eliminar', 'Delete'),
+    renameFile: t('Renombrar Archivo', 'Rename File'),
+    moveFile: t('Mover Archivo', 'Move File'),
+    deleteFile: t('Archivo Eliminado', 'File Deleted'),
+    fileOptions: t('Opciones de archivo', 'File options'),
+    newFileNameLabel: t('Nuevo nombre para "{fileName}"', 'New name for "{fileName}"'),
+    moveFileToLabel: t('Mover "{fileName}" a la carpeta:', 'Move "{fileName}" to folder:'),
+    confirmDeleteTitle: t('Confirmar Eliminación', 'Confirm Deletion'),
+    confirmDeleteDesc: t('¿Está seguro de que desea eliminar el archivo {fileName}? Esta acción no se puede deshacer.', 'Are you sure you want to delete the file {fileName}? This action cannot be undone.'),
+    renamedTo: t('ha sido renombrado a', 'has been renamed to'),
+    movedTo: t('ha sido movido a', 'has been moved to'),
+    selectDestinationFolder: t('Debe seleccionar una carpeta de destino.', 'You must select a destination folder.'),
+    deletedSuccess: t('ha sido eliminado.', 'has been deleted.'),
   },
 
   loadingPage: {

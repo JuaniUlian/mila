@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { RegulationList } from '@/components/prepare/regulation-list';
-import { Search, Upload, FileSignature, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { Search, Upload, FileSignature, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, PenLine, Move, Trash2 } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -20,6 +19,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Accordion,
   AccordionContent,
@@ -72,6 +72,15 @@ export default function PreparePage() {
 
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+
+  // State for file actions
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  type FileIdentifier = { fileId: string; folderId: string; name: string } | null;
+  const [fileToAction, setFileToAction] = useState<FileIdentifier>(null);
+  const [newFileName, setNewFileName] = useState('');
+  const [moveToFolderId, setMoveToFolderId] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
@@ -195,6 +204,90 @@ export default function PreparePage() {
       .filter(folder => folder.files.length > 0);
   }, [searchQuery, folders]);
 
+  // File action handlers
+  const handleOpenRenameModal = (file: { id: string; name: string }, folderId: string) => {
+    setFileToAction({ fileId: file.id, folderId, name: file.name });
+    setNewFileName(file.name);
+    setIsRenameModalOpen(true);
+  };
+
+  const handleRenameFile = () => {
+    if (!fileToAction || !newFileName.trim()) {
+      toast({ title: t('preparePage.toastError'), description: t('preparePage.toastEmptyFolderName'), variant: 'destructive' });
+      return;
+    }
+    setFolders(prevFolders =>
+      prevFolders.map(folder => {
+        if (folder.id === fileToAction.folderId) {
+          return {
+            ...folder,
+            files: folder.files.map(file =>
+              file.id === fileToAction.fileId ? { ...file, name: newFileName.trim() } : file
+            ),
+          };
+        }
+        return folder;
+      })
+    );
+    toast({ title: t('preparePage.renameFile'), description: `"${fileToAction.name}" ${t('preparePage.renamedTo')} "${newFileName.trim()}".` });
+    setIsRenameModalOpen(false);
+    setFileToAction(null);
+  };
+
+  const handleOpenMoveModal = (file: { id: string; name: string }, folderId: string) => {
+    setFileToAction({ fileId: file.id, folderId, name: file.name });
+    setMoveToFolderId(null);
+    setIsMoveModalOpen(true);
+  };
+
+  const handleMoveFile = () => {
+    if (!fileToAction || !moveToFolderId) {
+      toast({ title: t('preparePage.toastError'), description: t('preparePage.selectDestinationFolder'), variant: 'destructive' });
+      return;
+    }
+    let fileToMove: { id: string, name: string } | undefined;
+    const foldersWithoutFile = folders.map(folder => {
+      if (folder.id === fileToAction.folderId) {
+        fileToMove = folder.files.find(f => f.id === fileToAction.fileId);
+        return { ...folder, files: folder.files.filter(f => f.id !== fileToAction.fileId), fileCount: folder.files.length - 1 };
+      }
+      return folder;
+    });
+    if (!fileToMove) return;
+    const foldersWithMovedFile = foldersWithoutFile.map(folder => {
+      if (folder.id === moveToFolderId) {
+        return { ...folder, files: [...folder.files, fileToMove!], fileCount: folder.files.length + 1 };
+      }
+      return folder;
+    });
+    setFolders(foldersWithMovedFile);
+    toast({ title: t('preparePage.moveFile'), description: `"${fileToMove.name}" ${t('preparePage.movedTo')} "${folders.find(f=>f.id === moveToFolderId)?.name}".` });
+    setIsMoveModalOpen(false);
+    setFileToAction(null);
+  };
+
+  const handleOpenDeleteModal = (file: { id: string; name: string }, folderId: string) => {
+    setFileToAction({ fileId: file.id, folderId, name: file.name });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteFile = () => {
+    if (!fileToAction) return;
+    setFolders(prevFolders =>
+      prevFolders.map(folder => {
+        if (folder.id === fileToAction.folderId) {
+          return { ...folder, files: folder.files.filter(f => f.id !== fileToAction.fileId), fileCount: folder.files.length - 1 };
+        }
+        return folder;
+      })
+    );
+    if (selectedFileId === fileToAction.fileId) {
+      setSelectedFileId(null);
+    }
+    toast({ title: t('preparePage.deleteFile'), description: `"${fileToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
+    setIsDeleteModalOpen(false);
+    setFileToAction(null);
+  };
 
   return (
     <div 
@@ -241,11 +334,14 @@ export default function PreparePage() {
                         </Button>
                         </div>
                         <FolderGrid 
-                        folders={filteredFolders} 
-                        selectedFileId={selectedFileId}
-                        onSelectFile={setSelectedFileId}
-                        searchQuery={searchQuery}
-                        onFileUploadToFolder={handleFileUploadToFolder}
+                          folders={filteredFolders} 
+                          selectedFileId={selectedFileId}
+                          onSelectFile={setSelectedFileId}
+                          searchQuery={searchQuery}
+                          onFileUploadToFolder={handleFileUploadToFolder}
+                          onRenameFile={handleOpenRenameModal}
+                          onMoveFile={handleOpenMoveModal}
+                          onDeleteFile={handleOpenDeleteModal}
                         />
                     </CardContent>
                 </Card>
@@ -378,6 +474,60 @@ export default function PreparePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* File Action Dialogs */}
+      <Dialog open={isRenameModalOpen} onOpenChange={setIsRenameModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.renameFile')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="file-name">{t('preparePage.newFileNameLabel').replace('{fileName}', fileToAction?.name || '')}</Label>
+            <Input id="file-name" value={newFileName} onChange={(e) => setNewFileName(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button onClick={handleRenameFile}>{t('preparePage.rename')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isMoveModalOpen} onOpenChange={setIsMoveModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.moveFile')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p>{t('preparePage.moveFileToLabel').replace('{fileName}', fileToAction?.name || '')}</p>
+            <RadioGroup value={moveToFolderId ?? ""} onValueChange={setMoveToFolderId} className="max-h-60 overflow-y-auto">
+              {folders.filter(f => f.id !== fileToAction?.folderId).map(folder => (
+                <div key={folder.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={folder.id} id={`move-${folder.id}`} />
+                  <Label htmlFor={`move-${folder.id}`}>{folder.name}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button onClick={handleMoveFile} disabled={!moveToFolderId}>{t('preparePage.move')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.confirmDeleteTitle')}</DialogTitle>
+          </DialogHeader>
+          <p dangerouslySetInnerHTML={{ __html: t('preparePage.confirmDeleteDesc').replace('{fileName}', `<strong>${fileToAction?.name || ''}</strong>`)}} />
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button variant="destructive" onClick={handleDeleteFile}>{t('preparePage.delete')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
