@@ -16,7 +16,7 @@ const RegulationSchema = z.object({
   content: z.string().describe("The full text content of the normative document."),
 });
 
-export const ValidateDocumentInputSchema = z.object({
+const ValidateDocumentInputSchema = z.object({
   documentName: z.string().describe("The name of the administrative document file being analyzed."),
   documentContent: z.string().describe("The full text content of the administrative document."),
   regulations: z.array(RegulationSchema).describe("An array of normative documents to validate against."),
@@ -38,7 +38,7 @@ const FindingSchema = z.object({
     consecuencia_estimada: z.string().describe("Cuál es el riesgo o consecuencia potencial si la irregularidad no se corrige, o el beneficio si la oportunidad se aprovecha.")
 });
 
-export const ValidateDocumentOutputSchema = z.object({
+const ValidateDocumentOutputSchema = z.object({
     findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento."),
     complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo general del documento (0-100)."),
     legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal general del documento (0-100)."),
