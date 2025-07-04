@@ -35,7 +35,7 @@ const extractTextFromFileFlow = ai.defineFlow(
     outputSchema: ExtractTextFromFileOutputSchema,
   },
   async (flowInput) => {
-    const { text } = await ai.generate({
+    const genkitResponse = await ai.generate({
       // Using a model capable of handling multimodal input (PDFs, images).
       model: 'googleai/gemini-1.5-flash',
       prompt: [
@@ -68,6 +68,8 @@ const extractTextFromFileFlow = ai.defineFlow(
       },
     });
 
-    return { extractedText: text };
+    // Ensure we always return a string, even if the model provides no text.
+    const extractedText = genkitResponse.text ?? '';
+    return { extractedText };
   }
 );

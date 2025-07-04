@@ -56,7 +56,7 @@ export function FileUploadButton({ onFileSelect, children, ...props }: FileUploa
             if (fileDataUri) {
               try {
                 const result = await extractTextFromFile({ fileDataUri });
-                onFileSelect({ name: file.name, content: result.extractedText || `No se pudo extraer texto de '${file.name}'.` });
+                onFileSelect({ name: file.name, content: result.extractedText });
                 toast({
                   title: "PDF Procesado",
                   description: `Se ha extraído el texto de "${file.name}".`,
