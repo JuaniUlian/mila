@@ -16,7 +16,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   // For all other pages, wrap them in the main layout with a header.
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100">
+    <div className="flex min-h-screen flex-col">
       <MainHeader />
       <main className="flex-1">
         {children}
