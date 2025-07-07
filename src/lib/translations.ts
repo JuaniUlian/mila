@@ -146,12 +146,16 @@ export const translations = {
   },
 
   loadingPage: {
-    title: t('Procesando Pliego', 'Processing Document'),
-    status1: t('Analizando documentos...', 'Analyzing documents...'),
+    title: t('Procesando Documento', 'Processing Document'),
+    status1: t('Analizando estructura del documento...', 'Analyzing document structure...'),
     status2: t('Contrastando con normativas seleccionadas...', 'Cross-referencing with selected regulations...'),
     status3: t('Identificando posibles inconsistencias...', 'Identifying potential inconsistencies...'),
     status4: t('Generando sugerencias de mejora...', 'Generating improvement suggestions...'),
-    status5: t('Preparando la plantilla viva...', 'Preparing the live template...'),
+    status5: t('Análisis completo. Redirigiendo...', 'Analysis complete. Redirecting...'),
+    completed: t('completado', 'completed'),
+    estimatedTimePrefix: t('Tiempo estimado:', 'Estimated time:'),
+    secondsRemaining: t('{count} segundos restantes', '{count} seconds remaining'),
+    secondRemaining: t('1 segundo restante', '1 second remaining'),
   },
 
   analysisPage: {
