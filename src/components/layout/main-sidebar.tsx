@@ -1,8 +1,6 @@
-
 'use client';
 
 import React from 'react';
-import { Logo } from './logo';
 import { BlockNavigation } from '../mila/block-navigation';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
@@ -36,7 +34,40 @@ export function MainSidebar() {
             backgroundClass
         )}>
             <div className="flex justify-center items-center py-4">
-                <Logo variant="monochrome" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" className="w-28 h-28">
+                  <defs>
+                    <linearGradient id="gradSilver" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#e0e0e0"/>
+                      <stop offset="100%" stop-color="#b0b0b0"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
+                        fill="none" stroke="url(#gradSilver)" stroke-width="16"/>
+                  <text x="176" y="240"
+                        font-family="Nunito, sans-serif"
+                        font-size="160"
+                        font-weight="600"
+                        fill="url(#gradSilver)"
+                        text-anchor="middle">M</text>
+                  <text x="156" y="380"
+                        font-family="Nunito, sans-serif"
+                        font-size="160"
+                        font-weight="600"
+                        fill="url(#gradSilver)"
+                        text-anchor="middle">L</text>
+                  <text x="336" y="240"
+                        font-family="Nunito, sans-serif"
+                        font-size="160"
+                        font-weight="600"
+                        fill="url(#gradSilver)"
+                        text-anchor="middle">I</text>
+                  <text x="336" y="380"
+                        font-family="Nunito, sans-serif"
+                        font-size="160"
+                        font-weight="600"
+                        fill="url(#gradSilver)"
+                        text-anchor="middle">A</text>
+                </svg>
             </div>
             <nav className="mt-8 flex-1 flex flex-col">
                 <BlockNavigation onSettingsClick={() => setIsSettingsModalOpen(true)} />
