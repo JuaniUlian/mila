@@ -191,9 +191,11 @@ export const translations = {
     correctionsApplied: t('Correcciones Aplicadas', 'Corrections Applied'),
     involvedRegulations: t('Normativas Involucradas', 'Involved Regulations'),
     downloadReport: t('Descargar Informe', 'Download Report'),
+    downloadCorrectedDoc: t('Descargar Documento Corregido', 'Download Corrected Document'),
     downloadReportDesc: t('Abre una previsualización del informe para imprimir o guardar como PDF.', 'Opens a report preview to print or save as PDF.'),
     // Dialog
     reportPreviewTitle: t('Previsualización de Informe', 'Report Preview'),
+    correctedDocPreviewTitle: t('Previsualización de Documento Corregido', 'Corrected Document Preview'),
     // Toasts
     toastSuggestionApplied: t('✅ Sugerencia Aplicada', '✅ Suggestion Applied'),
     toastComplianceUpdated: t('El puntaje de cumplimiento ha sido actualizado.', 'The compliance score has been updated.'),
@@ -250,6 +252,28 @@ export const translations = {
     },
   },
   
+  correctedDocPreviewPage: {
+    loading: t('Cargando previsualización...', 'Loading preview...'),
+    errorNotFound: t('No se encontraron datos para generar el documento.', 'No data found to generate the document.'),
+    errorLoading: t('Ocurrió un error al cargar los datos.', 'An error occurred while loading the data.'),
+    title: t('Documento con Correcciones Aplicadas', 'Document with Applied Corrections'),
+    generatedOn: t('Fecha de Generación', 'Generated on'),
+    printButton: t('Imprimir o Guardar como PDF', 'Print or Save as PDF'),
+    summaryTitle: t('Resumen de Cambios', 'Summary of Changes'),
+    changesApplied: t('Cambios Aplicados', 'Changes Applied'),
+    changesAppliedDesc: t('Total de correcciones incorporadas al documento.', 'Total corrections incorporated into the document.'),
+    changeDetailTitle: t('Detalle de Correcciones', 'Correction Details'),
+    block: t('Bloque', 'Block'),
+    finding: t('Hallazgo', 'Finding'),
+    appliedBy: t('Aplicado por', 'Applied by'),
+    user: t('Usuario', 'User'),
+    guest: t('Invitado', 'Guest'),
+    date: t('Fecha', 'Date'),
+    originalText: t('Texto Original (Evidencia)', 'Original Text (Evidence)'),
+    correctedText: t('Texto Corregido y Aplicado', 'Corrected and Applied Text'),
+    noChanges: t('Aún no se han aplicado correcciones a este documento.', 'No corrections have been applied to this document yet.')
+  },
+
   sidebar: {
       prepare: t('Preparar Pliego', 'Prepare Document'),
       plusBI: t('PLUS BI', 'PLUS BI'),

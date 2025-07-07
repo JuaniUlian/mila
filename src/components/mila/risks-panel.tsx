@@ -4,7 +4,7 @@ import React from 'react';
 import type { MilaAppPData } from './types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Check, FileText } from 'lucide-react';
+import { Download, Check, FileText, FileCheck2 } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
@@ -13,11 +13,15 @@ import { cn } from '@/lib/utils';
 interface RisksPanelProps {
   documentData: MilaAppPData;
   onDownloadReport: () => void;
+  appliedChangesExist: boolean;
+  onDownloadCorrectedDocument: () => void;
 }
 
 export function RisksPanel({
   documentData,
   onDownloadReport,
+  appliedChangesExist,
+  onDownloadCorrectedDocument,
 }: RisksPanelProps) {
   const { blocks, overallComplianceScore } = documentData;
   const { language } = useLanguage();
@@ -73,15 +77,25 @@ export function RisksPanel({
             </div>
         </CardContent>
 
-        <CardFooter className="flex-col items-stretch pt-6">
+        <CardFooter className="flex-col items-stretch pt-6 space-y-3">
             <Button 
-                className="w-full text-base py-6 bg-slate-100 text-gray-700 font-semibold border-transparent shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] hover:bg-slate-100 hover:shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#d1d5db,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out"
+                className="w-full text-base py-6 btn-neu-light"
                 size="lg"
                 onClick={onDownloadReport}
             >
                 <Download className="mr-2 h-5 w-5" />
                 {t('analysisPage.downloadReport')}
             </Button>
+            {appliedChangesExist && (
+                <Button 
+                    className="w-full text-base py-6 btn-neu-green"
+                    size="lg"
+                    onClick={onDownloadCorrectedDocument}
+                >
+                    <FileCheck2 className="mr-2 h-5 w-5" />
+                    {t('analysisPage.downloadCorrectedDoc')}
+                </Button>
+            )}
             <p className="text-xs text-muted-foreground text-center mt-2">{t('analysisPage.downloadReportDesc')}</p>
         </CardFooter>
     </Card>

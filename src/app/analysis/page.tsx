@@ -28,6 +28,8 @@ export default function PlanillaVivaPage() {
   const [initialData, setInitialData] = useState<MilaAppPData | null>(null);
   const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isCorrectedDocModalOpen, setIsCorrectedDocModalOpen] = useState(false);
+  const [appliedChangesExist, setAppliedChangesExist] = useState(false);
   const { toast } = useToast();
   const { score, setScore, isInitialPageLoad, setIsInitialPageLoad } = useLayout();
   const { language } = useLanguage();
@@ -111,6 +113,10 @@ export default function PlanillaVivaPage() {
     if (dataToLoad) {
       setInitialData(dataToLoad);
       setDocumentData(dataToLoad);
+      const hasAppliedChanges = dataToLoad.blocks.some(block => 
+          block.suggestions.some(suggestion => suggestion.status === 'applied')
+      );
+      setAppliedChangesExist(hasAppliedChanges);
     }
   }, [t]);
 
@@ -220,6 +226,7 @@ export default function PlanillaVivaPage() {
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
       
       if (newStatus === 'applied') {
+        setAppliedChangesExist(true);
         toast({
           title: t('analysisPage.toastSuggestionApplied'),
           description: t('analysisPage.toastComplianceUpdated'),
@@ -268,7 +275,8 @@ export default function PlanillaVivaPage() {
       updatedBlocks[blockIndex] = blockToUpdate;
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-       
+      
+      setAppliedChangesExist(true);
       toast({
         title: t('analysisPage.toastSuggestionModified'),
         description: t('analysisPage.toastSuggestionTextUpdated'),
@@ -290,6 +298,21 @@ export default function PlanillaVivaPage() {
       setIsReportModalOpen(true);
     } catch (error) {
       console.error("Failed to save report data to localStorage", error);
+      toast({
+        title: t('analysisPage.toastReportError'),
+        description: t('analysisPage.toastReportErrorDesc'),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadCorrectedDocument = () => {
+    if (!documentData) return;
+    try {
+      localStorage.setItem('milaCorrectedDocData', JSON.stringify(documentData));
+      setIsCorrectedDocModalOpen(true);
+    } catch (error) {
+      console.error("Failed to save corrected doc data to localStorage", error);
       toast({
         title: t('analysisPage.toastReportError'),
         description: t('analysisPage.toastReportErrorDesc'),
@@ -339,6 +362,8 @@ export default function PlanillaVivaPage() {
                <RisksPanel
                   documentData={documentData}
                   onDownloadReport={handleDownloadReport}
+                  appliedChangesExist={appliedChangesExist}
+                  onDownloadCorrectedDocument={handleDownloadCorrectedDocument}
               />
           </div>
         </main>
@@ -349,6 +374,15 @@ export default function PlanillaVivaPage() {
             <DialogTitle>{t('analysisPage.reportPreviewTitle')}</DialogTitle>
           </DialogHeader>
           <iframe src="/report-preview" className="w-full h-full border-0" title={t('analysisPage.reportPreviewTitle')} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isCorrectedDocModalOpen} onOpenChange={setIsCorrectedDocModalOpen}>
+        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
+          <DialogHeader className="p-4 bg-gradient-to-r from-slate-300 via-slate-100 to-slate-300 backdrop-blur-sm border-b border-white/20 shadow-md">
+            <DialogTitle>{t('analysisPage.correctedDocPreviewTitle')}</DialogTitle>
+          </DialogHeader>
+          <iframe src="/corrected-doc-preview" className="w-full h-full border-0" title={t('analysisPage.correctedDocPreviewTitle')} />
         </DialogContent>
       </Dialog>
     </div>
