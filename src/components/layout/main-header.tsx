@@ -27,7 +27,7 @@ export function MainHeader() {
 
     return (
         <>
-            <header className="glass sticky top-4 z-50 mx-4 mt-4 rounded-2xl">
+            <header className="bg-slate-50/60 backdrop-blur-lg sticky top-4 z-50 mx-4 mt-4 rounded-2xl border border-slate-200/50 shadow-lg">
                 <div className="container mx-auto flex h-16 items-center justify-between px-4">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="flex items-center gap-2">
