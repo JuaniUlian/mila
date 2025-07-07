@@ -11,7 +11,7 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
       )}
     >
       {variant === 'color' ? (
-        <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" data-ai-hint="logo company">
+        <svg width="512" height="512" viewBox="0 0 512 512" data-ai-hint="logo company">
             <defs>
                 <linearGradient id="gradBorder" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#0D2B3E"/>
@@ -51,7 +51,7 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
                 textAnchor="middle">A</text>
         </svg>
       ) : (
-        <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" data-ai-hint="logo company monochrome silver">
+        <svg width="512" height="512" viewBox="0 0 512 512" data-ai-hint="logo company monochrome silver">
             <defs>
                 <linearGradient id="silver-border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#F9FAFB" />
