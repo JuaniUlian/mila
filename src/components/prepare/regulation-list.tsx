@@ -53,7 +53,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
             <div className="flex justify-end">
                 <FileUploadButton
                     variant="outline"
-                    className="btn-neu-light rounded-xl py-3 px-5"
+                    className="btn-neu-light w-full sm:w-auto"
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />
@@ -94,7 +94,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                           key={regulation.id}
                           className={cn(
                               "group/regitem bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
-                              selectedIds.includes(regulation.id) && "ring-2 ring-primary"
+                              selectedIds.includes(regulation.id) && "bg-primary/10 border-primary/40"
                           )}
                         >
                             <div className="flex items-center justify-between gap-4 w-full p-4">

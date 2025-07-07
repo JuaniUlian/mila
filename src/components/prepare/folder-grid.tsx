@@ -94,7 +94,7 @@ const FileItem: React.FC<{
     <div
       className={cn(
         'group/fileitem flex items-center justify-between p-2 text-sm transition-all hover:bg-primary/10 rounded-lg border border-transparent',
-        isSelected && 'bg-primary/20 ring-2 ring-primary'
+        isSelected && 'bg-primary/10 border-primary/40'
       )}
     >
       <div
