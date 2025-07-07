@@ -150,6 +150,13 @@ export const translations = {
     newRegulationNameLabel: t('Nuevo nombre para "{regulationName}"', 'New name for "{regulationName}"'),
     confirmDeleteRegulationTitle: t('Confirmar Eliminación de Normativa', 'Confirm Regulation Deletion'),
     confirmDeleteRegulationDesc: t('¿Está seguro de que desea eliminar la normativa {regulationName}? Esta acción no se puede deshacer.', 'Are you sure you want to delete the regulation {regulationName}? This action cannot be undone.'),
+    // ZIP handling
+    unzippingZip: t('Descomprimiendo ZIP', 'Unzipping ZIP'),
+    unzippingZipDesc: t('Se encontraron {count} archivos. Se procesarán individualmente.', 'Found {count} files. They will be processed individually.'),
+    zipErrorTitle: t('Error al Procesar ZIP', 'Error Processing ZIP'),
+    zipErrorDesc: t('El archivo ZIP está corrupto o tiene un formato no válido.', 'The ZIP file is corrupt or has an invalid format.'),
+    unsupportedInZip: t('Archivo no soportado en ZIP', 'Unsupported file in ZIP'),
+    unsupportedInZipDesc: t('Los archivos ZIP anidados no son soportados: {fileName}', 'Nested ZIP files are not supported: {fileName}'),
   },
 
   loadingPage: {

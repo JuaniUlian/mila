@@ -36,8 +36,8 @@ export function FileUploadButton({ onFileSelect, children, ...props }: FileUploa
         onChange={handleFileChange}
         className="hidden"
         aria-hidden="true"
-        // Accept common document types
-        accept=".txt,.pdf,.docx,.md"
+        // Accept common document types including zip
+        accept=".txt,.pdf,.docx,.md,.zip"
       />
       <Button {...props} onClick={(e) => {
           props.onClick?.(e); // Propagate original onClick if it exists

@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
+import JSZip from 'jszip';
 
 
 type File = {
@@ -243,7 +244,16 @@ export default function PreparePage() {
     });
   };
 
-  const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
+  const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
+    if (rawFile.name.endsWith('.zip')) {
+        toast({
+            title: t('preparePage.unsupportedInZip'),
+            description: t('preparePage.unsupportedInZipDesc').replace('{fileName}', rawFile.name),
+            variant: 'destructive',
+        });
+        return;
+    }
+
     const tempId = `temp-${Date.now()}`;
     const estimatedTime = estimateProcessingTime(rawFile);
     const filePlaceholder: File = {
@@ -352,6 +362,43 @@ export default function PreparePage() {
     }
   };
 
+  const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
+    if (rawFile.name.endsWith('.zip')) {
+        const jszip = new JSZip();
+        try {
+            const zip = await jszip.loadAsync(rawFile);
+            const filesInZip = Object.values(zip.files).filter(file => !file.dir && !file.name.startsWith('__MACOSX/'));
+
+            toast({
+                title: t('preparePage.unzippingZip'),
+                description: t('preparePage.unzippingZipDesc').replace('{count}', filesInZip.length.toString())
+            });
+
+            for (const zipEntry of filesInZip) {
+                const fileBlob = await zipEntry.async('blob');
+                const supportedTypes: { [key: string]: string } = {
+                  'pdf': 'application/pdf',
+                  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                  'txt': 'text/plain',
+                  'md': 'text/markdown'
+                };
+                const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
+                const file = new File([fileBlob], zipEntry.name, { type: supportedTypes[ext] || fileBlob.type });
+                await processSingleDocument(file, folderId);
+            }
+        } catch (error) {
+            console.error("Error processing zip file", error);
+            toast({
+                title: t('preparePage.zipErrorTitle'),
+                description: t('preparePage.zipErrorDesc'),
+                variant: 'destructive',
+            });
+        }
+    } else {
+        await processSingleDocument(rawFile, folderId);
+    }
+  };
+
   const handleFileUploadToFolder = (rawFile: globalThis.File, folderId: string) => {
     handleFileUpload(rawFile, folderId);
   };
@@ -368,7 +415,16 @@ export default function PreparePage() {
     }
   };
   
-  const handleRegulationUpload = async (rawFile: globalThis.File) => {
+  const processSingleRegulation = async (rawFile: globalThis.File) => {
+    if (rawFile.name.endsWith('.zip')) {
+        toast({
+            title: t('preparePage.unsupportedInZip'),
+            description: t('preparePage.unsupportedInZipDesc').replace('{fileName}', rawFile.name),
+            variant: 'destructive',
+        });
+        return;
+    }
+
     const tempId = `reg-${Date.now()}`;
     const estimatedTime = estimateProcessingTime(rawFile);
     const regulationPlaceholder: Regulation = {
@@ -468,6 +524,44 @@ export default function PreparePage() {
       handleError(errorMessage);
     }
   };
+
+  const handleRegulationUpload = async (rawFile: globalThis.File) => {
+     if (rawFile.name.endsWith('.zip')) {
+        const jszip = new JSZip();
+        try {
+            const zip = await jszip.loadAsync(rawFile);
+            const filesInZip = Object.values(zip.files).filter(file => !file.dir && !file.name.startsWith('__MACOSX/'));
+            
+            toast({
+                title: t('preparePage.unzippingZip'),
+                description: t('preparePage.unzippingZipDesc').replace('{count}', filesInZip.length.toString())
+            });
+            
+            for (const zipEntry of filesInZip) {
+                const fileBlob = await zipEntry.async('blob');
+                const supportedTypes: {[key: string]: string} = {
+                  'pdf': 'application/pdf',
+                  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                  'txt': 'text/plain',
+                  'md': 'text/markdown'
+                };
+                const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
+                const file = new File([fileBlob], zipEntry.name, { type: supportedTypes[ext] || fileBlob.type });
+                await processSingleRegulation(file);
+            }
+        } catch (error) {
+            console.error("Error processing zip file", error);
+            toast({
+                title: t('preparePage.zipErrorTitle'),
+                description: t('preparePage.zipErrorDesc'),
+                variant: 'destructive',
+            });
+        }
+    } else {
+        await processSingleRegulation(rawFile);
+    }
+  };
+
 
   const handleDismissRegulationError = (regulationId: string) => {
     setRegulations(prev => prev.filter(r => r.id !== regulationId));
