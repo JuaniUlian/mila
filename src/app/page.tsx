@@ -48,7 +48,6 @@ export default function LandingPage() {
                   <stop offset="100%" stop-color="#DA623C"/>
                 </linearGradient>
               </defs>
-              <rect width="512" height="512" fill="white"/>
               <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
                     fill="none" stroke="url(#gradBorder)" stroke-width="16"/>
               <text x="176" y="240"
