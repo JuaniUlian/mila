@@ -80,6 +80,7 @@ export function MainHeader() {
                                                 rel={action.isExternal ? 'noopener noreferrer' : undefined}
                                                 className={commonClasses}
                                                 aria-label={action.name}
+                                                suppressHydrationWarning
                                             >
                                                 <action.icon className="h-6 w-6" />
                                             </Link>
@@ -88,6 +89,7 @@ export function MainHeader() {
                                                 onClick={action.onClick}
                                                 className={commonClasses}
                                                 aria-label={action.name}
+                                                suppressHydrationWarning
                                             >
                                                 <action.icon className="h-6 w-6" />
                                             </button>
