@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -67,26 +68,29 @@ export function MainHeader() {
                         </Tooltip>
 
                         {navActions.map((action) => {
-                             const commonProps = {
-                                variant: "ghost" as const,
-                                size: "icon" as const,
-                                className: "rounded-full h-12 w-12 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 text-foreground transition-all duration-200",
-                                "aria-label": action.name
-                            };
+                             const commonClasses = "flex items-center justify-center rounded-full h-12 w-12 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 text-foreground transition-all duration-200";
 
                             return (
                                 <Tooltip key={action.name}>
                                     <TooltipTrigger asChild>
                                         {action.isLink ? (
-                                            <Button {...commonProps} asChild>
-                                                <Link href={action.href!} target={action.isExternal ? '_blank' : undefined} rel={action.isExternal ? 'noopener noreferrer' : undefined}>
-                                                    <action.icon className="h-6 w-6" />
-                                                </Link>
-                                            </Button>
-                                        ) : (
-                                            <Button {...commonProps} onClick={action.onClick}>
+                                            <Link
+                                                href={action.href!}
+                                                target={action.isExternal ? '_blank' : undefined}
+                                                rel={action.isExternal ? 'noopener noreferrer' : undefined}
+                                                className={commonClasses}
+                                                aria-label={action.name}
+                                            >
                                                 <action.icon className="h-6 w-6" />
-                                            </Button>
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                onClick={action.onClick}
+                                                className={commonClasses}
+                                                aria-label={action.name}
+                                            >
+                                                <action.icon className="h-6 w-6" />
+                                            </button>
                                         )}
                                     </TooltipTrigger>
                                     <TooltipContent>
