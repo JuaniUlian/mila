@@ -24,7 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (pathname === '/analysis') {
     backgroundClasses = `bg-gradient-to-b ${getPageBackgroundClass(score, isInitialPageLoad)}`;
   } else if (pathname === '/loading') {
-    backgroundClasses = 'bg-gradient-to-br from-white via-slate-200 to-blue-100';
+    backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200';
     animationClasses = 'bg-200% animate-gradient-bg';
   } else if (pathname === '/prepare') {
     backgroundClasses = 'bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200';
