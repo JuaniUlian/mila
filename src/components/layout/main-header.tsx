@@ -13,7 +13,6 @@ import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
-import { getHeaderBackgroundClass } from '@/lib/color-utils';
 
 export function MainHeader() {
     const { language } = useLanguage();
@@ -22,9 +21,20 @@ export function MainHeader() {
     const { score, isInitialPageLoad } = useLayout();
     const pathname = usePathname();
 
-    const headerBgClass = pathname === '/analysis' 
-        ? getHeaderBackgroundClass(score, isInitialPageLoad)
-        : 'bg-slate-100/60';
+    let headerBgClass = 'bg-slate-100/60';
+    if (pathname === '/analysis') {
+        if (isInitialPageLoad || score === null) {
+            headerBgClass = 'bg-slate-100/60';
+        } else if (score < 40) {
+            headerBgClass = 'bg-red-200/60';
+        } else if (score < 75) {
+            headerBgClass = 'bg-amber-200/60';
+        } else if (score < 100) {
+            headerBgClass = 'bg-green-200/60';
+        } else {
+            headerBgClass = 'bg-sky-200/60';
+        }
+    }
 
     const navActions = [
         {
