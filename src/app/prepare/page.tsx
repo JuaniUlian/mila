@@ -223,12 +223,12 @@ export default function PreparePage() {
       name: rawFile.name,
       content: '',
       status: 'uploading',
-      progress: 10,
+      progress: 0,
     };
 
     setFolders(prevFolders =>
-      prevFolders.map(folder => 
-        folder.id === folderId 
+      prevFolders.map(folder =>
+        folder.id === folderId
           ? { ...folder, files: [...folder.files, filePlaceholder] }
           : folder
       )
@@ -243,53 +243,61 @@ export default function PreparePage() {
       );
     };
 
-    const reader = new FileReader();
-
-    try {
-      if (rawFile.name.endsWith('.docx')) {
-        reader.onload = async (e) => {
-          const arrayBuffer = e.target?.result;
-          if (arrayBuffer) {
-            updateFileState(tempId, { progress: 50 });
-            try {
-              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer as ArrayBuffer });
-              updateFileState(tempId, { content: result.value || "No content extracted.", status: 'success', progress: 100 });
-              showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
-            } catch (err) {
-               updateFileState(tempId, { status: 'error', error: 'Failed to parse .docx file.', progress: 100 });
-            }
-          }
-        };
-        reader.readAsArrayBuffer(rawFile);
-      } else if (rawFile.name.endsWith('.pdf')) {
-        reader.onload = async (e) => {
-          const fileDataUri = e.target?.result as string;
-          if (fileDataUri) {
-            updateFileState(tempId, { status: 'processing', progress: 50 });
-            try {
-              const result = await extractTextFromFile({ fileDataUri });
-              updateFileState(tempId, { content: result.extractedText, status: 'success', progress: 100 });
-              showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
-            } catch (error) {
-              console.error("Error in OCR:", error);
-              updateFileState(tempId, { status: 'error', error: 'Failed to extract text via OCR.', progress: 100 });
-            }
-          }
-        };
-        reader.readAsDataURL(rawFile);
-      } else if (rawFile.type.startsWith('text/')) {
-        reader.onload = (e) => {
-          const content = e.target?.result as string;
-          updateFileState(tempId, { content: content, status: 'success', progress: 100 });
-          showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
-        };
-        reader.readAsText(rawFile);
+    // --- Start Real-time Progress Simulation ---
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 5) + 2; // Increment progress
+      if (progress >= 95) {
+        clearInterval(interval); // Stop simulation before actual processing
       } else {
-        updateFileState(tempId, { status: 'error', error: 'Unsupported file type.', progress: 100 });
+        updateFileState(tempId, { progress, status: progress > 30 ? 'processing' : 'uploading' });
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      updateFileState(tempId, { status: 'error', error: errorMessage, progress: 100 });
+    }, 250); // Update every 250ms
+    // --- End Simulation ---
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      clearInterval(interval); // Ensure simulation stops
+      updateFileState(tempId, { progress: 95, status: 'processing' }); // Jump to 95%
+      const fileData = e.target?.result;
+      
+      try {
+        if (!fileData) throw new Error("Could not read file data.");
+        
+        let extractedContent: string;
+        if (rawFile.name.endsWith('.docx')) {
+          extractedContent = (await mammoth.extractRawText({ arrayBuffer: fileData as ArrayBuffer })).value;
+        } else if (rawFile.name.endsWith('.pdf')) {
+          extractedContent = (await extractTextFromFile({ fileDataUri: fileData as string })).extractedText;
+        } else if (rawFile.type.startsWith('text/')) {
+          extractedContent = fileData as string;
+        } else {
+          throw new Error('Unsupported file type.');
+        }
+
+        updateFileState(tempId, { content: extractedContent || "No content extracted.", status: 'success', progress: 100 });
+        showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
+      
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+        updateFileState(tempId, { status: 'error', error: errorMessage, progress: 100 });
+      }
+    };
+    
+    reader.onerror = () => {
+        clearInterval(interval);
+        updateFileState(tempId, { status: 'error', error: 'Error reading file data.', progress: 100 });
+    };
+
+    if (rawFile.name.endsWith('.docx')) {
+      reader.readAsArrayBuffer(rawFile);
+    } else if (rawFile.name.endsWith('.pdf')) {
+      reader.readAsDataURL(rawFile);
+    } else if (rawFile.type.startsWith('text/')) {
+      reader.readAsText(rawFile);
+    } else {
+      clearInterval(interval);
+      updateFileState(tempId, { status: 'error', error: 'Unsupported file type.', progress: 100 });
     }
   };
 
