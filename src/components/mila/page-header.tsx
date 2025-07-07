@@ -16,13 +16,15 @@ interface PageHeaderProps {
 const getScoreColor = (score: number) => {
     if (score < 40) return "text-red-600";
     if (score < 75) return "text-amber-600";
-    return "text-green-600";
+    if (score < 100) return "text-green-600";
+    return "text-sky-600";
 };
 
 const getProgressColorClass = (score: number) => {
     if (score < 40) return "bg-red-500";
     if (score < 75) return "bg-amber-500";
-    return "bg-green-500";
+    if (score < 100) return "bg-green-500";
+    return "bg-sky-500";
 }
 
 export function PageHeader({ documentTitle, overallComplianceScore, appliedSuggestionsCount, totalSuggestions, isInitialPageLoad }: PageHeaderProps) {
@@ -37,7 +39,8 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
         }
         if (overallComplianceScore < 40) return "text-red-700";
         if (overallComplianceScore < 75) return "text-amber-700";
-        return "text-green-700";
+        if (overallComplianceScore < 100) return "text-green-700";
+        return "text-sky-700";
     };
 
     const primaryTextColor = getTitleColorClass();
