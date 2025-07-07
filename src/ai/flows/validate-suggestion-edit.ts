@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview An AI flow to validate a user's edit to a legal suggestion.
+ * @fileOverview A flow to validate a user's edit to a legal suggestion.
  *
  * - validateSuggestionEdit - A function that validates the edit.
  * - ValidateSuggestionEditInput - The input type for the function.
@@ -13,7 +13,7 @@ import {z} from 'zod';
 // Schemas
 const ValidateSuggestionEditInputSchema = z.object({
   originalText: z.string().describe("The original text snippet from the document that had an issue."),
-  originalSuggestion: z.string().describe("The original AI-generated suggestion to fix the issue."),
+  originalSuggestion: z.string().describe("The original assistant-generated suggestion to fix the issue."),
   userEditedSuggestion: z.string().describe("The user's edited version of the suggestion."),
   legalJustification: z.string().describe("The original legal justification for why the text needed correction."),
   regulationContent: z.string().describe("The content of the law or regulation that applies."),
@@ -22,7 +22,7 @@ export type ValidateSuggestionEditInput = z.infer<typeof ValidateSuggestionEditI
 
 const ValidateSuggestionEditOutputSchema = z.object({
   isValid: z.boolean().describe("Whether the user's edit is legally sound and resolves the original issue."),
-  improvedProposal: z.string().describe("An improved, ready-to-use version of the user's suggestion, polished by the AI."),
+  improvedProposal: z.string().describe("An improved, ready-to-use version of the user's suggestion, polished by the assistant."),
   feedback: z.string().describe("Brief, constructive feedback for the user about their edit."),
 });
 export type ValidateSuggestionEditOutput = z.infer<typeof ValidateSuggestionEditOutputSchema>;
@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   name: 'validateSuggestionEditPrompt',
   input: { schema: ValidateSuggestionEditInputSchema },
   output: { schema: ValidateSuggestionEditOutputSchema },
-  prompt: `Eres un experto legal y supervisor de calidad. Un asistente de IA ha hecho una sugerencia para corregir un texto, y un usuario humano ha editado esa sugerencia. Tu tarea es evaluar la edición del usuario y mejorarla.
+  prompt: `Eres un experto legal y supervisor de calidad. Un asistente ha hecho una sugerencia para corregir un texto, y un usuario humano ha editado esa sugerencia. Tu tarea es evaluar la edición del usuario y mejorarla.
 
   **Contexto:**
   1.  **Texto Original con Problema:**
@@ -49,7 +49,7 @@ const prompt = ai.definePrompt({
       \`\`\`
       {{{regulationContent}}}
       \`\`\`
-  4.  **Sugerencia Original de la IA:**
+  4.  **Sugerencia Original del Asistente:**
       \`\`\`
       {{{originalSuggestion}}}
       \`\`\`

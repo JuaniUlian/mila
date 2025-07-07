@@ -135,7 +135,8 @@ export const translations = {
     selectDestinationFolder: t('Debe seleccionar una carpeta de destino.', 'You must select a destination folder.'),
     deletedSuccess: t('ha sido eliminado.', 'has been deleted.'),
     uploadingStatus: t('Subiendo...', 'Uploading...'),
-    processingStatus: t('Procesando con IA...', 'Processing with AI...'),
+    processingStatus: t('Procesando...', 'Processing...'),
+    processingWithProgress: t('Procesando ({progress}%)', 'Processing ({progress}%)'),
     dismissError: t('Descartar', 'Dismiss'),
   },
 
@@ -161,7 +162,7 @@ export const translations = {
     pendingSingular: t('pendiente', 'pending'),
     pendingPlural: t('pendientes', 'pending'),
     // IncidentItem
-    improvedProposal: t('Propuesta Mejorada por IA', 'AI-Improved Proposal'),
+    improvedProposal: t('Propuesta Mejorada por el Asistente', 'Assistant-Improved Proposal'),
     draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
     solutionProposal: t('Propuesta de Solución', 'Solution Proposal'),
     legalJustification: t('Justificación Legal', 'Legal Justification'),
@@ -171,7 +172,7 @@ export const translations = {
     edit: t('Editar', 'Edit'),
     discard: t('Descartar', 'Discard'),
     validating: t('Validando...', 'Validating...'),
-    validate: t('Validar', 'Validate'),
+    validate: t('Validar y Mejorar', 'Validate and Improve'),
     cancel: t('Cancelar', 'Cancel'),
     citedRegulation: t('Normativa Citada', 'Cited Regulation'),
     // RisksPanel
@@ -196,14 +197,14 @@ export const translations = {
     toastSuggestionModified: t('Sugerencia Modificada y Aplicada', 'Suggestion Modified and Applied'),
     toastSuggestionTextUpdated: t('El texto de la sugerencia ha sido actualizado.', 'The suggestion text has been updated.'),
     toastNewSuggestionGenerated: t('✅ Nueva Sugerencia Generada', '✅ New Suggestion Generated'),
-    toastNewProposalGenerated: t('La IA ha procesado tu edición y ha generado una nueva propuesta.', 'The AI has processed your edit and generated a new proposal.'),
+    toastNewProposalGenerated: t('El asistente ha procesado tu edición y ha generado una nueva propuesta.', 'The assistant has processed your edit and generated a new proposal.'),
     toastReportError: t('Error al generar el informe', 'Error generating report'),
     toastReportErrorDesc: t('No se pudo guardar la información para la previsualización. Intente de nuevo.', 'Could not save data for preview. Please try again.'),
     originalText: t('Texto Original (Evidencia)', 'Original Text (Evidence)'),
     toastValidationSuccessTitle: t('✅ Edición Validada', '✅ Edit Validated'),
     toastValidationNeedsReviewTitle: t('⚠️ Edición Validada con Ajustes', '⚠️ Edit Validated with Adjustments'),
     toastValidationErrorTitle: t('Error de Validación', 'Validation Error'),
-    toastValidationErrorDesc: t('La IA no pudo procesar la validación. Por favor, intente de nuevo.', 'The AI could not process the validation. Please try again.'),
+    toastValidationErrorDesc: t('El sistema no pudo procesar la validación. Por favor, intente de nuevo.', 'The system could not process the validation. Please try again.'),
   },
 
   reportPreviewPage: {

@@ -128,10 +128,10 @@ export default function LoadingPage() {
         router.push('/analysis');
 
       } catch (error) {
-        console.error("Error durante la validación IA:", error);
+        console.error("Error durante la validación del documento:", error);
         toast({
           title: "Error de Análisis",
-          description: "La IA no pudo procesar el documento. Por favor, intente de nuevo.",
+          description: "El asistente no pudo procesar el documento. Por favor, intente de nuevo.",
           variant: "destructive"
         });
         router.push('/prepare');

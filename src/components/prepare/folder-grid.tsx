@@ -67,7 +67,9 @@ const FileItem: React.FC<{
         </div>
         <Progress value={file.progress} className="h-1 mt-1" />
         <p className="text-xs text-muted-foreground mt-1">
-            {file.status === 'uploading' ? t('preparePage.uploadingStatus') : t('preparePage.processingStatus')}
+            {file.status === 'uploading' 
+                ? t('preparePage.uploadingStatus') 
+                : t('preparePage.processingWithProgress').replace('{progress}', (file.progress || 0).toString())}
         </p>
       </div>
     );
