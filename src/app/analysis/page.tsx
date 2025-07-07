@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Loader2 } from 'lucide-react';
+import { getPageBackgroundClass } from '@/lib/color-utils';
 
 // Define severity weights for score calculation
 const severityWeights: { [key in Suggestion['severity']]: number } = {
@@ -181,24 +182,15 @@ export default function PlanillaVivaPage() {
   }, [documentData, setScore]);
   
   const backgroundClass = useMemo(() => {
-    if (isInitialPageLoad) {
-        return 'from-slate-200/50 via-slate-100/50 to-white';
-    }
-    const getDynamicBackgroundClass = (score: number): string => {
-        if (score < 40) return 'from-rose-900/50 via-rose-100/50 to-white';
-        if (score < 60) return 'from-orange-600/50 via-orange-100/50 to-white';
-        if (score < 75) return 'from-amber-500/50 via-amber-100/50 to-white';
-        if (score < 85) return 'from-lime-600/50 via-lime-100/50 to-white';
-        if (score === 100) return 'from-slate-200/50 via-slate-100/50 to-white';
-        if (score < 95) return 'from-blue-600/50 via-blue-100/50 to-white';
-        return 'from-slate-500/50 via-slate-100/50 to-white';
-    };
-    return documentData ? getDynamicBackgroundClass(documentData.overallComplianceScore) : 'from-slate-200/50 via-slate-100/50 to-white';
+    return getPageBackgroundClass(documentData?.overallComplianceScore ?? null, isInitialPageLoad);
   }, [documentData, isInitialPageLoad]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
+    let updatedData: MilaAppPData | null = null;
+    
     setDocumentData(prevData => {
       if (!prevData) return null;
+      
       const updatedBlocks = [...prevData.blocks];
       const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
       if (blockIndex === -1) return prevData;
@@ -225,14 +217,15 @@ export default function PlanillaVivaPage() {
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
       
-      return {
+      updatedData = {
         ...prevData,
         blocks: updatedBlocks,
         overallCompletenessIndex: newCompletenessIndex,
         overallComplianceScore: newComplianceScore,
       };
+      return updatedData;
     });
-
+    
     if (newStatus === 'applied') {
       setAppliedChangesExist(true);
       toast({
@@ -245,9 +238,11 @@ export default function PlanillaVivaPage() {
         description: t('analysisPage.toastSuggestionHasBeenDiscarded'),
       });
     }
-  }, [toast, recalculateScores, t]);
+
+  }, [recalculateScores, t, toast]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
+    let updatedData: MilaAppPData | null = null;
     setDocumentData(prevData => {
       if (!prevData) return null;
       const updatedBlocks = [...prevData.blocks];
@@ -276,12 +271,13 @@ export default function PlanillaVivaPage() {
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
 
-      return {
+      updatedData = {
         ...prevData,
         blocks: updatedBlocks,
         overallCompletenessIndex: newCompletenessIndex,
         overallComplianceScore: newComplianceScore
-      }
+      };
+      return updatedData;
     });
 
     setAppliedChangesExist(true);
@@ -289,7 +285,8 @@ export default function PlanillaVivaPage() {
       title: t('analysisPage.toastSuggestionModified'),
       description: t('analysisPage.toastSuggestionTextUpdated'),
     });
-  }, [toast, recalculateScores, t]);
+  }, [recalculateScores, t, toast]);
+
 
   const handleDownloadReport = () => {
     if (!documentData) return;

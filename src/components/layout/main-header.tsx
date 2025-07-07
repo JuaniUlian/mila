@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -9,11 +10,21 @@ import { useTranslations } from '@/lib/translations';
 import { SettingsDialog } from './settings-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Logo } from './logo';
+import { usePathname } from 'next/navigation';
+import { useLayout } from '@/context/LayoutContext';
+import { cn } from '@/lib/utils';
+import { getHeaderBackgroundClass } from '@/lib/color-utils';
 
 export function MainHeader() {
     const { language } = useLanguage();
     const t = useTranslations(language);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
+    const { score, isInitialPageLoad } = useLayout();
+    const pathname = usePathname();
+
+    const headerBgClass = pathname === '/analysis' 
+        ? getHeaderBackgroundClass(score, isInitialPageLoad)
+        : 'bg-white/60';
 
     const navActions = [
         {
@@ -40,7 +51,10 @@ export function MainHeader() {
     return (
         <>
             <TooltipProvider delayDuration={100}>
-                <header className="backdrop-blur-lg sticky top-4 z-50 w-fit mx-auto rounded-full border border-slate-200/50 shadow-lg p-2">
+                <header className={cn(
+                    "backdrop-blur-lg sticky top-4 z-50 w-fit mx-auto rounded-full border border-slate-200/50 shadow-lg p-2 transition-colors duration-500",
+                    headerBgClass
+                )}>
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
