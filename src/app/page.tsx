@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
-import { Logo } from '@/components/layout/logo';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Scale, Search, AlertTriangle, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark, Network } from 'lucide-react';
@@ -42,7 +41,41 @@ export default function LandingPage() {
       <main>
         <section className="text-center py-16 px-4">
           <div className="flex justify-center mb-8">
-            <Logo className="h-28 w-auto" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" className="h-28 w-auto">
+              <defs>
+                <linearGradient id="gradBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0D2B3E"/>
+                  <stop offset="100%" stop-color="#DA623C"/>
+                </linearGradient>
+              </defs>
+              <rect width="512" height="512" fill="white"/>
+              <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
+                    fill="none" stroke="url(#gradBorder)" stroke-width="16"/>
+              <text x="176" y="240"
+                    font-family="Nunito, sans-serif"
+                    font-size="160"
+                    font-weight="600"
+                    fill="#0D2B3E"
+                    text-anchor="middle">M</text>
+                <text x="156" y="380"
+                    font-family="Nunito, sans-serif"
+                    font-size="160"
+                    font-weight="600"
+                    fill="#0D2B3E"
+                    text-anchor="middle">L</text>
+              <text x="336" y="240"
+                    font-family="Nunito, sans-serif"
+                    font-size="160"
+                    font-weight="600"
+                    fill="#DA623C"
+                    text-anchor="middle">I</text>
+                <text x="336" y="380"
+                    font-family="Nunito, sans-serif"
+                    font-size="160"
+                    font-weight="600"
+                    fill="#DA623C"
+                    text-anchor="middle">A</text>
+            </svg>
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900">{t('hero.title')}</h1>
           <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600">{t('hero.subtitle')}</p>
