@@ -13,13 +13,13 @@ export const getPageBackgroundClass = (score: number | null, isInitial: boolean)
 };
 
 export const getHeaderBackgroundClass = (score: number | null, isInitial: boolean): string => {
-    const defaultClass = 'bg-white/60';
+    const defaultClass = 'bg-slate-100/60';
     if (isInitial || score === null || score === 100) return defaultClass;
     
-    if (score < 40) return 'bg-rose-100/70';
-    if (score < 60) return 'bg-orange-100/70';
-    if (score < 75) return 'bg-amber-100/70';
-    if (score < 85) return 'bg-lime-100/70';
-    if (score < 95) return 'bg-blue-100/70';
+    if (score < 40) return 'bg-rose-200/70';
+    if (score < 60) return 'bg-orange-200/70';
+    if (score < 75) return 'bg-amber-200/70';
+    if (score < 85) return 'bg-lime-200/70';
+    if (score < 95) return 'bg-blue-200/70';
     return 'bg-slate-200/70'; // 95-99
 };
