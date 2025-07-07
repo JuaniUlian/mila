@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
-import { Card } from '@/components/ui/card';
 
 interface PageHeaderProps {
     documentTitle: string;
@@ -45,7 +44,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
 
     return (
         <header className="w-full transition-all duration-300">
-            <Card className="glass rounded-2xl">
+            <div className="glass rounded-2xl">
                 <div className="p-4 md:p-6 w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     {/* Title */}
                     <div className="flex-1">
@@ -79,7 +78,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
                         </div>
                     </div>
                 </div>
-            </Card>
+            </div>
         </header>
     );
 }
