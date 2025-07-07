@@ -23,6 +23,7 @@ interface File {
     content: string;
     status?: 'uploading' | 'processing' | 'error' | 'success';
     error?: string;
+    processingTime?: number;
 }
 
 interface FolderData {
@@ -41,6 +42,8 @@ interface FolderGridProps {
     onMoveFile: (file: File, folderId: string) => void;
     onDeleteFile: (file: File, folderId: string) => void;
     onDismissError: (file: File, folderId: string) => void;
+    onRenameFolder: (folder: FolderData) => void;
+    onDeleteFolder: (folder: FolderData) => void;
 }
 
 const FileItem: React.FC<{
@@ -79,7 +82,14 @@ const FileItem: React.FC<{
       <div className="p-2 text-sm bg-destructive/10 rounded-lg border border-destructive/20">
         <div className="flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
-          <span className="font-medium text-destructive truncate">{file.name}</span>
+           <div className="flex-1 min-w-0">
+            <span className="font-medium text-destructive truncate">{file.name}</span>
+            {file.processingTime && (
+                <p className="text-xs text-destructive/80">
+                    {t('preparePage.processedIn').replace('{time}', file.processingTime.toString())}
+                </p>
+            )}
+          </div>
         </div>
         <p className="text-xs text-destructive mt-1">{file.error}</p>
         <Button variant="ghost" size="sm" onClick={() => onDismissError(file, folderId)} className="text-xs h-auto p-1 mt-1 text-destructive hover:bg-destructive/20">
@@ -101,7 +111,14 @@ const FileItem: React.FC<{
         className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
       >
         <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-        <span className="font-medium text-foreground truncate" title={file.name}>{file.name}</span>
+        <div className="flex-1 min-w-0">
+          <span className="font-medium text-foreground truncate block" title={file.name}>{file.name}</span>
+            {file.processingTime && (
+                <p className="text-xs text-muted-foreground">
+                    {t('preparePage.processedIn').replace('{time}', file.processingTime.toString())}
+                </p>
+            )}
+        </div>
       </div>
 
       <div className="flex items-center">
@@ -154,6 +171,8 @@ export function FolderGrid({
     onMoveFile,
     onDeleteFile,
     onDismissError,
+    onRenameFolder,
+    onDeleteFolder
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
@@ -183,16 +202,45 @@ export function FolderGrid({
                             </CardTitle>
                             <CardDescription>{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
-                        <FileUploadButton
-                            onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-full flex-shrink-0"
-                            title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
-                        >
-                            <Plus className="h-5 w-5" />
-                            <span className="sr-only">{t('preparePage.addFile')}</span>
-                        </FileUploadButton>
+                        <div className="flex items-center">
+                            <FileUploadButton
+                                onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-full flex-shrink-0"
+                                title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
+                            >
+                                <Plus className="h-5 w-5" />
+                                <span className="sr-only">{t('preparePage.addFile')}</span>
+                            </FileUploadButton>
+                             <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full flex-shrink-0"
+                                    onClick={(e) => e.stopPropagation()}
+                                    >
+                                    <MoreVertical className="h-5 w-5" />
+                                    <span className="sr-only">{t('preparePage.folderOptions')}</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
+                                    <DropdownMenuItem onSelect={() => onRenameFolder(folder)}>
+                                    <PenLine className="mr-2 h-4 w-4" />
+                                    <span>{t('preparePage.rename')}</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                    onSelect={() => onDeleteFolder(folder)}
+                                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                    >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <span>{t('preparePage.delete')}</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
                         {folder.files.length > 0 ? (

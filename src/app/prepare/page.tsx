@@ -40,6 +40,8 @@ type File = {
   content: string;
   status?: 'uploading' | 'processing' | 'error' | 'success';
   error?: string;
+  startTime?: number;
+  processingTime?: number;
 };
 
 type Regulation = {
@@ -48,6 +50,8 @@ type Regulation = {
     content: string;
     status?: 'processing' | 'error' | 'success';
     error?: string;
+    startTime?: number;
+    processingTime?: number;
 };
 
 // Mock Data
@@ -112,6 +116,14 @@ export default function PreparePage() {
   type RegulationIdentifier = { id: string; name: string; content: string; } | null;
   const [regulationToAction, setRegulationToAction] = useState<RegulationIdentifier>(null);
   const [newRegulationName, setNewRegulationName] = useState('');
+  
+  // State for folder actions
+  const [isRenameFolderModalOpen, setIsRenameFolderModalOpen] = useState(false);
+  const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] = useState(false);
+  type FolderIdentifier = { id: string; name: string } | null;
+  const [folderToAction, setFolderToAction] = useState<FolderIdentifier>(null);
+  const [renamedFolderName, setRenamedFolderName] = useState('');
+
 
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
 
@@ -222,6 +234,7 @@ export default function PreparePage() {
       name: rawFile.name,
       content: '',
       status: 'uploading',
+      startTime: Date.now(),
     };
 
     setFolders(prevFolders =>
@@ -232,18 +245,9 @@ export default function PreparePage() {
       )
     );
 
-    const updateFileState = (id: string, update: Partial<File>) => {
-      setFolders(prevFolders =>
-        prevFolders.map(folder => ({
-          ...folder,
-          files: folder.files.map(f => (f.id === id ? { ...f, ...update } : f)),
-        }))
-      );
-    };
-
     const reader = new FileReader();
     reader.onload = async (e) => {
-      updateFileState(tempId, { status: 'processing' });
+      setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === tempId ? { ...file, status: 'processing' } : file) })));
       const fileData = e.target?.result;
       
       try {
@@ -260,17 +264,51 @@ export default function PreparePage() {
           throw new Error('Unsupported file type.');
         }
 
-        updateFileState(tempId, { content: extractedContent || "No content extracted.", status: 'success' });
+        setFolders(prevFolders =>
+          prevFolders.map(folder => ({
+            ...folder,
+            files: folder.files.map(f => {
+              if (f.id === tempId) {
+                const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
+                return { ...f, content: extractedContent || "No content extracted.", status: 'success', processingTime };
+              }
+              return f;
+            }),
+          }))
+        );
         showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
       
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-        updateFileState(tempId, { status: 'error', error: errorMessage });
+        setFolders(prevFolders =>
+          prevFolders.map(folder => ({
+            ...folder,
+            files: folder.files.map(f => {
+              if (f.id === tempId) {
+                const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
+                return { ...f, status: 'error', error: errorMessage, processingTime };
+              }
+              return f;
+            }),
+          }))
+        );
       }
     };
     
     reader.onerror = () => {
-        updateFileState(tempId, { status: 'error', error: 'Error reading file data.' });
+        const errorMessage = 'Error reading file data.';
+        setFolders(prevFolders =>
+          prevFolders.map(folder => ({
+            ...folder,
+            files: folder.files.map(f => {
+              if (f.id === tempId) {
+                const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
+                return { ...f, status: 'error', error: errorMessage, processingTime };
+              }
+              return f;
+            }),
+          }))
+        );
     };
 
     if (rawFile.name.endsWith('.docx')) {
@@ -280,7 +318,19 @@ export default function PreparePage() {
     } else if (rawFile.type.startsWith('text/')) {
       reader.readAsText(rawFile);
     } else {
-      updateFileState(tempId, { status: 'error', error: 'Unsupported file type.' });
+      const errorMessage = 'Unsupported file type.';
+      setFolders(prevFolders =>
+        prevFolders.map(folder => ({
+          ...folder,
+          files: folder.files.map(f => {
+            if (f.id === tempId) {
+              const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
+              return { ...f, status: 'error', error: errorMessage, processingTime };
+            }
+            return f;
+          }),
+        }))
+      );
     }
   };
 
@@ -307,13 +357,20 @@ export default function PreparePage() {
         name: rawFile.name,
         content: '',
         status: 'processing',
+        startTime: Date.now(),
     };
 
     setRegulations(prev => [...prev, regulationPlaceholder]);
 
     const updateRegulationState = (id: string, update: Partial<Regulation>) => {
       setRegulations(prev =>
-        prev.map(reg => (reg.id === id ? { ...reg, ...update } : reg))
+        prev.map(reg => {
+          if (reg.id === id) {
+            const processingTime = reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined;
+            return { ...reg, ...update, processingTime };
+          }
+          return reg;
+        })
       );
     };
 
@@ -510,33 +567,36 @@ export default function PreparePage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteFile = (fileToDelete?: File, folderIdOfFile?: string) => {
-    const targetFile = fileToDelete || fileToAction;
-    const targetFolderId = folderIdOfFile || fileToAction?.folderId;
-
-    if (!targetFile || !targetFolderId) return;
-
-    // The ID of the file to be deleted. Check for `fileId` from state or `id` from direct param.
-    const fileIdToDelete = (targetFile as any).fileId || (targetFile as any).id;
+  const handleDeleteFile = () => {
+    if (!fileToAction) return;
     
     setFolders(prevFolders =>
       prevFolders.map(folder => {
-        if (folder.id === targetFolderId) {
-          const updatedFiles = folder.files.filter(f => f.id !== fileIdToDelete);
+        if (folder.id === fileToAction.folderId) {
+          const updatedFiles = folder.files.filter(f => f.id !== fileToAction.fileId);
           return { ...folder, files: updatedFiles, fileCount: updatedFiles.length };
         }
         return folder;
       })
     );
-    if (selectedFileId === fileIdToDelete) {
+    if (selectedFileId === fileToAction.fileId) {
       setSelectedFileId(null);
     }
 
-    if (fileToAction) { // only show toast if it came from the modal
-        toast({ title: t('preparePage.deleteFile'), description: `"${targetFile.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
-    }
+    toast({ title: t('preparePage.deleteFile'), description: `"${fileToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     setIsDeleteModalOpen(false);
     setFileToAction(null);
+  };
+  
+  const handleDismissFileError = (fileToDismiss: File, folderId: string) => {
+     setFolders(prevFolders =>
+      prevFolders.map(folder => {
+        if (folder.id === folderId) {
+          return { ...folder, files: folder.files.filter(f => f.id !== fileToDismiss.id) };
+        }
+        return folder;
+      })
+    );
   };
 
   // Regulation action handlers
@@ -573,12 +633,58 @@ export default function PreparePage() {
       prevRegulations.filter(r => r.id !== regulationToAction.id)
     );
     
-    // Also remove from selected IDs if it's there
     setSelectedRegulationIds(prevIds => prevIds.filter(id => id !== regulationToAction.id));
 
     toast({ title: 'Normativa Eliminada', description: `"${regulationToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     setIsDeleteRegulationModalOpen(false);
     setRegulationToAction(null);
+  };
+
+  // Folder action handlers
+  const handleOpenRenameFolderModal = (folder: {id: string, name: string}) => {
+    setFolderToAction(folder);
+    setRenamedFolderName(folder.name);
+    setIsRenameFolderModalOpen(true);
+  };
+
+  const handleRenameFolder = () => {
+    if (!folderToAction || !renamedFolderName.trim()) {
+      toast({ title: t('preparePage.toastError'), description: t('preparePage.toastEmptyFolderName'), variant: 'destructive' });
+      return;
+    }
+    setFolders(prevFolders =>
+      prevFolders.map(f =>
+        f.id === folderToAction.id ? { ...f, name: renamedFolderName.trim() } : f
+      )
+    );
+    toast({ title: t('preparePage.renameFolderTitle'), description: `"${folderToAction.name}" ${t('preparePage.renamedTo')} "${renamedFolderName.trim()}".` });
+    setIsRenameFolderModalOpen(false);
+    setFolderToAction(null);
+  };
+
+  const handleOpenDeleteFolderModal = (folder: {id: string, name: string}) => {
+    setFolderToAction(folder);
+    setIsDeleteFolderModalOpen(true);
+  };
+
+  const handleDeleteFolder = () => {
+    if (!folderToAction) return;
+
+    const folderToDelete = folders.find(f => f.id === folderToAction.id);
+    if (!folderToDelete) return;
+
+    const fileIsSelectedInFolder = folderToDelete.files.some(file => file.id === selectedFileId);
+    if (fileIsSelectedInFolder) {
+      setSelectedFileId(null);
+    }
+
+    setFolders(prevFolders =>
+      prevFolders.filter(f => f.id !== folderToAction.id)
+    );
+    
+    toast({ title: t('preparePage.deleteFolderTitle'), description: `"${folderToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
+    setIsDeleteFolderModalOpen(false);
+    setFolderToAction(null);
   };
 
 
@@ -634,8 +740,10 @@ export default function PreparePage() {
                           onFileUploadToFolder={handleFileUploadToFolder}
                           onRenameFile={handleOpenRenameModal}
                           onMoveFile={handleOpenMoveModal}
-                          onDeleteFile={handleDeleteFile}
-                          onDismissError={handleDeleteFile}
+                          onDeleteFile={handleOpenDeleteModal}
+                          onDismissError={handleDismissFileError}
+                          onRenameFolder={handleOpenRenameFolderModal}
+                          onDeleteFolder={handleOpenDeleteFolderModal}
                         />
                     </CardContent>
                 </Card>
@@ -834,7 +942,7 @@ export default function PreparePage() {
           <p dangerouslySetInnerHTML={{ __html: t('preparePage.confirmDeleteDesc').replace('{fileName}', `<strong>${fileToAction?.name || ''}</strong>`)}} />
           <DialogFooter>
             <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
-            <Button variant="destructive" onClick={() => handleDeleteFile()}>{t('preparePage.delete')}</Button>
+            <Button variant="destructive" onClick={handleDeleteFile}>{t('preparePage.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -865,6 +973,36 @@ export default function PreparePage() {
           <DialogFooter>
             <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
             <Button variant="destructive" onClick={handleDeleteRegulation}>{t('preparePage.delete')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Folder Action Dialogs */}
+      <Dialog open={isRenameFolderModalOpen} onOpenChange={setIsRenameFolderModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.renameFolderTitle')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="renamed-folder-name">{t('preparePage.newFolderNameLabel').replace('{folderName}', folderToAction?.name || '')}</Label>
+            <Input id="renamed-folder-name" value={renamedFolderName} onChange={(e) => setRenamedFolderName(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button onClick={handleRenameFolder}>{t('preparePage.rename')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteFolderModalOpen} onOpenChange={setIsDeleteFolderModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.confirmDeleteFolderTitle')}</DialogTitle>
+          </DialogHeader>
+          <p dangerouslySetInnerHTML={{ __html: t('preparePage.confirmDeleteFolderDesc').replace('{folderName}', `<strong>${folderToAction?.name || ''}</strong>`)}} />
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button variant="destructive" onClick={handleDeleteFolder}>{t('preparePage.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

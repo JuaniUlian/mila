@@ -23,6 +23,7 @@ interface Regulation {
     content: string;
     status?: 'processing' | 'error' | 'success';
     error?: string;
+    processingTime?: number;
 }
 
 interface RegulationListProps {
@@ -81,6 +82,11 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                                 <div className="flex-1">
                                     <p className="font-medium text-destructive">{regulation.name}</p>
                                     <p className="text-sm text-destructive/80">{regulation.error}</p>
+                                     {regulation.processingTime && (
+                                        <p className="text-xs text-destructive/80">
+                                            {t('preparePage.processedIn').replace('{time}', regulation.processingTime.toString())}
+                                        </p>
+                                    )}
                                 </div>
                                 <Button variant="ghost" size="sm" onClick={() => onDismissError(regulation.id)} className="text-xs h-auto p-1 mt-1 text-destructive hover:bg-destructive/20">
                                     {t('preparePage.dismissError')}
@@ -108,8 +114,15 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                                         disabled={regulation.status !== 'success'}
                                         tabIndex={-1}
                                     />
-                                    <div className={cn("font-medium text-left flex-1 text-foreground text-base truncate")} title={regulation.name}>
-                                        {regulation.name}
+                                    <div className="flex-1 min-w-0">
+                                        <p className={cn("font-medium text-left text-foreground text-base truncate")} title={regulation.name}>
+                                            {regulation.name}
+                                        </p>
+                                        {regulation.processingTime && (
+                                            <p className="text-xs text-muted-foreground">
+                                                {t('preparePage.processedIn').replace('{time}', regulation.processingTime.toString())}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
 
