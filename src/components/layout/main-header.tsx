@@ -27,8 +27,8 @@ export function MainHeader() {
     return (
         <>
             <header className="bg-slate-50/60 backdrop-blur-lg sticky top-4 z-50 mx-4 mt-4 rounded-2xl border border-slate-200/50 shadow-lg">
-                <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                    <div className="flex items-center gap-4">
+                <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4">
+                    <div className="flex items-center justify-start">
                         <Link href="/" className="flex items-center gap-2">
                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="h-10 w-auto">
                               <defs>
@@ -64,14 +64,12 @@ export function MainHeader() {
                                     fill="#DA623C"
                                     textAnchor="middle">A</text>
                             </svg>
-                           <span className="font-bold text-xl text-foreground hidden sm:inline">MILA</span>
                         </Link>
                     </div>
-                    <nav className="flex items-center gap-1 sm:gap-2">
+                    <nav className="flex items-center justify-center gap-1 sm:gap-2">
                         {navItems.map((item) => {
-                             const isActive = item.href ? pathname.startsWith(item.href) : false;
                              return (
-                                <Button key={item.name} asChild variant={isActive ? "secondary" : "ghost"} className="rounded-lg">
+                                <Button key={item.name} asChild variant="outline" className="btn-neu-light rounded-lg">
                                     <Link href={item.href!}>
                                         <item.icon className="h-4 w-4 md:mr-2" />
                                         <span className="hidden md:inline">{item.name}</span>
@@ -80,18 +78,21 @@ export function MainHeader() {
                              )
                         })}
 
-                        <Button variant="ghost" onClick={() => setIsSettingsModalOpen(true)} className="rounded-lg">
+                        <Button variant="outline" onClick={() => setIsSettingsModalOpen(true)} className="btn-neu-light rounded-lg">
                             <Settings className="h-4 w-4 md:mr-2" />
                             <span className="hidden md:inline">{t('sidebar.settings')}</span>
                         </Button>
                         
-                        <Button variant="ghost" className="rounded-lg" asChild>
+                        <Button variant="outline" className="btn-neu-light rounded-lg" asChild>
                           <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer">
                             <Globe className="h-4 w-4 md:mr-2" />
                             <span className="hidden md:inline">{t('sidebar.plusBI')}</span>
                           </a>
                         </Button>
                     </nav>
+                    <div className="flex justify-end">
+                      {/* Spacer */}
+                    </div>
                 </div>
             </header>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
