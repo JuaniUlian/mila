@@ -44,36 +44,36 @@ export default function LandingPage() {
             <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" className="h-28 w-auto">
               <defs>
                 <linearGradient id="gradBorder" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#0D2B3E"/>
-                  <stop offset="100%" stop-color="#DA623C"/>
+                  <stop offset="0%" stopColor="#0D2B3E"/>
+                  <stop offset="100%" stopColor="#DA623C"/>
                 </linearGradient>
               </defs>
               <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
-                    fill="none" stroke="url(#gradBorder)" stroke-width="16"/>
+                    fill="none" stroke="url(#gradBorder)" strokeWidth="16"/>
               <text x="176" y="240"
-                    font-family="Nunito, sans-serif"
-                    font-size="160"
-                    font-weight="600"
+                    fontFamily="Nunito, sans-serif"
+                    fontSize="160"
+                    fontWeight="600"
                     fill="#0D2B3E"
-                    text-anchor="middle">M</text>
+                    textAnchor="middle">M</text>
                 <text x="156" y="380"
-                    font-family="Nunito, sans-serif"
-                    font-size="160"
-                    font-weight="600"
+                    fontFamily="Nunito, sans-serif"
+                    fontSize="160"
+                    fontWeight="600"
                     fill="#0D2B3E"
-                    text-anchor="middle">L</text>
+                    textAnchor="middle">L</text>
               <text x="336" y="240"
-                    font-family="Nunito, sans-serif"
-                    font-size="160"
-                    font-weight="600"
+                    fontFamily="Nunito, sans-serif"
+                    fontSize="160"
+                    fontWeight="600"
                     fill="#DA623C"
-                    text-anchor="middle">I</text>
+                    textAnchor="middle">I</text>
                 <text x="336" y="380"
-                    font-family="Nunito, sans-serif"
-                    font-size="160"
-                    font-weight="600"
+                    fontFamily="Nunito, sans-serif"
+                    fontSize="160"
+                    fontWeight="600"
                     fill="#DA623C"
-                    text-anchor="middle">A</text>
+                    textAnchor="middle">A</text>
             </svg>
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900">{t('hero.title')}</h1>
