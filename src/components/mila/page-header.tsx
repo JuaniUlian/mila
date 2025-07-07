@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
@@ -44,44 +43,41 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
     const primaryTextColor = getTitleColorClass();
 
     return (
-        <div className="transition-all duration-300">
-            <header className="w-full">
-                <Card className="p-4 md:p-6 w-full bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
-                    <CardContent className="p-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        {/* Title */}
-                        <div className="flex-1">
-                            <h1 className={cn("text-3xl font-bold transition-colors duration-500", primaryTextColor)}>{documentTitle}</h1>
+        <header className="w-full transition-all duration-300">
+            {/* The wrapping Card component has been removed to allow the page's background gradient to show through, eliminating the hard line. */}
+            <div className="p-4 md:p-6 w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                {/* Title */}
+                <div className="flex-1">
+                    <h1 className={cn("text-3xl font-bold transition-colors duration-500", primaryTextColor)}>{documentTitle}</h1>
+                </div>
+                
+                <div className="w-full md:w-auto flex items-center gap-x-6 gap-y-4 flex-wrap">
+                    {/* Scores */}
+                    <div className="w-full sm:w-auto md:min-w-[300px] flex flex-col gap-3">
+                        {/* Compliance Score */}
+                        <div>
+                            <div className="flex justify-between items-baseline mb-1">
+                                <span className="font-semibold text-foreground">{t('analysisPage.complianceScore')}</span>
+                                <span className={cn("text-2xl font-bold", getScoreColor(overallComplianceScore))}>
+                                    {overallComplianceScore.toFixed(0)}
+                                    <span className="text-sm">/100</span>
+                                </span>
+                            </div>
+                            <Progress value={overallComplianceScore} indicatorClassName={getProgressColorClass(overallComplianceScore)} className="bg-muted" />
                         </div>
-                        
-                        <div className="w-full md:w-auto flex items-center gap-x-6 gap-y-4 flex-wrap">
-                            {/* Scores */}
-                            <div className="w-full sm:w-auto md:min-w-[300px] flex flex-col gap-3">
-                                {/* Compliance Score */}
-                                <div>
-                                    <div className="flex justify-between items-baseline mb-1">
-                                        <span className="font-semibold text-foreground">{t('analysisPage.complianceScore')}</span>
-                                        <span className={cn("text-2xl font-bold", getScoreColor(overallComplianceScore))}>
-                                            {overallComplianceScore.toFixed(0)}
-                                            <span className="text-sm">/100</span>
-                                        </span>
-                                    </div>
-                                    <Progress value={overallComplianceScore} indicatorClassName={getProgressColorClass(overallComplianceScore)} className="bg-muted" />
-                                </div>
-                                {/* Applied Suggestions Count */}
-                                <div>
-                                    <div className="flex justify-between items-baseline">
-                                        <span className="font-semibold text-foreground">{t('analysisPage.appliedSuggestions')}</span>
-                                        <span className={cn("text-2xl font-bold", getScoreColor(suggestionProgress))}>
-                                            {appliedSuggestionsCount}
-                                            <span className="text-sm">/{totalSuggestions}</span>
-                                        </span>
-                                    </div>
-                                </div>
+                        {/* Applied Suggestions Count */}
+                        <div>
+                            <div className="flex justify-between items-baseline">
+                                <span className="font-semibold text-foreground">{t('analysisPage.appliedSuggestions')}</span>
+                                <span className={cn("text-2xl font-bold", getScoreColor(suggestionProgress))}>
+                                    {appliedSuggestionsCount}
+                                    <span className="text-sm">/{totalSuggestions}</span>
+                                </span>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
-            </header>
-        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
     );
 }
