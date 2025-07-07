@@ -618,6 +618,7 @@ export default function PreparePage() {
                             />
                         </div>
                         <FileUploadButton
+                            variant="outline"
                             className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onFileSelect={handleFileUploadedToRoot}
                         >
@@ -625,6 +626,7 @@ export default function PreparePage() {
                             {t('preparePage.uploadFile')}
                         </FileUploadButton>
                         <Button
+                            variant="outline"
                             suppressHydrationWarning
                             className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onClick={() => setIsCreateFolderModalOpen(true)}
