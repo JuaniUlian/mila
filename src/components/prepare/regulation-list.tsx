@@ -39,8 +39,8 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
     const { language } = useLanguage();
     const t = useTranslations(language);
 
-    const handleCheckboxChange = (regulation: Regulation) => {
-        if (regulation.status !== 'success') return; // Don't allow selecting non-successful uploads
+    const handleToggleSelection = (regulation: Regulation) => {
+        if (regulation.status !== 'success') return;
         onSelectionChange(
             selectedIds.includes(regulation.id)
                 ? selectedIds.filter(id => id !== regulation.id)
@@ -94,24 +94,23 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                           key={regulation.id}
                           className={cn(
                               "group/regitem bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
-                              selectedIds.includes(regulation.id) && "bg-primary/10 border-primary/40"
+                              selectedIds.includes(regulation.id) && "bg-primary/10 border-primary/40",
+                              regulation.status === 'success' && "cursor-pointer"
                           )}
+                          onClick={() => handleToggleSelection(regulation)}
                         >
                             <div className="flex items-center justify-between gap-4 w-full p-4">
-                                <div
-                                    className="flex items-center gap-4 flex-1 min-w-0 cursor-pointer"
-                                    onClick={() => handleCheckboxChange(regulation)}
-                                >
+                                <div className="flex items-center gap-4 flex-1 min-w-0">
                                     <Checkbox
                                         id={`checkbox-${regulation.id}`}
                                         checked={selectedIds.includes(regulation.id)}
-                                        onCheckedChange={() => handleCheckboxChange(regulation)}
-                                        className="h-5 w-5 rounded data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                        className="h-5 w-5 rounded data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none"
                                         disabled={regulation.status !== 'success'}
+                                        tabIndex={-1}
                                     />
-                                    <label htmlFor={`checkbox-${regulation.id}`} className={cn("font-medium text-left flex-1 text-foreground text-base truncate", regulation.status === 'success' ? 'cursor-pointer' : 'cursor-default')} title={regulation.name}>
+                                    <div className={cn("font-medium text-left flex-1 text-foreground text-base truncate")} title={regulation.name}>
                                         {regulation.name}
-                                    </label>
+                                    </div>
                                 </div>
 
                                 {regulation.status === 'success' && (
