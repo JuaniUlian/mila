@@ -52,7 +52,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
         <div className="space-y-4">
             <div className="flex justify-end">
                 <FileUploadButton
-                    className="btn-neu-light rounded-xl py-3 px-6"
+                    className="btn-neu-light rounded-xl py-3 px-5"
                     onFileSelect={onRegulationUpload}
                 >
                     <Plus className="mr-2 h-4 w-4" />

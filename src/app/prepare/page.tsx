@@ -618,8 +618,7 @@ export default function PreparePage() {
                             />
                         </div>
                         <FileUploadButton
-                            className="w-full sm:w-auto flex-shrink-0"
-                            variant="secondary"
+                            className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onFileSelect={handleFileUploadedToRoot}
                         >
                             <Upload className="mr-2 h-4 w-4" />
@@ -627,8 +626,7 @@ export default function PreparePage() {
                         </FileUploadButton>
                         <Button
                             suppressHydrationWarning
-                            className="w-full sm:w-auto flex-shrink-0"
-                            variant="secondary"
+                            className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onClick={() => setIsCreateFolderModalOpen(true)}
                         >
                             <FolderPlus className="mr-2 h-4 w-4" />
@@ -643,7 +641,7 @@ export default function PreparePage() {
                           onFileUploadToFolder={handleFileUploadToFolder}
                           onRenameFile={handleOpenRenameModal}
                           onMoveFile={handleOpenMoveModal}
-                          onDeleteFile={handleOpenDeleteModal}
+                          onDeleteFile={handleDeleteFile}
                           onDismissError={handleDeleteFile}
                         />
                     </CardContent>
