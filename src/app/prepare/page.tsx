@@ -593,7 +593,7 @@ export default function PreparePage() {
 
   return (
     <div 
-        className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 text-foreground"
+        className="w-full p-4 md:p-8 text-foreground"
     >
       <div className="max-w-7xl mx-auto space-y-8 relative">
         {currentStep === 1 && (

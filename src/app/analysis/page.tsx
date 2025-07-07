@@ -16,7 +16,6 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Loader2 } from 'lucide-react';
-import { getPageBackgroundClass } from '@/lib/color-utils';
 
 // Define severity weights for score calculation
 const severityWeights: { [key in Suggestion['severity']]: number } = {
@@ -180,10 +179,6 @@ export default function PlanillaVivaPage() {
       setScore(null);
     };
   }, [documentData, setScore]);
-  
-  const backgroundClass = useMemo(() => {
-    return getPageBackgroundClass(documentData?.overallComplianceScore ?? null, isInitialPageLoad);
-  }, [documentData, isInitialPageLoad]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
     let updatedData: MilaAppPData | null = null;
@@ -335,8 +330,8 @@ export default function PlanillaVivaPage() {
   const appliedSuggestionsCount = allSuggestions.filter(s => s.status === 'applied').length;
 
   return (
-    <div className={cn("bg-gradient-to-b transition-all duration-1000", backgroundClass)}>
-      <div className="min-h-screen w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
+    <>
+      <div className="w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
         <PageHeader 
           documentTitle={documentTitle}
           overallComplianceScore={overallComplianceScore}
@@ -382,6 +377,6 @@ export default function PlanillaVivaPage() {
           <iframe src="/corrected-doc-preview" className="w-full h-full border-0" title={t('analysisPage.correctedDocPreviewTitle')} />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

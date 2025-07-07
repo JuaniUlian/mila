@@ -146,7 +146,7 @@ export default function LoadingPage() {
   }, [router, loadingTexts, t, toast]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-white via-slate-200 to-blue-100 bg-200% animate-gradient-bg">
+    <div className="flex flex-col items-center justify-center flex-1">
       <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 mb-6">
         <g fill="currentColor">
           <circle cx="12" cy="3" r="1">
