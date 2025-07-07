@@ -618,17 +618,15 @@ export default function PreparePage() {
                             />
                         </div>
                         <FileUploadButton
-                            variant="ghost"
-                            className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
+                            className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl btn-neu-light"
                             onFileSelect={handleFileUploadedToRoot}
                         >
                             <Upload className="mr-2 h-4 w-4" />
                             {t('preparePage.uploadFile')}
                         </FileUploadButton>
                         <Button
-                            variant="ghost"
                             suppressHydrationWarning
-                            className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl bg-white text-foreground font-semibold shadow-lg hover:shadow-md transition-all duration-300 active:shadow-inner active:bg-slate-50"
+                            className="w-full sm:w-auto flex-shrink-0 h-full py-3 px-6 rounded-xl btn-neu-light"
                             onClick={() => setIsCreateFolderModalOpen(true)}
                         >
                             <FolderPlus className="mr-2 h-4 w-4" />
