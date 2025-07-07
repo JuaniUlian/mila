@@ -138,6 +138,11 @@ export const translations = {
     processingStatus: t('Procesando...', 'Processing...'),
     processingWithProgress: t('Procesando ({progress}%)', 'Processing ({progress}%)'),
     dismissError: t('Descartar', 'Dismiss'),
+    regulationOptions: t('Opciones de normativa', 'Regulation options'),
+    renameRegulation: t('Renombrar Normativa', 'Rename Regulation'),
+    newRegulationNameLabel: t('Nuevo nombre para "{regulationName}"', 'New name for "{regulationName}"'),
+    confirmDeleteRegulationTitle: t('Confirmar Eliminación de Normativa', 'Confirm Regulation Deletion'),
+    confirmDeleteRegulationDesc: t('¿Está seguro de que desea eliminar la normativa {regulationName}? Esta acción no se puede deshacer.', 'Are you sure you want to delete the regulation {regulationName}? This action cannot be undone.'),
   },
 
   loadingPage: {

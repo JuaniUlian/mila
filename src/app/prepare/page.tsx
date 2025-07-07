@@ -106,6 +106,14 @@ export default function PreparePage() {
   const [fileToAction, setFileToAction] = useState<FileIdentifier>(null);
   const [newFileName, setNewFileName] = useState('');
   const [moveToFolderId, setMoveToFolderId] = useState<string | null>(null);
+
+  // State for regulation actions
+  const [isRenameRegulationModalOpen, setIsRenameRegulationModalOpen] = useState(false);
+  const [isDeleteRegulationModalOpen, setIsDeleteRegulationModalOpen] = useState(false);
+  type RegulationIdentifier = { id: string; name: string; content: string; } | null;
+  const [regulationToAction, setRegulationToAction] = useState<RegulationIdentifier>(null);
+  const [newRegulationName, setNewRegulationName] = useState('');
+
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
 
 
@@ -540,6 +548,49 @@ export default function PreparePage() {
     setFileToAction(null);
   };
 
+  // Regulation action handlers
+  const handleOpenRenameRegulationModal = (regulation: Regulation) => {
+    setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content });
+    setNewRegulationName(regulation.name);
+    setIsRenameRegulationModalOpen(true);
+  };
+
+  const handleRenameRegulation = () => {
+    if (!regulationToAction || !newRegulationName.trim()) {
+      toast({ title: t('preparePage.toastError'), description: 'El nombre no puede estar vacío.', variant: 'destructive' });
+      return;
+    }
+    setRegulations(prevRegulations =>
+      prevRegulations.map(reg =>
+        reg.id === regulationToAction.id ? { ...reg, name: newRegulationName.trim() } : reg
+      )
+    );
+    toast({ title: 'Normativa Renombrada', description: `"${regulationToAction.name}" ${t('preparePage.renamedTo')} "${newRegulationName.trim()}".` });
+    setIsRenameRegulationModalOpen(false);
+    setRegulationToAction(null);
+  };
+
+  const handleOpenDeleteRegulationModal = (regulation: Regulation) => {
+    setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content });
+    setIsDeleteRegulationModalOpen(true);
+  };
+
+  const handleDeleteRegulation = () => {
+    if (!regulationToAction) return;
+
+    setRegulations(prevRegulations =>
+      prevRegulations.filter(r => r.id !== regulationToAction.id)
+    );
+    
+    // Also remove from selected IDs if it's there
+    setSelectedRegulationIds(prevIds => prevIds.filter(id => id !== regulationToAction.id));
+
+    toast({ title: 'Normativa Eliminada', description: `"${regulationToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
+    setIsDeleteRegulationModalOpen(false);
+    setRegulationToAction(null);
+  };
+
+
   return (
     <div 
         className="min-h-screen w-full p-4 md:p-8 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 text-foreground"
@@ -621,6 +672,8 @@ export default function PreparePage() {
                                 onSelectionChange={setSelectedRegulationIds}
                                 onRegulationUpload={handleRegulationUpload}
                                 onDismissError={handleDismissRegulationError}
+                                onRename={handleOpenRenameRegulationModal}
+                                onDelete={handleOpenDeleteRegulationModal}
                                 />
                             </CardContent>
                         </AccordionContent>
@@ -777,6 +830,36 @@ export default function PreparePage() {
           <DialogFooter>
             <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
             <Button variant="destructive" onClick={() => handleDeleteFile()}>{t('preparePage.delete')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Regulation Action Dialogs */}
+      <Dialog open={isRenameRegulationModalOpen} onOpenChange={setIsRenameRegulationModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.renameRegulation')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="regulation-name">{t('preparePage.newRegulationNameLabel').replace('{regulationName}', regulationToAction?.name || '')}</Label>
+            <Input id="regulation-name" value={newRegulationName} onChange={(e) => setNewRegulationName(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button onClick={handleRenameRegulation}>{t('preparePage.rename')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteRegulationModalOpen} onOpenChange={setIsDeleteRegulationModalOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>{t('preparePage.confirmDeleteRegulationTitle')}</DialogTitle>
+          </DialogHeader>
+          <p dangerouslySetInnerHTML={{ __html: t('preparePage.confirmDeleteRegulationDesc').replace('{regulationName}', `<strong>${regulationToAction?.name || ''}</strong>`)}} />
+          <DialogFooter>
+            <DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose>
+            <Button variant="destructive" onClick={handleDeleteRegulation}>{t('preparePage.delete')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

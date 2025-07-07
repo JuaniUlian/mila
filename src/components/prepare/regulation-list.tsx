@@ -1,13 +1,21 @@
+
 "use client";
 
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2, AlertTriangle } from 'lucide-react';
+import { Plus, Loader2, AlertTriangle, MoreVertical, PenLine, Trash2 } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface Regulation {
     id: string;
@@ -23,9 +31,11 @@ interface RegulationListProps {
     onSelectionChange: (ids: string[]) => void;
     onRegulationUpload: (file: File) => void;
     onDismissError: (regulationId: string) => void;
+    onRename: (regulation: Regulation) => void;
+    onDelete: (regulation: Regulation) => void;
 }
 
-export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError }: RegulationListProps) {
+export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete }: RegulationListProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
 
@@ -79,26 +89,59 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     }
 
                     return (
-                        <div 
-                          key={regulation.id} 
+                        <div
+                          key={regulation.id}
                           className={cn(
-                              "bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
-                              regulation.status === 'success' ? 'cursor-pointer' : 'cursor-default',
+                              "group/regitem bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
                               selectedIds.includes(regulation.id) && "ring-2 ring-primary"
                           )}
-                          onClick={() => handleCheckboxChange(regulation)}
                         >
-                            <div className="flex items-center gap-4 w-full p-4">
-                                <Checkbox
-                                    id={`checkbox-${regulation.id}`}
-                                    checked={selectedIds.includes(regulation.id)}
-                                    onCheckedChange={() => handleCheckboxChange(regulation)}
-                                    className="h-5 w-5 rounded data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                    disabled={regulation.status !== 'success'}
-                                />
-                                <label htmlFor={`checkbox-${regulation.id}`} className={cn("font-medium text-left flex-1 text-foreground text-base", regulation.status === 'success' ? 'cursor-pointer' : 'cursor-default')}>
-                                    {regulation.name}
-                                </label>
+                            <div className="flex items-center justify-between gap-4 w-full p-4">
+                                <div
+                                    className="flex items-center gap-4 flex-1 min-w-0 cursor-pointer"
+                                    onClick={() => handleCheckboxChange(regulation)}
+                                >
+                                    <Checkbox
+                                        id={`checkbox-${regulation.id}`}
+                                        checked={selectedIds.includes(regulation.id)}
+                                        onCheckedChange={() => handleCheckboxChange(regulation)}
+                                        className="h-5 w-5 rounded data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                        disabled={regulation.status !== 'success'}
+                                    />
+                                    <label htmlFor={`checkbox-${regulation.id}`} className={cn("font-medium text-left flex-1 text-foreground text-base truncate", regulation.status === 'success' ? 'cursor-pointer' : 'cursor-default')} title={regulation.name}>
+                                        {regulation.name}
+                                    </label>
+                                </div>
+
+                                {regulation.status === 'success' && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 rounded-full flex-shrink-0 opacity-0 group-hover/regitem:opacity-100 focus:opacity-100 transition-opacity"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <MoreVertical className="h-4 w-4" />
+                                                <span className="sr-only">{t('preparePage.regulationOptions')}</span>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
+                                            <DropdownMenuItem onSelect={() => onRename(regulation)}>
+                                                <PenLine className="mr-2 h-4 w-4" />
+                                                <span>{t('preparePage.rename')}</span>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                onSelect={() => onDelete(regulation)}
+                                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                            >
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                <span>{t('preparePage.delete')}</span>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
                             </div>
                         </div>
                     );
