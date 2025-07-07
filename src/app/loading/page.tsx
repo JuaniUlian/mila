@@ -181,59 +181,61 @@ export default function LoadingPage() {
 
   return (
     <div className="flex flex-col items-center justify-center flex-1 p-4">
-      <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 mb-6">
-        <g fill="currentColor">
-          <circle cx="12" cy="3" r="1">
-            <animate id="svgSpinners12DotsScale0" attributeName="r" begin="0;svgSpinners12DotsScale1.end-0.5s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="16.5" cy="4.21" r="1">
-            <animate id="svgSpinners12DotsScale2" attributeName="r" begin="svgSpinners12DotsScale0.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="19.79" cy="7.5" r="1">
-            <animate id="svgSpinners12DotsScale3" attributeName="r" begin="svgSpinners12DotsScale2.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="21" cy="12" r="1">
-            <animate id="svgSpinners12DotsScale4" attributeName="r" begin="svgSpinners12DotsScale3.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="19.79" cy="16.5" r="1">
-            <animate id="svgSpinners12DotsScale5" attributeName="r" begin="svgSpinners12DotsScale4.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="16.5" cy="19.79" r="1">
-            <animate id="svgSpinners12DotsScale6" attributeName="r" begin="svgSpinners12DotsScale5.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="12" cy="21" r="1">
-            <animate id="svgSpinners12DotsScale7" attributeName="r" begin="svgSpinners12DotsScale6.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="7.5" cy="19.79" r="1">
-            <animate id="svgSpinners12DotsScale8" attributeName="r" begin="svgSpinners12DotsScale7.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="4.21" cy="16.5" r="1">
-            <animate id="svgSpinners12DotsScale9" attributeName="r" begin="svgSpinners12DotsScale8.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="3" cy="12" r="1">
-            <animate id="svgSpinners12DotsScalea" attributeName="r" begin="svgSpinners12DotsScale9.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="4.21" cy="7.5" r="1">
-            <animate id="svgSpinners12DotsScaleb" attributeName="r" begin="svgSpinners12DotsScalea.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <circle cx="7.5" cy="4.21" r="1">
-            <animate id="svgSpinners12DotsScale1" attributeName="r" begin="svgSpinners12DotsScaleb.begin+0.1s" dur="0.6s" values="1;2;1" />
-          </circle>
-          <animateTransform attributeName="transform" type="rotate" dur="6s" values="0 12 12;360 12 12" repeatCount="indefinite" />
-        </g>
-      </svg>
-      <h1 className="text-2xl font-semibold mb-2 text-gray-800">{t('loadingPage.title')}</h1>
-      <p className="text-lg text-gray-600 mb-6">{statusText}</p>
+      <div className="w-full max-w-lg text-center bg-white/50 backdrop-blur-lg p-8 rounded-2xl shadow-lg border border-white/30">
+        <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 mb-6 inline-block">
+          <g fill="currentColor">
+            <circle cx="12" cy="3" r="1">
+              <animate id="svgSpinners12DotsScale0" attributeName="r" begin="0;svgSpinners12DotsScale1.end-0.5s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="16.5" cy="4.21" r="1">
+              <animate id="svgSpinners12DotsScale2" attributeName="r" begin="svgSpinners12DotsScale0.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="19.79" cy="7.5" r="1">
+              <animate id="svgSpinners12DotsScale3" attributeName="r" begin="svgSpinners12DotsScale2.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="21" cy="12" r="1">
+              <animate id="svgSpinners12DotsScale4" attributeName="r" begin="svgSpinners12DotsScale3.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="19.79" cy="16.5" r="1">
+              <animate id="svgSpinners12DotsScale5" attributeName="r" begin="svgSpinners12DotsScale4.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="16.5" cy="19.79" r="1">
+              <animate id="svgSpinners12DotsScale6" attributeName="r" begin="svgSpinners12DotsScale5.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="12" cy="21" r="1">
+              <animate id="svgSpinners12DotsScale7" attributeName="r" begin="svgSpinners12DotsScale6.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="7.5" cy="19.79" r="1">
+              <animate id="svgSpinners12DotsScale8" attributeName="r" begin="svgSpinners12DotsScale7.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="4.21" cy="16.5" r="1">
+              <animate id="svgSpinners12DotsScale9" attributeName="r" begin="svgSpinners12DotsScale8.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="3" cy="12" r="1">
+              <animate id="svgSpinners12DotsScalea" attributeName="r" begin="svgSpinners12DotsScale9.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="4.21" cy="7.5" r="1">
+              <animate id="svgSpinners12DotsScaleb" attributeName="r" begin="svgSpinners12DotsScalea.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <circle cx="7.5" cy="4.21" r="1">
+              <animate id="svgSpinners12DotsScale1" attributeName="r" begin="svgSpinners12DotsScaleb.begin+0.1s" dur="0.6s" values="1;2;1" />
+            </circle>
+            <animateTransform attributeName="transform" type="rotate" dur="6s" values="0 12 12;360 12 12" repeatCount="indefinite" />
+          </g>
+        </svg>
+        <h1 className="text-2xl font-semibold mb-2 text-gray-800">{t('loadingPage.title')}</h1>
+        <p className="text-lg text-gray-600 mb-6 min-h-[28px]">{statusText}</p>
 
-      <div className="w-full max-w-md">
-        <Progress value={progress} className="w-full h-2 mb-2" />
-        <div className="flex justify-between text-sm text-gray-500">
-            <span>{Math.round(progress)}% {t('loadingPage.completed')}</span>
-            {progress < 100 && (
-                <span>
-                    {t('loadingPage.estimatedTimePrefix')} {remainingTime > 1 ? t('loadingPage.secondsRemaining').replace('{count}', remainingTime.toString()) : t('loadingPage.secondRemaining')}
-                </span>
-            )}
+        <div className="w-full max-w-md mx-auto">
+          <Progress value={progress} className="w-full h-2 mb-2" />
+          <div className="flex justify-between text-sm text-gray-500">
+              <span>{Math.round(progress)}% {t('loadingPage.completed')}</span>
+              {progress < 100 && (
+                  <span>
+                      {t('loadingPage.estimatedTimePrefix')} {remainingTime > 1 ? t('loadingPage.secondsRemaining').replace('{count}', remainingTime.toString()) : t('loadingPage.secondRemaining')}
+                  </span>
+              )}
+          </div>
         </div>
       </div>
     </div>

@@ -158,7 +158,7 @@ export const translations = {
     status2: t('Contrastando con normativas seleccionadas...', 'Cross-referencing with selected regulations...'),
     status3: t('Identificando posibles inconsistencias...', 'Identifying potential inconsistencies...'),
     status4: t('Generando sugerencias de mejora...', 'Generating improvement suggestions...'),
-    status5: t('Análisis completo. Redirigiendo...', 'Analysis complete. Redirecting...'),
+    status5: t('Terminado', 'Finished'),
     completed: t('completado', 'completed'),
     estimatedTimePrefix: t('Tiempo estimado:', 'Estimated time:'),
     secondsRemaining: t('{count} segundos restantes', '{count} seconds remaining'),
