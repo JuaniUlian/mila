@@ -3,12 +3,13 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FilePlus2, Settings, Globe, Home } from 'lucide-react';
+import { FilePlus2, Settings, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { SettingsDialog } from './settings-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Logo } from './logo';
 
 export function MainHeader() {
     const { language } = useLanguage();
@@ -16,12 +17,6 @@ export function MainHeader() {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
 
     const navActions = [
-        {
-            name: t('sidebar.home') || 'Inicio',
-            href: '/',
-            icon: Home,
-            isLink: true,
-        },
         {
             name: t('sidebar.prepare'),
             href: '/prepare',
@@ -48,6 +43,17 @@ export function MainHeader() {
             <TooltipProvider delayDuration={100}>
                 <header className="bg-slate-50/60 backdrop-blur-lg sticky top-4 z-50 w-fit mx-auto rounded-full border border-slate-200/50 shadow-lg p-2">
                     <nav className="flex items-center justify-center gap-2">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Link href="/" aria-label={t('sidebar.home') || 'Inicio'} className="flex items-center justify-center h-12 w-12 btn-neu-light rounded-full p-1.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-shadow duration-200 ease-in-out">
+                                    <Logo variant="color" className="h-full w-full" />
+                                </Link>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{t('sidebar.home') || 'Inicio'}</p>
+                            </TooltipContent>
+                        </Tooltip>
+
                         {navActions.map((action) => {
                              const commonProps = {
                                 variant: "outline" as const,
