@@ -225,19 +225,6 @@ export default function PlanillaVivaPage() {
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
       
-      if (newStatus === 'applied') {
-        setAppliedChangesExist(true);
-        toast({
-          title: t('analysisPage.toastSuggestionApplied'),
-          description: t('analysisPage.toastComplianceUpdated'),
-        });
-      } else if (newStatus === 'discarded') {
-        toast({
-          title: t('analysisPage.toastSuggestionDiscarded'),
-          description: t('analysisPage.toastSuggestionHasBeenDiscarded'),
-        });
-      }
-      
       return {
         ...prevData,
         blocks: updatedBlocks,
@@ -245,6 +232,19 @@ export default function PlanillaVivaPage() {
         overallComplianceScore: newComplianceScore,
       };
     });
+
+    if (newStatus === 'applied') {
+      setAppliedChangesExist(true);
+      toast({
+        title: t('analysisPage.toastSuggestionApplied'),
+        description: t('analysisPage.toastComplianceUpdated'),
+      });
+    } else if (newStatus === 'discarded') {
+      toast({
+        title: t('analysisPage.toastSuggestionDiscarded'),
+        description: t('analysisPage.toastSuggestionHasBeenDiscarded'),
+      });
+    }
   }, [toast, recalculateScores, t]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
@@ -275,12 +275,6 @@ export default function PlanillaVivaPage() {
       updatedBlocks[blockIndex] = blockToUpdate;
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-      
-      setAppliedChangesExist(true);
-      toast({
-        title: t('analysisPage.toastSuggestionModified'),
-        description: t('analysisPage.toastSuggestionTextUpdated'),
-      });
 
       return {
         ...prevData,
@@ -288,6 +282,12 @@ export default function PlanillaVivaPage() {
         overallCompletenessIndex: newCompletenessIndex,
         overallComplianceScore: newComplianceScore
       }
+    });
+
+    setAppliedChangesExist(true);
+    toast({
+      title: t('analysisPage.toastSuggestionModified'),
+      description: t('analysisPage.toastSuggestionTextUpdated'),
     });
   }, [toast, recalculateScores, t]);
 
