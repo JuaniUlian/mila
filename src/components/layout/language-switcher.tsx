@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import type { Language } from '@/lib/translations';
@@ -29,12 +28,12 @@ export function LanguageSwitcher({ variant = 'dark' }: { variant?: 'light' | 'da
         <Button 
             variant="ghost" 
             className={cn(
-                "w-full justify-start text-base h-12 px-3 rounded-lg transition-colors duration-150 ease-in-out",
+                "justify-start text-sm h-10 px-3 rounded-lg transition-colors duration-150 ease-in-out",
                 // Conditional styling based on the variant prop
                 variant === 'dark' && "text-slate-300 hover:bg-white/5 hover:text-white",
                 variant === 'light' && "text-gray-600 hover:bg-slate-200/50"
             )}>
-          <Globe className="mr-3 h-5 w-5" />
+          <span className="mr-2 text-lg">{selectedLanguage.flag}</span>
           <span className="flex-1 truncate font-medium">{selectedLanguage.name}</span>
         </Button>
       </DropdownMenuTrigger>
