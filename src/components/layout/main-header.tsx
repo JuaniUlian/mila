@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -24,7 +23,7 @@ export function MainHeader() {
 
     const headerBgClass = pathname === '/analysis' 
         ? getHeaderBackgroundClass(score, isInitialPageLoad)
-        : 'bg-white/60';
+        : 'bg-slate-100/60';
 
     const navActions = [
         {
@@ -58,7 +57,7 @@ export function MainHeader() {
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link href="/" aria-label={t('sidebar.home') || 'Inicio'} className="flex items-center justify-center h-12 w-12 btn-neu-light rounded-full p-1.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-shadow duration-200 ease-in-out">
+                                <Link href="/" aria-label={t('sidebar.home') || 'Inicio'} className="flex items-center justify-center h-12 w-12 rounded-full p-1.5 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 transition-all duration-200">
                                     <Logo variant="color" className="h-full w-full" />
                                 </Link>
                             </TooltipTrigger>
@@ -69,9 +68,9 @@ export function MainHeader() {
 
                         {navActions.map((action) => {
                              const commonProps = {
-                                variant: "outline" as const,
+                                variant: "ghost" as const,
                                 size: "icon" as const,
-                                className: "btn-neu-light rounded-full h-12 w-12",
+                                className: "rounded-full h-12 w-12 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 text-foreground transition-all duration-200",
                                 "aria-label": action.name
                             };
 
