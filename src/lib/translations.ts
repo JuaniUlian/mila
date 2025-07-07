@@ -162,7 +162,7 @@ export const translations = {
     pendingSingular: t('pendiente', 'pending'),
     pendingPlural: t('pendientes', 'pending'),
     // IncidentItem
-    improvedProposal: t('Propuesta Mejorada por el Asistente', 'Assistant-Improved Proposal'),
+    improvedProposal: t('Propuesta Mejorada', 'Improved Proposal'),
     draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
     solutionProposal: t('Propuesta de Solución', 'Solution Proposal'),
     legalJustification: t('Justificación Legal', 'Legal Justification'),
@@ -197,7 +197,7 @@ export const translations = {
     toastSuggestionModified: t('Sugerencia Modificada y Aplicada', 'Suggestion Modified and Applied'),
     toastSuggestionTextUpdated: t('El texto de la sugerencia ha sido actualizado.', 'The suggestion text has been updated.'),
     toastNewSuggestionGenerated: t('✅ Nueva Sugerencia Generada', '✅ New Suggestion Generated'),
-    toastNewProposalGenerated: t('El asistente ha procesado tu edición y ha generado una nueva propuesta.', 'The assistant has processed your edit and generated a new proposal.'),
+    toastNewProposalGenerated: t('Se ha procesado tu edición y se ha generado una nueva propuesta.', 'Your edit has been processed and a new proposal has been generated.'),
     toastReportError: t('Error al generar el informe', 'Error generating report'),
     toastReportErrorDesc: t('No se pudo guardar la información para la previsualización. Intente de nuevo.', 'Could not save data for preview. Please try again.'),
     originalText: t('Texto Original (Evidencia)', 'Original Text (Evidence)'),
