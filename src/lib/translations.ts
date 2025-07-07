@@ -136,7 +136,6 @@ export const translations = {
     deletedSuccess: t('ha sido eliminado.', 'has been deleted.'),
     uploadingStatus: t('Subiendo...', 'Uploading...'),
     processingStatus: t('Procesando...', 'Processing...'),
-    processingWithProgress: t('Procesando ({progress}%)', 'Processing ({progress}%)'),
     dismissError: t('Descartar', 'Dismiss'),
     regulationOptions: t('Opciones de normativa', 'Regulation options'),
     renameRegulation: t('Renombrar Normativa', 'Rename Regulation'),

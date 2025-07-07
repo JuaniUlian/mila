@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle } from 'lucide-react';
+import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,14 +16,12 @@ import {
 import { FileUploadButton } from './file-upload-button';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
-import { Progress } from '@/components/ui/progress';
 
 interface File {
     id: string;
     name: string;
     content: string;
     status?: 'uploading' | 'processing' | 'error' | 'success';
-    progress?: number;
     error?: string;
 }
 
@@ -62,15 +60,16 @@ const FileItem: React.FC<{
     return (
       <div className="p-2 text-sm rounded-lg border border-transparent">
         <div className="flex items-center gap-3">
-          <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <span className="font-medium text-foreground truncate">{file.name}</span>
+          <Loader2 className="h-5 w-5 text-muted-foreground flex-shrink-0 animate-spin" />
+          <div className="flex-1 min-w-0">
+            <span className="font-medium text-foreground truncate block">{file.name}</span>
+            <p className="text-xs text-muted-foreground">
+              {file.status === 'uploading'
+                ? t('preparePage.uploadingStatus')
+                : t('preparePage.processingStatus')}
+            </p>
+          </div>
         </div>
-        <Progress value={file.progress} className="h-1 mt-1" />
-        <p className="text-xs text-muted-foreground mt-1">
-            {file.status === 'uploading' 
-                ? t('preparePage.uploadingStatus') 
-                : t('preparePage.processingWithProgress').replace('{progress}', (file.progress || 0).toString())}
-        </p>
       </div>
     );
   }

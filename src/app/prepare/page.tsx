@@ -39,7 +39,6 @@ type File = {
   name: string;
   content: string;
   status?: 'uploading' | 'processing' | 'error' | 'success';
-  progress?: number;
   error?: string;
 };
 
@@ -223,7 +222,6 @@ export default function PreparePage() {
       name: rawFile.name,
       content: '',
       status: 'uploading',
-      progress: 0,
     };
 
     setFolders(prevFolders =>
@@ -243,22 +241,9 @@ export default function PreparePage() {
       );
     };
 
-    // --- Start Real-time Progress Simulation ---
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 5) + 2; // Increment progress
-      if (progress >= 95) {
-        clearInterval(interval); // Stop simulation before actual processing
-      } else {
-        updateFileState(tempId, { progress, status: progress > 30 ? 'processing' : 'uploading' });
-      }
-    }, 250); // Update every 250ms
-    // --- End Simulation ---
-
     const reader = new FileReader();
     reader.onload = async (e) => {
-      clearInterval(interval); // Ensure simulation stops
-      updateFileState(tempId, { progress: 95, status: 'processing' }); // Jump to 95%
+      updateFileState(tempId, { status: 'processing' });
       const fileData = e.target?.result;
       
       try {
@@ -275,18 +260,17 @@ export default function PreparePage() {
           throw new Error('Unsupported file type.');
         }
 
-        updateFileState(tempId, { content: extractedContent || "No content extracted.", status: 'success', progress: 100 });
+        updateFileState(tempId, { content: extractedContent || "No content extracted.", status: 'success' });
         showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
       
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-        updateFileState(tempId, { status: 'error', error: errorMessage, progress: 100 });
+        updateFileState(tempId, { status: 'error', error: errorMessage });
       }
     };
     
     reader.onerror = () => {
-        clearInterval(interval);
-        updateFileState(tempId, { status: 'error', error: 'Error reading file data.', progress: 100 });
+        updateFileState(tempId, { status: 'error', error: 'Error reading file data.' });
     };
 
     if (rawFile.name.endsWith('.docx')) {
@@ -296,8 +280,7 @@ export default function PreparePage() {
     } else if (rawFile.type.startsWith('text/')) {
       reader.readAsText(rawFile);
     } else {
-      clearInterval(interval);
-      updateFileState(tempId, { status: 'error', error: 'Unsupported file type.', progress: 100 });
+      updateFileState(tempId, { status: 'error', error: 'Unsupported file type.' });
     }
   };
 
@@ -664,7 +647,21 @@ export default function PreparePage() {
                 <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
                     <AccordionItem value="item-1" className="border-none">
                         <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-                        <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                        <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => {
+                            // Prevents the click from propagating and selecting the row
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // Manually toggle the accordion
+                            const trigger = e.currentTarget;
+                            const content = trigger.nextElementSibling;
+                            if (trigger.getAttribute('data-state') === 'open') {
+                                trigger.setAttribute('data-state', 'closed');
+                                if(content) content.setAttribute('data-state', 'closed');
+                            } else {
+                                trigger.setAttribute('data-state', 'open');
+                                if(content) content.setAttribute('data-state', 'open');
+                            }
+                        }}>
                             <div className="p-6 w-full text-left flex items-center justify-between">
                                 <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                                     <BookCheck className="h-8 w-8 text-primary"/>

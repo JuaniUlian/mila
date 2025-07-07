@@ -77,8 +77,6 @@ export default function LoadingPage() {
   const { toast } = useToast();
   
   const [statusText, setStatusText] = useState('');
-  const [progress, setProgress] = useState(0);
-  const [estimatedTime, setEstimatedTime] = useState('');
 
   const loadingTexts = useMemo(() => ({
     status1: t('loadingPage.status1'),
@@ -90,35 +88,11 @@ export default function LoadingPage() {
 
   useEffect(() => {
     document.title = 'MILA | Procesando...';
-    setStatusText(loadingTexts.status1);
     
-    let intervalId: NodeJS.Timeout;
-    const TOTAL_ESTIMATED_SECONDS = 45;
-    const startTime = Date.now();
-
-    const updateProgress = () => {
-      const elapsedTime = (Date.now() - startTime) / 1000;
-      const calculatedProgress = Math.min(99, Math.floor((elapsedTime / TOTAL_ESTIMATED_SECONDS) * 100));
-      setProgress(calculatedProgress);
-
-      const remainingSeconds = Math.max(0, Math.round(TOTAL_ESTIMATED_SECONDS - elapsedTime));
-      
-      if (remainingSeconds === 1) {
-        setEstimatedTime(t('loadingPage.secondRemaining'));
-      } else {
-        setEstimatedTime(t('loadingPage.secondsRemaining').replace('{count}', remainingSeconds.toString()));
-      }
-      
-      if (calculatedProgress < 20) setStatusText(loadingTexts.status1);
-      else if (calculatedProgress < 50) setStatusText(loadingTexts.status2);
-      else if (calculatedProgress < 80) setStatusText(loadingTexts.status3);
-      else setStatusText(loadingTexts.status4);
-    };
-
-    intervalId = setInterval(updateProgress, 500);
-
     const processDocument = async () => {
       try {
+        setStatusText(loadingTexts.status1);
+
         const documentName = localStorage.getItem('selectedDocumentName');
         const documentContent = localStorage.getItem('selectedDocumentContent');
         const regulationsRaw = localStorage.getItem('selectedRegulations');
@@ -132,29 +106,27 @@ export default function LoadingPage() {
           router.push('/prepare');
           return;
         }
-
+        
+        setStatusText(loadingTexts.status2);
         const regulations = JSON.parse(regulationsRaw);
 
+        setStatusText(loadingTexts.status3);
         const aiResult = await validateDocument({
           documentName,
           documentContent,
           regulations,
         });
         
-        clearInterval(intervalId);
-        setProgress(100);
-        setStatusText(loadingTexts.status5);
-        setEstimatedTime('');
-
+        setStatusText(loadingTexts.status4);
         const generatedData = mapAiOutputToAppData(aiResult, documentName, documentContent);
         localStorage.setItem('milaAnalysisData', JSON.stringify(generatedData));
 
+        setStatusText(loadingTexts.status5);
         setTimeout(() => {
             router.push('/analysis');
         }, 800);
 
       } catch (error) {
-        clearInterval(intervalId);
         console.error("Error durante la validación del documento:", error);
         toast({
           title: "Error de Análisis",
@@ -167,9 +139,6 @@ export default function LoadingPage() {
     
     processDocument();
 
-    return () => {
-      clearInterval(intervalId);
-    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, t, toast, loadingTexts]);
 
@@ -218,17 +187,6 @@ export default function LoadingPage() {
       </svg>
       <h1 className="text-2xl font-semibold mb-2 text-gray-800">{t('loadingPage.title')}</h1>
       <p className="text-lg text-gray-600">{statusText}</p>
-
-      <div className="mt-4 w-full max-w-sm text-center">
-        <p className="text-lg font-mono font-semibold text-primary">
-          {progress}% {t('loadingPage.completed')}
-        </p>
-        {progress < 100 && estimatedTime && (
-          <p className="text-sm text-gray-500 mt-1">
-            {t('loadingPage.estimatedTimePrefix')} {estimatedTime}
-          </p>
-        )}
-      </div>
     </div>
   );
 }
