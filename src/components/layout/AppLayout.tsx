@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation';
 import { MainHeader } from '@/components/layout/main-header';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useLayout } from '@/context/LayoutContext';
 import { getPageBackgroundClass } from '@/lib/color-utils';
@@ -13,12 +13,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { score, isInitialPageLoad } = useLayout();
   const showHeader = pathname !== '/';
   
-  // Start with a default, server-safe class name to prevent hydration mismatch.
-  const [bodyClassName, setBodyClassName] = useState("flex min-h-screen flex-col bg-slate-100");
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // This effect runs only on the client, after hydration.
-    // Here we can safely calculate and set the dynamic class name.
+    setIsMounted(true);
+  }, []);
+
+  const bodyClassName = useMemo(() => {
+    // On the server or initial client render, return a static class to prevent hydration mismatch.
+    if (!isMounted) {
+      return "flex min-h-screen flex-col bg-slate-100";
+    }
+
+    // After mounting on the client, we can safely calculate the dynamic class.
     let backgroundClasses = '';
     let animationClasses = '';
 
@@ -33,8 +40,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
        backgroundClasses = 'bg-slate-100';
     }
 
-    setBodyClassName(cn("flex min-h-screen flex-col", backgroundClasses, animationClasses));
-  }, [pathname, score, isInitialPageLoad]);
+    return cn("flex min-h-screen flex-col", backgroundClasses, animationClasses);
+  }, [isMounted, pathname, score, isInitialPageLoad]);
+
 
   if (!showHeader) {
     return <>{children}</>;
