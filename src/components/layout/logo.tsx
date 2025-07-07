@@ -11,90 +11,85 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
       )}
     >
       {variant === 'color' ? (
-        <svg
-          width="112"
-          height="112"
-          viewBox="0 0 112 112"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          data-ai-hint="logo company"
-        >
-          {/* Main rectangle with gradient stroke */}
-          <rect
-              x="2"
-              y="2"
-              width="108"
-              height="108"
-              rx="20"
-              ry="20"
-              fill="none"
-              stroke="url(#border-grad)"
-              strokeWidth="3"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" data-ai-hint="logo company">
+            <defs>
+                <linearGradient id="gradBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0D2B3E"/>
+                <stop offset="100%" stopColor="#DA623C"/>
+                </linearGradient>
+            </defs>
 
-          {/* Inner glow effect */}
-          <rect
-              x="3.5"
-              y="3.5"
-              width="105"
-              height="105"
-              rx="18.5"
-              ry="18.5"
-              fill="none"
-              stroke="rgba(255, 255, 255, 0.4)"
-              strokeWidth="1"
-          />
+            <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
+                fill="none" stroke="url(#gradBorder)" strokeWidth="16"/>
 
-          {/* Text with gradient */}
-          <g fontFamily="sans-serif" fontSize="48" fontWeight="600" textAnchor="middle">
-              <text x="34" y="48" fill="url(#blue-grad)">M</text>
-              <text x="78" y="48" fill="url(#orange-grad)">I</text>
-              <text x="34" y="92" fill="url(#blue-grad)">L</text>
-              <text x="78" y="92" fill="url(#orange-grad)">A</text>
-          </g>
+            <text x="176" y="240"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="#0D2B3E"
+                textAnchor="middle">M</text>
 
-          <defs>
-              {/* Blue gradient for M and L */}
-              <linearGradient id="blue-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#1E40AF" />
-                  <stop offset="100%" stopColor="#3B82F6" />
-              </linearGradient>
+            <text x="156" y="380"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="#0D2B3E"
+                textAnchor="middle">L</text>
 
-              {/* Orange gradient for I and A */}
-              <linearGradient id="orange-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#D97706" />
-                  <stop offset="100%" stopColor="#FBBF24" />
-              </linearGradient>
+            <text x="336" y="240"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="#DA623C"
+                textAnchor="middle">I</text>
 
-              {/* Border gradient */}
-              <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1E3A8A" />
-                  <stop offset="100%" stopColor="#D97706" />
-              </linearGradient>
-          </defs>
+            <text x="336" y="380"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="#DA623C"
+                textAnchor="middle">A</text>
         </svg>
       ) : (
-        <svg width="112" height="112" viewBox="0 0 112 112" fill="none" xmlns="http://www.w3.org/2000/svg" data-ai-hint="logo company monochrome silver">
-            <rect x="2" y="2" width="108" height="108" rx="20" ry="20" fill="none" stroke="url(#silver-border-grad)" strokeWidth="3"/>
-            <rect x="3.5" y="3.5" width="105" height="105" rx="18.5" ry="18.5" fill="none" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="1"/>
-            <g fontFamily="sans-serif" fontSize="48" fontWeight="600" textAnchor="middle">
-                <text x="34" y="48" fill="url(#silver-text-grad)">M</text>
-                <text x="78" y="48" fill="url(#silver-text-grad)">I</text>
-                <text x="34" y="92" fill="url(#silver-text-grad)">L</text>
-                <text x="78" y="92" fill="url(#silver-text-grad)">A</text>
-            </g>
+        <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" data-ai-hint="logo company monochrome silver">
             <defs>
-                <linearGradient id="silver-text-grad" x1="50%" y1="0%" x2="50%" y2="100%">
-                    <stop offset="0%" stopColor="#FFFFFF" />
-                    <stop offset="50%" stopColor="#E5E7EB" />
-                    <stop offset="100%" stopColor="#D1D5DB" />
-                </linearGradient>
                 <linearGradient id="silver-border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#F9FAFB" />
                     <stop offset="50%" stopColor="#9CA3AF" />
                     <stop offset="100%" stopColor="#F9FAFB" />
                 </linearGradient>
+                <linearGradient id="silver-text-grad" x1="50%" y1="0%" x2="50%" y2="100%">
+                    <stop offset="0%" stopColor="#FFFFFF" />
+                    <stop offset="50%" stopColor="#E5E7EB" />
+                    <stop offset="100%" stopColor="#D1D5DB" />
+                </linearGradient>
             </defs>
+            <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
+                fill="none" stroke="url(#silver-border-grad)" strokeWidth="16"/>
+            <text x="176" y="240"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="url(#silver-text-grad)"
+                textAnchor="middle">M</text>
+            <text x="156" y="380"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="url(#silver-text-grad)"
+                textAnchor="middle">L</text>
+            <text x="336" y="240"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="url(#silver-text-grad)"
+                textAnchor="middle">I</text>
+            <text x="336" y="380"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="url(#silver-text-grad)"
+                textAnchor="middle">A</text>
         </svg>
       )}
     </div>
