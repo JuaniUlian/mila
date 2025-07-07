@@ -275,6 +275,7 @@ export const translations = {
   },
 
   sidebar: {
+      home: t('Inicio', 'Home'),
       prepare: t('Preparar Pliego', 'Prepare Document'),
       plusBI: t('PLUS BI', 'PLUS BI'),
       settings: t('Configuración', 'Settings'),

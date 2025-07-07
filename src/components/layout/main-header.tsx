@@ -1,100 +1,85 @@
+
 'use client';
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { FilePlus2, Settings, Globe } from 'lucide-react';
+import { FilePlus2, Settings, Globe, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { SettingsDialog } from './settings-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function MainHeader() {
-    const pathname = usePathname();
     const { language } = useLanguage();
     const t = useTranslations(language);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
-    
-    const navItems = [
+
+    const navActions = [
+        {
+            name: t('sidebar.home') || 'Inicio',
+            href: '/',
+            icon: Home,
+            isLink: true,
+        },
         {
             name: t('sidebar.prepare'),
-            icon: FilePlus2,
             href: '/prepare',
+            icon: FilePlus2,
+            isLink: true,
+        },
+        {
+            name: t('sidebar.settings'),
+            onClick: () => setIsSettingsModalOpen(true),
+            icon: Settings,
+            isLink: false,
+        },
+        {
+            name: t('sidebar.plusBI'),
+            href: 'https://pluscompol.com',
+            icon: Globe,
+            isLink: true,
+            isExternal: true,
         },
     ];
 
     return (
         <>
-            <header className="bg-slate-50/60 backdrop-blur-lg sticky top-4 z-50 mx-4 mt-4 rounded-2xl border border-slate-200/50 shadow-lg">
-                <div className="container mx-auto grid h-16 grid-cols-3 items-center px-4">
-                    <div className="flex items-center justify-start">
-                        <Link href="/" className="flex items-center gap-2">
-                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="h-10 w-auto">
-                              <defs>
-                                <linearGradient id="gradBorderHeader" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#0D2B3E"/>
-                                  <stop offset="100%" stopColor="#DA623C"/>
-                                </linearGradient>
-                              </defs>
-                              <rect x="32" y="32" width="448" height="448" rx="64" ry="64"
-                                    fill="none" stroke="url(#gradBorderHeader)" strokeWidth="32"/>
-                              <text x="176" y="240"
-                                    fontFamily="Nunito, sans-serif"
-                                    fontSize="160"
-                                    fontWeight="600"
-                                    fill="#0D2B3E"
-                                    textAnchor="middle">M</text>
-                                <text x="156" y="380"
-                                    fontFamily="Nunito, sans-serif"
-                                    fontSize="160"
-                                    fontWeight="600"
-                                    fill="#0D2B3E"
-                                    textAnchor="middle">L</text>
-                              <text x="336" y="240"
-                                    fontFamily="Nunito, sans-serif"
-                                    fontSize="160"
-                                    fontWeight="600"
-                                    fill="#DA623C"
-                                    textAnchor="middle">I</text>
-                                <text x="336" y="380"
-                                    fontFamily="Nunito, sans-serif"
-                                    fontSize="160"
-                                    fontWeight="600"
-                                    fill="#DA623C"
-                                    textAnchor="middle">A</text>
-                            </svg>
-                        </Link>
-                    </div>
-                    <nav className="flex items-center justify-center gap-1 sm:gap-2">
-                        {navItems.map((item) => {
-                             return (
-                                <Button key={item.name} asChild variant="outline" className="btn-neu-light rounded-lg">
-                                    <Link href={item.href!}>
-                                        <item.icon className="h-4 w-4 md:mr-2" />
-                                        <span className="hidden md:inline">{item.name}</span>
-                                    </Link>
-                                </Button>
-                             )
-                        })}
+            <TooltipProvider delayDuration={100}>
+                <header className="bg-slate-50/60 backdrop-blur-lg sticky top-4 z-50 w-fit mx-auto rounded-full border border-slate-200/50 shadow-lg p-2">
+                    <nav className="flex items-center justify-center gap-2">
+                        {navActions.map((action) => {
+                             const commonProps = {
+                                variant: "outline" as const,
+                                size: "icon" as const,
+                                className: "btn-neu-light rounded-full h-12 w-12",
+                                "aria-label": action.name
+                            };
 
-                        <Button variant="outline" onClick={() => setIsSettingsModalOpen(true)} className="btn-neu-light rounded-lg">
-                            <Settings className="h-4 w-4 md:mr-2" />
-                            <span className="hidden md:inline">{t('sidebar.settings')}</span>
-                        </Button>
-                        
-                        <Button variant="outline" className="btn-neu-light rounded-lg" asChild>
-                          <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer">
-                            <Globe className="h-4 w-4 md:mr-2" />
-                            <span className="hidden md:inline">{t('sidebar.plusBI')}</span>
-                          </a>
-                        </Button>
+                            return (
+                                <Tooltip key={action.name}>
+                                    <TooltipTrigger asChild>
+                                        {action.isLink ? (
+                                            <Button {...commonProps} asChild>
+                                                <Link href={action.href!} target={action.isExternal ? '_blank' : undefined} rel={action.isExternal ? 'noopener noreferrer' : undefined}>
+                                                    <action.icon className="h-6 w-6" />
+                                                </Link>
+                                            </Button>
+                                        ) : (
+                                            <Button {...commonProps} onClick={action.onClick}>
+                                                <action.icon className="h-6 w-6" />
+                                            </Button>
+                                        )}
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{action.name}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )
+                        })}
                     </nav>
-                    <div className="flex justify-end">
-                      {/* Spacer */}
-                    </div>
-                </div>
-            </header>
+                </header>
+            </TooltipProvider>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
         </>
     );
