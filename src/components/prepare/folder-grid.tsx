@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -58,22 +57,23 @@ const FileItem: React.FC<{
 }> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [countdown, setCountdown] = useState(15); // Estimated time in seconds
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
-    if (file.status === 'processing') {
-        const startTime = Date.now();
-        setElapsedTime(0);
-        interval = setInterval(() => {
-            setElapsedTime((Date.now() - startTime) / 1000);
-        }, 100);
-    }
-    return () => {
-        if (interval) {
+    if (file.status === 'processing' || file.status === 'uploading') {
+      setCountdown(15); // Reset countdown on new processing
+      const interval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
             clearInterval(interval);
-        }
-    };
+            return 0; // Hold at 0 if it takes longer
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
   }, [file.status]);
 
   if (file.status === 'uploading' || file.status === 'processing') {
@@ -86,7 +86,7 @@ const FileItem: React.FC<{
             <p className="text-xs text-muted-foreground">
               {file.status === 'uploading'
                 ? t('preparePage.uploadingStatus')
-                : `${t('preparePage.processingStatus')} (${elapsedTime.toFixed(1)}s)`}
+                : `${t('preparePage.processingStatus')}... ${countdown > 0 ? `~${countdown}s restantes` : ''}`}
             </p>
           </div>
         </div>

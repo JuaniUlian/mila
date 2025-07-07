@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -38,22 +37,23 @@ interface RegulationItemProps {
 const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
     const { language } = useLanguage();
     const t = useTranslations(language);
-    const [elapsedTime, setElapsedTime] = useState(0);
+    const [countdown, setCountdown] = useState(15); // Estimated time in seconds
 
     useEffect(() => {
-        let interval: NodeJS.Timeout | undefined;
         if (regulation.status === 'processing') {
-            const startTime = Date.now();
-            setElapsedTime(0);
-            interval = setInterval(() => {
-                setElapsedTime((Date.now() - startTime) / 1000);
-            }, 100);
+            setCountdown(15); // Reset countdown
+            const interval = setInterval(() => {
+                setCountdown(prev => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        return 0; // Hold at 0
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
         }
-        return () => {
-            if (interval) {
-                clearInterval(interval);
-            }
-        };
     }, [regulation.status]);
 
     if (regulation.status === 'processing') {
@@ -62,7 +62,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
                 <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
                 <div className="flex-1">
                     <p className="font-medium text-foreground">{regulation.name}</p>
-                    <p className="text-sm text-muted-foreground">{t('preparePage.processingStatus')} ({elapsedTime.toFixed(1)}s)</p>
+                    <p className="text-sm text-muted-foreground">{t('preparePage.processingStatus')}... {countdown > 0 ? `~${countdown}s restantes` : ''}</p>
                 </div>
             </div>
         );
