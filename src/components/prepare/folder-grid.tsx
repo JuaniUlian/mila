@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -23,6 +24,7 @@ interface File {
     status?: 'uploading' | 'processing' | 'error' | 'success';
     error?: string;
     processingTime?: number;
+    estimatedTime?: number;
 }
 
 interface FolderData {
@@ -57,11 +59,11 @@ const FileItem: React.FC<{
 }> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const [countdown, setCountdown] = useState(15); // Estimated time in seconds
+  const [countdown, setCountdown] = useState(file.estimatedTime ? Math.round(file.estimatedTime) : 0);
 
   useEffect(() => {
-    if (file.status === 'processing' || file.status === 'uploading') {
-      setCountdown(15); // Reset countdown on new processing
+    if (file.status === 'processing' && file.estimatedTime) {
+      setCountdown(Math.round(file.estimatedTime));
       const interval = setInterval(() => {
         setCountdown(prev => {
           if (prev <= 1) {
@@ -74,7 +76,7 @@ const FileItem: React.FC<{
 
       return () => clearInterval(interval);
     }
-  }, [file.status]);
+  }, [file.status, file.estimatedTime]);
 
   if (file.status === 'uploading' || file.status === 'processing') {
     return (

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -23,6 +24,7 @@ interface Regulation {
     status?: 'processing' | 'error' | 'success';
     error?: string;
     processingTime?: number;
+    estimatedTime?: number;
 }
 
 interface RegulationItemProps {
@@ -37,11 +39,11 @@ interface RegulationItemProps {
 const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
     const { language } = useLanguage();
     const t = useTranslations(language);
-    const [countdown, setCountdown] = useState(15); // Estimated time in seconds
+    const [countdown, setCountdown] = useState(regulation.estimatedTime ? Math.round(regulation.estimatedTime) : 0);
 
     useEffect(() => {
-        if (regulation.status === 'processing') {
-            setCountdown(15); // Reset countdown
+        if (regulation.status === 'processing' && regulation.estimatedTime) {
+            setCountdown(Math.round(regulation.estimatedTime));
             const interval = setInterval(() => {
                 setCountdown(prev => {
                     if (prev <= 1) {
@@ -54,7 +56,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
 
             return () => clearInterval(interval);
         }
-    }, [regulation.status]);
+    }, [regulation.status, regulation.estimatedTime]);
 
     if (regulation.status === 'processing') {
         return (

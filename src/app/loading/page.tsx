@@ -8,6 +8,7 @@ import { useTranslations } from '@/lib/translations';
 import { validateDocument, type ValidateDocumentOutput } from '@/ai/flows/validate-document';
 import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionSeverity, SuggestionCategory } from '@/components/mila/types';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 // Helper function to map AI output to the data structure needed by the analysis page
 function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string, docContent: string): MilaAppPData {
@@ -77,6 +78,9 @@ export default function LoadingPage() {
   const { toast } = useToast();
   
   const [statusText, setStatusText] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [estimatedTime, setEstimatedTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const loadingTexts = useMemo(() => ({
     status1: t('loadingPage.status1'),
@@ -85,14 +89,34 @@ export default function LoadingPage() {
     status4: t('loadingPage.status4'),
     status5: t('loadingPage.status5'),
   }), [t]);
+  
+  // Timer effect for progress bar
+  useEffect(() => {
+    if (estimatedTime > 0 && progress < 100) {
+      const interval = setInterval(() => {
+        setElapsedTime(prev => {
+          const next = prev + 1;
+          // Cap progress at 99% until the promise resolves
+          const currentProgress = Math.min(99, (next / estimatedTime) * 100);
+          setProgress(currentProgress);
+
+          if (next >= estimatedTime) {
+            clearInterval(interval);
+            return estimatedTime;
+          }
+          return next;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [estimatedTime, progress]);
+
 
   useEffect(() => {
     document.title = 'MILA | Procesando...';
     
     const processDocument = async () => {
       try {
-        setStatusText(loadingTexts.status1);
-
         const documentName = localStorage.getItem('selectedDocumentName');
         const documentContent = localStorage.getItem('selectedDocumentContent');
         const regulationsRaw = localStorage.getItem('selectedRegulations');
@@ -106,11 +130,21 @@ export default function LoadingPage() {
           router.push('/prepare');
           return;
         }
-        
-        setStatusText(loadingTexts.status2);
-        const regulations = JSON.parse(regulationsRaw);
 
+        const regulations = JSON.parse(regulationsRaw);
+        
+        // Calculate estimation
+        const totalChars = (documentContent || '').length + regulations.reduce((acc: number, reg: { content: string }) => acc + (reg.content || '').length, 0);
+        // Base 10s, +5s per 100k chars. At least 10s.
+        const time = Math.max(10, 10 + Math.floor(totalChars / 100000) * 5); 
+        setEstimatedTime(time);
+
+        setStatusText(loadingTexts.status1);
+        await new Promise(res => setTimeout(res, 200)); // Short delay for text to show
+        setStatusText(loadingTexts.status2);
+        await new Promise(res => setTimeout(res, 200));
         setStatusText(loadingTexts.status3);
+
         const aiResult = await validateDocument({
           documentName,
           documentContent,
@@ -121,6 +155,7 @@ export default function LoadingPage() {
         const generatedData = mapAiOutputToAppData(aiResult, documentName, documentContent);
         localStorage.setItem('milaAnalysisData', JSON.stringify(generatedData));
 
+        setProgress(100);
         setStatusText(loadingTexts.status5);
         setTimeout(() => {
             router.push('/analysis');
@@ -141,9 +176,11 @@ export default function LoadingPage() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, t, toast, loadingTexts]);
+  
+  const remainingTime = Math.max(0, Math.round(estimatedTime - elapsedTime));
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1">
+    <div className="flex flex-col items-center justify-center flex-1 p-4">
       <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 mb-6">
         <g fill="currentColor">
           <circle cx="12" cy="3" r="1">
@@ -186,7 +223,19 @@ export default function LoadingPage() {
         </g>
       </svg>
       <h1 className="text-2xl font-semibold mb-2 text-gray-800">{t('loadingPage.title')}</h1>
-      <p className="text-lg text-gray-600">{statusText}</p>
+      <p className="text-lg text-gray-600 mb-6">{statusText}</p>
+
+      <div className="w-full max-w-md">
+        <Progress value={progress} className="w-full h-2 mb-2" />
+        <div className="flex justify-between text-sm text-gray-500">
+            <span>{Math.round(progress)}% {t('loadingPage.completed')}</span>
+            {progress < 100 && (
+                <span>
+                    {t('loadingPage.estimatedTimePrefix')} {remainingTime > 1 ? t('loadingPage.secondsRemaining').replace('{count}', remainingTime.toString()) : t('loadingPage.secondRemaining')}
+                </span>
+            )}
+        </div>
+      </div>
     </div>
   );
 }

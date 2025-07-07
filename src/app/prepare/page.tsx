@@ -42,6 +42,7 @@ type File = {
   error?: string;
   startTime?: number;
   processingTime?: number;
+  estimatedTime?: number;
 };
 
 type Regulation = {
@@ -52,6 +53,7 @@ type Regulation = {
     error?: string;
     startTime?: number;
     processingTime?: number;
+    estimatedTime?: number;
 };
 
 // Mock Data
@@ -84,6 +86,20 @@ const initialRegulations: Regulation[] = [
 const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
 const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
 
+const estimateProcessingTime = (file: globalThis.File): number => {
+    const sizeInMB = file.size / (1024 * 1024);
+    const baseTime = 2; // seconds
+
+    if (file.name.endsWith('.pdf')) {
+        // PDFs are slower due to OCR
+        return baseTime + sizeInMB * 15; // 15 seconds per MB
+    }
+    if (file.name.endsWith('.docx')) {
+        return baseTime + sizeInMB * 5; // 5 seconds per MB
+    }
+    // Text files
+    return baseTime + sizeInMB * 2; // 2 seconds per MB
+};
 
 export default function PreparePage() {
   const router = useRouter();
@@ -229,12 +245,14 @@ export default function PreparePage() {
 
   const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
+    const estimatedTime = estimateProcessingTime(rawFile);
     const filePlaceholder: File = {
       id: tempId,
       name: rawFile.name,
       content: '',
       status: 'uploading',
       startTime: Date.now(),
+      estimatedTime,
     };
 
     setFolders(prevFolders =>
@@ -352,12 +370,14 @@ export default function PreparePage() {
   
   const handleRegulationUpload = async (rawFile: globalThis.File) => {
     const tempId = `reg-${Date.now()}`;
+    const estimatedTime = estimateProcessingTime(rawFile);
     const regulationPlaceholder: Regulation = {
         id: tempId,
         name: rawFile.name,
         content: '',
         status: 'processing',
         startTime: Date.now(),
+        estimatedTime,
     };
 
     setRegulations(prev => [...prev, regulationPlaceholder]);
