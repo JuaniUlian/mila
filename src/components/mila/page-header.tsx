@@ -45,7 +45,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
 
     return (
         <header className="w-full transition-all duration-300">
-            <Card className="bg-transparent border-none shadow-none">
+            <Card className="glass rounded-2xl">
                 <div className="p-4 md:p-6 w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     {/* Title */}
                     <div className="flex-1">
