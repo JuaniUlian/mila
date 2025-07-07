@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { SettingsDialog } from './settings-dialog';
-import { LanguageSwitcher } from './language-switcher';
 
 export function MainHeader() {
     const pathname = usePathname();
@@ -85,8 +84,6 @@ export function MainHeader() {
                             <Settings className="h-4 w-4 md:mr-2" />
                             <span className="hidden md:inline">{t('sidebar.settings')}</span>
                         </Button>
-
-                        <LanguageSwitcher variant="light" />
                         
                         <Button variant="ghost" className="rounded-lg" asChild>
                           <a href="https://pluscompol.com" target="_blank" rel="noopener noreferrer">
