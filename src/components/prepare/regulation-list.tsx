@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, AlertTriangle, MoreVertical, PenLine, Trash2 } from 'lucide-react';
@@ -25,6 +25,133 @@ interface Regulation {
     error?: string;
     processingTime?: number;
 }
+
+interface RegulationItemProps {
+    regulation: Regulation;
+    isSelected: boolean;
+    onToggleSelection: () => void;
+    onRename: (regulation: Regulation) => void;
+    onDelete: (regulation: Regulation) => void;
+    onDismissError: (regulationId: string) => void;
+}
+
+const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
+    const { language } = useLanguage();
+    const t = useTranslations(language);
+    const [elapsedTime, setElapsedTime] = useState(0);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout | undefined;
+        if (regulation.status === 'processing') {
+            const startTime = Date.now();
+            setElapsedTime(0);
+            interval = setInterval(() => {
+                setElapsedTime((Date.now() - startTime) / 1000);
+            }, 100);
+        }
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
+    }, [regulation.status]);
+
+    if (regulation.status === 'processing') {
+        return (
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm p-4 flex items-center gap-4">
+                <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
+                <div className="flex-1">
+                    <p className="font-medium text-foreground">{regulation.name}</p>
+                    <p className="text-sm text-muted-foreground">{t('preparePage.processingStatus')} ({elapsedTime.toFixed(1)}s)</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (regulation.status === 'error') {
+        return (
+            <div className="bg-destructive/10 rounded-xl border border-destructive/20 shadow-sm p-4 flex items-center gap-4">
+                <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
+                <div className="flex-1">
+                    <p className="font-medium text-destructive">{regulation.name}</p>
+                    <p className="text-sm text-destructive/80">{regulation.error}</p>
+                    {regulation.processingTime && (
+                        <p className="text-xs text-destructive/80">
+                            {t('preparePage.processedIn').replace('{time}', regulation.processingTime.toString())}
+                        </p>
+                    )}
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => onDismissError(regulation.id)} className="text-xs h-auto p-1 mt-1 text-destructive hover:bg-destructive/20">
+                    {t('preparePage.dismissError')}
+                </Button>
+            </div>
+        );
+    }
+    
+    return (
+        <div
+          className={cn(
+              "group/regitem bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
+              isSelected && "bg-primary/10 border-primary/40",
+              regulation.status === 'success' && "cursor-pointer"
+          )}
+          onClick={onToggleSelection}
+        >
+            <div className="flex items-center justify-between gap-4 w-full p-4">
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <Checkbox
+                        id={`checkbox-${regulation.id}`}
+                        checked={isSelected}
+                        className="h-5 w-5 rounded data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none"
+                        disabled={regulation.status !== 'success'}
+                        tabIndex={-1}
+                    />
+                    <div className="flex-1 min-w-0">
+                        <p className={cn("font-medium text-left text-foreground text-base truncate")} title={regulation.name}>
+                            {regulation.name}
+                        </p>
+                        {regulation.processingTime && (
+                            <p className="text-xs text-muted-foreground">
+                                {t('preparePage.processedIn').replace('{time}', regulation.processingTime.toString())}
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {regulation.status === 'success' && (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 rounded-full flex-shrink-0 opacity-0 group-hover/regitem:opacity-100 focus:opacity-100 transition-opacity"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">{t('preparePage.regulationOptions')}</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
+                            <DropdownMenuItem onSelect={() => onRename(regulation)}>
+                                <PenLine className="mr-2 h-4 w-4" />
+                                <span>{t('preparePage.rename')}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onSelect={() => onDelete(regulation)}
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>{t('preparePage.delete')}</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+            </div>
+        </div>
+    );
+};
+
 
 interface RegulationListProps {
     regulations: Regulation[];
@@ -62,103 +189,17 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                 </FileUploadButton>
             </div>
             <div className="w-full space-y-3">
-                {regulations.map(regulation => {
-                    if (regulation.status === 'processing') {
-                        return (
-                            <div key={regulation.id} className="bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm p-4 flex items-center gap-4">
-                                <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
-                                <div className="flex-1">
-                                    <p className="font-medium text-foreground">{regulation.name}</p>
-                                    <p className="text-sm text-muted-foreground">{t('preparePage.processingStatus')}</p>
-                                </div>
-                            </div>
-                        )
-                    }
-
-                    if (regulation.status === 'error') {
-                        return (
-                            <div key={regulation.id} className="bg-destructive/10 rounded-xl border border-destructive/20 shadow-sm p-4 flex items-center gap-4">
-                                <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
-                                <div className="flex-1">
-                                    <p className="font-medium text-destructive">{regulation.name}</p>
-                                    <p className="text-sm text-destructive/80">{regulation.error}</p>
-                                     {regulation.processingTime && (
-                                        <p className="text-xs text-destructive/80">
-                                            {t('preparePage.processedIn').replace('{time}', regulation.processingTime.toString())}
-                                        </p>
-                                    )}
-                                </div>
-                                <Button variant="ghost" size="sm" onClick={() => onDismissError(regulation.id)} className="text-xs h-auto p-1 mt-1 text-destructive hover:bg-destructive/20">
-                                    {t('preparePage.dismissError')}
-                                </Button>
-                            </div>
-                        )
-                    }
-
-                    return (
-                        <div
-                          key={regulation.id}
-                          className={cn(
-                              "group/regitem bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
-                              selectedIds.includes(regulation.id) && "bg-primary/10 border-primary/40",
-                              regulation.status === 'success' && "cursor-pointer"
-                          )}
-                          onClick={() => handleToggleSelection(regulation)}
-                        >
-                            <div className="flex items-center justify-between gap-4 w-full p-4">
-                                <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    <Checkbox
-                                        id={`checkbox-${regulation.id}`}
-                                        checked={selectedIds.includes(regulation.id)}
-                                        className="h-5 w-5 rounded data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none"
-                                        disabled={regulation.status !== 'success'}
-                                        tabIndex={-1}
-                                    />
-                                    <div className="flex-1 min-w-0">
-                                        <p className={cn("font-medium text-left text-foreground text-base truncate")} title={regulation.name}>
-                                            {regulation.name}
-                                        </p>
-                                        {regulation.processingTime && (
-                                            <p className="text-xs text-muted-foreground">
-                                                {t('preparePage.processedIn').replace('{time}', regulation.processingTime.toString())}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {regulation.status === 'success' && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-7 w-7 rounded-full flex-shrink-0 opacity-0 group-hover/regitem:opacity-100 focus:opacity-100 transition-opacity"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <MoreVertical className="h-4 w-4" />
-                                                <span className="sr-only">{t('preparePage.regulationOptions')}</span>
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
-                                            <DropdownMenuItem onSelect={() => onRename(regulation)}>
-                                                <PenLine className="mr-2 h-4 w-4" />
-                                                <span>{t('preparePage.rename')}</span>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem
-                                                onSelect={() => onDelete(regulation)}
-                                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                            >
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                <span>{t('preparePage.delete')}</span>
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                {regulations.map(regulation => (
+                   <RegulationItem 
+                    key={regulation.id}
+                    regulation={regulation}
+                    isSelected={selectedIds.includes(regulation.id)}
+                    onToggleSelection={() => handleToggleSelection(regulation)}
+                    onRename={onRename}
+                    onDelete={onDelete}
+                    onDismissError={onDismissError}
+                   />
+                ))}
             </div>
         </div>
     );

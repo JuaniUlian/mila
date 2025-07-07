@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -58,6 +58,23 @@ const FileItem: React.FC<{
 }> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (file.status === 'processing') {
+        const startTime = Date.now();
+        setElapsedTime(0);
+        interval = setInterval(() => {
+            setElapsedTime((Date.now() - startTime) / 1000);
+        }, 100);
+    }
+    return () => {
+        if (interval) {
+            clearInterval(interval);
+        }
+    };
+  }, [file.status]);
 
   if (file.status === 'uploading' || file.status === 'processing') {
     return (
@@ -69,7 +86,7 @@ const FileItem: React.FC<{
             <p className="text-xs text-muted-foreground">
               {file.status === 'uploading'
                 ? t('preparePage.uploadingStatus')
-                : t('preparePage.processingStatus')}
+                : `${t('preparePage.processingStatus')} (${elapsedTime.toFixed(1)}s)`}
             </p>
           </div>
         </div>
