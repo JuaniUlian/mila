@@ -78,12 +78,15 @@ const prompt = ai.definePrompt({
 **Tu Tarea:**
 Tu tarea es cruzar el contenido del **Documento Administrativo** contra los **Documentos Normativos**, identificando hallazgos. Para cada hallazgo, debes crear un bloque de información estructurado.
 
-**Regla CRÍTICA para la "evidencia":**
-El campo "evidencia" DEBE ser una cita textual **EXCLUSIVAMENTE del Documento Administrativo ({{{documentName}}})**. NUNCA debe contener texto de los Documentos Normativos. Este es el error a corregir.
+**Regla FUNDAMENTAL: Origen de la Información**
+Es VITAL que distingas el origen de cada texto que utilizas:
+- **La "evidencia" SIEMPRE, SIN EXCEPCIÓN, debe ser una cita textual del "Documento Administrativo a Analizar" ({{{documentName}}}).** Es el texto que CONTIENE el error.
+- **La "justificacion_legal" es el ÚNICO lugar donde puedes citar o parafrasear el contenido de los "Documentos Normativos de Referencia".** Es el texto que EXPLICA el error.
+- **NUNCA, BAJO NINGUNA CIRCUNSTANCIA, pongas texto de una norma en el campo "evidencia".**
 
 **Instrucciones para cada hallazgo:**
 1.  **titulo_incidencia**: Crea un título breve y claro que describa el problema (ej: "Falta de claridad en las bases", "Criterios de evaluación subjetivos").
-2.  **evidencia**: **Cita textual y literal del Documento Administrativo ({{{documentName}}}) que contiene la inconsistencia.** Si el error abarca varios párrafos, inclúyelos todos. **NO cites la normativa aquí.**
+2.  **evidencia**: **CITA TEXTUAL Y LITERAL del Documento Administrativo ({{{documentName}}}) que contiene la inconsistencia.** Si el error abarca varios párrafos, inclúyelos todos. **NO cites la normativa aquí.**
 3.  **propuesta_procedimiento**: Si la solución requiere una acción (ej: 'agregar requisitos', 'emitir un dictamen'), descríbela aquí. Si el problema es solo de redacción, omite este campo.
 4.  **propuesta_redaccion**: Si la solución es un cambio de texto directo, provee la nueva redacción aquí. Si la solución es solo de procedimiento, omite este campo. Si se requieren ambas, incluye ambos campos.
 5.  **justificacion_legal**: Explica por qué el hallazgo vulnera la normativa, citando el artículo y el principio afectado. **Aquí sí puedes hacer referencia al contenido de los Documentos Normativos.**
