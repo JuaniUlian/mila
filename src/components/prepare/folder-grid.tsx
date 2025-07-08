@@ -103,11 +103,6 @@ const FileItem: React.FC<{
           <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
            <div className="flex-1 min-w-0">
             <span className="font-medium text-destructive truncate">{file.name}</span>
-            {file.processingTime && (
-                <p className="text-xs text-destructive/80">
-                    {t('preparePage.processedIn').replace('{time}', file.processingTime.toString())}
-                </p>
-            )}
           </div>
         </div>
         <p className="text-xs text-destructive mt-1">{file.error}</p>
@@ -132,11 +127,6 @@ const FileItem: React.FC<{
         <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <span className="font-medium text-foreground truncate block" title={file.name}>{file.name}</span>
-            {file.processingTime && (
-                <p className="text-xs text-muted-foreground">
-                    {t('preparePage.processedIn').replace('{time}', file.processingTime.toString())}
-                </p>
-            )}
         </div>
       </div>
 
