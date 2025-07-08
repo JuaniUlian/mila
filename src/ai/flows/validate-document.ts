@@ -55,16 +55,18 @@ const prompt = ai.definePrompt({
     name: 'validateDocumentPrompt',
     input: { schema: ValidateDocumentInputSchema },
     output: { schema: ValidateDocumentOutputSchema },
-    prompt: `Eres un asistente legal-administrativo experto para validar documentos públicos y administrativos en base a leyes vigentes, decretos, reglamentos, manuales de buenas prácticas y criterios técnicos de organismos de control. El usuario adjunta dos tipos de documentos:
+    prompt: `Eres un asistente legal-administrativo experto. Tu misión es analizar un **Documento Administrativo** usando un conjunto de **Documentos Normativos** como referencia.
 
-1.  Un documento administrativo para analizar:
+**Documentos Proporcionados:**
+
+1.  **El Documento Administrativo a Analizar:** Este es el documento principal que debes revisar en busca de errores o inconsistencias.
     - Nombre: {{{documentName}}}
     - Contenido:
     \`\`\`
     {{{documentContent}}}
     \`\`\`
 
-2.  Una lista de documentos normativos para usar como referencia:
+2.  **Los Documentos Normativos de Referencia:** Usa estos documentos para fundamentar tus hallazgos.
     {{#each regulations}}
     - Nombre Norma: {{this.name}}
     - Contenido Norma:
@@ -73,17 +75,21 @@ const prompt = ai.definePrompt({
     \`\`\`
     {{/each}}
 
-Tu tarea es cruzar el contenido del documento administrativo contra las normas provistas, identificando hallazgos. Para cada hallazgo, debes crear un bloque de información estructurado.
+**Tu Tarea:**
+Tu tarea es cruzar el contenido del **Documento Administrativo** contra los **Documentos Normativos**, identificando hallazgos. Para cada hallazgo, debes crear un bloque de información estructurado.
+
+**Regla CRÍTICA para la "evidencia":**
+El campo "evidencia" DEBE ser una cita textual **EXCLUSIVAMENTE del Documento Administrativo ({{{documentName}}})**. NUNCA debe contener texto de los Documentos Normativos. Este es el error a corregir.
 
 **Instrucciones para cada hallazgo:**
 1.  **titulo_incidencia**: Crea un título breve y claro que describa el problema (ej: "Falta de claridad en las bases", "Criterios de evaluación subjetivos").
-2.  **evidencia**: Extrae el fragmento literal del documento revisado donde se detecta la inconsistencia.
+2.  **evidencia**: **Cita textual y literal del Documento Administrativo ({{{documentName}}}) que contiene la inconsistencia.** Si el error abarca varios párrafos, inclúyelos todos. **NO cites la normativa aquí.**
 3.  **propuesta_procedimiento**: Si la solución requiere una acción (ej: 'agregar requisitos', 'emitir un dictamen'), descríbela aquí. Si el problema es solo de redacción, omite este campo.
 4.  **propuesta_redaccion**: Si la solución es un cambio de texto directo, provee la nueva redacción aquí. Si la solución es solo de procedimiento, omite este campo. Si se requieren ambas, incluye ambos campos.
-5.  **justificacion_legal**: Explica por qué el hallazgo vulnera la normativa, citando el artículo y el principio afectado.
-6.  **justificacion_tecnica**: Indica los elementos objetivos que sustentan el hallazgo.
+5.  **justificacion_legal**: Explica por qué el hallazgo vulnera la normativa, citando el artículo y el principio afectado. **Aquí sí puedes hacer referencia al contenido de los Documentos Normativos.**
+6.  **justificacion_tecnica**: Indica los elementos objetivos que sustentan el hallazgo, haciendo referencia al propio Documento Administrativo o a prácticas aceptadas.
 7.  **consecuencia_estimada**: Detalla los riesgos si no se corrige el hallazgo.
-8.  **Si un texto viola múltiples normativas, crea un hallazgo separado para cada una.**
+8.  **Si un texto del Documento Administrativo viola múltiples normativas, crea un hallazgo separado para cada una.**
 
 **Instrucciones generales:**
 - Sé crítico.
