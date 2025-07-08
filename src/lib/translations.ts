@@ -187,7 +187,7 @@ export const translations = {
     // IncidentItem
     improvedProposal: t('Propuesta Mejorada', 'Improved Proposal'),
     draftingProposal: t('Propuesta de Redacción', 'Drafting Proposal'),
-    solutionProposal: t('Propuesta de Solución', 'Solution Proposal'),
+    solutionProposal: t('Propuesta de Solución (Procedimiento)', 'Solution Proposal (Procedure)'),
     legalJustification: t('Justificación Legal', 'Legal Justification'),
     technicalJustification: t('Justificación Técnica', 'Technical Justification'),
     estimatedConsequence: t('Consecuencia Estimada', 'Estimated Consequence'),
@@ -198,6 +198,7 @@ export const translations = {
     validate: t('Validar y Mejorar', 'Validate and Improve'),
     cancel: t('Cancelar', 'Cancel'),
     citedRegulation: t('Normativa Citada', 'Cited Regulation'),
+    markAsHandled: t('Marcar como atendido', 'Mark as Handled'),
     // RisksPanel
     partialResults: t('Resultados Parciales', 'Partial Results'),
     realTimeSummary: t('Resumen del análisis en tiempo real.', 'Real-time analysis summary.'),

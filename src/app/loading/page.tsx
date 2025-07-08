@@ -31,20 +31,21 @@ function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string,
     // For now, create a single block for the whole document
     const suggestions: Suggestion[] = findings.map((finding, index): Suggestion => ({
         id: `sug-ai-${index}`,
-        text: finding.propuesta_solucion,
+        text: finding.propuesta_redaccion,
+        proceduralSuggestion: finding.propuesta_procedimiento,
         evidence: finding.evidencia,
         justification: {
             legal: finding.justificacion_legal,
-            technical: `Evidencia encontrada en página ${finding.pagina}.`, // Using technical for this field
+            technical: finding.justificacion_tecnica,
         },
         appliedNorm: `${finding.nombre_archivo_normativa} - ${finding.articulo_o_seccion}`,
-        errorType: finding.categoria,
+        errorType: finding.titulo_incidencia,
         estimatedConsequence: finding.consecuencia_estimada,
         status: 'pending',
         completenessImpact: severityMap[finding.gravedad] === 'high' ? 2 : (severityMap[finding.gravedad] === 'medium' ? 1 : 0.5),
         severity: severityMap[finding.gravedad] || 'low',
         category: categoryMap[finding.tipo] || 'Redacción',
-        isEditable: finding.es_editable,
+        isEditable: !!finding.propuesta_redaccion,
     }));
 
     const mainBlock: DocumentBlock = {

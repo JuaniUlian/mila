@@ -25,7 +25,7 @@ export function CorrectedDocPreview({ data }: CorrectedDocPreviewProps) {
   
   const appliedSuggestions = data.blocks.flatMap(block => 
     block.suggestions
-      .filter(suggestion => suggestion.status === 'applied')
+      .filter(suggestion => suggestion.status === 'applied' && suggestion.text)
       .map(suggestion => ({
         ...suggestion,
         blockName: block.name,
@@ -91,10 +91,12 @@ export function CorrectedDocPreview({ data }: CorrectedDocPreviewProps) {
                       <h4 className="font-semibold text-red-700 mb-2">{t('correctedDocPreviewPage.originalText')}</h4>
                       <p className="text-sm text-gray-800 p-3 bg-red-50 border-l-4 border-red-200 rounded font-mono">{suggestion.evidence}</p>
                   </div>
-                  <div>
-                      <h4 className="font-semibold text-green-700 mb-2">{t('correctedDocPreviewPage.correctedText')}</h4>
-                      <p className="text-sm text-gray-800 p-3 bg-green-50 border-l-4 border-green-300 rounded">{suggestion.text}</p>
-                  </div>
+                  {suggestion.text && (
+                    <div>
+                        <h4 className="font-semibold text-green-700 mb-2">{t('correctedDocPreviewPage.correctedText')}</h4>
+                        <p className="text-sm text-gray-800 p-3 bg-green-50 border-l-4 border-green-300 rounded">{suggestion.text}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )) : (

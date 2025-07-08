@@ -5,20 +5,21 @@ export type SuggestionCategory = 'Legal' | 'Administrativa' | 'Redacción';
 
 export interface Suggestion {
   id: string;
-  text: string;
+  text?: string; // Wording suggestion
+  proceduralSuggestion?: string;
   evidence: string;
   justification: {
     legal: string; 
     technical: string; 
   };
   appliedNorm: string; 
-  errorType: string; 
+  errorType: string; // The title of the incident
   estimatedConsequence: string; 
   status: 'pending' | 'applied' | 'discarded';
   completenessImpact: number; // How much applying this suggestion contributes to completeness
   severity: SuggestionSeverity;
   category: SuggestionCategory;
-  isEditable: boolean;
+  isEditable: boolean; // True if `text` (wording suggestion) exists
 }
 
 export interface DocumentBlock {

@@ -28,15 +28,16 @@ const FindingSchema = z.object({
     nombre_archivo_normativa: z.string().describe("Nombre del archivo de norma o manual usado como referencia para este hallazgo."),
     nombre_archivo_documento: z.string().describe("Nombre del archivo del documento que se está analizando."),
     tipo: z.enum(["Irregularidad", "Fortaleza", "Oportunidad", "Sin hallazgos relevantes"]).describe("El tipo de hallazgo."),
-    categoria: z.string().describe("Una categoría descriptiva para el hallazgo, como 'Justificación insuficiente', 'Posible trato desigual', etc."),
+    titulo_incidencia: z.string().describe("Un título breve y claro que describa el problema identificado (ej: 'Falta de claridad en las bases')."),
     articulo_o_seccion: z.string().describe("Artículo o sección específica de la normativa que se aplicó."),
     pagina: z.string().describe("Número de página del documento analizado donde se encuentra la evidencia del hallazgo."),
     gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
-    evidencia: z.string().describe("Cita textual exacta o síntesis objetiva del documento analizado que respalda el hallazgo."),
-    propuesta_solucion: z.string().describe("Propuesta de redacción o solución para corregir la irregularidad o capitalizar la oportunidad/fortaleza. Debe ser un texto concreto y aplicable."),
-    es_editable: z.boolean().describe("Indica si la 'propuesta_solucion' es una sugerencia de redacción directa que el usuario puede editar. Será 'false' para instrucciones procedurales (ej. 'declarar desierto') y 'true' para propuestas de texto."),
-    justificacion_legal: z.string().describe("Explicación de por qué el hallazgo es relevante desde una perspectiva legal, citando los principios o reglas vulnerados o cumplidos."),
-    consecuencia_estimada: z.string().describe("Cuál es el riesgo o consecuencia potencial si la irregularidad no se corrige, o el beneficio si la oportunidad se aprovecha.")
+    evidencia: z.string().describe("Cita textual exacta o síntesis objetiva del documento analizado que respalda el hallazgo. Deben incluirse todos los párrafos que forman parte de la evidencia."),
+    propuesta_procedimiento: z.string().optional().describe("Descripción de las acciones o ajustes de procedimiento necesarios para subsanar la inconsistencia (ej. 'agregar requisitos al pliego', 'convocar nueva licitación'). Omitir este campo si la solución es puramente una corrección de redacción."),
+    propuesta_redaccion: z.string().optional().describe("Texto alternativo redactado, listo para reemplazar el texto original. Solo debe incluirse si la corrección puede implementarse directamente en el documento. Omitir si no corresponde un cambio de redacción directo o si la solución es puramente de procedimiento."),
+    justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia, mencionando el artículo, la disposición aplicable y el principio jurídico afectado."),
+    justificacion_tecnica: z.string().describe("Elementos objetivos y técnicos que sustentan la identificación de la inconsistencia (referencias al propio documento, prácticas administrativas aceptadas, etc.)."),
+    consecuencia_estimada: z.string().describe("Consecuencias potenciales si no se corrige la inconsistencia (ej. 'nulidad del proceso', 'riesgo de impugnaciones').")
 });
 
 const ValidateDocumentOutputSchema = z.object({
@@ -72,20 +73,27 @@ const prompt = ai.definePrompt({
     \`\`\`
     {{/each}}
 
-Tu tarea es cruzar el contenido del documento administrativo contra las normas provistas, identificando hallazgos.
+Tu tarea es cruzar el contenido del documento administrativo contra las normas provistas, identificando hallazgos. Para cada hallazgo, debes crear un bloque de información estructurado.
 
-Para cada hallazgo, proporciona una propuesta de solución o redacción, una justificación legal y la consecuencia estimada.
+**Instrucciones para cada hallazgo:**
+1.  **titulo_incidencia**: Crea un título breve y claro que describa el problema (ej: "Falta de claridad en las bases", "Criterios de evaluación subjetivos").
+2.  **evidencia**: Extrae el fragmento literal del documento revisado donde se detecta la inconsistencia.
+3.  **propuesta_procedimiento**: Si la solución requiere una acción (ej: 'agregar requisitos', 'emitir un dictamen'), descríbela aquí. Si el problema es solo de redacción, omite este campo.
+4.  **propuesta_redaccion**: Si la solución es un cambio de texto directo, provee la nueva redacción aquí. Si la solución es solo de procedimiento, omite este campo. Si se requieren ambas, incluye ambos campos.
+5.  **justificacion_legal**: Explica por qué el hallazgo vulnera la normativa, citando el artículo y el principio afectado.
+6.  **justificacion_tecnica**: Indica los elementos objetivos que sustentan el hallazgo.
+7.  **consecuencia_estimada**: Detalla los riesgos si no se corrige el hallazgo.
+8.  **Si un texto viola múltiples normativas, crea un hallazgo separado para cada una.**
 
-Instrucciones adicionales:
+**Instrucciones generales:**
 - Sé crítico.
-- Si detectás coherencia positiva con alguna norma (ej. procedimiento bien detallado, fundamentación clara, uso correcto del marco legal), etiquétalo como Fortaleza u Oportunidad.
-- Utilizá "Informativa" en el campo gravedad para observaciones sin consecuencias legales o administrativas, pero que puedan ser útiles.
-- Define el campo 'es_editable' como 'true' si tu propuesta es una redacción de texto que puede ser modificada, y 'false' si es una instrucción (ej. 'incluir más propuestas', 'declarar desierto').
+- Si detectas coherencia positiva, etiquétalo como Fortaleza u Oportunidad.
+- Utiliza "Informativa" en 'gravedad' para observaciones sin consecuencias legales.
 - No inventes, no generalices y no evalúes aspectos que no puedas vincular directamente con los documentos proporcionados.
-- Evalúa el documento en su totalidad para proporcionar un "complianceScore" (Cumplimiento Normativo) y un "legalRiskScore" (Riesgo Legal), ambos como porcentajes de 0 a 100.
+- Evalúa el documento en su totalidad para proporcionar un "complianceScore" y un "legalRiskScore".
 
 Responde únicamente en formato JSON, con la estructura de salida definida. No incluyas texto, comillas o decoraciones antes o después del JSON.
-Si no encontrás ningún hallazgo relevante, responde con un array "findings" vacío y los scores correspondientes.
+Si no encuentras ningún hallazgo relevante, responde con un array "findings" vacío y los scores correspondientes.
 `,
 });
 

@@ -259,6 +259,7 @@ export default function PlanillaVivaPage() {
 
       suggestionToUpdate.text = newText;
       suggestionToUpdate.status = 'applied';
+      suggestionToUpdate.isEditable = true;
 
       blockToUpdate.suggestions = [...blockToUpdate.suggestions];
       blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
