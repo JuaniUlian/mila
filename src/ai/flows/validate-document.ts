@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to validate an administrative document against a set of normative documents.
@@ -32,10 +33,10 @@ const FindingSchema = z.object({
     articulo_o_seccion: z.string().describe("Artículo o sección específica de la normativa que se aplicó."),
     pagina: z.string().describe("Número de página del documento analizado donde se encuentra la evidencia del hallazgo."),
     gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
-    evidencia: z.string().describe("Cita textual exacta o síntesis objetiva del documento analizado que respalda el hallazgo. Deben incluirse todos los párrafos que forman parte de la evidencia."),
+    evidencia: z.string().describe("CITA TEXTUAL Y LITERAL del Documento Administrativo a Analizar. Es el texto que contiene el error. NUNCA, BAJO NINGUNA CIRCUNSTANCIA, debe contener texto de los Documentos Normativos."),
     propuesta_procedimiento: z.string().optional().describe("Descripción de las acciones o ajustes de procedimiento necesarios para subsanar la inconsistencia (ej. 'agregar requisitos al pliego', 'convocar nueva licitación'). Omitir este campo si la solución es puramente una corrección de redacción."),
     propuesta_redaccion: z.string().optional().describe("Texto alternativo redactado, listo para reemplazar el texto original. Solo debe incluirse si la corrección puede implementarse directamente en el documento. Omitir si no corresponde un cambio de redacción directo o si la solución es puramente de procedimiento."),
-    justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia, mencionando el artículo, la disposición aplicable y el principio jurídico afectado."),
+    justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia, mencionando el artículo, la disposición aplicable y el principio jurídico afectado. AQUÍ SÍ SE CITA LA NORMATIVA."),
     justificacion_tecnica: z.string().describe("Elementos objetivos y técnicos que sustentan la identificación de la inconsistencia (referencias al propio documento, prácticas administrativas aceptadas, etc.)."),
     consecuencia_estimada: z.string().describe("Consecuencias potenciales si no se corrige la inconsistencia (ej. 'nulidad del proceso', 'riesgo de impugnaciones').")
 });
@@ -59,14 +60,14 @@ const prompt = ai.definePrompt({
 
 **Documentos Proporcionados:**
 
-1.  **El Documento Administrativo a Analizar:** Este es el documento principal que debes revisar en busca de errores o inconsistencias.
+1.  **El Documento Administrativo a Analizar (LA FUENTE PARA EL CAMPO 'evidencia'):** Este es el documento principal que debes revisar en busca de errores o inconsistencias.
     - Nombre: {{{documentName}}}
     - Contenido:
     \`\`\`
     {{{documentContent}}}
     \`\`\`
 
-2.  **Los Documentos Normativos de Referencia:** Usa estos documentos para fundamentar tus hallazgos.
+2.  **Los Documentos Normativos de Referencia (LA FUENTE PARA EL CAMPO 'justificacion_legal'):** Usa estos documentos para fundamentar tus hallazgos. NO uses su contenido para el campo 'evidencia'.
     {{#each regulations}}
     - Nombre Norma: {{this.name}}
     - Contenido Norma:
@@ -75,14 +76,10 @@ const prompt = ai.definePrompt({
     \`\`\`
     {{/each}}
 
-**Tu Tarea:**
-Tu tarea es cruzar el contenido del **Documento Administrativo** contra los **Documentos Normativos**, identificando hallazgos. Para cada hallazgo, debes crear un bloque de información estructurado.
+**Tu Tarea y Regla MÁS IMPORTANTE:**
+Tu tarea es encontrar inconsistencias en el **Documento Administrativo** basándote en los **Documentos Normativos**. Para cada inconsistencia, crearás un "hallazgo".
 
-**Regla FUNDAMENTAL: Origen de la Información**
-Es VITAL que distingas el origen de cada texto que utilizas:
-- **La "evidencia" SIEMPRE, SIN EXCEPCIÓN, debe ser una cita textual del "Documento Administrativo a Analizar" ({{{documentName}}}).** Es el texto que CONTIENE el error.
-- **La "justificacion_legal" es el ÚNICO lugar donde puedes citar o parafrasear el contenido de los "Documentos Normativos de Referencia".** Es el texto que EXPLICA el error.
-- **NUNCA, BAJO NINGUNA CIRCUNSTANCIA, pongas texto de una norma en el campo "evidencia".**
+**REGLA DE ORO:** El campo \`evidencia\` de cada hallazgo DEBE ser una **CITA TEXTUAL Y EXACTA** del **"Documento Administrativo a Analizar"**. NUNCA, bajo ninguna circunstancia, copies texto de un "Documento Normativo" en el campo \`evidencia\`. El campo \`evidencia\` es el texto CON el error; el campo \`justificacion_legal\` es el texto que EXPLICA el error citando la norma.
 
 **Instrucciones para cada hallazgo:**
 1.  **titulo_incidencia**: Crea un título breve y claro que describa el problema (ej: "Falta de claridad en las bases", "Criterios de evaluación subjetivos").
@@ -101,6 +98,8 @@ Es VITAL que distingas el origen de cada texto que utilizas:
 - No inventes, no generalices y no evalúes aspectos que no puedas vincular directamente con los documentos proporcionados.
 - Evalúa el documento en su totalidad para proporcionar un "complianceScore" y un "legalRiskScore".
 
+**Verificación Final Obligatoria:** Antes de generar la respuesta, revisa cada hallazgo. Asegúrate de que el campo \`evidencia\` contiene EXCLUSIVAMENTE texto del **"Documento Administrativo a Analizar"**. Si encuentras un error, corrígelo.
+
 Responde únicamente en formato JSON, con la estructura de salida definida. No incluyas texto, comillas o decoraciones antes o después del JSON.
 Si no encuentras ningún hallazgo relevante, responde con un array "findings" vacío y los scores correspondientes.
 `,
@@ -117,3 +116,5 @@ const validateDocumentFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
