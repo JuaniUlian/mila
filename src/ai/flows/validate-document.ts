@@ -33,7 +33,7 @@ const FindingSchema = z.object({
     articulo_o_seccion: z.string().describe("Artículo o sección específica de la normativa que se aplicó."),
     pagina: z.string().describe("Número de página del documento analizado donde se encuentra la evidencia del hallazgo."),
     gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
-    evidencia: z.string().describe("CITA TEXTUAL Y LITERAL del Documento Administrativo a Analizar. Es el texto que contiene el error. NUNCA, BAJO NINGUNA CIRCUNSTANCIA, debe contener texto de los Documentos Normativos."),
+    evidencia: z.string().describe("CITA TEXTUAL Y LITERAL del DOCUMENTO_A_REVISAR que contiene el error. NUNCA, BAJO NINGUNA CIRCUNSTANCIA, debe contener texto de las NORMAS_DE_CONSULTA."),
     propuesta_procedimiento: z.string().optional().describe("Descripción de las acciones o ajustes de procedimiento necesarios para subsanar la inconsistencia (ej. 'agregar requisitos al pliego', 'convocar nueva licitación'). Omitir este campo si la solución es puramente una corrección de redacción."),
     propuesta_redaccion: z.string().optional().describe("Texto alternativo redactado, listo para reemplazar el texto original. Solo debe incluirse si la corrección puede implementarse directamente en el documento. Omitir si no corresponde un cambio de redacción directo o si la solución es puramente de procedimiento."),
     justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia, mencionando el artículo, la disposición aplicable y el principio jurídico afectado. AQUÍ SÍ SE CITA LA NORMATIVA."),
@@ -56,51 +56,46 @@ const prompt = ai.definePrompt({
     name: 'validateDocumentPrompt',
     input: { schema: ValidateDocumentInputSchema },
     output: { schema: ValidateDocumentOutputSchema },
-    prompt: `Eres un asistente legal-administrativo experto. Tu misión es analizar un **Documento Administrativo** usando un conjunto de **Documentos Normativos** como referencia.
+    prompt: `Eres un asistente legal-administrativo experto en detectar inconsistencias en documentos públicos. Tu única misión es analizar el **DOCUMENTO_A_REVISAR** y compararlo con las **NORMAS_DE_CONSULTA**.
 
-**Documentos Proporcionados:**
+**CONTEXTO ESENCIAL:**
 
-1.  **El Documento Administrativo a Analizar (LA FUENTE PARA EL CAMPO 'evidencia'):** Este es el documento principal que debes revisar en busca de errores o inconsistencias.
-    - Nombre: {{{documentName}}}
-    - Contenido:
-    \`\`\`
-    {{{documentContent}}}
-    \`\`\`
+*   **DOCUMENTO_A_REVISAR:** Es el texto que un usuario ha escrito. Puede contener errores, omisiones o contradicciones. **ES LA ÚNICA FUENTE VÁLIDA PARA EL CAMPO 'evidencia'**.
+    *   Nombre: {{{documentName}}}
+    *   Contenido:
+        \`\`\`
+        {{{documentContent}}}
+        \`\`\`
 
-2.  **Los Documentos Normativos de Referencia (LA FUENTE PARA EL CAMPO 'justificacion_legal'):** Usa estos documentos para fundamentar tus hallazgos. NO uses su contenido para el campo 'evidencia'.
+*   **NORMAS_DE_CONSULTA:** Son las leyes, decretos y manuales correctos. Se usan solo para justificar por qué algo en el DOCUMENTO_A_REVISAR está mal. **NUNCA DEBES COPIAR TEXTO DE AQUÍ PARA EL CAMPO 'evidencia'**.
     {{#each regulations}}
-    - Nombre Norma: {{this.name}}
-    - Contenido Norma:
-    \`\`\`
-    {{{this.content}}}
-    \`\`\`
+    *   Nombre Norma: {{this.name}}
+    *   Contenido Norma:
+        \`\`\`
+        {{{this.content}}}
+        \`\`\`
     {{/each}}
 
-**Tu Tarea y Regla MÁS IMPORTANTE:**
-Tu tarea es encontrar inconsistencias en el **Documento Administrativo** basándote en los **Documentos Normativos**. Para cada inconsistencia, crearás un "hallazgo".
+**REGLA FUNDAMENTAL E INQUEBRANTABLE:**
+El campo \`evidencia\` de cada hallazgo debe ser una **CITA LITERAL y EXACTA** de un fragmento del **DOCUMENTO_A_REVISAR**.
+**JAMÁS, BAJO NINGUNA CIRCUNSTANCIA**, utilices texto de las **NORMAS_DE_CONSULTA** para rellenar el campo \`evidencia\`.
+Si en un hallazgo, el campo \`evidencia\` contiene texto de una **NORMA_DE_CONSULTA**, el análisis es incorrecto y debes corregirlo antes de responder.
 
-**REGLA DE ORO:** El campo \`evidencia\` de cada hallazgo DEBE ser una **CITA TEXTUAL Y EXACTA** del **"Documento Administrativo a Analizar"**. NUNCA, bajo ninguna circunstancia, copies texto de un "Documento Normativo" en el campo \`evidencia\`. El campo \`evidencia\` es el texto CON el error; el campo \`justificacion_legal\` es el texto que EXPLICA el error citando la norma.
+**Instrucciones para generar los hallazgos:**
 
-**Instrucciones para cada hallazgo:**
-1.  **titulo_incidencia**: Crea un título breve y claro que describa el problema (ej: "Falta de claridad en las bases", "Criterios de evaluación subjetivos").
-2.  **evidencia**: **CITA TEXTUAL Y LITERAL del Documento Administrativo ({{{documentName}}}) que contiene la inconsistencia.** Si el error abarca varios párrafos, inclúyelos todos. **NO cites la normativa aquí.**
-3.  **propuesta_procedimiento**: Si la solución requiere una acción (ej: 'agregar requisitos', 'emitir un dictamen'), descríbela aquí. Si el problema es solo de redacción, omite este campo.
-4.  **propuesta_redaccion**: Si la solución es un cambio de texto directo, provee la nueva redacción aquí. Si la solución es solo de procedimiento, omite este campo. Si se requieren ambas, incluye ambos campos.
-5.  **justificacion_legal**: Explica por qué el hallazgo vulnera la normativa, citando el artículo y el principio afectado. **Aquí sí puedes hacer referencia al contenido de los Documentos Normativos.**
-6.  **justificacion_tecnica**: Indica los elementos objetivos que sustentan el hallazgo, haciendo referencia al propio Documento Administrativo o a prácticas aceptadas.
-7.  **consecuencia_estimada**: Detalla los riesgos si no se corrige el hallazgo.
-8.  **Si un texto del Documento Administrativo viola múltiples normativas, crea un hallazgo separado para cada una.**
+1.  **Encuentra una inconsistencia:** Lee el **DOCUMENTO_A_REVISAR** y encuentra una parte que contradiga o no cumpla con alguna de las **NORMAS_DE_CONSULTA**.
+2.  **Crea el hallazgo:** Para cada inconsistencia, genera un objeto con los siguientes campos:
+    *   **titulo_incidencia**: Un título breve que resuma el problema.
+    *   **evidencia**: **COPIA Y PEGA EL TEXTO EXACTO del DOCUMENTO_A_REVISAR que contiene el error.** Esta es la prueba del error.
+    *   **justificacion_legal**: Explica por qué la \`evidencia\` es un error, citando la **NORMA_DE_CONSULTA** correspondiente. Aquí sí usas el texto de la ley.
+    *   **propuesta_procedimiento**: (Opcional) Describe los pasos a seguir para arreglarlo si no es un simple cambio de texto.
+    *   **propuesta_redaccion**: (Opcional) Escribe el texto corregido para reemplazar la \`evidencia\`.
+    *   Y el resto de los campos como gravedad, tipo, etc.
 
-**Instrucciones generales:**
-- Sé crítico.
-- Si detectas coherencia positiva, etiquétalo como Fortaleza u Oportunidad.
-- Utiliza "Informativa" en 'gravedad' para observaciones sin consecuencias legales.
-- No inventes, no generalices y no evalúes aspectos que no puedas vincular directamente con los documentos proporcionados.
-- Evalúa el documento en su totalidad para proporcionar un "complianceScore" y un "legalRiskScore".
+**Verificación Final Obligatoria:**
+Antes de dar tu respuesta final en JSON, revisa CADA UNO de los hallazgos que has creado. Para cada uno, pregúntate: "¿El texto que puse en \`evidencia\` viene del DOCUMENTO_A_REVISAR?". Si la respuesta es no, tu trabajo está mal y debes arreglarlo. El campo \`evidencia\` NO PUEDE contener texto de las NORMAS_DE_CONSULTA.
 
-**Verificación Final Obligatoria:** Antes de generar la respuesta, revisa cada hallazgo. Asegúrate de que el campo \`evidencia\` contiene EXCLUSIVAMENTE texto del **"Documento Administrativo a Analizar"**. Si encuentras un error, corrígelo.
-
-Responde únicamente en formato JSON, con la estructura de salida definida. No incluyas texto, comillas o decoraciones antes o después del JSON.
+Responde únicamente en el formato JSON solicitado. No incluyas texto, comillas o decoraciones antes o después del JSON.
 Si no encuentras ningún hallazgo relevante, responde con un array "findings" vacío y los scores correspondientes.
 `,
 });
@@ -116,5 +111,3 @@ const validateDocumentFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
