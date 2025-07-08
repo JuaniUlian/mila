@@ -203,17 +203,17 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div className="flex items-center justify-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  {suggestion.isEditable && (
+                  {suggestion.text && (
                     <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                     </Button>
                   )}
-                  {suggestion.isEditable && (
+                  {suggestion.text && (
                     <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
                         <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                     </Button>
                   )}
-                  {!suggestion.isEditable && suggestion.proceduralSuggestion && (
+                  {!suggestion.text && suggestion.proceduralSuggestion && (
                     <Button size="sm" onClick={() => onUpdateStatus('applied')} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.markAsHandled')}
                     </Button>
