@@ -43,8 +43,8 @@ const FindingSchema = z.object({
 
 const ValidateDocumentOutputSchema = z.object({
     findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento."),
-    complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo general del documento (0-100)."),
-    legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal general del documento (0-100)."),
+    complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo (calculado como 100 menos las penalizaciones por la gravedad de cada hallazgo)."),
+    legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal (calculado como 100 - complianceScore)."),
 });
 export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema>;
 
@@ -91,6 +91,18 @@ Si en un hallazgo, el campo \`evidencia\` contiene texto de una **NORMA_DE_CONSU
     *   **propuesta_procedimiento**: (Opcional) Describe los pasos a seguir para arreglarlo si no es un simple cambio de texto.
     *   **propuesta_redaccion**: (Opcional) Escribe el texto corregido para reemplazar la \`evidencia\`.
     *   Y el resto de los campos como gravedad, tipo, etc.
+
+**Instrucciones para el Cálculo de Scores:**
+
+*   **complianceScore**: Calcula el puntaje de cumplimiento de la siguiente manera:
+    *   Comienza con un puntaje base de 100.
+    *   Por cada hallazgo con gravedad 'Alta', resta 25 puntos.
+    *   Por cada hallazgo con gravedad 'Media', resta 15 puntos.
+    *   Por cada hallazgo con gravedad 'Baja', resta 5 puntos.
+    *   El puntaje mínimo no puede ser inferior a 0.
+    *   Si no hay hallazgos (el array \`findings\` está vacío), el puntaje debe ser 100.
+
+*   **legalRiskScore**: Este puntaje es el inverso al de cumplimiento. Se calcula como \`100 - complianceScore\`.
 
 **Verificación Final Obligatoria:**
 Antes de dar tu respuesta final en JSON, revisa CADA UNO de los hallazgos que has creado. Para cada uno, pregúntate: "¿El texto que puse en \`evidencia\` viene del DOCUMENTO_A_REVISAR?". Si la respuesta es no, tu trabajo está mal y debes arreglarlo. El campo \`evidencia\` NO PUEDE contener texto de las NORMAS_DE_CONSULTA.
