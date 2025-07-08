@@ -34,8 +34,8 @@ const FindingSchema = z.object({
     pagina: z.string().describe("Número de página del documento analizado donde se encuentra la evidencia del hallazgo."),
     gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
     evidencia: z.string().describe("CITA TEXTUAL Y LITERAL del DOCUMENTO_A_REVISAR que contiene el error. NUNCA, BAJO NINGUNA CIRCUNSTANCIA, debe contener texto de las NORMAS_DE_CONSULTA."),
-    propuesta_procedimiento: z.string().optional().describe("Descripción de las acciones o ajustes de procedimiento necesarios para subsanar la inconsistencia (ej. 'agregar requisitos al pliego', 'convocar nueva licitación'). Omitir este campo si la solución es puramente una corrección de redacción."),
-    propuesta_redaccion: z.string().optional().describe("Texto alternativo redactado, listo para reemplazar el texto original. Solo debe incluirse si la corrección puede implementarse directamente en el documento. Omitir si no corresponde un cambio de redacción directo o si la solución es puramente de procedimiento."),
+    propuesta_procedimiento: z.string().optional().describe("Acción de procedimiento administrativo a realizar (ej. 'emitir dictamen técnico', 'convocar nueva licitación'). Usar solo para indicar trámites, no para sugerir texto. Omitir si la solución es solo una corrección de redacción."),
+    propuesta_redaccion: z.string().optional().describe("Texto alternativo completo y listo para reemplazar el original. NUNCA debe contener instrucciones. Omitir si la solución es puramente de procedimiento."),
     justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia, mencionando el artículo, la disposición aplicable y el principio jurídico afectado. AQUÍ SÍ SE CITA LA NORMATIVA."),
     justificacion_tecnica: z.string().describe("Elementos objetivos y técnicos que sustentan la identificación de la inconsistencia (referencias al propio documento, prácticas administrativas aceptadas, etc.)."),
     consecuencia_estimada: z.string().describe("Consecuencias potenciales si no se corrige la inconsistencia (ej. 'nulidad del proceso', 'riesgo de impugnaciones').")
@@ -83,14 +83,21 @@ Si en un hallazgo, el campo \`evidencia\` contiene texto de una **NORMA_DE_CONSU
 
 **Instrucciones para generar los hallazgos:**
 
-1.  **Encuentra una inconsistencia:** Lee el **DOCUMENTO_A_REVISAR** y encuentra una parte que contradiga o no cumpla con alguna de las **NORMAS_DE_CONSULTA**.
-2.  **Crea el hallazgo:** Para cada inconsistencia, genera un objeto con los siguientes campos:
-    *   **titulo_incidencia**: Un título breve que resuma el problema.
-    *   **evidencia**: **COPIA Y PEGA EL TEXTO EXACTO del DOCUMENTO_A_REVISAR que contiene el error.** Esta es la prueba del error.
-    *   **justificacion_legal**: Explica por qué la \`evidencia\` es un error, citando la **NORMA_DE_CONSULTA** correspondiente. Aquí sí usas el texto de la ley.
-    *   **propuesta_procedimiento**: (Opcional) Describe los pasos a seguir para arreglarlo si no es un simple cambio de texto.
-    *   **propuesta_redaccion**: (Opcional) Escribe el texto corregido para reemplazar la \`evidencia\`.
-    *   Y el resto de los campos como gravedad, tipo, etc.
+1.  **Encuentra la inconsistencia:** Lee el **DOCUMENTO_A_REVISAR** y encuentra una parte que contradiga o no cumpla con alguna de las **NORMAS_DE_CONSULTA**.
+2.  **Crea el hallazgo:** Para cada inconsistencia, genera un objeto con todos los campos solicitados, prestando especial atención a las siguientes reglas para las propuestas:
+
+    *   **propuesta_procedimiento (Solución de Procedimiento):**
+        *   **QUÉ ES:** Una descripción **EXCLUSIVA** de acciones o trámites administrativos a realizar (ej: "emitir dictamen técnico", "solicitar informe de mercado").
+        *   **CUÁNDO USAR:** Úsalo solo si se requiere una acción de procedimiento. Si la solución es únicamente un cambio de texto, **OMITE ESTE CAMPO**.
+
+    *   **propuesta_redaccion (Solución de Redacción):**
+        *   **QUÉ ES:** El texto final, corregido y listo para copiar y pegar. **NUNCA** debe contener instrucciones como "[Insertar...]" o ser un resumen. Debe ser la redacción completa.
+        *   **CUÁNDO USAR:** Úsalo solo si la corrección es un cambio directo en el texto. Si la solución es únicamente un procedimiento, **OMITE ESTE CAMPO**.
+
+    *   **REGLAS DE COMBINACIÓN:**
+        *   Si se necesitan tanto un procedimiento como un cambio de texto, genera ambos campos.
+        *   Nunca generes dos propuestas del mismo tipo para una sola incidencia.
+        *   Rellena el resto de los campos (\`titulo_incidencia\`, \`evidencia\`, \`justificacion_legal\`, etc.) como corresponde.
 
 **Instrucciones para el Cálculo de Scores:**
 
