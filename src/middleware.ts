@@ -1,16 +1,17 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getAuthenticatedUser } from './lib/firebase/server';
 
 // Force the middleware to run on the Node.js runtime.
 // This is required because `firebase-admin` is not compatible with the Edge runtime.
 export const runtime = 'nodejs';
 
-const PROTECTED_ROUTES = ['/prepare', '/loading', 'analysis'];
+const PROTECTED_ROUTES = ['/prepare', '/loading', '/analysis'];
 const ADMIN_ONLY_ROUTES = ['/admin'];
 
 export async function middleware(request: NextRequest) {
+  // Use dynamic import to avoid build-time errors with server-only packages.
+  const { getAuthenticatedUser } = await import('./lib/firebase/server');
   const { token } = await getAuthenticatedUser(request);
   const { pathname } = request.nextUrl;
 
@@ -26,8 +27,8 @@ export async function middleware(request: NextRequest) {
 
   // --- Handle unauthenticated users ---
   if (!isAuthenticated) {
-    // Allow access to login page
-    if (pathname.startsWith('/login')) {
+    // Allow access to login page and public root
+    if (pathname.startsWith('/login') || pathname === '/') {
       return NextResponse.next();
     }
     // For any other protected or admin route, redirect to login
@@ -37,24 +38,22 @@ export async function middleware(request: NextRequest) {
       url.pathname = '/login';
       return NextResponse.redirect(url);
     }
-    // Allow access to public pages like '/'
+    // Allow access to any other non-matched public pages
     return NextResponse.next();
   }
   
   // --- Handle authenticated users ---
 
-  // Handle Admin routes
+  // Handle Admin routes: if a non-admin tries to access an admin route, redirect them.
   const isAccessingAdminRoute = ADMIN_ONLY_ROUTES.some(p => pathname.startsWith(p));
   if (isAccessingAdminRoute && userRole !== 'admin') {
     const url = request.nextUrl.clone();
-    url.pathname = '/prepare'; // Redirect non-admins away
+    url.pathname = '/prepare'; // Redirect non-admins away to a safe default page.
     return NextResponse.redirect(url);
   }
   
-  // No specific rules needed for guests or users on protected routes,
-  // as the pages themselves will handle feature availability based on role.
-  // The AI flows are also protected on the server side.
-
+  // For all other cases of authenticated users (guest, user, admin on non-admin routes), allow access.
+  // Page-specific logic will handle roles (e.g., guest mode features).
   return NextResponse.next();
 }
 

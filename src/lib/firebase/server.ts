@@ -6,44 +6,61 @@ import { cookies } from 'next/headers';
 let adminApp: App | undefined;
 let adminAuthInstance: Auth | undefined;
 
-// This logic safely initializes the Firebase Admin SDK.
-// It checks for the existence of the configuration environment variable
-// and wraps the initialization in a try-catch block to prevent crashes.
-if (process.env.FIREBASE_ADMIN_CONFIG) {
-  try {
-    const serviceAccount: ServiceAccount = JSON.parse(process.env.FIREBASE_ADMIN_CONFIG);
-    if (getApps().length === 0) {
-      adminApp = initializeApp({
-        credential: cert(serviceAccount),
-      });
-    } else {
-      adminApp = getApps()[0];
+// This function initializes the Firebase Admin SDK in a lazy, idempotent manner.
+function initAdmin() {
+  if (getApps().length > 0) {
+    // If already initialized, use the existing app.
+    if (!adminApp) {
+        adminApp = getApps()[0];
+        adminAuthInstance = getAuth(adminApp);
     }
-    adminAuthInstance = getAuth(adminApp);
-  } catch (e) {
-    console.error("Error initializing Firebase Admin SDK:", e);
+    return;
   }
-} else {
-  // This warning will be shown in the server console if the config is missing
-  console.warn("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication is disabled.");
+  
+  try {
+    const serviceAccountConfig = process.env.FIREBASE_ADMIN_CONFIG;
+    if (!serviceAccountConfig) {
+        console.warn("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication is disabled.");
+        return;
+    }
+
+    const serviceAccount: ServiceAccount = JSON.parse(serviceAccountConfig);
+    adminApp = initializeApp({
+      credential: cert(serviceAccount),
+    });
+    adminAuthInstance = getAuth(adminApp);
+  } catch (e: any) {
+    console.error("Failed to initialize Firebase Admin SDK:", e.message);
+  }
 }
 
-export const adminAuth = adminAuthInstance;
-
 export async function getAuthenticatedUser(request?: NextRequest) {
+  initAdmin(); // Ensure admin is initialized before use
+  if (!adminAuthInstance) {
+    return { user: null, token: null }; // Return if initialization failed
+  }
+
   const session = request ? request.cookies.get('__session')?.value : cookies().get('__session')?.value;
 
-  if (!session || !adminAuth) {
+  if (!session) {
     return { user: null, token: null };
   }
 
   try {
-    const decodedIdToken = await adminAuth.verifySessionCookie(session, true);
-    const user = await adminAuth.getUser(decodedIdToken.uid);
+    const decodedIdToken = await adminAuthInstance.verifySessionCookie(session, true);
+    const user = await adminAuthInstance.getUser(decodedIdToken.uid);
     return { user, token: decodedIdToken };
   } catch (error) {
     // This is a common case if the cookie is expired or invalid.
-    // It's not a server error, so we don't need to log it.
     return { user: null, token: null };
   }
+}
+
+// A safe getter for adminAuth, used in API routes.
+export const getAdminAuth = (): Auth => {
+    initAdmin(); // Ensure initialization
+    if (!adminAuthInstance) {
+        throw new Error("Firebase Admin SDK not initialized. Make sure FIREBASE_ADMIN_CONFIG is set in your environment variables.");
+    }
+    return adminAuthInstance;
 }
