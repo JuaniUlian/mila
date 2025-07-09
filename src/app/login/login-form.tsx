@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -23,7 +22,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
@@ -38,7 +36,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -93,42 +91,6 @@ export default function LoginForm() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      await signInWithGoogle();
-      router.push('/prepare');
-    } catch (error: any) {
-      let description = 'No se pudo iniciar sesión con Google. Por favor, inténtalo de nuevo.';
-      if (error.code) {
-        switch (error.code) {
-          case 'auth/popup-closed-by-user':
-            setIsLoading(false);
-            return;
-          case 'auth/account-exists-with-different-credential':
-            description = 'Ya existe una cuenta con este correo electrónico, pero con un método de inicio de sesión diferente.';
-            break;
-          case 'auth/network-request-failed':
-            description = 'Error de red. Por favor, revisa tu conexión a internet.';
-            break;
-          default:
-            description = `Ocurrió un error con Google: ${error.message}`;
-        }
-      } else if (error.message && error.message.includes('Firebase is not configured')) {
-        description = 'Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.';
-      } else if (error.message) {
-        description = `Ocurrió un error con Google: ${error.message}`;
-      }
-
-      toast({
-        variant: 'destructive',
-        title: 'Error de autenticación',
-        description,
-      });
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-2xl bg-white/60 backdrop-blur-lg">
@@ -141,7 +103,7 @@ export default function LoginForm() {
             Inicia sesión para analizar tus documentos.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">
               <FormField
@@ -186,42 +148,6 @@ export default function LoginForm() {
               </Button>
             </form>
           </Form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                O continuar con
-              </span>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-                <svg
-                    role="img"
-                    viewBox="0 0 24 24"
-                    className="mr-2 h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <title>Google</title>
-                    <path
-                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.37 1.62-3.82 1.62-4.51 0-8.15-3.64-8.15-8.15S7.98 3.5 12.5 3.5c2.11 0 3.92.76 5.39 2.18l2.5-2.5C18.16.89 15.47 0 12.5 0 5.6 0 0 5.6 0 12.5s5.6 12.5 12.5 12.5c2.83 0 5.23-.93 7-2.95 1.83-2.06 2.72-4.94 2.72-8.22 0-.62-.07-1.22-.2-1.8z"
-                    fill="#4285F4"
-                    />
-                </svg>
-            )}
-            Google
-          </Button>
         </CardContent>
       </Card>
     </div>

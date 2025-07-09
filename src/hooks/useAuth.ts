@@ -1,7 +1,7 @@
 'use client';
 
 import { useContext } from 'react';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { AuthContext } from '@/context/AuthContext';
 import { auth } from '@/lib/firebase/client';
 
@@ -19,17 +19,8 @@ export const useAuth = () => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signInWithGoogle = async () => {
-    if (!auth) {
-      throw new Error('Firebase is not configured. Please check your .env file.');
-    }
-    const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
-  };
-
   return { 
     ...context,
     signInWithEmail,
-    signInWithGoogle,
   };
 };
