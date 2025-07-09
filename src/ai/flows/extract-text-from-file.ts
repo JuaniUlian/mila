@@ -8,6 +8,7 @@
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { getAuthenticatedUser } from '@/lib/firebase/server';
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z
@@ -25,6 +26,10 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 
 // The exported function that will be called by the client.
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
+  const { user } = await getAuthenticatedUser();
+  if (!user) {
+    throw new Error('Unauthorized: User must be logged in.');
+  }
   return extractTextFromFileFlow(input);
 }
 

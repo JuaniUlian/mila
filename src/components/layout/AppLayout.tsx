@@ -6,11 +6,14 @@ import { MainHeader } from '@/components/layout/main-header';
 import React, { useEffect, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useLayout } from '@/context/LayoutContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { score, isInitialPageLoad } = useLayout();
-  const showHeader = pathname !== '/';
+  const { user } = useAuth();
+  
+  const showHeader = pathname !== '/' && pathname !== '/login' && user;
   
   const [isMounted, setIsMounted] = useState(false);
 
@@ -41,7 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     } else if (pathname === '/loading') {
       backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200';
       animationClasses = 'bg-200% animate-gradient-bg';
-    } else if (pathname === '/prepare') {
+    } else if (pathname === '/prepare' || pathname === '/login') {
       backgroundClasses = 'bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200';
     }
 
@@ -49,13 +52,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [isMounted, pathname, score, isInitialPageLoad]);
 
 
-  if (!showHeader) {
-    return <>{children}</>;
-  }
-
   return (
     <div className={bodyClassName}>
-      <MainHeader />
+      {showHeader && <MainHeader />}
       <main className="flex-1">
         {children}
       </main>

@@ -22,9 +22,8 @@ export default function LandingPage() {
 
   const handleDemoClick = () => {
     setIsLoading(true);
-    setTimeout(() => {
-      router.push('/prepare');
-    }, 5000);
+    // Redirect to login, which will then handle auth and redirect to prepare
+    router.push('/login');
   };
   
   return (
@@ -272,62 +271,6 @@ export default function LandingPage() {
             </div>
         </div>
       </footer>
-
-      <Dialog open={isLoading} onOpenChange={setIsLoading}>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()} className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl sm:max-w-md p-0 overflow-hidden shadow-2xl">
-           <DialogHeader className="p-4 border-b border-white/30 bg-transparent">
-            <DialogTitle className="text-slate-800">Espere por favor</DialogTitle>
-           </DialogHeader>
-           <div className="flex flex-col items-center justify-center p-10 space-y-4">
-              <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-primary">
-                <g fill="currentColor">
-                  <circle cx="12" cy="3" r="1">
-                    <animate id="svgSpinners12DotsScale0" attributeName="r" begin="0;svgSpinners12DotsScale1.end-0.5s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="16.5" cy="4.21" r="1">
-                    <animate id="svgSpinners12DotsScale2" attributeName="r" begin="svgSpinners12DotsScale0.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="19.79" cy="7.5" r="1">
-                    <animate id="svgSpinners12DotsScale3" attributeName="r" begin="svgSpinners12DotsScale2.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="21" cy="12" r="1">
-                    <animate id="svgSpinners12DotsScale4" attributeName="r" begin="svgSpinners12DotsScale3.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="19.79" cy="16.5" r="1">
-                    <animate id="svgSpinners12DotsScale5" attributeName="r" begin="svgSpinners12DotsScale4.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="16.5" cy="19.79" r="1">
-                    <animate id="svgSpinners12DotsScale6" attributeName="r" begin="svgSpinners12DotsScale5.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="12" cy="21" r="1">
-                    <animate id="svgSpinners12DotsScale7" attributeName="r" begin="svgSpinners12DotsScale6.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="7.5" cy="19.79" r="1">
-                    <animate id="svgSpinners12DotsScale8" attributeName="r" begin="svgSpinners12DotsScale7.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="4.21" cy="16.5" r="1">
-                    <animate id="svgSpinners12DotsScale9" attributeName="r" begin="svgSpinners12DotsScale8.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="3" cy="12" r="1">
-                    <animate id="svgSpinners12DotsScalea" attributeName="r" begin="svgSpinners12DotsScale9.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="4.21" cy="7.5" r="1">
-                    <animate id="svgSpinners12DotsScaleb" attributeName="r" begin="svgSpinners12DotsScalea.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <circle cx="7.5" cy="4.21" r="1">
-                    <animate id="svgSpinners12DotsScale1" attributeName="r" begin="svgSpinners12DotsScaleb.begin+0.1s" dur="0.6s" values="1;2;1" />
-                  </circle>
-                  <animateTransform attributeName="transform" type="rotate" dur="6s" values="0 12 12;360 12 12" repeatCount="indefinite" />
-                </g>
-              </svg>
-              <p className="text-lg font-semibold text-foreground">Cargando Interfaz...</p>
-           </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
-
-    
-
-    

@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
+import { getAuthenticatedUser } from '@/lib/firebase/server';
 
 // Input Schema
 const RegulationSchema = z.object({
@@ -49,6 +50,12 @@ const ValidateDocumentOutputSchema = z.object({
 export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema>;
 
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
+  const { token } = await getAuthenticatedUser();
+  const userRole = token?.role;
+
+  if (userRole !== 'user' && userRole !== 'admin') {
+      throw new Error('Unauthorized: User does not have permission to perform this action.');
+  }
   return validateDocumentFlow(input);
 }
 
