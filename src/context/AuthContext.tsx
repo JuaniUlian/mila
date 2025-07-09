@@ -1,91 +1,88 @@
 'use client';
 
 import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { onIdTokenChanged, signOut as firebaseSignOut } from 'firebase/auth';
+import { onIdTokenChanged, signOut as firebaseSignOut, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// A simplified user object for our app's context
 export interface AppUser {
   uid: string;
   email: string | null;
   displayName: string | null;
   role?: string;
-  providerId: string; // 'firebase' or 'guest'
 }
 
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
-  isDemoMode: boolean;
+  authError: string | null;
   signOut: () => Promise<void>;
-  signInAsGuest: () => void;
+  clearAuthError: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthContextType['user']>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
-  const signInAsGuest = useCallback(() => {
-    const guestUser: AppUser = {
-        uid: 'guest-user',
-        email: 'guest@example.com',
-        displayName: 'Invitado',
-        role: 'guest',
-        providerId: 'guest'
-    };
-    setUser(guestUser);
-    router.push('/prepare');
-  }, [router]);
+  const clearAuthError = useCallback(() => {
+    setAuthError(null);
+  }, []);
 
   useEffect(() => {
-    // If Firebase isn't initialized, enable demo mode and do nothing else.
+    // If Firebase isn't initialized, do nothing. The login form will show an error.
     if (!auth) {
-      console.warn('Firebase not configured. App is running in demo mode.');
-      setIsDemoMode(true);
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser: User | null) => {
+      setAuthError(null); // Clear previous errors on any auth state change
       if (firebaseUser) {
         try {
+          // Create session cookie by sending token to server
+          const idToken = await firebaseUser.getIdToken();
+          const response = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: idToken,
+          });
+
+          // If the server failed to create a session cookie, something is wrong with the server-side config.
+          // We must sign the user out on the client to prevent an inconsistent state.
+          if (!response.ok) {
+            throw new Error('Error del servidor al crear la sesión. Revisa la configuración de `FIREBASE_ADMIN_CONFIG` en tu archivo .env y los registros del servidor.');
+          }
+          
           const tokenResult = await firebaseUser.getIdTokenResult();
-          const role = (tokenResult.claims.role as string) || 'user'; // Default to user if no role
+          const role = (tokenResult.claims.role as string) || 'user';
           
           const appUser: AppUser = {
             uid: firebaseUser.uid,
             email: firebaseUser.email,
             displayName: firebaseUser.displayName,
             role,
-            providerId: 'firebase',
           };
-          setUser(appUser);
 
-          // Create session cookie by sending token to server
-          const idToken = await firebaseUser.getIdToken();
-          await fetch('/api/auth', {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: idToken,
-          });
-        } catch (error) {
-           console.error("Error during token processing or session creation:", error);
-           // Sign out if session creation or token validation fails
+          setUser(appUser);
+        } catch (error: any) {
+           console.error("Authentication process failed:", error);
+           setAuthError(error.message || 'Ocurrió un error inesperado durante la autenticación.');
            if (auth) {
-            await firebaseSignOut(auth);
+            await firebaseSignOut(auth); // This will trigger onIdTokenChanged again with null
            }
            setUser(null);
         }
       } else {
+        // User is signed out
         setUser(null);
-        // Clear session cookie if user is not signed in
-        await fetch('/api/auth', { method: 'DELETE' });
+        if (document.cookie.includes('__session')) {
+          await fetch('/api/auth', { method: 'DELETE' });
+        }
       }
       setLoading(false);
     });
@@ -94,28 +91,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    // Handle guest user sign out
-    if (user?.providerId === 'guest') {
-      setUser(null);
-      router.push('/login');
-      return;
-    }
-
-    // Handle Firebase user sign out
     if (!auth) {
       console.error('Firebase not initialized, cannot sign out.');
       return;
     }
     try {
       await firebaseSignOut(auth);
-      // The onIdTokenChanged listener will handle the rest (clearing user and cookie)
       router.push('/login');
     } catch (error) {
       console.error("Error signing out:", error);
+      setAuthError('Error al cerrar sesión.');
     }
-  }, [router, user]);
+  }, [router]);
 
-  const value = useMemo(() => ({ user, loading, isDemoMode, signOut, signInAsGuest }), [user, loading, isDemoMode, signOut, signInAsGuest]);
+  const value = useMemo(() => ({ user, loading, authError, signOut, clearAuthError }), [user, loading, authError, signOut, clearAuthError]);
 
   if (loading) {
     return (

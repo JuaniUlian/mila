@@ -14,9 +14,7 @@ export const useAuth = () => {
 
   const signInWithEmail = async (email: string, password: string) => {
     if (!auth) {
-      // This path should ideally not be taken if isDemoMode is handled correctly in the UI,
-      // but it serves as a safeguard.
-      throw new Error('Firebase is not configured. Please check your .env file.');
+      throw new Error('Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.');
     }
     return signInWithEmailAndPassword(auth, email, password);
   };

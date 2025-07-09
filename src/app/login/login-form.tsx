@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,7 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ShieldQuestion } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 
 const loginSchema = z.object({
@@ -36,7 +36,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, isDemoMode, signInAsGuest } = useAuth();
+  const { signInWithEmail, authError, clearAuthError } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -48,22 +48,40 @@ export default function LoginForm() {
     },
   });
 
+  // Effect to watch for async auth errors from the AuthContext
+  useEffect(() => {
+    if (authError) {
+      toast({
+        variant: 'destructive',
+        title: 'Error de Autenticación',
+        description: authError,
+      });
+      setIsLoading(false); // Ensure loading state is reset
+      clearAuthError(); // Clear the error after showing it
+    }
+  }, [authError, toast, clearAuthError]);
+
   const handleEmailLogin = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
       await signInWithEmail(data.email, data.password);
+      // On success, the onIdTokenChanged listener in AuthContext will handle the user state
+      // and redirect will be handled by the middleware or the main page.
+      // We can push the user to the prepare page as an optimistic update.
       router.push('/prepare');
     } catch (error: any) {
       let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
       
-      if (error.message && error.message.includes('Firebase is not configured')) {
+      // This handles client-side errors (e.g., Firebase not configured on client)
+      if (error.message && error.message.includes('Firebase no está configurado')) {
         description = 'Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.';
       } else if (error.code) {
+        // This handles specific Firebase Auth error codes from the client
         switch (error.code) {
           case 'auth/invalid-credential':
           case 'auth/user-not-found':
           case 'auth/wrong-password':
-            description = 'El correo o la contraseña son incorrectos. Por favor, verifica tus credenciales y que los usuarios existan en Firebase.';
+            description = 'El correo o la contraseña son incorrectos. Por favor, verifica tus credenciales.';
             break;
           case 'auth/invalid-api-key':
             description = 'La clave de API de Firebase no es válida. Revisa la configuración en tu archivo .env.';
@@ -79,6 +97,7 @@ export default function LoginForm() {
             break;
         }
       } else if (error.message) {
+        // This can catch other generic errors
         description = error.message;
       }
 
@@ -90,32 +109,6 @@ export default function LoginForm() {
       setIsLoading(false);
     }
   };
-
-  // If Firebase isn't configured, show a demo mode login screen.
-  if (isDemoMode) {
-    return (
-       <div className="flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-2xl bg-white/60 backdrop-blur-lg">
-          <CardHeader className="text-center">
-            <Logo variant="color" className="mx-auto h-16 w-16" />
-            <CardTitle className="text-3xl font-bold mt-4">Bienvenido</CardTitle>
-            <CardDescription>
-              La configuración de Firebase no está disponible.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center text-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              Puedes continuar en modo demostración para explorar la aplicación. En este modo, se utilizarán datos de ejemplo y las funciones de IA estarán desactivadas.
-            </p>
-            <Button onClick={signInAsGuest} className="w-full max-w-xs">
-              <ShieldQuestion className="mr-2 h-4 w-4" />
-              Continuar en Modo Demostración
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
