@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -24,8 +25,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
+import { Separator } from '@/components/ui/separator';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor, introduce un correo electrónico válido.'),
@@ -36,7 +38,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, authError, clearAuthError } = useAuth();
+  const { signInWithEmail, signInAsGuest, authError, clearAuthError, firebaseConfigured } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -48,7 +50,6 @@ export default function LoginForm() {
     },
   });
 
-  // Effect to watch for async auth errors from the AuthContext
   useEffect(() => {
     if (authError) {
       toast({
@@ -56,8 +57,8 @@ export default function LoginForm() {
         title: 'Error de Autenticación',
         description: authError,
       });
-      setIsLoading(false); // Ensure loading state is reset
-      clearAuthError(); // Clear the error after showing it
+      setIsLoading(false);
+      clearAuthError();
     }
   }, [authError, toast, clearAuthError]);
 
@@ -65,46 +66,23 @@ export default function LoginForm() {
     setIsLoading(true);
     try {
       await signInWithEmail(data.email, data.password);
-      // On success, the onIdTokenChanged listener in AuthContext will handle the user state
-      // and redirect will be handled by the middleware or the main page.
-      // We can push the user to the prepare page as an optimistic update.
       router.push('/prepare');
     } catch (error: any) {
-      let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
-      
-      // This handles client-side errors (e.g., Firebase not configured on client)
-      if (error.message && error.message.includes('Firebase no está configurado')) {
-        description = 'Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.';
-      } else if (error.code) {
-        // This handles specific Firebase Auth error codes from the client
-        switch (error.code) {
-          case 'auth/invalid-credential':
-          case 'auth/user-not-found':
-          case 'auth/wrong-password':
-            description = 'El correo o la contraseña son incorrectos. Por favor, verifica tus credenciales.';
-            break;
-          case 'auth/invalid-api-key':
-            description = 'La clave de API de Firebase no es válida. Revisa la configuración en tu archivo .env.';
-            break;
-          case 'auth/network-request-failed':
-            description = 'Error de red. Por favor, revisa tu conexión a internet.';
-            break;
-          case 'auth/too-many-requests':
-            description = 'Se han realizado demasiados intentos. Por favor, inténtalo más tarde.';
-            break;
-          default:
-            description = `Ocurrió un error de Firebase: ${error.message}`;
-            break;
-        }
-      } else if (error.message) {
-        // This can catch other generic errors
-        description = error.message;
-      }
+      // Errors are now handled by the authError effect
+      setIsLoading(false);
+    }
+  };
 
-      toast({
+  const handleGuestLogin = () => {
+    setIsLoading(true);
+    try {
+      signInAsGuest();
+      router.push('/prepare');
+    } catch (error) {
+       toast({
         variant: 'destructive',
-        title: 'Error de autenticación',
-        description,
+        title: 'Error',
+        description: 'No se pudo iniciar sesión como invitado.',
       });
       setIsLoading(false);
     }
@@ -121,51 +99,78 @@ export default function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Correo Electrónico</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="tu@correo.com"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Iniciar Sesión
-              </Button>
-            </form>
-          </Form>
+          {firebaseConfigured ? (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Correo Electrónico</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="tu@correo.com"
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Iniciar Sesión
+                </Button>
+              </form>
+            </Form>
+          ) : (
+             <div className="text-center text-sm text-muted-foreground p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <p>La configuración de Firebase no está disponible.</p>
+                <p className="font-semibold">Puedes continuar en modo de demostración.</p>
+            </div>
+          )}
         </CardContent>
+        <CardFooter className="flex-col">
+            <div className="relative flex py-2 items-center w-full">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-xs text-muted-foreground">O</span>
+                <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleGuestLogin}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <User className="mr-2 h-4 w-4" />
+              )}
+              Ingresar como Invitado
+            </Button>
+        </CardFooter>
       </Card>
     </div>
   );

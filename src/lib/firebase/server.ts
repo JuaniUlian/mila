@@ -13,15 +13,12 @@ function getAdminApp(): App | null {
 
     const serviceAccountConfig = process.env.FIREBASE_ADMIN_CONFIG;
     if (!serviceAccountConfig) {
-        // Use console.warn to prevent Next.js from treating this as a critical error.
-        // The developer still gets a helpful message without the app crashing.
         console.warn("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication features will be disabled.");
         return null;
     }
     
     try {
         const serviceAccount: ServiceAccount = JSON.parse(serviceAccountConfig);
-        // Initialize the app with a unique name
         return initializeApp({
             credential: cert(serviceAccount),
         }, ADMIN_APP_NAME);
@@ -44,19 +41,35 @@ export function getAdminAuth(): Auth | null {
     }
 }
 
-export async function getAuthenticatedUser() {
+interface AppUser {
+  uid: string;
+  email?: string | null;
+  displayName?: string | null;
+  role?: string;
+  isGuest?: boolean;
+}
+
+export async function getAuthenticatedUser(): Promise<{ user: AppUser | null }> {
     const session = cookies().get('__session')?.value;
 
-    // If there's no session cookie, we don't need to try initializing Firebase Admin.
-    // This is more efficient and avoids unnecessary server-side checks for logged-out users.
+    if (session === 'guest-session') {
+        return { 
+            user: {
+                uid: 'guest-user',
+                email: 'guest@example.com',
+                displayName: 'Invitado',
+                role: 'guest',
+                isGuest: true,
+            }
+        };
+    }
+    
     if (!session) {
         return { user: null };
     }
 
     const adminAuth = getAdminAuth();
     
-    // If a cookie exists but we can't initialize Admin Auth, it means the server config is missing.
-    // In this case, we treat the user as unauthenticated.
     if (!adminAuth) {
         return { user: null };
     }
@@ -65,16 +78,15 @@ export async function getAuthenticatedUser() {
         const decodedIdToken = await adminAuth.verifySessionCookie(session, true);
         const user = await adminAuth.getUser(decodedIdToken.uid);
 
-        // We add the role from the custom claims to the user object we return
         const enrichedUser = {
-            ...user,
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
             role: decodedIdToken.role,
         };
         
         return { user: enrichedUser };
     } catch (error) {
-        // This can happen if the cookie is invalid or expired.
-        // It's safe to return null, as it indicates an unauthenticated state.
         return { user: null };
     }
 }

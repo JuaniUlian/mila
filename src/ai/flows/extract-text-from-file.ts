@@ -14,7 +14,7 @@ const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z
     .string()
     .describe(
-      "The file content as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "The file content as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
     ),
 });
 export type ExtractTextFromFileInput = z.infer<typeof ExtractTextFromFileInputSchema>;
@@ -27,6 +27,12 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 // The exported function that will be called by the client.
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   const { user } = await getAuthenticatedUser();
+
+  if (user?.isGuest) {
+      // In guest mode, we can return a mock response or a specific message.
+      // For now, let's just return a simple extracted text.
+      return { extractedText: "Contenido extraído en modo de demostración." };
+  }
 
   if (user?.role !== 'user' && user?.role !== 'admin') {
     throw new Error('Unauthorized: User does not have permission to perform this action.');

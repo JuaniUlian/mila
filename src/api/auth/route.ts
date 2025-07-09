@@ -6,7 +6,23 @@ export async function POST(request: NextRequest, response: NextResponse) {
   try {
     const adminAuth = getAdminAuth();
     const idToken = await request.text();
+    
+    // Special case for guest mode
+    if (idToken === 'guest-mode-token') {
+        cookies().set('__session', 'guest-session', {
+            maxAge: 60 * 60 * 24 * 1, // 1 day for guest session
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            sameSite: 'lax',
+        });
+        return NextResponse.json({ status: 'success' });
+    }
 
+    if (!adminAuth) {
+        return NextResponse.json({ status: 'error', message: 'La configuración del servidor de Firebase no está disponible.' }, { status: 500 });
+    }
+    
     // The session cookie will be valid for 14 days.
     const expiresIn = 60 * 60 * 24 * 14 * 1000;
   
@@ -19,9 +35,9 @@ export async function POST(request: NextRequest, response: NextResponse) {
       sameSite: 'lax',
     });
     return NextResponse.json({ status: 'success' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating session cookie:', error);
-    return NextResponse.json({ status: 'error' }, { status: 401 });
+    return NextResponse.json({ status: 'error', message: error.message || 'Error desconocido del servidor.' }, { status: 401 });
   }
 }
 
