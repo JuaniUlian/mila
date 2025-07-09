@@ -60,13 +60,13 @@ export default function LandingPage() {
                     fontSize="160"
                     fontWeight="600"
                     fill="#0D2B3E"
-                    textAnchor="middle">L</text>
+                    textAnchor="middle">I</text>
               <text x="336" y="240"
                     fontFamily="Nunito, sans-serif"
                     fontSize="160"
                     fontWeight="600"
                     fill="#DA623C"
-                    textAnchor="middle">I</text>
+                    textAnchor="middle">L</text>
                 <text x="336" y="380"
                     fontFamily="Nunito, sans-serif"
                     fontSize="160"
