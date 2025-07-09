@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to validate a user's edit to a legal suggestion.
@@ -32,7 +33,7 @@ export type ValidateSuggestionEditOutput = z.infer<typeof ValidateSuggestionEdit
 export async function validateSuggestionEdit(input: ValidateSuggestionEditInput): Promise<ValidateSuggestionEditOutput> {
   const { user } = await getAuthenticatedUser();
 
-  if (user?.role !== 'user' && user?.role !== 'admin') {
+  if (!user || (user.role !== 'user' && user.role !== 'admin')) {
     throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return validateSuggestionEditFlow(input);

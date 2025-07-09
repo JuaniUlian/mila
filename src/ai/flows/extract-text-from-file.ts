@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to extract text from various file formats using OCR.
@@ -28,7 +29,7 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   const { user } = await getAuthenticatedUser();
 
-  if (user?.role !== 'user' && user?.role !== 'admin') {
+  if (!user || (user.role !== 'user' && user.role !== 'admin')) {
     throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return extractTextFromFileFlow(input);

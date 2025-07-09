@@ -5,13 +5,13 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,6 +27,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
+import { Separator } from '@/components/ui/separator';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor, introduce un correo electrónico válido.'),
@@ -37,7 +38,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, authError, clearAuthError } = useAuth();
+  const { signInWithEmail, authError, clearAuthError, signInAsGuest, user } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
@@ -63,17 +64,16 @@ export default function LoginForm() {
   const handleEmailLogin = async (data: LoginFormValues) => {
     setIsLoading(true);
     clearAuthError();
-    try {
-      await signInWithEmail(data.email, data.password);
-      // On success, the AuthContext listener will handle the redirect.
-    } catch (error: any) {
-       toast({
-        variant: 'destructive',
-        title: 'Error de inicio de sesión',
-        description: error.message,
-      });
-      setIsLoading(false);
-    }
+    await signInWithEmail(data.email, data.password);
+    // The loading state is managed by the effect hook listening to authError
+    // and the redirect is handled by the AuthContext listener.
+    // We only set loading to false in the error case within the effect.
+  };
+
+  const handleGuestLogin = async () => {
+    setIsLoading(true);
+    await signInAsGuest();
+    setIsLoading(false);
   };
 
   return (
@@ -82,13 +82,11 @@ export default function LoginForm() {
         <CardHeader className="text-center">
             <Logo variant="color" className="mx-auto h-16 w-16" />
             <CardTitle className="text-3xl font-bold mt-4">Bienvenido</CardTitle>
+            <CardDescription>
+                Ingresa tus credenciales para usar la IA o explora en modo invitado.
+            </CardDescription>
         </CardHeader>
         <CardContent>
-            <CardDescription className="text-center mb-6">
-                Ingresa tus credenciales o utiliza el modo de demostración.
-                <br />
-                <span className="text-xs text-muted-foreground">Demo: admin@mila.com / password</span>
-            </CardDescription>
             <Form {...form}>
             <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">
                 <FormField
@@ -128,12 +126,28 @@ export default function LoginForm() {
                 )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && !user && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Iniciar Sesión
                 </Button>
             </form>
             </Form>
         </CardContent>
+        <CardFooter className="flex-col gap-4">
+             <div className="relative flex w-full items-center">
+                <Separator className="flex-1" />
+                <span className="mx-4 text-xs text-muted-foreground">O</span>
+                <Separator className="flex-1" />
+            </div>
+             <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleGuestLogin}
+                disabled={isLoading}
+              >
+                {isLoading && !user && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Ingresar como Invitado
+              </Button>
+        </CardFooter>
       </Card>
     </div>
   );

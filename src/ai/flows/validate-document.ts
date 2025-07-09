@@ -52,7 +52,7 @@ export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
   const { user } = await getAuthenticatedUser();
 
-  if (user?.role !== 'user' && user?.role !== 'admin') {
+  if (!user || (user.role !== 'user' && user.role !== 'admin')) {
       throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return validateDocumentFlow(input);

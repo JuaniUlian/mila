@@ -1,3 +1,4 @@
+
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase/server';
@@ -8,7 +9,7 @@ export async function POST(request: NextRequest, response: NextResponse) {
     const idToken = await request.text();
     
     if (!adminAuth) {
-        return NextResponse.json({ status: 'error', message: 'La configuración del servidor de Firebase no está disponible.' }, { status: 500 });
+        return NextResponse.json({ status: 'error', message: 'La configuración del servidor de Firebase no está disponible. Asegúrese de que la variable de entorno FIREBASE_ADMIN_CONFIG esté configurada correctamente.' }, { status: 500 });
     }
     
     // The session cookie will be valid for 14 days.
