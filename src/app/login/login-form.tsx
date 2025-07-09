@@ -59,7 +59,7 @@ export default function LoginForm() {
       let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
       
       if (error.message && error.message.includes('Firebase is not configured')) {
-        description = 'Firebase no está configurado. Por favor, revisa tu archivo .env.';
+        description = 'Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.';
       } else if (error.code) {
         switch (error.code) {
           case 'auth/invalid-credential':
@@ -113,7 +113,7 @@ export default function LoginForm() {
             description = `Ocurrió un error con Google: ${error.message}`;
         }
       } else if (error.message && error.message.includes('Firebase is not configured')) {
-        description = 'Firebase no está configurado. Por favor, revisa tu archivo .env.';
+        description = 'Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.';
       } else if (error.message) {
         description = `Ocurrió un error con Google: ${error.message}`;
       }
