@@ -20,10 +20,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // If Firebase isn't initialized (due to missing config), stop loading and do nothing.
+    // The user will be treated as logged out.
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         const tokenResult = await firebaseUser.getIdTokenResult();
-        const role = (tokenResult.claims.role as string) || 'user';
+        const role = (tokenResult.claims.role as string) || 'guest';
         
         setUser({ ...firebaseUser, role });
 
@@ -53,6 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    // If Firebase isn't initialized, this function will do nothing.
+    if (!auth) {
+      console.error('Firebase not initialized, cannot sign out.');
+      return;
+    }
     try {
       await firebaseSignOut(auth);
       router.push('/login');

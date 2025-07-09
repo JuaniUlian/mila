@@ -13,10 +13,16 @@ export const useAuth = () => {
   }
 
   const signInWithEmail = async (email: string, password: string) => {
+    if (!auth) {
+      throw new Error('Firebase is not configured. Please check your .env file.');
+    }
     return signInWithEmailAndPassword(auth, email, password);
   };
 
   const signInWithGoogle = async () => {
+    if (!auth) {
+      throw new Error('Firebase is not configured. Please check your .env file.');
+    }
     const provider = new GoogleAuthProvider();
     return signInWithPopup(auth, provider);
   };
