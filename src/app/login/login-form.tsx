@@ -95,9 +95,7 @@ export default function LoginForm() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-2xl bg-white/60 backdrop-blur-lg">
         <CardHeader className="text-center">
-          <div className="mx-auto h-16 w-16">
-            <Logo variant="color" />
-          </div>
+          <Logo variant="color" className="mx-auto h-16 w-16" />
           <CardTitle className="text-3xl font-bold mt-4">Bienvenido</CardTitle>
           <CardDescription>
             Inicia sesión para analizar tus documentos.
