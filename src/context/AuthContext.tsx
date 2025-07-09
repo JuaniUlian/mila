@@ -61,7 +61,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router, user]);
 
   const signInAsGuest = useCallback(async () => {
-    signOut(); // Clear any previous state
+    // Clear any previous state before setting guest user. This logic replaces
+    // calling signOut() directly to avoid errors when Firebase is not configured.
+    if (auth) {
+      // If Firebase is configured, sign out the real user.
+      // This will trigger onIdTokenChanged which handles state and cookie cleanup.
+      await firebaseSignOut(auth);
+    } else {
+      // If Firebase is not configured, we manually clear local state and any lingering session cookie.
+      setUser(null);
+      if (document.cookie.includes('__session')) {
+        await fetch('/api/auth', { method: 'DELETE' });
+      }
+    }
+
+    // Set the guest user and redirect.
     const guestUser: AppUser = {
       uid: 'guest-user',
       email: 'guest@example.com',
@@ -70,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     setUser(guestUser);
     router.push('/prepare');
-  }, [router, signOut]);
+  }, [router]);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
     if (!firebaseConfigured || !auth) {
