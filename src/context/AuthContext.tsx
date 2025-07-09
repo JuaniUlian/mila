@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
@@ -18,6 +19,8 @@ interface AuthContextType {
   loading: boolean;
   authError: string | null;
   signOut: () => Promise<void>;
+  signInAsGuest: () => Promise<void>;
+  firebaseConfigured: boolean;
   clearAuthError: () => void;
 }
 
@@ -35,11 +38,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthError(null);
   }, []);
 
+  const signInAsGuest = useCallback(async () => {
+    const guestUser: AppUser = {
+      uid: 'guest',
+      email: 'guest@example.com',
+      displayName: 'Invitado',
+      role: 'guest',
+    };
+    setUser(guestUser);
+  }, []);
+
   useEffect(() => {
     if (!firebaseConfigured) {
-      setAuthError('La configuración de Firebase no está disponible. Revisa las variables de entorno NEXT_PUBLIC_* y reinicia el servidor.');
       setLoading(false);
-      return;
+      return; // Stop here if Firebase is not configured.
     }
 
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -52,12 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             headers: { 'Content-Type': 'text/plain' },
             body: idToken,
           });
-
+          
           if (!response.ok) {
             const serverError = await response.json();
-            throw new Error(serverError.message || 'Error del servidor al crear la sesión. Revisa la configuración de `FIREBASE_ADMIN_CONFIG` en tu archivo .env y los registros del servidor.');
+            throw new Error(serverError.message || 'Error del servidor al crear la sesión. Revisa que `FIREBASE_ADMIN_CONFIG` esté bien configurado en `.env` y reinicia el servidor.');
           }
-          
+
           const tokenResult = await firebaseUser.getIdTokenResult();
           const role = (tokenResult.claims.role as string) || 'user';
           
@@ -67,8 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             displayName: firebaseUser.displayName,
             role,
           };
-
           setUser(appUser);
+          // Redirect on successful login
+          router.push('/prepare');
+
         } catch (error: any) {
            console.error("Authentication process failed:", error);
            setAuthError(error.message || 'Ocurrió un error inesperado durante la autenticación.');
@@ -87,9 +101,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [firebaseConfigured]);
+  }, [firebaseConfigured, router]);
 
   const signOut = useCallback(async () => {
+    // If guest user, just clear user state and redirect
+    if (user?.role === 'guest') {
+      setUser(null);
+      router.push('/login');
+      return;
+    }
+    
+    // If real user, sign out from Firebase
     if (!auth) {
       console.error('Firebase not initialized, cannot sign out.');
       return;
@@ -101,11 +123,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Error signing out:", error);
       setAuthError('Error al cerrar sesión.');
     }
-  }, [router]);
+  }, [router, user]);
 
-  const value = useMemo(() => ({ user, loading, authError, signOut, clearAuthError }), [user, loading, authError, signOut, clearAuthError]);
+  const value = useMemo(() => ({ 
+      user, 
+      loading, 
+      authError, 
+      signOut, 
+      signInAsGuest, 
+      firebaseConfigured,
+      clearAuthError 
+  }), [user, loading, authError, signOut, signInAsGuest, firebaseConfigured, clearAuthError]);
 
-  if (loading) {
+  if (loading && firebaseConfigured) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />

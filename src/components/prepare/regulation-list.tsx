@@ -30,13 +30,14 @@ interface Regulation {
 interface RegulationItemProps {
     regulation: Regulation;
     isSelected: boolean;
+    isGuest: boolean;
     onToggleSelection: () => void;
     onRename: (regulation: Regulation) => void;
     onDelete: (regulation: Regulation) => void;
     onDismissError: (regulationId: string) => void;
 }
 
-const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
+const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, isGuest, onToggleSelection, onRename, onDelete, onDismissError }) => {
     const { language } = useLanguage();
     const t = useTranslations(language);
     const [countdown, setCountdown] = useState(regulation.estimatedTime ? Math.round(regulation.estimatedTime) : 0);
@@ -110,7 +111,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
                     </div>
                 </div>
 
-                {regulation.status === 'success' && (
+                {regulation.status === 'success' && !isGuest && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -153,9 +154,10 @@ interface RegulationListProps {
     onDismissError: (regulationId: string) => void;
     onRename: (regulation: Regulation) => void;
     onDelete: (regulation: Regulation) => void;
+    isGuest: boolean;
 }
 
-export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete }: RegulationListProps) {
+export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete, isGuest }: RegulationListProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
 
@@ -175,6 +177,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     variant="outline"
                     className="btn-neu-light w-full sm:w-auto"
                     onFileSelect={onRegulationUpload}
+                    disabled={isGuest}
                 >
                     <Plus className="mr-2 h-4 w-4" />
                     {t('preparePage.uploadRegulation')}
@@ -190,6 +193,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     onRename={onRename}
                     onDelete={onDelete}
                     onDismissError={onDismissError}
+                    isGuest={isGuest}
                    />
                 ))}
             </div>

@@ -45,18 +45,20 @@ interface FolderGridProps {
     onDismissError: (file: File, folderId: string) => void;
     onRenameFolder: (folder: FolderData) => void;
     onDeleteFolder: (folder: FolderData) => void;
+    isGuest: boolean;
 }
 
 const FileItem: React.FC<{
   file: File;
   folderId: string;
   isSelected: boolean;
+  isGuest: boolean;
   onSelect: () => void;
   onRename: (file: File, folderId: string) => void;
   onMove: (file: File, folderId: string) => void;
   onDelete: (file: File, folderId: string) => void;
   onDismissError: (file: File, folderId: string) => void;
-}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
+}> = ({ file, folderId, isSelected, isGuest, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [countdown, setCountdown] = useState(file.estimatedTime ? Math.round(file.estimatedTime) : 0);
@@ -134,37 +136,39 @@ const FileItem: React.FC<{
         {isSelected && (
           <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mx-2" />
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-full flex-shrink-0 opacity-0 group-hover/fileitem:opacity-100 focus:opacity-100 transition-opacity"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">{t('preparePage.fileOptions')}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
-            <DropdownMenuItem onSelect={() => onRename(file, folderId)}>
-              <PenLine className="mr-2 h-4 w-4" />
-              <span>{t('preparePage.rename')}</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onMove(file, folderId)}>
-              <Move className="mr-2 h-4 w-4" />
-              <span>{t('preparePage.move')}</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={() => onDelete(file, folderId)}
-              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              <span>{t('preparePage.delete')}</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {!isGuest && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full flex-shrink-0 opacity-0 group-hover/fileitem:opacity-100 focus:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">{t('preparePage.fileOptions')}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
+              <DropdownMenuItem onSelect={() => onRename(file, folderId)}>
+                <PenLine className="mr-2 h-4 w-4" />
+                <span>{t('preparePage.rename')}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => onMove(file, folderId)}>
+                <Move className="mr-2 h-4 w-4" />
+                <span>{t('preparePage.move')}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => onDelete(file, folderId)}
+                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>{t('preparePage.delete')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </div>
   );
@@ -181,7 +185,8 @@ export function FolderGrid({
     onDeleteFile,
     onDismissError,
     onRenameFolder,
-    onDeleteFolder
+    onDeleteFolder,
+    isGuest
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
@@ -218,37 +223,40 @@ export function FolderGrid({
                                 size="icon"
                                 className="h-8 w-8 rounded-full flex-shrink-0"
                                 title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
+                                disabled={isGuest}
                             >
                                 <Plus className="h-5 w-5" />
                                 <span className="sr-only">{t('preparePage.addFile')}</span>
                             </FileUploadButton>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full flex-shrink-0"
-                                    onClick={(e) => e.stopPropagation()}
-                                    >
-                                    <MoreVertical className="h-5 w-5" />
-                                    <span className="sr-only">{t('preparePage.folderOptions')}</span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
-                                    <DropdownMenuItem onSelect={() => onRenameFolder(folder)}>
-                                    <PenLine className="mr-2 h-4 w-4" />
-                                    <span>{t('preparePage.rename')}</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem
-                                    onSelect={() => onDeleteFolder(folder)}
-                                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                    >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    <span>{t('preparePage.delete')}</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            {!isGuest && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full flex-shrink-0"
+                                        onClick={(e) => e.stopPropagation()}
+                                        >
+                                        <MoreVertical className="h-5 w-5" />
+                                        <span className="sr-only">{t('preparePage.folderOptions')}</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
+                                        <DropdownMenuItem onSelect={() => onRenameFolder(folder)}>
+                                        <PenLine className="mr-2 h-4 w-4" />
+                                        <span>{t('preparePage.rename')}</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                        onSelect={() => onDeleteFolder(folder)}
+                                        className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                        >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>{t('preparePage.delete')}</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
@@ -264,6 +272,7 @@ export function FolderGrid({
                                     onMove={onMoveFile}
                                     onDelete={onDeleteFile}
                                     onDismissError={onDismissError}
+                                    isGuest={isGuest}
                                 />
                             ))
                         ) : (

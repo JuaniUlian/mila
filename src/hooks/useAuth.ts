@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useContext } from 'react';
@@ -15,19 +16,13 @@ export const useAuth = () => {
   const { firebaseConfigured } = context;
 
   const signInWithEmail = async (email: string, password: string) => {
-    // This function should only be called if Firebase is configured.
-    // The UI should prevent this, but this is a safeguard.
     if (!firebaseConfigured || !auth) {
-      const error = new Error('Firebase no está configurado. Por favor, revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.');
-      // Manually set authError in context if needed, though the effect should handle it.
-      console.error(error.message);
-      // For more direct feedback, we can throw the error to be caught in the form handler
-      throw error;
+      throw new Error('Firebase no está configurado. Revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.');
     }
     
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // The onIdTokenChanged listener in AuthContext will handle success.
+      // The onIdTokenChanged listener in AuthContext will handle success and redirect.
     } catch (error: any) {
       let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
       
@@ -52,9 +47,6 @@ export const useAuth = () => {
             break;
         }
       }
-      
-      // We throw a new error with the user-friendly description
-      // to be caught by the login form's try-catch block.
       throw new Error(description);
     }
   };
