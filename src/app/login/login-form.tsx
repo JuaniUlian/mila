@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -25,9 +24,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
-import { Separator } from '@/components/ui/separator';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor, introduce un correo electrónico válido.'),
@@ -38,7 +36,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, signInAsGuest, authError, clearAuthError, firebaseConfigured } = useAuth();
+  const { signInWithEmail, authError, clearAuthError } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -68,21 +66,11 @@ export default function LoginForm() {
       await signInWithEmail(data.email, data.password);
       router.push('/prepare');
     } catch (error: any) {
-      // Errors are now handled by the authError effect
-      setIsLoading(false);
-    }
-  };
-
-  const handleGuestLogin = () => {
-    setIsLoading(true);
-    try {
-      signInAsGuest();
-      router.push('/prepare');
-    } catch (error) {
-       toast({
+      // The useAuth hook now throws a user-friendly error
+      toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'No se pudo iniciar sesión como invitado.',
+        title: 'Error de inicio de sesión',
+        description: error.message,
       });
       setIsLoading(false);
     }
@@ -99,7 +87,6 @@ export default function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {firebaseConfigured ? (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleEmailLogin)} className="space-y-4">
                 <FormField
@@ -144,33 +131,7 @@ export default function LoginForm() {
                 </Button>
               </form>
             </Form>
-          ) : (
-             <div className="text-center text-sm text-muted-foreground p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <p>La configuración de Firebase no está disponible.</p>
-                <p className="font-semibold">Puedes continuar en modo de demostración.</p>
-            </div>
-          )}
         </CardContent>
-        <CardFooter className="flex-col">
-            <div className="relative flex py-2 items-center w-full">
-                <div className="flex-grow border-t border-gray-300"></div>
-                <span className="flex-shrink mx-4 text-xs text-muted-foreground">O</span>
-                <div className="flex-grow border-t border-gray-300"></div>
-            </div>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <User className="mr-2 h-4 w-4" />
-              )}
-              Ingresar como Invitado
-            </Button>
-        </CardFooter>
       </Card>
     </div>
   );

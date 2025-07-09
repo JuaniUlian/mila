@@ -11,15 +11,12 @@ export interface AppUser {
   email: string | null;
   displayName: string | null;
   role?: string;
-  isGuest?: boolean;
 }
 
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
   authError: string | null;
-  firebaseConfigured: boolean;
-  signInAsGuest: () => void;
   signOut: () => Promise<void>;
   clearAuthError: () => void;
 }
@@ -32,30 +29,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
-  // This state will be true only if the client-side Firebase config is valid.
   const firebaseConfigured = useMemo(() => !!auth, []);
 
   const clearAuthError = useCallback(() => {
     setAuthError(null);
   }, []);
 
-  const signInAsGuest = useCallback(() => {
-    const guestUser: AppUser = {
-      uid: 'guest-user',
-      email: 'guest@example.com',
-      displayName: 'Invitado',
-      role: 'guest',
-      isGuest: true,
-    };
-    setUser(guestUser);
-    setLoading(false);
-  }, []);
-
-
   useEffect(() => {
-    // If Firebase isn't configured, we don't need to listen for auth changes.
-    // The login form will show the guest mode option.
     if (!firebaseConfigured) {
+      setAuthError('La configuración de Firebase no está disponible. Revisa las variables de entorno NEXT_PUBLIC_* y reinicia el servidor.');
       setLoading(false);
       return;
     }
@@ -108,12 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [firebaseConfigured]);
 
   const signOut = useCallback(async () => {
-    if (user?.isGuest) {
-        setUser(null);
-        router.push('/login');
-        return;
-    }
-
     if (!auth) {
       console.error('Firebase not initialized, cannot sign out.');
       return;
@@ -125,9 +101,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Error signing out:", error);
       setAuthError('Error al cerrar sesión.');
     }
-  }, [router, user]);
+  }, [router]);
 
-  const value = useMemo(() => ({ user, loading, authError, firebaseConfigured, signInAsGuest, signOut, clearAuthError }), [user, loading, authError, firebaseConfigured, signInAsGuest, signOut, clearAuthError]);
+  const value = useMemo(() => ({ user, loading, authError, signOut, clearAuthError }), [user, loading, authError, signOut, clearAuthError]);
 
   if (loading) {
     return (

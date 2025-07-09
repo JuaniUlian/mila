@@ -28,12 +28,6 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   const { user } = await getAuthenticatedUser();
 
-  if (user?.isGuest) {
-      // In guest mode, we can return a mock response or a specific message.
-      // For now, let's just return a simple extracted text.
-      return { extractedText: "Contenido extraído en modo de demostración." };
-  }
-
   if (user?.role !== 'user' && user?.role !== 'admin') {
     throw new Error('Unauthorized: User does not have permission to perform this action.');
   }

@@ -46,23 +46,10 @@ interface AppUser {
   email?: string | null;
   displayName?: string | null;
   role?: string;
-  isGuest?: boolean;
 }
 
 export async function getAuthenticatedUser(): Promise<{ user: AppUser | null }> {
     const session = cookies().get('__session')?.value;
-
-    if (session === 'guest-session') {
-        return { 
-            user: {
-                uid: 'guest-user',
-                email: 'guest@example.com',
-                displayName: 'Invitado',
-                role: 'guest',
-                isGuest: true,
-            }
-        };
-    }
     
     if (!session) {
         return { user: null };

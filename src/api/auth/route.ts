@@ -7,18 +7,6 @@ export async function POST(request: NextRequest, response: NextResponse) {
     const adminAuth = getAdminAuth();
     const idToken = await request.text();
     
-    // Special case for guest mode
-    if (idToken === 'guest-mode-token') {
-        cookies().set('__session', 'guest-session', {
-            maxAge: 60 * 60 * 24 * 1, // 1 day for guest session
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            path: '/',
-            sameSite: 'lax',
-        });
-        return NextResponse.json({ status: 'success' });
-    }
-
     if (!adminAuth) {
         return NextResponse.json({ status: 'error', message: 'La configuración del servidor de Firebase no está disponible.' }, { status: 500 });
     }
