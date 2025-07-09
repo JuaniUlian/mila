@@ -13,7 +13,9 @@ function getAdminApp(): App | null {
 
     const serviceAccountConfig = process.env.FIREBASE_ADMIN_CONFIG;
     if (!serviceAccountConfig) {
-        console.error("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication features will be disabled.");
+        // Use console.warn to prevent Next.js from treating this as a critical error.
+        // The developer still gets a helpful message without the app crashing.
+        console.warn("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication features will be disabled.");
         return null;
     }
     
@@ -43,19 +45,23 @@ export function getAdminAuth(): Auth | null {
 }
 
 export async function getAuthenticatedUser() {
+    const session = cookies().get('__session')?.value;
+
+    // If there's no session cookie, we don't need to try initializing Firebase Admin.
+    // This is more efficient and avoids unnecessary server-side checks for logged-out users.
+    if (!session) {
+        return { user: null };
+    }
+
     const adminAuth = getAdminAuth();
     
+    // If a cookie exists but we can't initialize Admin Auth, it means the server config is missing.
+    // In this case, we treat the user as unauthenticated.
     if (!adminAuth) {
         return { user: null };
     }
 
     try {
-        const session = cookies().get('__session')?.value;
-
-        if (!session) {
-            return { user: null };
-        }
-
         const decodedIdToken = await adminAuth.verifySessionCookie(session, true);
         const user = await adminAuth.getUser(decodedIdToken.uid);
 
