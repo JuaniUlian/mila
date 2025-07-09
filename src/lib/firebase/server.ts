@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 
 const ADMIN_APP_NAME = 'firebase-admin-app-mila';
 
-function getAdminApp(): App {
+function getAdminApp(): App | null {
     // Check if the app is already initialized
     const existingApp = getApps().find(app => app.name === ADMIN_APP_NAME);
     if (existingApp) {
@@ -13,7 +13,8 @@ function getAdminApp(): App {
 
     const serviceAccountConfig = process.env.FIREBASE_ADMIN_CONFIG;
     if (!serviceAccountConfig) {
-        throw new Error("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication is disabled.");
+        console.error("FIREBASE_ADMIN_CONFIG is not set. Server-side authentication features will be disabled.");
+        return null;
     }
     
     try {
@@ -23,24 +24,32 @@ function getAdminApp(): App {
             credential: cert(serviceAccount),
         }, ADMIN_APP_NAME);
     } catch (e: any) {
-        throw new Error(`Failed to parse FIREBASE_ADMIN_CONFIG or initialize app: ${e.message}`);
+        console.error(`Failed to parse FIREBASE_ADMIN_CONFIG or initialize app: ${e.message}`);
+        return null;
     }
 }
 
-export function getAdminAuth(): Auth {
+export function getAdminAuth(): Auth | null {
+    const adminApp = getAdminApp();
+    if (!adminApp) {
+        return null;
+    }
     try {
-      return getAuth(getAdminApp());
+      return getAuth(adminApp);
     } catch (error) {
-        // This will catch the error from getAdminApp if config is missing
         console.error("Firebase Admin Auth could not be initialized:", error);
-        // Re-throw to make it clear that auth-dependent features will fail.
-        throw error;
+        return null;
     }
 }
 
 export async function getAuthenticatedUser() {
+    const adminAuth = getAdminAuth();
+    
+    if (!adminAuth) {
+        return { user: null };
+    }
+
     try {
-        const adminAuth = getAdminAuth();
         const session = cookies().get('__session')?.value;
 
         if (!session) {
