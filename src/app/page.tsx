@@ -55,18 +55,18 @@ export default function LandingPage() {
                     fontWeight="600"
                     fill="#0D2B3E"
                     textAnchor="middle">M</text>
-                <text x="156" y="380"
-                    fontFamily="Nunito, sans-serif"
-                    fontSize="160"
-                    fontWeight="600"
-                    fill="#0D2B3E"
-                    textAnchor="middle">L</text>
-              <text x="336" y="240"
+                <text x="336" y="240"
                     fontFamily="Nunito, sans-serif"
                     fontSize="160"
                     fontWeight="600"
                     fill="#DA623C"
                     textAnchor="middle">I</text>
+              <text x="156" y="380"
+                    fontFamily="Nunito, sans-serif"
+                    fontSize="160"
+                    fontWeight="600"
+                    fill="#0D2B3E"
+                    textAnchor="middle">L</text>
                 <text x="336" y="380"
                     fontFamily="Nunito, sans-serif"
                     fontSize="160"

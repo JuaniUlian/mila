@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -20,23 +19,23 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
                 fontWeight="600"
                 fill="#0D2B3E"
                 textAnchor="middle">M</text>
-            <text x="156" y="380"
-                fontFamily="Nunito, sans-serif"
-                fontSize="160"
-                fontWeight="600"
-                fill="#DA623C"
-                textAnchor="middle">L</text>
             <text x="336" y="240"
                 fontFamily="Nunito, sans-serif"
                 fontSize="160"
                 fontWeight="600"
                 fill="#DA623C"
                 textAnchor="middle">I</text>
-            <text x="336" y="380"
+            <text x="156" y="380"
                 fontFamily="Nunito, sans-serif"
                 fontSize="160"
                 fontWeight="600"
                 fill="#0D2B3E"
+                textAnchor="middle">L</text>
+            <text x="336" y="380"
+                fontFamily="Nunito, sans-serif"
+                fontSize="160"
+                fontWeight="600"
+                fill="#DA623C"
                 textAnchor="middle">A</text>
         </svg>
     );
@@ -64,18 +63,18 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
             fontWeight="600"
             fill="url(#silver-text-grad)"
             textAnchor="middle">M</text>
-        <text x="156" y="380"
-            fontFamily="Nunito, sans-serif"
-            fontSize="160"
-            fontWeight="600"
-            fill="url(#silver-text-grad)"
-            textAnchor="middle">L</text>
         <text x="336" y="240"
             fontFamily="Nunito, sans-serif"
             fontSize="160"
             fontWeight="600"
             fill="url(#silver-text-grad)"
             textAnchor="middle">I</text>
+        <text x="156" y="380"
+            fontFamily="Nunito, sans-serif"
+            fontSize="160"
+            fontWeight="600"
+            fill="url(#silver-text-grad)"
+            textAnchor="middle">L</text>
         <text x="336" y="380"
             fontFamily="Nunito, sans-serif"
             fontSize="160"
