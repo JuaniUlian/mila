@@ -1,18 +1,16 @@
-import { auth } from 'firebase-admin';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { initAdmin } from '@/lib/firebase/server';
-
-initAdmin();
+import { getAdminAuth } from '@/lib/firebase/server';
 
 export async function POST(request: NextRequest, response: NextResponse) {
-  const idToken = await request.text();
-
-  // The session cookie will be valid for 14 days.
-  const expiresIn = 60 * 60 * 24 * 14 * 1000;
-
   try {
-    const sessionCookie = await auth().createSessionCookie(idToken, { expiresIn });
+    const adminAuth = getAdminAuth();
+    const idToken = await request.text();
+
+    // The session cookie will be valid for 14 days.
+    const expiresIn = 60 * 60 * 24 * 14 * 1000;
+  
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
     cookies().set('__session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,

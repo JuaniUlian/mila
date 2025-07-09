@@ -2,58 +2,39 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Force the middleware to run on the Node.js runtime.
-// This is required because `firebase-admin` is not compatible with the Edge runtime.
 export const runtime = 'nodejs';
 
 const PROTECTED_ROUTES = ['/prepare', '/loading', '/analysis'];
 const ADMIN_ONLY_ROUTES = ['/admin'];
 
 export async function middleware(request: NextRequest) {
-  // Use dynamic import to avoid build-time errors with server-only packages.
-  const { getAuthenticatedUser } = await import('./lib/firebase/server');
-  const { token } = await getAuthenticatedUser(request);
   const { pathname } = request.nextUrl;
+  const sessionCookie = request.cookies.get('__session');
 
-  const userRole = token?.role || null;
-  const isAuthenticated = !!token;
+  const isAuthenticated = !!sessionCookie;
 
-  // --- Redirect authenticated users from public pages ---
+  // If an authenticated user tries to access the login page, redirect them to the prepare page.
   if (isAuthenticated && pathname.startsWith('/login')) {
     const url = request.nextUrl.clone();
     url.pathname = '/prepare';
     return NextResponse.redirect(url);
   }
 
-  // --- Handle unauthenticated users ---
+  // If a non-authenticated user tries to access a protected route, redirect them to the login page.
   if (!isAuthenticated) {
-    // Allow access to login page and public root
-    if (pathname.startsWith('/login') || pathname === '/') {
-      return NextResponse.next();
+    const isAccessingProtectedRoute = 
+        PROTECTED_ROUTES.some(p => pathname.startsWith(p)) || 
+        ADMIN_ONLY_ROUTES.some(p => pathname.startsWith(p));
+    
+    if (isAccessingProtectedRoute) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/login';
+        return NextResponse.redirect(url);
     }
-    // For any other protected or admin route, redirect to login
-    const isAccessingProtected = PROTECTED_ROUTES.some(p => pathname.startsWith(p)) || ADMIN_ONLY_ROUTES.some(p => pathname.startsWith(p));
-    if (isAccessingProtected) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/login';
-      return NextResponse.redirect(url);
-    }
-    // Allow access to any other non-matched public pages
-    return NextResponse.next();
   }
-  
-  // --- Handle authenticated users ---
 
-  // Handle Admin routes: if a non-admin tries to access an admin route, redirect them.
-  const isAccessingAdminRoute = ADMIN_ONLY_ROUTES.some(p => pathname.startsWith(p));
-  if (isAccessingAdminRoute && userRole !== 'admin') {
-    const url = request.nextUrl.clone();
-    url.pathname = '/prepare'; // Redirect non-admins away to a safe default page.
-    return NextResponse.redirect(url);
-  }
-  
-  // For all other cases of authenticated users (guest, user, admin on non-admin routes), allow access.
-  // Page-specific logic will handle roles (e.g., guest mode features).
+  // Allow the request to proceed. Role-based access control is handled
+  // in the respective layout files (e.g., /admin/layout.tsx).
   return NextResponse.next();
 }
 
