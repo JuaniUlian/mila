@@ -30,7 +30,7 @@ import { Logo } from '@/components/layout/logo';
 
 const loginSchema = z.object({
   email: z.string().email('Por favor, introduce un correo electrónico válido.'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres.'),
+  password: z.string().min(1, 'La contraseña no puede estar vacía.'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -55,10 +55,30 @@ export default function LoginForm() {
       await signInWithEmail(data.email, data.password);
       router.push('/prepare');
     } catch (error: any) {
+      let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/invalid-credential':
+          case 'auth/user-not-found': // legacy
+          case 'auth/wrong-password': // legacy
+            description = 'El correo o la contraseña son incorrectos. Por favor, verifica tus credenciales y que los usuarios existan en Firebase.';
+            break;
+          case 'auth/invalid-api-key':
+            description = 'La clave de API de Firebase no es válida. Revisa la configuración en tu archivo .env.';
+            break;
+          case 'auth/network-request-failed':
+            description = 'Error de red. Por favor, revisa tu conexión a internet.';
+            break;
+          default:
+            description = error.message.includes('configured')
+              ? 'Firebase no está configurado. Revisa tus variables de entorno NEXT_PUBLIC...'
+              : `Ocurrió un error: ${error.message}`;
+        }
+      }
       toast({
         variant: 'destructive',
         title: 'Error de autenticación',
-        description: 'Las credenciales no son correctas. Por favor, inténtalo de nuevo.',
+        description,
       });
       setIsLoading(false);
     }
@@ -70,10 +90,27 @@ export default function LoginForm() {
       await signInWithGoogle();
       router.push('/prepare');
     } catch (error: any) {
+      let description = 'No se pudo iniciar sesión con Google. Por favor, inténtalo de nuevo.';
+       if (error.code) {
+        switch (error.code) {
+          case 'auth/popup-closed-by-user':
+            setIsLoading(false);
+            // No need to show a toast for this user action
+            return; 
+          case 'auth/account-exists-with-different-credential':
+            description = 'Ya existe una cuenta con este correo electrónico, pero con un método de inicio de sesión diferente.';
+            break;
+          case 'auth/network-request-failed':
+            description = 'Error de red. Por favor, revisa tu conexión a internet.';
+            break;
+          default:
+            description = `Ocurrió un error con Google: ${error.message}`;
+        }
+      }
       toast({
         variant: 'destructive',
         title: 'Error de autenticación',
-        description: 'No se pudo iniciar sesión con Google. Por favor, inténtalo de nuevo.',
+        description,
       });
       setIsLoading(false);
     }
