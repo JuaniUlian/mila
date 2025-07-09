@@ -98,7 +98,7 @@ export default function LoginForm() {
           <div className="mx-auto h-16 w-16">
             <Logo variant="color" />
           </div>
-          <CardTitle className="text-3xl font-bold mt-4">Bienvenido a MILA</CardTitle>
+          <CardTitle className="text-3xl font-bold mt-4">Bienvenido</CardTitle>
           <CardDescription>
             Inicia sesión para analizar tus documentos.
           </CardDescription>
