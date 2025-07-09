@@ -9,7 +9,6 @@
  */
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { getAuthenticatedUser } from '@/lib/firebase/server';
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z
@@ -27,11 +26,7 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 
 // The exported function that will be called by the client.
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const { user } = await getAuthenticatedUser();
-
-  if (!user || (user.role !== 'user' && user.role !== 'admin')) {
-    throw new Error('Unauthorized: User does not have permission to perform this action.');
-  }
+  // Authorization check removed for simpler demo environment.
   return extractTextFromFileFlow(input);
 }
 

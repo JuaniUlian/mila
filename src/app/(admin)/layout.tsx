@@ -1,20 +1,33 @@
-import { getAuthenticatedUser } from '@/lib/firebase/server';
-import { redirect } from 'next/navigation';
-import React from 'react';
+'use client';
 
-export default async function AdminLayout({
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = await getAuthenticatedUser();
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
-  if (!user) {
-    redirect('/login');
-  }
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      router.push('/login');
+    } else if (user.role !== 'admin') {
+      router.push('/prepare');
+    }
+  }, [user, loading, router]);
 
-  if (user.role !== 'admin') {
-    redirect('/prepare'); 
+  if (loading || !user || user.role !== 'admin') {
+     return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return <>{children}</>;

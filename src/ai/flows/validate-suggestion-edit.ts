@@ -10,7 +10,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { getAuthenticatedUser } from '@/lib/firebase/server';
 
 // Schemas
 const ValidateSuggestionEditInputSchema = z.object({
@@ -31,11 +30,7 @@ export type ValidateSuggestionEditOutput = z.infer<typeof ValidateSuggestionEdit
 
 // Exported function
 export async function validateSuggestionEdit(input: ValidateSuggestionEditInput): Promise<ValidateSuggestionEditOutput> {
-  const { user } = await getAuthenticatedUser();
-
-  if (!user || (user.role !== 'user' && user.role !== 'admin')) {
-    throw new Error('Unauthorized: User does not have permission to perform this action.');
-  }
+  // Authorization check removed for simpler demo environment.
   return validateSuggestionEditFlow(input);
 }
 
