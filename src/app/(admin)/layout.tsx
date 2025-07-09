@@ -7,13 +7,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { token } = await getAuthenticatedUser();
+  const { user } = await getAuthenticatedUser();
 
-  if (!token) {
+  if (!user) {
     redirect('/login');
   }
 
-  if (token.role !== 'admin') {
+  if (user.role !== 'admin') {
     redirect('/prepare'); 
   }
 

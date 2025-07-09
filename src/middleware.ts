@@ -2,39 +2,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export const runtime = 'nodejs';
+const PROTECTED_ROUTES = ['/prepare', '/loading', '/analysis', '/admin'];
+const PUBLIC_ROUTES = ['/login', '/'];
 
-const PROTECTED_ROUTES = ['/prepare', '/loading', '/analysis'];
-const ADMIN_ONLY_ROUTES = ['/admin'];
-
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('__session');
 
   const isAuthenticated = !!sessionCookie;
 
-  // If an authenticated user tries to access the login page, redirect them to the prepare page.
-  if (isAuthenticated && pathname.startsWith('/login')) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/prepare';
-    return NextResponse.redirect(url);
+  // If user is authenticated and tries to access login, redirect to prepare
+  if (isAuthenticated && pathname === '/login') {
+    return NextResponse.redirect(new URL('/prepare', request.url));
   }
 
-  // If a non-authenticated user tries to access a protected route, redirect them to the login page.
-  if (!isAuthenticated) {
-    const isAccessingProtectedRoute = 
-        PROTECTED_ROUTES.some(p => pathname.startsWith(p)) || 
-        ADMIN_ONLY_ROUTES.some(p => pathname.startsWith(p));
-    
-    if (isAccessingProtectedRoute) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/login';
-        return NextResponse.redirect(url);
-    }
+  // If user is not authenticated and tries to access a protected route, redirect to login
+  const isAccessingProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+  if (!isAuthenticated && isAccessingProtectedRoute) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Allow the request to proceed. Role-based access control is handled
-  // in the respective layout files (e.g., /admin/layout.tsx).
   return NextResponse.next();
 }
 

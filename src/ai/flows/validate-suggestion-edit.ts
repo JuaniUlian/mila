@@ -30,10 +30,9 @@ export type ValidateSuggestionEditOutput = z.infer<typeof ValidateSuggestionEdit
 
 // Exported function
 export async function validateSuggestionEdit(input: ValidateSuggestionEditInput): Promise<ValidateSuggestionEditOutput> {
-  const { token } = await getAuthenticatedUser();
-  const userRole = token?.role;
+  const { user } = await getAuthenticatedUser();
 
-  if (userRole !== 'user' && userRole !== 'admin') {
+  if (user?.role !== 'user' && user?.role !== 'admin') {
     throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return validateSuggestionEditFlow(input);

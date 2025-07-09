@@ -7,7 +7,7 @@
  * - ExtractTextFromFileOutput - The return type for the function.
  */
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { getAuthenticatedUser } from '@/lib/firebase/server';
 
 const ExtractTextFromFileInputSchema = z.object({
@@ -26,10 +26,9 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 
 // The exported function that will be called by the client.
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const { token } = await getAuthenticatedUser();
-  const userRole = token?.role;
+  const { user } = await getAuthenticatedUser();
 
-  if (userRole !== 'user' && userRole !== 'admin') {
+  if (user?.role !== 'user' && user?.role !== 'admin') {
     throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return extractTextFromFileFlow(input);
