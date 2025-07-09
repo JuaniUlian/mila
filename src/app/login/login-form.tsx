@@ -24,7 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldQuestion } from 'lucide-react';
 import { Logo } from '@/components/layout/logo';
 
 const loginSchema = z.object({
@@ -36,7 +36,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail } = useAuth();
+  const { signInWithEmail, isDemoMode, signInAsGuest } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -90,6 +90,32 @@ export default function LoginForm() {
       setIsLoading(false);
     }
   };
+
+  // If Firebase isn't configured, show a demo mode login screen.
+  if (isDemoMode) {
+    return (
+       <div className="flex min-h-screen items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-2xl bg-white/60 backdrop-blur-lg">
+          <CardHeader className="text-center">
+            <Logo variant="color" className="mx-auto h-16 w-16" />
+            <CardTitle className="text-3xl font-bold mt-4">Bienvenido</CardTitle>
+            <CardDescription>
+              La configuración de Firebase no está disponible.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center text-center gap-4">
+            <p className="text-sm text-muted-foreground">
+              Puedes continuar en modo demostración para explorar la aplicación. En este modo, se utilizarán datos de ejemplo y las funciones de IA estarán desactivadas.
+            </p>
+            <Button onClick={signInAsGuest} className="w-full max-w-xs">
+              <ShieldQuestion className="mr-2 h-4 w-4" />
+              Continuar en Modo Demostración
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">

@@ -14,6 +14,8 @@ export const useAuth = () => {
 
   const signInWithEmail = async (email: string, password: string) => {
     if (!auth) {
+      // This path should ideally not be taken if isDemoMode is handled correctly in the UI,
+      // but it serves as a safeguard.
       throw new Error('Firebase is not configured. Please check your .env file.');
     }
     return signInWithEmailAndPassword(auth, email, password);
