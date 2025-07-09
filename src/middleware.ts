@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getAuthenticatedUser } from './lib/firebase/server';
 
+// Force the middleware to run on the Node.js runtime.
+// This is required because `firebase-admin` is not compatible with the Edge runtime.
+export const runtime = 'nodejs';
+
 const PROTECTED_ROUTES = ['/prepare', '/loading', '/analysis'];
 const ADMIN_ROUTES = ['/admin'];
 
@@ -50,7 +54,7 @@ export const config = {
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * - favicon.png (favicon file)
      */
     '/((?!api|_next/static|_next/image|favicon.png).*)',
   ],
