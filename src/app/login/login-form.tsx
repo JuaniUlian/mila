@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -38,7 +37,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, authError, clearAuthError, signInAsGuest, signInAsDemoUser, user } = useAuth();
+  const { signInWithEmail, authError, clearAuthError, signInAsGuest, user } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
@@ -62,12 +61,6 @@ export default function LoginForm() {
   }, [authError, toast, clearAuthError]);
 
   const handleEmailLogin = async (data: LoginFormValues) => {
-    if (data.email.toLowerCase() === 'juanulian@mila.app' && data.password === 'password') {
-      setIsLoading(true);
-      await signInAsDemoUser(data.email);
-      return; 
-    }
-    
     setIsLoading(true);
     clearAuthError();
     await signInWithEmail(data.email, data.password);
