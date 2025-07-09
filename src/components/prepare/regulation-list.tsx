@@ -30,13 +30,14 @@ interface Regulation {
 interface RegulationItemProps {
     regulation: Regulation;
     isSelected: boolean;
+    isGuest: boolean;
     onToggleSelection: () => void;
     onRename: (regulation: Regulation) => void;
     onDelete: (regulation: Regulation) => void;
     onDismissError: (regulationId: string) => void;
 }
 
-const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
+const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, isGuest, onToggleSelection, onRename, onDelete, onDismissError }) => {
     const { language } = useLanguage();
     const t = useTranslations(language);
     const [countdown, setCountdown] = useState(regulation.estimatedTime ? Math.round(regulation.estimatedTime) : 0);
@@ -110,7 +111,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
                     </div>
                 </div>
 
-                {regulation.status === 'success' && (
+                {regulation.status === 'success' && !isGuest && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -148,6 +149,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
 interface RegulationListProps {
     regulations: Regulation[];
     selectedIds: string[];
+    isGuest: boolean;
     onSelectionChange: (ids: string[]) => void;
     onRegulationUpload: (file: File) => void;
     onDismissError: (regulationId: string) => void;
@@ -155,7 +157,7 @@ interface RegulationListProps {
     onDelete: (regulation: Regulation) => void;
 }
 
-export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete }: RegulationListProps) {
+export function RegulationList({ regulations, selectedIds, isGuest, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete }: RegulationListProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
 
@@ -171,14 +173,16 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
     return (
         <div className="space-y-4">
             <div className="flex justify-end">
-                <FileUploadButton
-                    variant="outline"
-                    className="btn-neu-light w-full sm:w-auto"
-                    onFileSelect={onRegulationUpload}
-                >
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t('preparePage.uploadRegulation')}
-                </FileUploadButton>
+                {!isGuest && (
+                    <FileUploadButton
+                        variant="outline"
+                        className="btn-neu-light w-full sm:w-auto"
+                        onFileSelect={onRegulationUpload}
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        {t('preparePage.uploadRegulation')}
+                    </FileUploadButton>
+                )}
             </div>
             <div className="w-full space-y-3">
                 {regulations.map(regulation => (
@@ -186,6 +190,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     key={regulation.id}
                     regulation={regulation}
                     isSelected={selectedIds.includes(regulation.id)}
+                    isGuest={isGuest}
                     onToggleSelection={() => handleToggleSelection(regulation)}
                     onRename={onRename}
                     onDelete={onDelete}

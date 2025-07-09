@@ -33,6 +33,9 @@ import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 import JSZip from 'jszip';
+import { useAuth } from '@/hooks/useAuth';
+import { mockData } from '@/components/mila/mock-data';
+import { upsMockData } from '@/components/mila/mock-data-ups';
 
 
 type File = {
@@ -107,6 +110,8 @@ export default function PreparePage() {
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const { user } = useAuth();
+  const isGuest = user?.role === 'guest';
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
@@ -148,6 +153,10 @@ export default function PreparePage() {
   // Load from localStorage on mount
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
+    if (isGuest) {
+        setLoadedFromStorage(true);
+        return;
+    }
     try {
         const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
         if (savedFoldersRaw) {
@@ -177,11 +186,11 @@ export default function PreparePage() {
         console.error('Error loading data from localStorage', error);
     }
     setLoadedFromStorage(true);
-  }, []);
+  }, [isGuest]);
 
-  // Save to localStorage on changes, but only after initial load
+  // Save to localStorage on changes, but only after initial load and if not guest
   useEffect(() => {
-    if (loadedFromStorage) {
+    if (loadedFromStorage && !isGuest) {
         try {
             const foldersToSave = folders.map(folder => ({
                 ...folder,
@@ -192,10 +201,10 @@ export default function PreparePage() {
             console.error('Error saving folders to localStorage', error);
         }
     }
-  }, [folders, loadedFromStorage]);
+  }, [folders, loadedFromStorage, isGuest]);
 
   useEffect(() => {
-      if (loadedFromStorage) {
+      if (loadedFromStorage && !isGuest) {
           try {
               const regulationsToSave = regulations.filter(reg => reg.status === 'success');
               localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulationsToSave));
@@ -203,7 +212,7 @@ export default function PreparePage() {
               console.error('Error saving regulations to localStorage', error);
           }
       }
-  }, [regulations, loadedFromStorage]);
+  }, [regulations, loadedFromStorage, isGuest]);
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
@@ -225,7 +234,23 @@ export default function PreparePage() {
   const handlePrevStep = () => setCurrentStep(1);
 
   const handleValidate = () => {
-    if (isValidationReady && selectedFile) {
+    if (!isValidationReady || !selectedFile) return;
+
+    if (isGuest) {
+        // Guest Mode: Use mock data and bypass AI analysis
+        const mockDataToUse = selectedFile.name.includes('UPS') ? upsMockData : mockData;
+        const finalMockData = JSON.parse(JSON.stringify(mockDataToUse));
+        
+        // Adjust mock data to reflect selected file and regulations
+        finalMockData.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${selectedFile.name}`;
+        finalMockData.blocks.forEach((block: any) => {
+            block.originalText = selectedFile.content;
+        });
+
+        localStorage.setItem('milaAnalysisData', JSON.stringify(finalMockData));
+        router.push('/analysis');
+    } else {
+        // Standard User Mode: Go to loading page for AI analysis
         const selectedRegulationsData = regulations
             .filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success')
             .map(r => ({ name: r.name, content: r.content }));
@@ -828,27 +853,32 @@ export default function PreparePage() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <FileUploadButton
-                            variant="outline"
-                            className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
-                            onFileSelect={handleFileUploadedToRoot}
-                        >
-                            <Upload className="mr-2 h-4 w-4" />
-                            {t('preparePage.uploadFile')}
-                        </FileUploadButton>
-                        <Button
-                            variant="outline"
-                            suppressHydrationWarning
-                            className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
-                            onClick={() => setIsCreateFolderModalOpen(true)}
-                        >
-                            <FolderPlus className="mr-2 h-4 w-4" />
-                            {t('preparePage.newFolder')}
-                        </Button>
+                        {!isGuest && (
+                          <>
+                            <FileUploadButton
+                                variant="outline"
+                                className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
+                                onFileSelect={handleFileUploadedToRoot}
+                            >
+                                <Upload className="mr-2 h-4 w-4" />
+                                {t('preparePage.uploadFile')}
+                            </FileUploadButton>
+                            <Button
+                                variant="outline"
+                                suppressHydrationWarning
+                                className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
+                                onClick={() => setIsCreateFolderModalOpen(true)}
+                            >
+                                <FolderPlus className="mr-2 h-4 w-4" />
+                                {t('preparePage.newFolder')}
+                            </Button>
+                          </>
+                        )}
                         </div>
                         <FolderGrid 
                           folders={filteredFolders} 
                           selectedFileId={selectedFileId}
+                          isGuest={isGuest}
                           onSelectFile={setSelectedFileId}
                           searchQuery={searchQuery}
                           onFileUploadToFolder={handleFileUploadToFolder}
@@ -896,6 +926,7 @@ export default function PreparePage() {
                                 <RegulationList 
                                 regulations={regulations}
                                 selectedIds={selectedRegulationIds}
+                                isGuest={isGuest}
                                 onSelectionChange={setSelectedRegulationIds}
                                 onRegulationUpload={handleRegulationUpload}
                                 onDismissError={handleDismissRegulationError}

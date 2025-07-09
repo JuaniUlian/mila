@@ -26,9 +26,11 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 
 // The exported function that will be called by the client.
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const { user } = await getAuthenticatedUser();
-  if (!user) {
-    throw new Error('Unauthorized: User must be logged in.');
+  const { token } = await getAuthenticatedUser();
+  const userRole = token?.role;
+
+  if (userRole !== 'user' && userRole !== 'admin') {
+    throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return extractTextFromFileFlow(input);
 }

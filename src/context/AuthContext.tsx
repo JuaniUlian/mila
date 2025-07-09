@@ -27,13 +27,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setUser({ ...firebaseUser, role });
 
-        // Create session cookie by sending token to server
-        const idToken = await firebaseUser.getIdToken();
-        await fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: idToken,
-        });
+        try {
+          // Create session cookie by sending token to server
+          const idToken = await firebaseUser.getIdToken();
+          await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: idToken,
+          });
+        } catch (error) {
+           console.error("Error creating session:", error);
+           // Sign out if session creation fails
+           await firebaseSignOut(auth);
+        }
 
       } else {
         setUser(null);
@@ -47,12 +53,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
-    await firebaseSignOut(auth);
-    router.push('/login');
-    // The onIdTokenChanged listener will handle the rest (clearing user and cookie)
+    try {
+      await firebaseSignOut(auth);
+      router.push('/login');
+      // The onIdTokenChanged listener will handle the rest (clearing user and cookie)
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
-  const value = useMemo(() => ({ user, loading, signOut }), [user, loading]);
+  const value = useMemo(() => ({ user, loading, signOut }), [user, loading, signOut]);
 
   if (loading) {
     return (
