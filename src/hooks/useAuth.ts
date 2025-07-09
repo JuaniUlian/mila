@@ -13,13 +13,22 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
 
-  const { firebaseConfigured } = context;
+  const { firebaseConfigured, signInAsGuest } = context;
 
   const signInWithEmail = async (email: string, password: string) => {
-    if (!firebaseConfigured || !auth) {
-      throw new Error('Firebase no está configurado. Revisa que las variables `NEXT_PUBLIC_FIREBASE_*` estén correctas en tu archivo `.env`. Si las acabas de añadir, recuerda reiniciar el servidor.');
+    // Check for special demo credentials first.
+    if (email.toLowerCase() === 'admin@mila.com' && password === 'password') {
+      // Use the guest flow for the demo user
+      await signInAsGuest();
+      return;
     }
     
+    // For any other credentials, require Firebase to be configured.
+    if (!firebaseConfigured || !auth) {
+      throw new Error('Para iniciar sesión con credenciales reales, Firebase debe estar configurado. Por favor, revisa tu archivo .env. Para explorar, usa las credenciales de demo.');
+    }
+    
+    // Proceed with real Firebase authentication.
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // The onIdTokenChanged listener in AuthContext will handle success and redirect.

@@ -46,12 +46,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role: 'guest',
     };
     setUser(guestUser);
-  }, []);
+    router.push('/prepare');
+  }, [router]);
 
   useEffect(() => {
     if (!firebaseConfigured) {
       setLoading(false);
-      return; // Stop here if Firebase is not configured.
+      return; 
     }
 
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -80,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role,
           };
           setUser(appUser);
-          // Redirect on successful login
           router.push('/prepare');
 
         } catch (error: any) {
@@ -104,14 +104,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [firebaseConfigured, router]);
 
   const signOut = useCallback(async () => {
-    // If guest user, just clear user state and redirect
     if (user?.role === 'guest') {
       setUser(null);
       router.push('/login');
       return;
     }
     
-    // If real user, sign out from Firebase
     if (!auth) {
       console.error('Firebase not initialized, cannot sign out.');
       return;
