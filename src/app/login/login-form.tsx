@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -36,8 +36,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, authError, clearAuthError, signInAsGuest, user } = useAuth();
+  const { signInWithEmail, authError, clearAuthError, signInAsGuest, loading: isLoading } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
@@ -55,21 +54,17 @@ export default function LoginForm() {
         title: 'Error de Autenticación',
         description: authError,
       });
-      setIsLoading(false);
       clearAuthError();
     }
   }, [authError, toast, clearAuthError]);
 
   const handleEmailLogin = async (data: LoginFormValues) => {
-    setIsLoading(true);
     clearAuthError();
     await signInWithEmail(data.email, data.password);
   };
 
   const handleGuestLogin = async () => {
-    setIsLoading(true);
     await signInAsGuest();
-    setIsLoading(false);
   };
 
   return (
@@ -122,7 +117,7 @@ export default function LoginForm() {
                 )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && !user && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Iniciar Sesión
                 </Button>
             </form>
@@ -140,7 +135,7 @@ export default function LoginForm() {
                 onClick={handleGuestLogin}
                 disabled={isLoading}
               >
-                {isLoading && !user && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Ingresar como Invitado
               </Button>
         </CardFooter>
