@@ -52,8 +52,12 @@ export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
   const { user } = await getAuthenticatedUser();
 
-  // Allow guests to bypass this check
-  if (!user?.isGuest && user?.role !== 'user' && user?.role !== 'admin') {
+  if (user?.isGuest) {
+    // Return a safe, empty response for guests. The UI should prevent this call anyway.
+    return { findings: [], complianceScore: 100, legalRiskScore: 0 };
+  }
+
+  if (user?.role !== 'user' && user?.role !== 'admin') {
       throw new Error('Unauthorized: User does not have permission to perform this action.');
   }
   return validateDocumentFlow(input);

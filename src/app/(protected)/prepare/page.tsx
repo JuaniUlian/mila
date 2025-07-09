@@ -111,7 +111,7 @@ export default function PreparePage() {
   const { language } = useLanguage();
   const t = useTranslations(language);
   const { user } = useAuth();
-  const isGuest = user?.role === 'guest';
+  const isGuest = user?.isGuest ?? false;
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
@@ -245,6 +245,17 @@ export default function PreparePage() {
         finalMockData.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${selectedFile.name}`;
         finalMockData.blocks.forEach((block: any) => {
             block.originalText = selectedFile.content;
+            if (block.suggestions) {
+              const selectedRegs = regulations
+                .filter(r => selectedRegulationIds.includes(r.id))
+                .map(r => r.name);
+              
+              if (selectedRegs.length > 0) {
+                block.suggestions.forEach((suggestion: any, index: number) => {
+                  suggestion.appliedNorm = selectedRegs[index % selectedRegs.length];
+                });
+              }
+            }
         });
 
         localStorage.setItem('milaAnalysisData', JSON.stringify(finalMockData));
