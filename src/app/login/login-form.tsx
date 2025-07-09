@@ -63,6 +63,8 @@ export default function LoginForm() {
       } else if (error.code) {
         switch (error.code) {
           case 'auth/invalid-credential':
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
             description = 'El correo o la contraseña son incorrectos. Por favor, verifica tus credenciales y que los usuarios existan en Firebase.';
             break;
           case 'auth/invalid-api-key':
@@ -190,7 +192,7 @@ export default function LoginForm() {
               <Separator />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-card px-2 text-muted-foreground">
                 O continuar con
               </span>
             </div>

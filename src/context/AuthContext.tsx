@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { onIdTokenChanged, User, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase/client';
 import { Loader2 } from 'lucide-react';
@@ -29,12 +29,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const tokenResult = await firebaseUser.getIdTokenResult();
-        const role = (tokenResult.claims.role as string) || 'guest';
-        
-        setUser({ ...firebaseUser, role });
-
         try {
+          const tokenResult = await firebaseUser.getIdTokenResult();
+          const role = (tokenResult.claims.role as string) || 'guest';
+          
+          setUser({ ...firebaseUser, role });
+
           // Create session cookie by sending token to server
           const idToken = await firebaseUser.getIdToken();
           await fetch('/api/auth', {
@@ -43,11 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             body: idToken,
           });
         } catch (error) {
-           console.error("Error creating session:", error);
-           // Sign out if session creation fails
+           console.error("Error during token processing or session creation:", error);
+           // Sign out if session creation or token validation fails
            await firebaseSignOut(auth);
+           setUser(null);
         }
-
       } else {
         setUser(null);
         // Clear session cookie if user is not signed in
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     // If Firebase isn't initialized, this function will do nothing.
     if (!auth) {
       console.error('Firebase not initialized, cannot sign out.');
@@ -72,13 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Error signing out:", error);
     }
-  };
+  }, [router]);
 
   const value = useMemo(() => ({ user, loading, signOut }), [user, loading, signOut]);
 
   if (loading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center">
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
