@@ -38,7 +38,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithEmail, authError, clearAuthError, signInAsGuest, user } = useAuth();
+  const { signInWithEmail, authError, clearAuthError, signInAsGuest, signInAsDemoUser, user } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
@@ -62,12 +62,15 @@ export default function LoginForm() {
   }, [authError, toast, clearAuthError]);
 
   const handleEmailLogin = async (data: LoginFormValues) => {
+    if (data.email.toLowerCase() === 'juanulian@mila.app' && data.password === 'password') {
+      setIsLoading(true);
+      await signInAsDemoUser(data.email);
+      return; 
+    }
+    
     setIsLoading(true);
     clearAuthError();
     await signInWithEmail(data.email, data.password);
-    // The loading state is managed by the effect hook listening to authError
-    // and the redirect is handled by the AuthContext listener.
-    // We only set loading to false in the error case within the effect.
   };
 
   const handleGuestLogin = async () => {

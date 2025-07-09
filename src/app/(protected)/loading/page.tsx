@@ -164,9 +164,18 @@ export default function LoadingPage() {
 
       } catch (error) {
         console.error("Error durante la validación del documento:", error);
+        
+        let title = "Error de Análisis";
+        let description = "El asistente no pudo procesar el documento. Por favor, intente de nuevo.";
+
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
+          title = "Configuración de Servidor Requerida";
+          description = "Para usar la IA, las credenciales del servidor de Firebase deben estar configuradas en el archivo .env. Por favor, consulte la documentación para configurarlo. Para una demostración visual sin IA, puede usar el 'Modo Invitado'.";
+        }
+        
         toast({
-          title: "Error de Análisis",
-          description: "El asistente no pudo procesar el documento. Por favor, intente de nuevo.",
+          title: title,
+          description: description,
           variant: "destructive"
         });
         router.push('/prepare');

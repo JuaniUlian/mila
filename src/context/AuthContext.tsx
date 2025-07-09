@@ -21,6 +21,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInAsGuest: () => Promise<void>;
+  signInAsDemoUser: (email: string) => Promise<void>;
   firebaseConfigured: boolean;
   clearAuthError: () => void;
 }
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   const signOut = useCallback(async () => {
-    if (user?.role === 'guest') {
+    if (user?.role === 'guest' || user?.uid === 'demo-user-real-flow') {
       setUser(null);
       router.push('/login');
       return;
@@ -52,30 +53,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     try {
       await firebaseSignOut(auth);
-      // The onIdTokenChanged listener will handle clearing the user state and cookie
       router.push('/login');
     } catch (error) {
       console.error("Error signing out:", error);
       setAuthError('Error al cerrar sesión.');
     }
   }, [router, user]);
-
-  const signInAsGuest = useCallback(async () => {
-    // Clear any previous state before setting guest user. This logic replaces
-    // calling signOut() directly to avoid errors when Firebase is not configured.
+  
+  const cleanUpSession = useCallback(async () => {
     if (auth) {
-      // If Firebase is configured, sign out the real user.
-      // This will trigger onIdTokenChanged which handles state and cookie cleanup.
       await firebaseSignOut(auth);
     } else {
-      // If Firebase is not configured, we manually clear local state and any lingering session cookie.
       setUser(null);
       if (document.cookie.includes('__session')) {
         await fetch('/api/auth', { method: 'DELETE' });
       }
     }
-
-    // Set the guest user and redirect.
+  }, []);
+  
+  const signInAsGuest = useCallback(async () => {
+    await cleanUpSession();
     const guestUser: AppUser = {
       uid: 'guest-user',
       email: 'guest@example.com',
@@ -84,7 +81,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     setUser(guestUser);
     router.push('/prepare');
-  }, [router]);
+  }, [router, cleanUpSession]);
+
+  const signInAsDemoUser = useCallback(async (email: string) => {
+    await cleanUpSession();
+    const demoUser: AppUser = {
+      uid: 'demo-user-real-flow',
+      email: email,
+      displayName: 'Juan Ulian (Admin Demo)',
+      role: 'admin',
+    };
+    setUser(demoUser);
+    router.push('/prepare');
+  }, [router, cleanUpSession]);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
     if (!firebaseConfigured || !auth) {
@@ -94,7 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // The onIdTokenChanged listener will handle session creation and redirect.
     } catch (error: any) {
       let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
       if (error.code) {
@@ -132,8 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       setAuthError(null);
       if (firebaseUser) {
-        // If there's a firebase user, we are not a guest.
-        if (user?.role === 'guest') setUser(null);
+        if (user?.role === 'guest' || user?.uid === 'demo-user-real-flow') setUser(null);
 
         try {
           const idToken = await firebaseUser.getIdToken();
@@ -169,8 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
            setUser(null);
         }
       } else {
-         // Only clear user if it's not a guest user
-        if (user && user.role !== 'guest') {
+        if (user && user.role !== 'guest' && user.uid !== 'demo-user-real-flow') {
             setUser(null);
         }
         if (document.cookie.includes('__session')) {
@@ -181,7 +187,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [firebaseConfigured, router, user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firebaseConfigured, router]);
 
   const value = useMemo(() => ({ 
       user, 
@@ -189,10 +196,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       authError, 
       signOut, 
       signInAsGuest,
+      signInAsDemoUser,
       signInWithEmail,
       firebaseConfigured,
       clearAuthError 
-  }), [user, loading, authError, signOut, signInAsGuest, signInWithEmail, firebaseConfigured, clearAuthError]);
+  }), [user, loading, authError, signOut, signInAsGuest, signInAsDemoUser, signInWithEmail, firebaseConfigured, clearAuthError]);
 
   if (loading && firebaseConfigured) {
     return (
