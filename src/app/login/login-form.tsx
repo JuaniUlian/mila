@@ -57,11 +57,12 @@ export default function LoginForm() {
       router.push('/prepare');
     } catch (error: any) {
       let description = 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
-      if (error.code) {
+      
+      if (error.message && error.message.includes('Firebase is not configured')) {
+        description = 'Firebase no está configurado. Por favor, revisa tu archivo .env.';
+      } else if (error.code) {
         switch (error.code) {
           case 'auth/invalid-credential':
-          case 'auth/user-not-found': // legacy
-          case 'auth/wrong-password': // legacy
             description = 'El correo o la contraseña son incorrectos. Por favor, verifica tus credenciales y que los usuarios existan en Firebase.';
             break;
           case 'auth/invalid-api-key':
@@ -70,12 +71,17 @@ export default function LoginForm() {
           case 'auth/network-request-failed':
             description = 'Error de red. Por favor, revisa tu conexión a internet.';
             break;
+          case 'auth/too-many-requests':
+            description = 'Se han realizado demasiados intentos. Por favor, inténtalo más tarde.';
+            break;
           default:
-            description = error.message.includes('configured')
-              ? 'Firebase no está configurado. Revisa tus variables de entorno NEXT_PUBLIC...'
-              : `Ocurrió un error: ${error.message}`;
+            description = `Ocurrió un error de Firebase: ${error.message}`;
+            break;
         }
+      } else if (error.message) {
+        description = error.message;
       }
+
       toast({
         variant: 'destructive',
         title: 'Error de autenticación',
@@ -92,12 +98,11 @@ export default function LoginForm() {
       router.push('/prepare');
     } catch (error: any) {
       let description = 'No se pudo iniciar sesión con Google. Por favor, inténtalo de nuevo.';
-       if (error.code) {
+      if (error.code) {
         switch (error.code) {
           case 'auth/popup-closed-by-user':
             setIsLoading(false);
-            // No need to show a toast for this user action
-            return; 
+            return;
           case 'auth/account-exists-with-different-credential':
             description = 'Ya existe una cuenta con este correo electrónico, pero con un método de inicio de sesión diferente.';
             break;
@@ -107,7 +112,12 @@ export default function LoginForm() {
           default:
             description = `Ocurrió un error con Google: ${error.message}`;
         }
+      } else if (error.message && error.message.includes('Firebase is not configured')) {
+        description = 'Firebase no está configurado. Por favor, revisa tu archivo .env.';
+      } else if (error.message) {
+        description = `Ocurrió un error con Google: ${error.message}`;
       }
+
       toast({
         variant: 'destructive',
         title: 'Error de autenticación',
