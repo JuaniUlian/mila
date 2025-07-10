@@ -74,7 +74,7 @@ export default function LoginForm() {
             <Logo variant="color" className="mx-auto h-16 w-16" />
             <CardTitle className="text-3xl font-bold mt-4">Bienvenido</CardTitle>
             <CardDescription>
-                Ingresa tus credenciales para usar la IA o explora en modo invitado.
+                Ingresa tus credenciales, o bien explora en modo Invitado
             </CardDescription>
         </CardHeader>
         <CardContent>
