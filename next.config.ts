@@ -1,13 +1,10 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  /* otras opciones que ya tenías */
+  typescript: { ignoreBuildErrors: true },
+  eslint:     { ignoreDuringBuilds: true },
+
   images: {
     remotePatterns: [
       {
@@ -18,11 +15,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
   experimental: {
     allowedDevOrigins: [
-      "https://9003-firebase-studio-1747512173228.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev"
-    ]
-  }
+      // reemplaza por el dominio exacto de tu Cloud Workstation
+      'https://*.cloudworkstations.dev',
+    ],
+  },
 };
 
 export default nextConfig;
