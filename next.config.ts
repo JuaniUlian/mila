@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
     allowedDevOrigins: [
       // reemplaza por el dominio exacto de tu Cloud Workstation
       'https://*.cloudworkstations.dev',
+ 'https://9003-firebase-studio-1747512173228.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev',
     ],
   },
 };
