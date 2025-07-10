@@ -8,8 +8,12 @@ export async function POST(request: NextRequest, response: NextResponse) {
     const adminAuth = getAdminAuth();
     const idToken = await request.text();
     
+    // Add a clear check for server-side config
     if (!adminAuth) {
-        return NextResponse.json({ status: 'error', message: 'La configuración del servidor de Firebase no está disponible. Asegúrese de que la variable de entorno FIREBASE_ADMIN_CONFIG esté configurada correctamente.' }, { status: 500 });
+        return NextResponse.json({ 
+            status: 'error', 
+            message: 'Error del Servidor: La configuración de Firebase Admin no está disponible. Asegúrate de que la variable de entorno FIREBASE_ADMIN_CONFIG esté bien configurada en tu archivo .env y reinicia el servidor.' 
+        }, { status: 500 });
     }
     
     // The session cookie will be valid for 14 days.
@@ -26,7 +30,8 @@ export async function POST(request: NextRequest, response: NextResponse) {
     return NextResponse.json({ status: 'success' });
   } catch (error: any) {
     console.error('Error creating session cookie:', error);
-    return NextResponse.json({ status: 'error', message: error.message || 'Error desconocido del servidor.' }, { status: 401 });
+    // Provide a more generic server error message here
+    return NextResponse.json({ status: 'error', message: error.message || 'Ha ocurrido un error inesperado en el servidor.' }, { status: 401 });
   }
 }
 
