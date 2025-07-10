@@ -5,8 +5,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { LayoutProvider } from '@/context/LayoutContext';
 import { LanguageProvider } from '@/context/LanguageContext';
-import AppLayout from '@/components/layout/AppLayout';
 import { AuthProvider } from '@/context/AuthContext';
+import MainContent from '@/components/layout/MainContent'; // Cambiado de AppLayout a MainContent
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -32,7 +32,7 @@ export default function RootLayout({
         <LanguageProvider>
           <LayoutProvider>
             <AuthProvider>
-              <AppLayout>{children}</AppLayout>
+              <MainContent>{children}</MainContent>
             </AuthProvider>
           </LayoutProvider>
         </LanguageProvider>
