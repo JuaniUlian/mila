@@ -39,7 +39,7 @@ const extractTextFromFileFlow = ai.defineFlow(
   async (flowInput) => {
     const genkitResponse = await ai.generate({
       // Using a model capable of handling multimodal input (PDFs, images).
-      model: 'googleai/gemini-1.5-flash',
+      model: 'googleai/gemini-1.5-pro',
       prompt: [
         { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
         { media: { url: flowInput.fileDataUri } }
