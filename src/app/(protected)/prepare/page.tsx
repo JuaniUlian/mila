@@ -33,7 +33,6 @@ import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 import JSZip from 'jszip';
-import { useAuth } from '@/hooks/useAuth';
 import { mockData } from '@/components/mila/mock-data';
 
 
@@ -109,8 +108,7 @@ export default function PreparePage() {
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const { user } = useAuth();
-  const isGuest = user?.role === 'guest';
+  const isGuest = false; // Always false now
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
@@ -153,13 +151,6 @@ export default function PreparePage() {
   useEffect(() => {
     document.title = 'MILA | Más Inteligencia Legal y Administrativa';
     
-    if (isGuest) {
-      setFolders(initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
-      setRegulations(initialRegulations);
-      setLoadedFromStorage(true);
-      return;
-    }
-
     try {
         const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
         if (savedFoldersRaw) {
@@ -189,11 +180,11 @@ export default function PreparePage() {
         console.error('Error loading data from localStorage', error);
     }
     setLoadedFromStorage(true);
-  }, [isGuest]);
+  }, []);
 
   // Save to localStorage on changes, but only after initial load and if not guest
   useEffect(() => {
-    if (loadedFromStorage && !isGuest) {
+    if (loadedFromStorage) {
         try {
             const foldersToSave = folders.map(folder => ({
                 ...folder,
@@ -204,10 +195,10 @@ export default function PreparePage() {
             console.error('Error saving folders to localStorage', error);
         }
     }
-  }, [folders, loadedFromStorage, isGuest]);
+  }, [folders, loadedFromStorage]);
 
   useEffect(() => {
-      if (loadedFromStorage && !isGuest) {
+      if (loadedFromStorage) {
           try {
               const regulationsToSave = regulations.filter(reg => reg.status === 'success');
               localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulationsToSave));
@@ -215,7 +206,7 @@ export default function PreparePage() {
               console.error('Error saving regulations to localStorage', error);
           }
       }
-  }, [regulations, loadedFromStorage, isGuest]);
+  }, [regulations, loadedFromStorage]);
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
