@@ -113,10 +113,11 @@ export default function PlanillaVivaPage() {
     if (dataToLoad) {
       setInitialData(dataToLoad);
       setDocumentData(dataToLoad);
-      const hasAppliedChanges = dataToLoad.blocks.some(block => 
-          block.suggestions.some(suggestion => suggestion.status === 'applied')
+      // Determine if text changes exist on initial load
+      const hasAppliedTextChanges = dataToLoad.blocks.some(block =>
+        block.suggestions.some(suggestion => suggestion.status === 'applied' && suggestion.isEditable)
       );
-      setAppliedChangesExist(hasAppliedChanges);
+      setAppliedChangesExist(hasAppliedTextChanges);
     }
   }, [t]);
 
@@ -222,7 +223,6 @@ export default function PlanillaVivaPage() {
     });
     
     if (newStatus === 'applied') {
-      setAppliedChangesExist(true);
       toast({
         title: t('analysisPage.toastSuggestionApplied'),
         description: t('analysisPage.toastComplianceUpdated'),
@@ -259,7 +259,7 @@ export default function PlanillaVivaPage() {
 
       suggestionToUpdate.text = newText;
       suggestionToUpdate.status = 'applied';
-      suggestionToUpdate.isEditable = true;
+      suggestionToUpdate.isEditable = true; // Ensure this is true after editing
 
       blockToUpdate.suggestions = [...blockToUpdate.suggestions];
       blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
@@ -381,3 +381,5 @@ export default function PlanillaVivaPage() {
     </>
   );
 }
+
+    
