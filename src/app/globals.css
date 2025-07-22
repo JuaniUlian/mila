@@ -107,4 +107,44 @@
   .btn-neu-green {
     @apply bg-green-100 text-green-800 font-semibold border-transparent shadow-[5px_5px_10px_#bbf7d0,-5px_-5px_10px_#ffffff] hover:bg-green-100 hover:shadow-[2px_2px_5px_#bbf7d0,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#bbf7d0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;
   }
+
+  /* Animated Backgrounds */
+  .lava-background {
+    background: linear-gradient(135deg, #ff4e00, #ff0000, #800000, #ff4e00);
+    background-size: 400% 400%;
+    animation: lava-flow 15s ease infinite;
+  }
+  .dunes-background {
+    background: linear-gradient(135deg, #f7b733, #fc4a1a, #f7b733, #fcc25e);
+    background-size: 400% 400%;
+    animation: dune-flow 20s ease infinite;
+  }
+  .water-background {
+    background: linear-gradient(135deg, #00c6ff, #0072ff, #003cff, #00c6ff);
+    background-size: 400% 400%;
+    animation: water-flow 12s ease infinite;
+  }
+  .green-background {
+    background: linear-gradient(135deg, #6a9113, #141517, #6a9113);
+    background-size: 400% 400%;
+    animation: water-flow 18s ease infinite;
+  }
+}
+
+@keyframes lava-flow {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+
+@keyframes dune-flow {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+
+@keyframes water-flow {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
 }

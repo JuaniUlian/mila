@@ -25,28 +25,26 @@ export default function MainContent({ children }: { children: React.ReactNode })
     }
 
     let backgroundClasses = 'bg-slate-100';
-    let animationClasses = '';
 
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
             backgroundClasses = 'bg-gradient-to-b from-slate-200/50 via-slate-100/50 to-white';
         } else if (score < 40) {
-            backgroundClasses = 'bg-gradient-to-b from-red-400/40 via-red-100/40 to-white';
+            backgroundClasses = 'lava-background';
         } else if (score < 75) {
-            backgroundClasses = 'bg-gradient-to-b from-amber-400/40 via-amber-100/40 to-white';
+            backgroundClasses = 'dunes-background';
         } else if (score < 100) {
-            backgroundClasses = 'bg-gradient-to-b from-green-400/40 via-green-100/40 to-white';
+            backgroundClasses = 'green-background';
         } else { // score === 100
-            backgroundClasses = 'bg-gradient-to-b from-sky-400/40 via-sky-100/40 to-white';
+            backgroundClasses = 'water-background';
         }
     } else if (pathname === '/loading') {
-      backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200';
-      animationClasses = 'bg-200% animate-gradient-bg';
+      backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200 bg-200% animate-gradient-bg';
     } else if (pathname === '/prepare') {
       backgroundClasses = 'bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200';
     }
 
-    return cn("flex min-h-screen flex-col transition-all duration-500", backgroundClasses, animationClasses);
+    return cn("flex min-h-screen flex-col transition-all duration-500", backgroundClasses);
   }, [isMounted, pathname, score, isInitialPageLoad]);
 
 
