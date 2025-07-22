@@ -52,11 +52,10 @@ export function ReportPreview({ data }: ReportPreviewProps) {
     block.suggestions.map(suggestion => ({
       ...suggestion,
       blockName: block.name,
-      originalText: block.originalText,
+      evidence: suggestion.evidence || block.originalText, // Fallback to block's original text if evidence is missing
     }))
   );
   
-  const allResolved = allSuggestionsWithContext.every(s => s.status !== 'pending');
   const appliedCount = allSuggestionsWithContext.filter(s => s.status === 'applied').length;
   const discardedCount = allSuggestionsWithContext.filter(s => s.status === 'discarded').length;
 
@@ -120,64 +119,61 @@ export function ReportPreview({ data }: ReportPreviewProps) {
                 <p className="text-4xl font-bold text-teal-600">{overallCompletenessIndex.toFixed(1)}<span className="text-2xl text-gray-500">/10.0</span></p>
                 <p className="text-sm text-gray-500 mt-1">{t('reportPreviewPage.completenessIndexDesc')}</p>
             </div>
+             <div className="bg-slate-50 p-4 rounded-lg border md:col-span-2">
+                <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.actionsSummary')}</h3>
+                <div className="flex justify-around items-center pt-2">
+                    <div className="text-center">
+                        <p className="text-2xl font-bold text-green-600">{appliedCount}</p>
+                        <p className="text-sm text-gray-500">{t('reportPreviewPage.correctedSuggestions')}</p>
+                    </div>
+                     <div className="text-center">
+                        <p className="text-2xl font-bold text-red-600">{discardedCount}</p>
+                        <p className="text-sm text-gray-500">{t('reportPreviewPage.discardedSuggestions')}</p>
+                    </div>
+                     <div className="text-center">
+                        <p className="text-2xl font-bold text-yellow-600">{allSuggestionsWithContext.length - appliedCount - discardedCount}</p>
+                        <p className="text-sm text-gray-500">{t('reportPreviewPage.status.pending')}</p>
+                    </div>
+                </div>
+            </div>
           </div>
         </section>
 
         <section>
-          {allResolved ? (
-            <>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('reportPreviewPage.conclusionTitle')}</h2>
-              <div className="bg-green-50 border-l-4 border-green-500 text-green-900 p-6 rounded-md space-y-4 shadow-sm">
-                <h3 className="text-xl font-bold">{t('reportPreviewPage.validatedConclusionTitle')}</h3>
-                <p className="text-base" dangerouslySetInnerHTML={{ __html: t('reportPreviewPage.validatedConclusionText1').replace('{count}', allSuggestionsWithContext.length.toString()).replace('{score}', overallComplianceScore.toFixed(0)) }} />
-                <p className="text-base">{t('reportPreviewPage.validatedConclusionText2')}</p>
-                <div className="pt-2 border-t border-green-200 mt-4">
-                  <p className="text-sm font-semibold">{t('reportPreviewPage.actionsSummary')}</p>
-                  <ul className="list-disc list-inside text-sm mt-1">
-                    <li>{t('reportPreviewPage.correctedSuggestions')} <strong>{appliedCount}</strong></li>
-                    <li>{t('reportPreviewPage.discardedSuggestions')} <strong>{discardedCount}</strong></li>
-                  </ul>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('reportPreviewPage.findingsTitle')}</h2>
+          <div className="space-y-8">
+            {allSuggestionsWithContext.length > 0 ? allSuggestionsWithContext.map(suggestion => (
+              <div key={suggestion.id} className={`p-4 rounded-md border-l-4 ${getSeverityStyles(suggestion.severity)}`}>
+                <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-lg font-bold text-gray-900">{suggestion.errorType}</h3>
+                    <div className="flex items-center gap-4">
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusStyles(suggestion.status)}`}>
+                            {getTranslatedStatus(suggestion.status)}
+                        </span>
+                        <span className="text-sm font-semibold capitalize text-gray-700">{getTranslatedSeverity(suggestion.severity)}</span>
+                    </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                    <span className="font-semibold">{t('reportPreviewPage.block')}</span> {suggestion.blockName}
+                </p>
+                <div className="space-y-4">
+                    <div>
+                        <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.originalTextContext')}</h4>
+                        <p className="text-sm text-gray-600 p-3 bg-gray-100 border rounded-md font-mono">{suggestion.evidence}</p>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.legalJustification')}</h4>
+                        <p className="text-sm text-gray-600">{suggestion.justification.legal}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                            <span className="font-semibold">{t('reportPreviewPage.regulation')}</span> {suggestion.appliedNorm}
+                        </p>
+                    </div>
                 </div>
               </div>
-            </>
-          ) : (
-            <>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('reportPreviewPage.findingsTitle')}</h2>
-              <div className="space-y-8">
-                {allSuggestionsWithContext.length > 0 ? allSuggestionsWithContext.map(suggestion => (
-                  <div key={suggestion.id} className={`p-4 rounded-md border-l-4 ${getSeverityStyles(suggestion.severity)}`}>
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="text-lg font-bold text-gray-900">{suggestion.errorType}</h3>
-                        <div className="flex items-center gap-4">
-                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusStyles(suggestion.status)}`}>
-                                {getTranslatedStatus(suggestion.status)}
-                            </span>
-                            <span className="text-sm font-semibold capitalize text-gray-700">{getTranslatedSeverity(suggestion.severity)}</span>
-                        </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                        <span className="font-semibold">{t('reportPreviewPage.block')}</span> {suggestion.blockName}
-                    </p>
-                    <div className="space-y-4">
-                        <div>
-                            <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.originalTextContext')}</h4>
-                            <p className="text-sm text-gray-600 p-3 bg-gray-100 border rounded-md font-mono">{suggestion.originalText}</p>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.legalJustification')}</h4>
-                            <p className="text-sm text-gray-600">{suggestion.justification.legal}</p>
-                            <p className="text-sm text-gray-500 mt-1">
-                                <span className="font-semibold">{t('reportPreviewPage.regulation')}</span> {suggestion.appliedNorm}
-                            </p>
-                        </div>
-                    </div>
-                  </div>
-                )) : (
-                  <p className="text-center text-gray-500 py-8">{t('reportPreviewPage.noInconsistencies')}</p>
-                )}
-              </div>
-            </>
-          )}
+            )) : (
+              <p className="text-center text-gray-500 py-8">{t('reportPreviewPage.noInconsistencies')}</p>
+            )}
+          </div>
         </section>
 
       </div>

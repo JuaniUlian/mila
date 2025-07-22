@@ -45,10 +45,10 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     if (mode === 'validated') {
       return t('analysisPage.improvedProposal');
     }
-    if (suggestion.category === 'Redacción') {
-      return t('analysisPage.draftingProposal');
+    if (suggestion.proceduralSuggestion) {
+      return t('analysisPage.solutionProposal');
     }
-    return t('analysisPage.solutionProposal');
+    return t('analysisPage.draftingProposal');
   };
 
   const handleValidate = async () => {
@@ -65,7 +65,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
 
     try {
         const result = await validateSuggestionEdit({
-            originalText: originalText,
+            originalText: suggestion.evidence,
             originalSuggestion: suggestion.text,
             userEditedSuggestion: currentText,
             legalJustification: suggestion.justification.legal,
@@ -127,7 +127,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div>
             <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700"><FileText size={16}/> {t('analysisPage.originalText')}</h4>
             <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
-                <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{originalText}</p>
+                <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{suggestion.evidence}</p>
             </div>
         </div>
 
@@ -147,41 +147,28 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
 
         <Separator className="bg-slate-300/70"/>
         
-        {suggestion.proceduralSuggestion && (
-          <div>
+        <div>
             <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
-              <ClipboardList size={16}/> {t('analysisPage.solutionProposal')}
+              {suggestion.proceduralSuggestion ? <ClipboardList size={16}/> : <Lightbulb size={16} className="text-primary"/>}
+              {getProposalTitle()}
             </h4>
-            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
-                <p className="text-sm font-sans text-slate-800">{suggestion.proceduralSuggestion}</p>
-            </div>
-          </div>
-        )}
-
-        {suggestion.text && (
-          <div>
-              <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
-                <Lightbulb size={16} className="text-primary"/> 
-                {getProposalTitle()}
-              </h4>
-              {mode === 'editing' ? (
-                <Textarea
-                    value={currentText}
-                    onChange={(e) => setCurrentText(e.target.value)}
-                    rows={5}
-                    className="w-full text-sm p-3 border-slate-300 rounded-lg bg-white shadow-inner focus-visible:ring-primary mb-2 text-foreground"
-                    aria-label="Editar sugerencia"
-                />
-              ) : (
-                <div className={cn(
-                  "p-3 border rounded-xl text-sm text-slate-800",
-                  "bg-white/60 shadow-inner border-white/80"
-                  )}>
-                    <p className="leading-relaxed">{currentText}</p>
-                </div>
-              )}
-          </div>
-        )}
+            {mode === 'editing' ? (
+              <Textarea
+                  value={currentText}
+                  onChange={(e) => setCurrentText(e.target.value)}
+                  rows={5}
+                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-white shadow-inner focus-visible:ring-primary mb-2 text-foreground"
+                  aria-label="Editar sugerencia"
+              />
+            ) : (
+              <div className={cn(
+                "p-3 border rounded-xl text-sm text-slate-800",
+                "bg-white/60 shadow-inner border-white/80"
+                )}>
+                  <p className="leading-relaxed">{suggestion.proceduralSuggestion || currentText}</p>
+              </div>
+            )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
@@ -203,17 +190,16 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div className="flex items-center justify-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  {suggestion.text && (
-                    <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
-                      <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
-                    </Button>
-                  )}
-                  {suggestion.text && (
-                    <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
-                        <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
-                    </Button>
-                  )}
-                  {!suggestion.text && suggestion.proceduralSuggestion && (
+                  {suggestion.isEditable ? (
+                    <>
+                      <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
+                        <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
+                      </Button>
+                      <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
+                          <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
+                      </Button>
+                    </>
+                  ) : (
                     <Button size="sm" onClick={() => onUpdateStatus('applied')} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.markAsHandled')}
                     </Button>
