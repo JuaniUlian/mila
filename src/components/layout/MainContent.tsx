@@ -30,13 +30,13 @@ export default function MainContent({ children }: { children: React.ReactNode })
         if (isInitialPageLoad || score === null) {
             backgroundClasses = 'bg-gradient-to-b from-slate-200/50 via-slate-100/50 to-white';
         } else if (score < 40) {
-            backgroundClasses = 'lava-background';
+            backgroundClasses = 'bg-gradient-to-br from-red-200 via-red-100 to-white';
         } else if (score < 75) {
-            backgroundClasses = 'dunes-background';
+            backgroundClasses = 'bg-gradient-to-br from-amber-200 via-amber-100 to-white';
         } else if (score < 100) {
-            backgroundClasses = 'green-background';
+            backgroundClasses = 'bg-gradient-to-br from-green-200 via-green-100 to-white';
         } else { // score === 100
-            backgroundClasses = 'water-background';
+            backgroundClasses = 'bg-gradient-to-br from-sky-200 via-sky-100 to-white';
         }
     } else if (pathname === '/loading') {
       backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200 bg-200% animate-gradient-bg';
