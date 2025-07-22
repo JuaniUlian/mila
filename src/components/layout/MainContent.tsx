@@ -6,14 +6,12 @@ import { MainHeader } from '@/components/layout/main-header';
 import React, { useEffect, useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useLayout } from '@/context/LayoutContext';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { score, isInitialPageLoad } = useLayout();
-  const { user } = useAuth();
   
-  const showHeader = pathname !== '/' && pathname !== '/login' && user;
+  const showHeader = pathname !== '/';
   
   const [isMounted, setIsMounted] = useState(false);
 
@@ -44,7 +42,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     } else if (pathname === '/loading') {
       backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200';
       animationClasses = 'bg-200% animate-gradient-bg';
-    } else if (pathname === '/prepare' || pathname === '/login') {
+    } else if (pathname === '/prepare') {
       backgroundClasses = 'bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200';
     }
 

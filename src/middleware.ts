@@ -1,10 +1,13 @@
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { NextURL } from 'next/dist/server/web/next-url';
 
-// Middleware is simplified for the demo environment.
-// Route protection is now handled by client-side layouts.
+// This middleware redirects the root path ("/") to the "/prepare" page.
 export function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === '/') {
+    const prepareUrl = new URL('/prepare', request.url);
+    return NextResponse.redirect(prepareUrl);
+  }
   return NextResponse.next();
 }
 
@@ -16,7 +19,10 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.png (favicon file)
+     * - assets in public folder
      */
-    '/((?!api|_next/static|_next/image|favicon.png).*)',
+    '/((?!api|_next/static|_next/image|favicon.png|assets|.*\\..*).*)',
+    // Apply middleware only to the root route.
+    '/' 
   ],
 };

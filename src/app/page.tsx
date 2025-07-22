@@ -2,11 +2,9 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Scale, Search, AlertTriangle, BookCheck, Edit, TrendingUp, CheckCircle, Share2, BarChart, Clock, Users, FileText, Globe, MapPin, FileStack, ShieldAlert, Landmark, Network } from 'lucide-react';
+import { Scale, Search, AlertTriangle, BookCheck, Edit, TrendingUp, Share2, Network, FileStack, ShieldAlert, Landmark, Globe, MapPin } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
@@ -18,12 +16,10 @@ export default function LandingPage() {
   const { language } = useLanguage();
   const t = useTranslations(language);
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleDemoClick = () => {
-    setIsLoading(true);
-    // Redirect to login, which will then handle auth and redirect to prepare
-    router.push('/login');
+    // Redirect directly to prepare page
+    router.push('/prepare');
   };
   
   return (

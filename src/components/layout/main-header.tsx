@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FilePlus2, Settings, Globe, LogOut, UserCog } from 'lucide-react';
+import { FilePlus2, Settings, Globe } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { SettingsDialog } from './settings-dialog';
@@ -12,12 +12,10 @@ import { Logo } from './logo';
 import { usePathname } from 'next/navigation';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
 
 export function MainHeader() {
     const { language } = useLanguage();
     const t = useTranslations(language);
-    const { user, signOut } = useAuth();
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
     const { score, isInitialPageLoad } = useLayout();
     const pathname = usePathname();
@@ -43,14 +41,6 @@ export function MainHeader() {
             href: '/prepare',
             icon: FilePlus2,
             isLink: true,
-        },
-        {
-            name: "Admin",
-            href: '/admin',
-            icon: UserCog,
-            isLink: true,
-            isExternal: false,
-            adminOnly: true,
         },
         {
             name: t('sidebar.settings'),
@@ -87,8 +77,6 @@ export function MainHeader() {
                         </Tooltip>
 
                         {navActions.map((action) => {
-                             if (action.adminOnly && user?.role !== 'admin') return null;
-
                              const commonClasses = "flex items-center justify-center rounded-full h-12 w-12 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 text-foreground transition-all duration-200";
 
                             return (
@@ -122,21 +110,6 @@ export function MainHeader() {
                                 </Tooltip>
                             )
                         })}
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <button
-                                    onClick={signOut}
-                                    className="flex items-center justify-center rounded-full h-12 w-12 bg-red-100/60 backdrop-blur-md border border-red-200/50 shadow-lg hover:bg-red-200/80 text-red-700 transition-all duration-200"
-                                    aria-label="Cerrar sesión"
-                                    suppressHydrationWarning
-                                >
-                                    <LogOut className="h-6 w-6" />
-                                </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Cerrar Sesión</p>
-                            </TooltipContent>
-                        </Tooltip>
                     </nav>
                 </header>
             </TooltipProvider>
