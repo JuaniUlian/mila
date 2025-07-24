@@ -38,36 +38,12 @@ const extractTextFromFileFlow = ai.defineFlow(
   },
   async (flowInput) => {
     const genkitResponse = await ai.generate({
-      // Using a model capable of handling multimodal input (PDFs, images).
-      model: 'googleai/gemini-1.5-pro',
+      // Using a model optimized for speed and extraction tasks.
+      model: 'googleai/gemini-1.5-flash',
       prompt: [
         { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
         { media: { url: flowInput.fileDataUri } }
       ],
-      config: {
-        safetySettings: [
-          {
-            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-            threshold: 'BLOCK_NONE',
-          },
-          {
-            category: 'HARM_CATEGORY_HATE_SPEECH',
-            threshold: 'BLOCK_NONE',
-          },
-          {
-            category: 'HARM_CATEGORY_HARASSMENT',
-            threshold: 'BLOCK_NONE',
-          },
-          {
-            category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-            threshold: 'BLOCK_NONE',
-          },
-          {
-            category: 'HARM_CATEGORY_CIVIC_INTEGRITY',
-            threshold: 'BLOCK_NONE',
-          },
-        ],
-      },
       // Increase timeout to handle large files.
       timeout: 1000 * 60 * 5, // 5 minutes
     });
