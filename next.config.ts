@@ -28,16 +28,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/genkit/:path*',
-        destination: 'http://localhost:3400/:path*',
-      },
-    ]
-  },
 };
 
 export default nextConfig;
+
+    
 
     
