@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, 'useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { MilaAppPData } from '@/components/mila/types';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -73,7 +73,7 @@ export function CorrectedDocPreview({ data }: CorrectedDocPreviewProps) {
         </div>
 
         <section>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('correctedDocPreviewPage.changeDetailTitle')}</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('correctedDocPreviewPage.correctedText')}</h2>
           <div className="prose prose-sm max-w-none document-content bg-slate-50 p-6 rounded-lg border">
             <pre className="whitespace-pre-wrap font-sans text-sm">{correctedText}</pre>
           </div>

@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -7,6 +8,11 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb', // Increase size limit for large file uploads
+    },
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
@@ -26,11 +32,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '4mb', // Increase body size limit for file uploads
-    },
   },
 };
 
