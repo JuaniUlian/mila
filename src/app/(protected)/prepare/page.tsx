@@ -108,7 +108,7 @@ export default function PreparePage() {
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const isGuest = false; // Always false now
+  const isGuest = false; 
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
@@ -231,7 +231,6 @@ export default function PreparePage() {
     if (!isValidationReady || !selectedFile) return;
 
     if (isGuest) {
-        // For guests, use hardcoded mock data and skip the loading page
         localStorage.setItem('milaAnalysisData', JSON.stringify(mockData));
         localStorage.setItem('selectedDocumentName', selectedFile.name);
         const selectedRegulationsData = regulations
@@ -258,6 +257,29 @@ export default function PreparePage() {
       description,
     });
   };
+
+  const getFriendlyErrorMessage = (error: any): string => {
+    if (error instanceof Error) {
+        // Try to parse a JSON error message if it exists
+        try {
+            const parsed = JSON.parse(error.message);
+            if (parsed.message) return parsed.message;
+        } catch (e) {
+            // Not a JSON error, return original message
+            return error.message;
+        }
+        return error.message;
+    }
+    if (typeof error === 'string') {
+        try {
+            const parsed = JSON.parse(error);
+            if (parsed.message) return parsed.message;
+        } catch(e) {
+            return error;
+        }
+    }
+    return 'An unexpected AI error occurred during processing.';
+  }
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
     if (rawFile.name.endsWith('.zip')) {
@@ -322,7 +344,7 @@ export default function PreparePage() {
         showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
       
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+        const errorMessage = getFriendlyErrorMessage(err);
         setFolders(prevFolders =>
           prevFolders.map(folder => ({
             ...folder,
@@ -520,8 +542,7 @@ export default function PreparePage() {
                 description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
               });
             } catch (error) {
-              console.error("Error in OCR:", error);
-              handleError('Falló al extraer texto del PDF con OCR.');
+              handleError(getFriendlyErrorMessage(error));
             }
           }
         };
@@ -543,8 +564,7 @@ export default function PreparePage() {
         handleError('Tipo de archivo no soportado para normativas.');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error desconocido.';
-      handleError(errorMessage);
+      handleError(getFriendlyErrorMessage(err));
     }
   };
 
