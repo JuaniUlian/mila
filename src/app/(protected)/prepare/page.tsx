@@ -256,18 +256,15 @@ export default function PreparePage() {
         return error;
     }
     if (error instanceof Error) {
-        try {
-            const parsed = JSON.parse(error.message);
-            if (parsed.message) return parsed.message;
-        } catch (e) {
-            // Not a JSON string in the error message
-        }
         // For Genkit errors or others that might not be JSON
         if (error.message.includes('deadline')) {
             return 'The request to the AI server timed out. Please try again.';
         }
         if (error.message.includes('API key')) {
             return 'The AI API key is invalid or missing. Please check your server configuration.';
+        }
+        if (error.message.includes('server responded with status 500')) {
+             return 'An unexpected response was received from the server.'
         }
         return error.message;
     }
@@ -884,7 +881,6 @@ export default function PreparePage() {
                           onDismissError={handleDismissFileError}
                           onRenameFolder={handleOpenRenameFolderModal}
                           onDeleteFolder={handleOpenDeleteFolderModal}
-                          isGuest={false}
                         />
                     </CardContent>
                 </Card>
@@ -928,7 +924,6 @@ export default function PreparePage() {
                                 onDismissError={handleDismissRegulationError}
                                 onRename={handleOpenRenameRegulationModal}
                                 onDelete={handleOpenDeleteRegulationModal}
-                                isGuest={false}
                                 />
                             </CardContent>
                         </AccordionContent>

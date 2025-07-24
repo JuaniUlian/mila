@@ -45,20 +45,18 @@ interface FolderGridProps {
     onDismissError: (file: File, folderId: string) => void;
     onRenameFolder: (folder: FolderData) => void;
     onDeleteFolder: (folder: FolderData) => void;
-    isGuest: boolean;
 }
 
 const FileItem: React.FC<{
   file: File;
   folderId: string;
   isSelected: boolean;
-  isGuest: boolean;
   onSelect: () => void;
   onRename: (file: File, folderId: string) => void;
   onMove: (file: File, folderId: string) => void;
   onDelete: (file: File, folderId: string) => void;
   onDismissError: (file: File, folderId: string) => void;
-}> = ({ file, folderId, isSelected, isGuest, onSelect, onRename, onMove, onDelete, onDismissError }) => {
+}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [countdown, setCountdown] = useState(file.estimatedTime ? Math.round(file.estimatedTime) : 0);
@@ -136,7 +134,6 @@ const FileItem: React.FC<{
         {isSelected && (
           <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mx-2" />
         )}
-        {!isGuest && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -168,7 +165,6 @@ const FileItem: React.FC<{
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        )}
       </div>
     </div>
   );
@@ -185,8 +181,7 @@ export function FolderGrid({
     onDeleteFile,
     onDismissError,
     onRenameFolder,
-    onDeleteFolder,
-    isGuest
+    onDeleteFolder
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
@@ -223,12 +218,10 @@ export function FolderGrid({
                                 size="icon"
                                 className="h-8 w-8 rounded-full flex-shrink-0"
                                 title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
-                                disabled={isGuest}
                             >
                                 <Plus className="h-5 w-5" />
                                 <span className="sr-only">{t('preparePage.addFile')}</span>
                             </FileUploadButton>
-                            {!isGuest && (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button
@@ -256,7 +249,6 @@ export function FolderGrid({
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                            )}
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
@@ -272,7 +264,6 @@ export function FolderGrid({
                                     onMove={onMoveFile}
                                     onDelete={onDeleteFile}
                                     onDismissError={onDismissError}
-                                    isGuest={isGuest}
                                 />
                             ))
                         ) : (
