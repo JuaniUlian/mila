@@ -68,6 +68,8 @@ const extractTextFromFileFlow = ai.defineFlow(
           },
         ],
       },
+      // Increase timeout to handle large files.
+      timeout: 1000 * 60 * 5, // 5 minutes
     });
 
     // Ensure we always return a string, even if the model provides no text.
