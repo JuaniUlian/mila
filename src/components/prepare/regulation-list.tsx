@@ -200,3 +200,5 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
         </div>
     );
 }
+
+    

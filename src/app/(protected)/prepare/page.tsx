@@ -108,7 +108,6 @@ export default function PreparePage() {
   const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const isGuest = false; 
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState(() => initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
@@ -230,17 +229,6 @@ export default function PreparePage() {
   const handleValidate = () => {
     if (!isValidationReady || !selectedFile) return;
 
-    if (isGuest) {
-        localStorage.setItem('milaAnalysisData', JSON.stringify(mockData));
-        localStorage.setItem('selectedDocumentName', selectedFile.name);
-        const selectedRegulationsData = regulations
-            .filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success')
-            .map(r => ({ name: r.name, content: r.content }));
-        localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
-        router.push('/analysis');
-        return;
-    }
-
     const selectedRegulationsData = regulations
         .filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success')
         .map(r => ({ name: r.name, content: r.content }));
@@ -259,23 +247,22 @@ export default function PreparePage() {
   };
 
   const getFriendlyErrorMessage = (error: any): string => {
-    if (error instanceof Error) {
-        // Try to parse a JSON error message if it exists
-        try {
-            const parsed = JSON.parse(error.message);
-            if (parsed.message) return parsed.message;
-        } catch (e) {
-            // Not a JSON error, return original message
-            return error.message;
-        }
-        return error.message;
-    }
     if (typeof error === 'string') {
         try {
             const parsed = JSON.parse(error);
             if (parsed.message) return parsed.message;
+            return error;
         } catch(e) {
             return error;
+        }
+    }
+    if (error instanceof Error) {
+        try {
+            const parsed = JSON.parse(error.message);
+            if (parsed.message) return parsed.message;
+            return error.message;
+        } catch (e) {
+            return error.message;
         }
     }
     return 'An unexpected AI error occurred during processing.';
@@ -400,10 +387,6 @@ export default function PreparePage() {
   };
 
   const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
-    if (isGuest) {
-      toast({ title: "Modo Invitado", description: "La carga de archivos está deshabilitada en el modo invitado." });
-      return;
-    }
     if (rawFile.name.endsWith('.zip')) {
         const jszip = new JSZip();
         try {
@@ -445,10 +428,6 @@ export default function PreparePage() {
   };
   
   const handleFileUploadedToRoot = (rawFile: globalThis.File) => {
-    if (isGuest) {
-      toast({ title: "Modo Invitado", description: "La carga de archivos está deshabilitada en el modo invitado." });
-      return;
-    }
     if (folders.length > 0) {
       handleFileUpload(rawFile, folders[0].id);
     } else {
@@ -569,10 +548,6 @@ export default function PreparePage() {
   };
 
   const handleRegulationUpload = async (rawFile: globalThis.File) => {
-    if (isGuest) {
-      toast({ title: "Modo Invitado", description: "La carga de normativas está deshabilitada en el modo invitado." });
-      return;
-    }
      if (rawFile.name.endsWith('.zip')) {
         const jszip = new JSZip();
         try {
@@ -616,10 +591,6 @@ export default function PreparePage() {
 
 
   const handleCreateFolder = () => {
-    if (isGuest) {
-        toast({ title: "Modo Invitado", description: "La creación de carpetas está deshabilitada." });
-        return;
-    }
     if (!newFolderName.trim()) {
       toast({
         title: t('preparePage.toastError'),
@@ -663,7 +634,6 @@ export default function PreparePage() {
 
   // File action handlers
   const handleOpenRenameModal = (file: File, folderId: string) => {
-    if(isGuest) return;
     setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setNewFileName(file.name);
     setIsRenameModalOpen(true);
@@ -693,7 +663,6 @@ export default function PreparePage() {
   };
 
   const handleOpenMoveModal = (file: File, folderId: string) => {
-    if(isGuest) return;
     setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setMoveToFolderId(null);
     setIsMoveModalOpen(true);
@@ -728,7 +697,6 @@ export default function PreparePage() {
   };
 
   const handleOpenDeleteModal = (file: File, folderId: string) => {
-    if(isGuest) return;
     setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setIsDeleteModalOpen(true);
   };
@@ -767,7 +735,6 @@ export default function PreparePage() {
 
   // Regulation action handlers
   const handleOpenRenameRegulationModal = (regulation: Regulation) => {
-    if(isGuest) return;
     setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content });
     setNewRegulationName(regulation.name);
     setIsRenameRegulationModalOpen(true);
@@ -789,7 +756,6 @@ export default function PreparePage() {
   };
 
   const handleOpenDeleteRegulationModal = (regulation: Regulation) => {
-    if(isGuest) return;
     setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content });
     setIsDeleteRegulationModalOpen(true);
   };
@@ -810,7 +776,6 @@ export default function PreparePage() {
 
   // Folder action handlers
   const handleOpenRenameFolderModal = (folder: {id: string, name: string}) => {
-    if(isGuest) return;
     setFolderToAction(folder);
     setRenamedFolderName(folder.name);
     setIsRenameFolderModalOpen(true);
@@ -832,7 +797,6 @@ export default function PreparePage() {
   };
 
   const handleOpenDeleteFolderModal = (folder: {id: string, name: string}) => {
-    if(isGuest) return;
     setFolderToAction(folder);
     setIsDeleteFolderModalOpen(true);
   };
@@ -888,7 +852,6 @@ export default function PreparePage() {
                             variant="outline"
                             className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onFileSelect={handleFileUploadedToRoot}
-                            disabled={isGuest}
                         >
                             <Upload className="mr-2 h-4 w-4" />
                             {t('preparePage.uploadFile')}
@@ -898,7 +861,6 @@ export default function PreparePage() {
                             suppressHydrationWarning
                             className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onClick={() => setIsCreateFolderModalOpen(true)}
-                            disabled={isGuest}
                         >
                             <FolderPlus className="mr-2 h-4 w-4" />
                             {t('preparePage.newFolder')}
@@ -916,7 +878,7 @@ export default function PreparePage() {
                           onDismissError={handleDismissFileError}
                           onRenameFolder={handleOpenRenameFolderModal}
                           onDeleteFolder={handleOpenDeleteFolderModal}
-                          isGuest={isGuest}
+                          isGuest={false}
                         />
                     </CardContent>
                 </Card>
@@ -960,7 +922,7 @@ export default function PreparePage() {
                                 onDismissError={handleDismissRegulationError}
                                 onRename={handleOpenRenameRegulationModal}
                                 onDelete={handleOpenDeleteRegulationModal}
-                                isGuest={isGuest}
+                                isGuest={false}
                                 />
                             </CardContent>
                         </AccordionContent>
@@ -1184,3 +1146,5 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
