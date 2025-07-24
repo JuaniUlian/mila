@@ -33,7 +33,6 @@ import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 import JSZip from 'jszip';
-import { mockData } from '@/components/mila/mock-data';
 
 
 type File = {
@@ -181,7 +180,7 @@ export default function PreparePage() {
     setLoadedFromStorage(true);
   }, []);
 
-  // Save to localStorage on changes, but only after initial load and if not guest
+  // Save to localStorage on changes, but only after initial load
   useEffect(() => {
     if (loadedFromStorage) {
         try {
@@ -251,21 +250,28 @@ export default function PreparePage() {
         try {
             const parsed = JSON.parse(error);
             if (parsed.message) return parsed.message;
-            return error;
         } catch(e) {
-            return error;
+            // Not a JSON string, return as is
         }
+        return error;
     }
     if (error instanceof Error) {
         try {
             const parsed = JSON.parse(error.message);
             if (parsed.message) return parsed.message;
-            return error.message;
         } catch (e) {
-            return error.message;
+            // Not a JSON string in the error message
         }
+        // For Genkit errors or others that might not be JSON
+        if (error.message.includes('deadline')) {
+            return 'The request to the AI server timed out. Please try again.';
+        }
+        if (error.message.includes('API key')) {
+            return 'The AI API key is invalid or missing. Please check your server configuration.';
+        }
+        return error.message;
     }
-    return 'An unexpected AI error occurred during processing.';
+    return 'An unexpected error occurred during processing.';
   }
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
