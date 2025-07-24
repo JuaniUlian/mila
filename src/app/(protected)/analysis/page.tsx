@@ -125,7 +125,11 @@ export default function PlanillaVivaPage() {
     if (!initialData) return 0;
     return initialData.blocks.reduce((total, block) => {
       return total + block.suggestions.reduce((blockTotal, suggestion) => {
-        return blockTotal + (severityWeights[suggestion.severity] || 0);
+        // Only count editable text suggestions towards the total potential score improvement
+        if(suggestion.isEditable) {
+            return blockTotal + (severityWeights[suggestion.severity] || 0);
+        }
+        return blockTotal;
       }, 0);
     }, 0);
   }, [initialData]);
@@ -137,11 +141,11 @@ export default function PlanillaVivaPage() {
     const maxScore = 100;
     const pointsToGain = maxScore - baseScore;
 
-    // Calculate compliance score based on severity
+    // Calculate compliance score based on severity of resolved TEXT-BASED suggestions
     let resolvedSeverityWeight = 0;
     updatedBlocks.forEach(block => {
       block.suggestions.forEach(suggestion => {
-        if (suggestion.status === 'applied') {
+        if (suggestion.status === 'applied' && suggestion.isEditable) { // Only count applied text-based suggestions
           resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
         }
       });
@@ -197,33 +201,23 @@ export default function PlanillaVivaPage() {
       const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
       if (suggestionToUpdate.status === newStatus) return prevData; 
 
-      if (suggestionToUpdate.status === 'pending' && newStatus === 'applied' && suggestionToUpdate.completenessImpact) {
-        blockToUpdate.completenessIndex = Math.min(
-          blockToUpdate.maxCompleteness, 
-          blockToUpdate.completenessIndex + suggestionToUpdate.completenessImpact
-        );
-      }
-      
       suggestionToUpdate.status = newStatus;
       blockToUpdate.suggestions = [...blockToUpdate.suggestions];
       blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
       
       updatedBlocks[blockIndex] = blockToUpdate;
 
-      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-      
+      // DO NOT recalculate score here. This action is for reporting status, not for changing compliance.
       return {
         ...prevData,
         blocks: updatedBlocks,
-        overallCompletenessIndex: newCompletenessIndex,
-        overallComplianceScore: newComplianceScore,
       };
     });
     
     if (newStatus === 'applied') {
       toast({
         title: t('analysisPage.toastSuggestionApplied'),
-        description: t('analysisPage.toastComplianceUpdated'),
+        description: "El estado de la sugerencia ha sido actualizado para el informe.",
       });
     } else if (newStatus === 'discarded') {
       toast({
@@ -232,7 +226,7 @@ export default function PlanillaVivaPage() {
       });
     }
 
-  }, [recalculateScores, t, toast]);
+  }, [t, toast]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
     setDocumentData(prevData => {
@@ -247,6 +241,7 @@ export default function PlanillaVivaPage() {
 
       const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
 
+      // Only add to completeness if it's the first time being applied
       if (suggestionToUpdate.status === 'pending' && suggestionToUpdate.completenessImpact) {
         blockToUpdate.completenessIndex = Math.min(
           blockToUpdate.maxCompleteness, 
@@ -377,5 +372,3 @@ export default function PlanillaVivaPage() {
     </>
   );
 }
-
-    
