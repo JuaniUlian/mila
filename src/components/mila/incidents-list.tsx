@@ -360,11 +360,11 @@ export function IncidentsList({
                       <AccordionItem
                         key={category}
                         value={category}
-                        className="group incident-card-hover relative border rounded-2xl border-white/20 overflow-hidden shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md"
+                        className="group incident-card-hover border rounded-2xl border-white/20 shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md"
                       >
-                          <div className="absolute left-0 top-0 bottom-0 w-1.5 z-10" style={getCategoryGradientStyle(s_group)}/>
-                          <AccordionTrigger className="pl-6 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300">
-                              <div className="flex items-center gap-3 flex-1">
+                          <AccordionTrigger className="pl-2 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300 relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
+                              <div className="flex items-center gap-3 flex-1 pl-4">
                                 {Icon && <Icon className={cn("h-6 w-6", iconColorClass)} />}
                                 <span className="text-lg font-semibold text-left text-card-foreground transition-colors">{getTranslatedCategory(category)}</span>
                               </div>
