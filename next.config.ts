@@ -16,13 +16,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-
-  experimental: {
-    allowedDevOrigins: [
-      // Se añade la URL específica del Cloud Workstation para permitir CORS.
-      'https://9003-firebase-studio-1747512173228.cluster-duylic2g3fbzerqpzxxbw6helm.cloudworkstations.dev',
-    ],
-  },
 };
 
 export default nextConfig;

@@ -31,7 +31,7 @@ import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
-import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
+import type { ExtractTextFromFileOutput, ExtractTextFromFileInput } from '@/ai/flows/extract-text-from-file';
 import JSZip from 'jszip';
 
 
@@ -101,6 +101,26 @@ const estimateProcessingTime = (file: globalThis.File): number => {
     // Text files
     return baseTime + sizeInMB * 2; // 2 seconds per MB
 };
+
+// Function to call the Genkit flow via a direct HTTP request
+async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
+  const response = await fetch('http://localhost:3400/extractTextFromFile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("Genkit API error response:", errorBody);
+    throw new Error(`Server returned status ${response.status}: ${errorBody || response.statusText}`);
+  }
+
+  return response.json();
+}
+
 
 export default function PreparePage() {
   const router = useRouter();
@@ -263,7 +283,7 @@ export default function PreparePage() {
         if (error.message.includes('API key')) {
             return 'The AI API key is invalid or missing. Please check your server configuration.';
         }
-        if (error.message.includes('server responded with status 500')) {
+        if (error.message.includes('status 500')) {
              return 'An unexpected response was received from the server.'
         }
         return error.message;
