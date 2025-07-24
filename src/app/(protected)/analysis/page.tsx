@@ -169,7 +169,8 @@ export default function PlanillaVivaPage() {
       newComplianceScore,
       newCompletenessIndex: Math.min(10, Math.max(0, newCompletenessIndex)),
     };
-  }, [totalSeverityWeight, t, initialData]);
+  }, [totalSeverityWeight, initialData]);
+
 
   useEffect(() => {
     if (documentData) {
@@ -182,8 +183,6 @@ export default function PlanillaVivaPage() {
   }, [documentData, setScore]);
 
   const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
-    let updatedData: MilaAppPData | null = null;
-    
     setDocumentData(prevData => {
       if (!prevData) return null;
       
@@ -213,13 +212,12 @@ export default function PlanillaVivaPage() {
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
       
-      updatedData = {
+      return {
         ...prevData,
         blocks: updatedBlocks,
         overallCompletenessIndex: newCompletenessIndex,
         overallComplianceScore: newComplianceScore,
       };
-      return updatedData;
     });
     
     if (newStatus === 'applied') {
@@ -237,7 +235,6 @@ export default function PlanillaVivaPage() {
   }, [recalculateScores, t, toast]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
-    let updatedData: MilaAppPData | null = null;
     setDocumentData(prevData => {
       if (!prevData) return null;
       const updatedBlocks = [...prevData.blocks];
@@ -267,13 +264,12 @@ export default function PlanillaVivaPage() {
 
       const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
 
-      updatedData = {
+      return {
         ...prevData,
         blocks: updatedBlocks,
         overallCompletenessIndex: newCompletenessIndex,
         overallComplianceScore: newComplianceScore
       };
-      return updatedData;
     });
 
     setAppliedChangesExist(true);
