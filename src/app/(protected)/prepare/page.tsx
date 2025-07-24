@@ -104,7 +104,7 @@ const estimateProcessingTime = (file: globalThis.File): number => {
 
 // Function to call the Genkit flow via a direct HTTP request
 async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const response = await fetch('/api/genkit/extractTextFromFile', {
+  const response = await fetch('/api/genkit/extractTextFromFileFlow', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
