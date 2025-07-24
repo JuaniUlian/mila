@@ -104,7 +104,7 @@ const estimateProcessingTime = (file: globalThis.File): number => {
 
 // Function to call the Genkit flow via a direct HTTP request
 async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const response = await fetch('http://localhost:3400/extractTextFromFile', {
+  const response = await fetch('/api/genkit/extractTextFromFile', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -285,6 +285,9 @@ export default function PreparePage() {
         }
         if (error.message.includes('status 500')) {
              return 'An unexpected response was received from the server.'
+        }
+        if (error.message.includes('Failed to fetch')) {
+             return 'Could not connect to the processing server. Please check your connection and try again.';
         }
         return error.message;
     }
@@ -1167,5 +1170,7 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
 
     
