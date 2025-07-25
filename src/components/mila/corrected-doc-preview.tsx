@@ -24,17 +24,22 @@ export function CorrectedDocPreview({ data }: CorrectedDocPreviewProps) {
     setCurrentDate(new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
 
     // Generate the corrected document text
+    // Start with the original full text from the first block (assuming it contains the whole document)
     let fullText = data.blocks[0]?.originalText || '';
 
+    // Get all suggestions that were applied and have a text change
     const appliedSuggestions = data.blocks.flatMap(block =>
       block.suggestions.filter(s => s.status === 'applied' && s.text && s.evidence)
     );
 
+    // Replace the original evidence with the corrected suggestion text
     for (const suggestion of appliedSuggestions) {
       // Use a simple string replacement.
       // Note: This assumes the evidence text is unique enough not to cause accidental replacements.
       // For a more robust solution, a diff-patch library or more complex logic would be needed.
-      fullText = fullText.replace(suggestion.evidence, suggestion.text!);
+      if (suggestion.evidence) {
+         fullText = fullText.replace(suggestion.evidence, suggestion.text!);
+      }
     }
     
     setCorrectedText(fullText);
@@ -75,7 +80,7 @@ export function CorrectedDocPreview({ data }: CorrectedDocPreviewProps) {
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('correctedDocPreviewPage.correctedText')}</h2>
           <div className="prose prose-sm max-w-none document-content bg-slate-50 p-6 rounded-lg border">
-            <pre className="whitespace-pre-wrap font-sans text-sm">{correctedText}</pre>
+            <pre className="whitespace-pre-wrap font-sans text-sm">{correctedText || t('correctedDocPreviewPage.noChanges')}</pre>
           </div>
         </section>
 
