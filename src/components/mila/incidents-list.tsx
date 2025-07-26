@@ -373,7 +373,9 @@ export function IncidentsList({
                                       >
                                         <div className="flex-1 space-y-1 pr-4">
                                             <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-                                            <p className="text-sm text-muted-foreground">{t('suggestionCategories.normativa')}: {suggestion.appliedNorm}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {t('suggestionCategories.normativa')}: {suggestion.appliedNorm.includes('N/A') ? 'Mejora de redacción general' : suggestion.appliedNorm}
+                                            </p>
                                         </div>
                                         <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                                       </button>
