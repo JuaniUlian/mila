@@ -21,7 +21,7 @@ function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string,
         'Informativa': 'low',
     };
 
-    const categoryMap: { [key in SuggestionCategory]: SuggestionCategory } = {
+    const categoryMap: { [key: string]: SuggestionCategory } = {
         'Irregularidad': 'Legal',
         'Fortaleza': 'Redacción',
         'Oportunidad': 'Redacción',
