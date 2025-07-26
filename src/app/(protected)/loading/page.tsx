@@ -5,14 +5,37 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
-import { validateDocument, type ValidateDocumentOutput } from '@/ai/flows/validate-document';
+import { validateDocument, type ValidateDocumentOutput, type ValidateDocumentInput } from '@/ai/flows/validate-document';
 import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionSeverity, SuggestionCategory } from '@/components/mila/types';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 
+// New function to calculate scores based on findings
+function calculateScoresFromFindings(findings: ValidateDocumentOutput['findings']): { complianceScore: number, legalRiskScore: number } {
+    let score = 100;
+    const penalties = {
+        'Alta': 25,
+        'Media': 15,
+        'Baja': 5,
+        'Informativa': 0,
+    };
+
+    findings.forEach(finding => {
+        score -= penalties[finding.gravedad] || 0;
+    });
+
+    const complianceScore = Math.max(0, score);
+    const legalRiskScore = 100 - complianceScore;
+
+    return { complianceScore, legalRiskScore };
+}
+
+
 // Helper function to map AI output to the data structure needed by the analysis page
 function mapAiOutputToAppData(aiOutput: ValidateDocumentOutput, docName: string, docContent: string): MilaAppPData {
-    const { findings, complianceScore, legalRiskScore } = aiOutput;
+    const { findings } = aiOutput;
+    // Calculate scores based on the new function, ignoring scores from the AI
+    const { complianceScore, legalRiskScore } = calculateScoresFromFindings(findings);
 
     const severityMap: { [key: string]: SuggestionSeverity } = {
         'Alta': 'high',
@@ -250,3 +273,5 @@ export default function LoadingPage() {
     </div>
   );
 }
+
+    

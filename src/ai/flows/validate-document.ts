@@ -43,6 +43,7 @@ const FindingSchema = z.object({
 
 const ValidateDocumentOutputSchema = z.object({
     findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento."),
+    // Scores are now calculated client-side, but kept in schema for potential future use or AI context
     complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo (calculado como 100 menos las penalizaciones por la gravedad de cada hallazgo)."),
     legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal (calculado como 100 - complianceScore)."),
 });
@@ -214,16 +215,6 @@ El campo \`evidencia\` de cada hallazgo debe ser una **CITA LITERAL y EXACTA** d
 *   Si la solución es un cambio de texto, rellena el campo \`propuesta_redaccion\` con el texto completo y mejorado. **NO** rellenes el campo \`propuesta_procedimiento\` en este caso.
 *   Si la solución es una acción administrativa (ej. "emitir dictamen"), rellena el campo \`propuesta_procedimiento\`. **NO** rellenes el campo \`propuesta_redaccion\` en este caso.
 
-**Instrucciones para el Cálculo de Scores:**
-*   **complianceScore**: Calcula el puntaje de la siguiente manera:
-    *   Comienza con 100.
-    *   Resta 25 por cada hallazgo 'Alta'.
-    *   Resta 15 por cada hallazgo 'Media'.
-    *   Resta 5 por cada hallazgo 'Baja'.
-    *   Mínimo 0.
-    *   Si no hay hallazgos, el score es 100.
-*   **legalRiskScore**: Calcula como \`100 - complianceScore\`.
-
 Responde únicamente en el formato JSON solicitado. No incluyas texto, comillas o decoraciones antes o después del JSON.
 `,
 });
@@ -236,6 +227,13 @@ const validateDocumentFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
+    // Return a default score, the client will recalculate it based on findings.
+    if (output) {
+      output.complianceScore = 100;
+      output.legalRiskScore = 0;
+    }
     return output!;
   }
 );
+
+    
