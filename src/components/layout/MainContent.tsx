@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation';
 import { MainHeader } from '@/components/layout/main-header';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { useLayout } from '@/context/LayoutContext';
 
@@ -13,17 +13,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   
   const showHeader = pathname !== '/';
   
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const bodyClassName = useMemo(() => {
-    if (!isMounted) {
-      return "flex min-h-screen flex-col bg-slate-100";
-    }
-
     let backgroundClasses = 'bg-slate-100';
 
     if (pathname === '/analysis') {
@@ -44,14 +34,14 @@ export default function MainContent({ children }: { children: React.ReactNode })
       backgroundClasses = 'bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200';
     }
 
-    return cn("flex min-h-screen flex-col transition-all duration-500", backgroundClasses);
-  }, [isMounted, pathname, score, isInitialPageLoad]);
+    return cn("flex min-h-screen flex-col transition-all duration-500", backgroundClasses, showHeader ? "pt-4" : "");
+  }, [pathname, score, isInitialPageLoad, showHeader]);
 
 
   return (
     <div className={bodyClassName}>
       {showHeader && <MainHeader />}
-      <main className="flex-1 pt-4">
+      <main className="flex-1">
         {children}
       </main>
     </div>
