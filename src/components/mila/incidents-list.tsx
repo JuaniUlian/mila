@@ -106,9 +106,8 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
     onClose();
   };
 
-  const handleDiscardNewSuggestion = () => {
-    setCurrentText(suggestion.text || '');
-    setMode('view');
+  const handleBackToEdit = () => {
+    setMode('editing');
   };
 
   const handleEdit = () => {
@@ -223,7 +222,10 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                   <Button size="sm" onClick={handleApply} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
                   </Button>
-                  <Button size="sm" onClick={handleDiscardNewSuggestion} className={cn(baseButtonClasses, redButtonClasses)}>
+                  <Button size="sm" onClick={handleBackToEdit} className={cn(baseButtonClasses, blueButtonClasses)}>
+                      <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
+                  </Button>
+                  <Button size="sm" onClick={handleCancelEdit} className={cn(baseButtonClasses, redButtonClasses)}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
