@@ -190,7 +190,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div className="flex items-center justify-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  {suggestion.isEditable ? (
+                  {suggestion.isEditable && !suggestion.proceduralSuggestion ? (
                     <>
                       <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                         <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
@@ -336,6 +336,7 @@ export function IncidentsList({
   const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
     if (!suggestion) return undefined;
     // Find the regulation where the name is the start of the applied norm string.
+    // This is more robust than exact match.
     const regulation = selectedRegulations.find(r => suggestion.appliedNorm.startsWith(r.name));
     return regulation?.content;
   };
