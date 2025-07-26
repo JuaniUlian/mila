@@ -848,6 +848,7 @@ export default function PreparePage() {
                         <div className="relative flex-grow w-full">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <Input
+                            suppressHydrationWarning
                             placeholder={t('preparePage.searchPlaceholder')}
                             className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
                             value={searchQuery}
@@ -864,6 +865,7 @@ export default function PreparePage() {
                         </FileUploadButton>
                         <Button
                             variant="outline"
+                            suppressHydrationWarning
                             className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0"
                             onClick={() => setIsCreateFolderModalOpen(true)}
                         >
@@ -894,7 +896,7 @@ export default function PreparePage() {
                 <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
                     <AccordionItem value="item-1" className="border-none">
                         <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-                        <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => {
+                        <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => {
                             // Prevents the click from propagating and selecting the row
                             e.preventDefault();
                             e.stopPropagation();
@@ -936,7 +938,7 @@ export default function PreparePage() {
         )}
 
         {selectedFile && currentStep === 1 && (
-            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg z-20 animate-slide-in-from-bottom-center">
+            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-slide-in-from-bottom-center z-20">
                 <div className={cn("glass p-3 mx-4 rounded-2xl flex items-center justify-between gap-4")}>
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileCheck className="h-7 w-7 text-primary flex-shrink-0" />
@@ -946,6 +948,7 @@ export default function PreparePage() {
                         </div>
                     </div>
                     <Button
+                        suppressHydrationWarning
                         className="text-base font-semibold px-6 py-5 rounded-xl btn-neu-green flex-shrink-0"
                         onClick={handleNextStep}
                     >
@@ -986,11 +989,13 @@ export default function PreparePage() {
                             variant="ghost"
                             onClick={handlePrevStep}
                             className="py-3 px-4 rounded-xl btn-neu-light"
+                            suppressHydrationWarning
                         >
                             <ChevronLeft className="mr-1 h-5 w-5" />
                             {t('preparePage.backButton')}
                         </Button>
                         <Button
+                            suppressHydrationWarning
                             className="py-3 px-4 rounded-xl btn-neu-green"
                             onClick={handleValidate}
                             disabled={!isValidationReady}
@@ -1025,7 +1030,7 @@ export default function PreparePage() {
             <DialogClose asChild>
               <Button variant="ghost" onClick={() => setNewFolderName('')}>{t('preparePage.cancel')}</Button>
             </DialogClose>
-            <Button onClick={handleCreateFolder}>{t('preparePage.create')}</Button>
+            <Button suppressHydrationWarning onClick={handleCreateFolder}>{t('preparePage.create')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -1146,3 +1151,9 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
+
+    
+
+    
