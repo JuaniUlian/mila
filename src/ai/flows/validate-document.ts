@@ -210,6 +210,10 @@ Si no detectas irregularidades relevantes, responde con un array "findings" vac�
 El campo \`evidencia\` de cada hallazgo debe ser una **CITA LITERAL y EXACTA** de un fragmento del **DOCUMENTO_A_REVISAR**.
 **JAMÁS, BAJO NINGUNA CIRCUNSTANCIA**, utilices texto de las **NORMAS_DE_CONSULTA** para rellenar el campo \`evidencia\`.
 
+**REGLAS PARA PROPUESTAS:**
+*   Si la solución es un cambio de texto, rellena el campo \`propuesta_redaccion\` con el texto completo y mejorado. **NO** rellenes el campo \`propuesta_procedimiento\` en este caso.
+*   Si la solución es una acción administrativa (ej. "emitir dictamen"), rellena el campo \`propuesta_procedimiento\`. **NO** rellenes el campo \`propuesta_redaccion\` en este caso.
+
 **Instrucciones para el Cálculo de Scores:**
 *   **complianceScore**: Calcula el puntaje de la siguiente manera:
     *   Comienza con 100.

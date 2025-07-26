@@ -190,7 +190,8 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
         <div className="flex items-center justify-center gap-2 flex-wrap">
           {mode === 'view' && (
               <>
-                  {suggestion.isEditable && !suggestion.proceduralSuggestion ? (
+                  {suggestion.text ? (
+                    // Wording suggestion actions
                     <>
                       <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                         <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
@@ -199,11 +200,13 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                           <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                       </Button>
                     </>
-                  ) : (
+                  ) : suggestion.proceduralSuggestion ? (
+                    // Procedural suggestion action
                     <Button size="sm" onClick={() => onUpdateStatus('applied')} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
                       <Check className="mr-2 h-4 w-4"/> {t('analysisPage.markAsHandled')}
                     </Button>
-                  )}
+                  ) : null }
+                  
                   <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, redButtonClasses)}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
@@ -335,9 +338,8 @@ export function IncidentsList({
 
   const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
     if (!suggestion) return undefined;
-    // Find the regulation where the name is the start of the applied norm string.
-    // This is more robust than exact match.
-    const regulation = selectedRegulations.find(r => suggestion.appliedNorm.startsWith(r.name));
+    const allRegulations = JSON.parse(localStorage.getItem('selectedRegulations') || '[]');
+    const regulation = allRegulations.find((r: { name: string, content: string }) => suggestion.appliedNorm.startsWith(r.name));
     return regulation?.content;
   };
   
