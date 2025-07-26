@@ -43,7 +43,6 @@ const FindingSchema = z.object({
 
 const ValidateDocumentOutputSchema = z.object({
     findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento."),
-    // Scores are now calculated client-side, but kept in schema for potential future use or AI context
     complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo (calculado como 100 menos las penalizaciones por la gravedad de cada hallazgo)."),
     legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal (calculado como 100 - complianceScore)."),
 });
@@ -152,23 +151,19 @@ Ausencia de controles de gestión
 Falta de seguimiento de expedientes
 Deficiencias en sistemas de información
 
-8. Coincidencias de Datos Sospechosas
+8. Coincidencias de Datos Sospechosas (¡REGLAS ESTRICTAS!)
+Solo reporta una incidencia si encuentras **evidencia textual y explícita**. NO hagas inferencias geográficas vagas.
+- **Datos idénticos**: Domicilios, CUITs, teléfonos o correos electrónicos que se repiten textualmente entre oferentes que deberían ser competidores.
+- **Vínculos societarios**: Representantes legales o apoderados compartidos entre empresas competidoras.
+- **Similitudes extremas**: Propuestas técnicas o económicas con redacción, estructura o errores idénticos.
+- **Fechas sospechosas**: Fechas de constitución de una empresa muy cercanas a la fecha de la licitación.
 
-Datos personales, empresariales o financieros que se repiten
-Direcciones, teléfonos o contactos coincidentes entre distintas partes
-Fechas de constitución empresarial cercanas a licitaciones
-Representantes legales compartidos entre empresas competidoras
-Vínculos societarios no declarados
-Similitudes en propuestas técnicas o económicas
-
-9. Posibles Direccionamientos
-
-Requisitos técnicos excesivamente específicos que favorecen a un proveedor
-Plazos de presentación muy cortos que limitan la competencia
-Criterios de evaluación sesgados hacia características particulares
-Modificaciones de pliegos que benefician a oferentes específicos
-Información privilegiada que puede haber sido compartida
-Condiciones contractuales que favorecen intereses particulares
+9. Posibles Direccionamientos (¡REGLAS ESTRICTAS!)
+Solo reporta un posible direccionamiento si los requisitos son **excesivamente específicos y restrictivos** de forma injustificada.
+- **Requisitos "foto"**: Especificaciones técnicas que solo un producto o proveedor en el mercado puede cumplir (ej. "procesador marca X modelo Y", en lugar de "procesador con características equivalentes o superiores a...").
+- **Plazos imposibles**: Plazos de presentación de ofertas o de ejecución que son objetivamente demasiado cortos para que cualquier empresa, excepto una con información previa, pueda cumplirlos.
+- **Criterios de evaluación sesgados**: Criterios que puntúan características únicas de un solo proveedor en lugar de capacidades funcionales generales.
+- **NO asumas direccionamiento por invitar a empresas de una misma provincia si son ciudades distintas. Busca evidencia más fuerte.**
 
 10. Otras Irregularidades
 
@@ -236,5 +231,3 @@ const validateDocumentFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
