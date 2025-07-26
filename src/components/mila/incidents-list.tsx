@@ -335,8 +335,8 @@ export function IncidentsList({
 
   const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
     if (!suggestion) return undefined;
-    // Find the regulation where the name is an exact match for the applied norm.
-    const regulation = selectedRegulations.find(r => r.name.startsWith(suggestion.appliedNorm.split(' - ')[0]));
+    // Find the regulation where the name is the start of the applied norm string.
+    const regulation = selectedRegulations.find(r => suggestion.appliedNorm.startsWith(r.name));
     return regulation?.content;
   };
   
