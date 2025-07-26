@@ -187,6 +187,7 @@ Proporciona evidencia textual para cada incidencia
 Ofrece soluciones específicas y viables
 Justifica técnica y legalmente cada detección
 No detectes aspectos positivos - solo irregularidades que necesiten atención
+Para el campo 'articulo_o_seccion', si no aplica una norma específica (ej. mejora de redacción), utiliza el valor 'N/A'.
 
 Si no detectas irregularidades relevantes, responde con un array "findings" vacío.
 

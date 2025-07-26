@@ -199,19 +199,21 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
           )}
           {mode === 'editing' && (
               <>
-                  <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(baseButtonClasses, greenButtonClasses)}>
-                      {isValidationLoading ? (
-                          <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              {t('analysisPage.validating')}
-                          </>
-                      ) : (
-                          <>
-                              <Sparkles className="mr-2 h-4 w-4" />
-                              {t('analysisPage.validate')}
-                          </>
-                      )}
-                  </Button>
+                  {regulationContent && ( // Only show validate button if there is a regulation to validate against
+                      <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(baseButtonClasses, greenButtonClasses)}>
+                          {isValidationLoading ? (
+                              <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  {t('analysisPage.validating')}
+                              </>
+                          ) : (
+                              <>
+                                  <Sparkles className="mr-2 h-4 w-4" />
+                                  {t('analysisPage.validate')}
+                              </>
+                          )}
+                      </Button>
+                  )}
                   <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(baseButtonClasses, neutralButtonClasses)}>
                       <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
                   </Button>
@@ -225,7 +227,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
                   <Button size="sm" onClick={handleBackToEdit} className={cn(baseButtonClasses, blueButtonClasses)}>
                       <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
                   </Button>
-                  <Button size="sm" onClick={handleCancelEdit} className={cn(baseButtonClasses, redButtonClasses)}>
+                  <Button size="sm" onClick={handleDiscardOriginal} className={cn(baseButtonClasses, redButtonClasses)}>
                       <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
                   </Button>
               </>
@@ -325,7 +327,7 @@ export function IncidentsList({
   }, [pendingSuggestions]);
 
   const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
-    if (!suggestion) return undefined;
+    if (!suggestion || suggestion.appliedNorm.includes('N/A')) return undefined;
     const allRegulations = JSON.parse(localStorage.getItem('selectedRegulations') || '[]');
     const regulation = allRegulations.find((r: { name: string, content: string }) => suggestion.appliedNorm.startsWith(r.name));
     return regulation?.content;
