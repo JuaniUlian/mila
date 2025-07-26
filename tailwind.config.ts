@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -127,12 +128,23 @@ export default {
             transform: 'scale(1.03)',
           },
         },
+        'slide-in-from-bottom-center': {
+          '0%': {
+            transform: 'translateY(100%)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1',
+          }
+        },
       },
       animation: { // Moved inside extend
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
         'subtle-breathing': 'subtle-breathing 4s ease-in-out infinite',
+        'slide-in-from-bottom-center': 'slide-in-from-bottom-center 0.5s ease-out forwards',
       },
       backgroundSize: {
         '200%': '200% 200%',
