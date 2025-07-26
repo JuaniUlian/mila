@@ -938,7 +938,7 @@ export default function PreparePage() {
         )}
 
         {selectedFile && currentStep === 1 && (
-            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
+            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-8 fade-in duration-500 z-20">
                 <div className={cn("glass p-3 mx-4 rounded-2xl flex items-center justify-between gap-4")}>
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileCheck className="h-7 w-7 text-primary flex-shrink-0" />
@@ -1151,9 +1151,3 @@ export default function PreparePage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
