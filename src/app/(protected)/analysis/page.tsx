@@ -19,9 +19,9 @@ import { Loader2 } from 'lucide-react';
 
 // Define severity weights for score calculation
 const severityWeights: { [key in Suggestion['severity']]: number } = {
-  high: 3,
-  medium: 2,
-  low: 1,
+  high: 25,
+  medium: 15,
+  low: 5,
 };
 
 export default function PlanillaVivaPage() {
@@ -125,11 +125,7 @@ export default function PlanillaVivaPage() {
     if (!initialData) return 0;
     return initialData.blocks.reduce((total, block) => {
       return total + block.suggestions.reduce((blockTotal, suggestion) => {
-        // Only count editable text suggestions towards the total potential score improvement
-        if(suggestion.isEditable) {
-            return blockTotal + (severityWeights[suggestion.severity] || 0);
-        }
-        return blockTotal;
+        return blockTotal + (severityWeights[suggestion.severity] || 0);
       }, 0);
     }, 0);
   }, [initialData]);
@@ -141,11 +137,11 @@ export default function PlanillaVivaPage() {
     const maxScore = 100;
     const pointsToGain = maxScore - baseScore;
 
-    // Calculate compliance score based on severity of resolved TEXT-BASED suggestions
+    // Calculate compliance score based on severity of resolved suggestions
     let resolvedSeverityWeight = 0;
     updatedBlocks.forEach(block => {
       block.suggestions.forEach(suggestion => {
-        if (suggestion.status === 'applied' && suggestion.isEditable) { // Only count applied text-based suggestions
+        if (suggestion.status === 'applied') {
           resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
         }
       });
@@ -190,7 +186,7 @@ export default function PlanillaVivaPage() {
     setDocumentData(prevData => {
       if (!prevData) return null;
       
-      const updatedBlocks = [...prevData.blocks];
+      let updatedBlocks = [...prevData.blocks];
       const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
       if (blockIndex === -1) return prevData;
 
@@ -206,11 +202,15 @@ export default function PlanillaVivaPage() {
       blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
       
       updatedBlocks[blockIndex] = blockToUpdate;
-
-      // DO NOT recalculate score here. This action is for reporting status, not for changing compliance.
+      
+      // Recalculate score on any status change
+      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
+      
       return {
         ...prevData,
         blocks: updatedBlocks,
+        overallCompletenessIndex: newCompletenessIndex,
+        overallComplianceScore: newComplianceScore
       };
     });
     
@@ -226,7 +226,7 @@ export default function PlanillaVivaPage() {
       });
     }
 
-  }, [t, toast]);
+  }, [t, toast, recalculateScores]);
 
   const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
     setDocumentData(prevData => {
