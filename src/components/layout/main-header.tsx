@@ -9,16 +9,30 @@ import { useTranslations } from '@/lib/translations';
 import { SettingsDialog } from './settings-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Logo } from './logo';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function MainHeader() {
     const { language } = useLanguage();
     const t = useTranslations(language);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
-    const { score, isInitialPageLoad } = useLayout();
+    const router = useRouter();
     const pathname = usePathname();
+    
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
+
+    const { score, isInitialPageLoad } = useLayout();
 
     let headerBgClass = 'bg-slate-100/60';
     if (pathname === '/analysis') {
@@ -34,6 +48,17 @@ export function MainHeader() {
             headerBgClass = 'bg-sky-200/60';
         }
     }
+    
+    const handlePrepareClick = (e: React.MouseEvent) => {
+        if (pathname === '/analysis') {
+            e.preventDefault();
+            setIsConfirmDialogOpen(true);
+        }
+    };
+    
+    const handleConfirmNavigation = () => {
+        router.push('/prepare');
+    };
 
     const navActions = [
         {
@@ -41,6 +66,7 @@ export function MainHeader() {
             href: '/prepare',
             icon: FilePlus2,
             isLink: true,
+            onClick: handlePrepareClick,
         },
         {
             name: t('sidebar.settings'),
@@ -85,6 +111,7 @@ export function MainHeader() {
                                         {action.isLink ? (
                                             <Link
                                                 href={action.href!}
+                                                onClick={action.onClick}
                                                 target={action.isExternal ? '_blank' : undefined}
                                                 rel={action.isExternal ? 'noopener noreferrer' : undefined}
                                                 className={commonClasses}
@@ -114,6 +141,22 @@ export function MainHeader() {
                 </header>
             </TooltipProvider>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
+            <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>{t('confirmDialog.title')}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {t('confirmDialog.description')}
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>{t('confirmDialog.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleConfirmNavigation}>
+                        {t('confirmDialog.continue')}
+                    </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

@@ -313,6 +313,13 @@ export const translations = {
     'Redacción': t('Redacción', 'Wording'),
     'normativa': t('Normativa', 'Regulation'),
   },
+
+  confirmDialog: {
+    title: t('¿Está seguro?', 'Are you sure?'),
+    description: t('Está a punto de iniciar un nuevo proceso de validación. El análisis actual se perderá si no ha guardado los informes o documentos. ¿Desea continuar?', 'You are about to start a new validation process. The current analysis will be lost if you have not saved reports or documents. Do you want to continue?'),
+    cancel: t('Cancelar', 'Cancel'),
+    continue: t('Continuar', 'Continue'),
+  }
 };
 
 // Helper function to get translation with fallback
