@@ -52,11 +52,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
   };
 
   const handleValidate = async () => {
-    if (!regulationContent) {
-        toast({ title: "Error", description: "No se encontró contenido de la normativa para validar.", variant: "destructive" });
-        return;
-    }
-    if (!suggestion.text) {
+    if (!suggestion.text) { // Can't validate if there's no original suggestion text
         toast({ title: "Error", description: "No hay texto de sugerencia original para validar.", variant: "destructive" });
         return;
     }
@@ -69,7 +65,8 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
             originalSuggestion: suggestion.text,
             userEditedSuggestion: currentText,
             legalJustification: suggestion.justification.legal,
-            regulationContent: regulationContent,
+            // Pass regulation content, or a generic statement if none exists.
+            regulationContent: regulationContent || "Principios generales de buena administración y claridad contractual.",
         });
 
         setCurrentText(result.improvedProposal);
@@ -199,7 +196,7 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
           )}
           {mode === 'editing' && (
               <>
-                  {regulationContent && ( // Only show validate button if there is a regulation to validate against
+                  {!suggestion.proceduralSuggestion && (
                       <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(baseButtonClasses, greenButtonClasses)}>
                           {isValidationLoading ? (
                               <>
@@ -327,7 +324,7 @@ export function IncidentsList({
   }, [pendingSuggestions]);
 
   const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
-    if (!suggestion || suggestion.appliedNorm.includes('N/A')) return undefined;
+    if (!suggestion || !suggestion.appliedNorm || suggestion.appliedNorm.includes('N/A')) return undefined;
     const allRegulations = JSON.parse(localStorage.getItem('selectedRegulations') || '[]');
     const regulation = allRegulations.find((r: { name: string, content: string }) => suggestion.appliedNorm.startsWith(r.name));
     return regulation?.content;
