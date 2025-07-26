@@ -131,20 +131,6 @@ const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, o
             </div>
         </div>
 
-        {regulationContent && (
-           <>
-            <Separator className="bg-slate-300/70"/>
-            <div>
-                <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
-                  <BookCheck size={16}/> {t('analysisPage.citedRegulation')}: {suggestion.appliedNorm}
-                </h4>
-                <div className="bg-blue-50 p-3 rounded-xl shadow-inner border border-blue-200">
-                    <p className="text-sm font-sans text-blue-900 max-h-32 overflow-y-auto">{regulationContent}</p>
-                </div>
-            </div>
-          </>
-        )}
-
         <Separator className="bg-slate-300/70"/>
         
         <div>
@@ -365,7 +351,7 @@ export function IncidentsList({
                         value={category}
                         className="group incident-card-hover border rounded-2xl border-white/20 shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md"
                       >
-                          <AccordionTrigger className="pl-2 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300 relative">
+                          <AccordionTrigger suppressHydrationWarning className="pl-2 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300 relative">
                               <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
                               <div className="flex items-center gap-3 flex-1 pl-4">
                                 {Icon && <Icon className={cn("h-6 w-6", iconColorClass)} />}
