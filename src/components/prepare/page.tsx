@@ -31,9 +31,9 @@ import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
+import type { ExtractTextFromFileOutput } from '@/ai/flows/extract-text-from-file';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 import JSZip from 'jszip';
-import { mockData } from '@/components/mila/mock-data';
 
 
 type File = {
@@ -163,8 +163,6 @@ export default function PreparePage() {
                 }))
             }));
             setFolders(sanitizedFolders);
-        } else {
-            setFolders(initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
         }
         
         const savedRegulationsRaw = localStorage.getItem(REGULATIONS_STORAGE_KEY);
@@ -176,13 +174,9 @@ export default function PreparePage() {
                 status: reg.status || 'success'
             }));
             setRegulations(sanitizedRegulations);
-        } else {
-            setRegulations(initialRegulations);
         }
     } catch (error) {
         console.error('Error loading data from localStorage', error);
-        setFolders(initialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })));
-        setRegulations(initialRegulations);
     }
     setLoadedFromStorage(true);
   }, []);
@@ -235,25 +229,14 @@ export default function PreparePage() {
   const handleValidate = () => {
     if (!isValidationReady || !selectedFile) return;
 
-    // Use mock data for demo purposes, as auth is removed
-    localStorage.setItem('milaAnalysisData', JSON.stringify(mockData));
-    localStorage.setItem('selectedDocumentName', selectedFile.name);
     const selectedRegulationsData = regulations
         .filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success')
         .map(r => ({ name: r.name, content: r.content }));
-    localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
     
-    // If not using AI, go directly to analysis page
-    router.push('/analysis');
-
-    // If using AI, go to loading page
-    // const selectedRegulationsData = regulations
-    //     .filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success')
-    //     .map(r => ({ name: r.name, content: r.content }));
-    // localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
-    // localStorage.setItem('selectedDocumentName', selectedFile.name);
-    // localStorage.setItem('selectedDocumentContent', selectedFile.content);
-    // router.push('/loading');
+    localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
+    localStorage.setItem('selectedDocumentName', selectedFile.name);
+    localStorage.setItem('selectedDocumentContent', selectedFile.content);
+    router.push('/loading');
   };
   
   const showToast = (title: string, description: string) => {
@@ -262,6 +245,35 @@ export default function PreparePage() {
       description,
     });
   };
+
+  const getFriendlyErrorMessage = (error: any): string => {
+    if (typeof error === 'string') {
+        try {
+            const parsed = JSON.parse(error);
+            if (parsed.message) return parsed.message;
+        } catch(e) {
+            // Not a JSON string, return as is
+        }
+        return error;
+    }
+    if (error instanceof Error) {
+        // For Genkit errors or others that might not be JSON
+        if (error.message.includes('deadline')) {
+            return 'The request to the AI server timed out. Please try again.';
+        }
+        if (error.message.includes('API key')) {
+            return 'The AI API key is invalid or missing. Please check your server configuration.';
+        }
+        if (error.message.includes('status 500')) {
+             return 'An unexpected response was received from the server.'
+        }
+        if (error.message.includes('Failed to fetch')) {
+             return 'Could not connect to the processing server. Please check your connection and try again.';
+        }
+        return error.message;
+    }
+    return 'An unexpected error occurred during processing.';
+  }
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
     if (rawFile.name.endsWith('.zip')) {
@@ -326,7 +338,7 @@ export default function PreparePage() {
         showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
       
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+        const errorMessage = getFriendlyErrorMessage(err);
         setFolders(prevFolders =>
           prevFolders.map(folder => ({
             ...folder,
@@ -516,8 +528,7 @@ export default function PreparePage() {
                 description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
               });
             } catch (error) {
-              console.error("Error in OCR:", error);
-              handleError('Falló al extraer texto del PDF con OCR.');
+              handleError(getFriendlyErrorMessage(error));
             }
           }
         };
@@ -539,8 +550,7 @@ export default function PreparePage() {
         handleError('Tipo de archivo no soportado para normativas.');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Ocurrió un error desconocido.';
-      handleError(errorMessage);
+      handleError(getFriendlyErrorMessage(err));
     }
   };
 
@@ -875,7 +885,6 @@ export default function PreparePage() {
                           onDismissError={handleDismissFileError}
                           onRenameFolder={handleOpenRenameFolderModal}
                           onDeleteFolder={handleOpenDeleteFolderModal}
-                          isGuest={false}
                         />
                     </CardContent>
                 </Card>
@@ -888,8 +897,10 @@ export default function PreparePage() {
                     <AccordionItem value="item-1" className="border-none">
                         <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
                         <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => {
+                            // Prevents the click from propagating and selecting the row
                             e.preventDefault();
                             e.stopPropagation();
+                            // Manually toggle the accordion
                             const trigger = e.currentTarget;
                             const content = trigger.nextElementSibling;
                             if (trigger.getAttribute('data-state') === 'open') {
@@ -917,7 +928,6 @@ export default function PreparePage() {
                                 onDismissError={handleDismissRegulationError}
                                 onRename={handleOpenRenameRegulationModal}
                                 onDelete={handleOpenDeleteRegulationModal}
-                                isGuest={false}
                                 />
                             </CardContent>
                         </AccordionContent>
@@ -928,7 +938,7 @@ export default function PreparePage() {
         )}
 
         {selectedFile && currentStep === 1 && (
-            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-8 fade-in duration-500 z-20">
+            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
                 <div className={cn("glass p-3 mx-4 rounded-2xl flex items-center justify-between gap-4")}>
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileCheck className="h-7 w-7 text-primary flex-shrink-0" />
@@ -1141,3 +1151,9 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
+
+    
+
+    
