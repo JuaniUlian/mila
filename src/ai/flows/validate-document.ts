@@ -151,19 +151,14 @@ Ausencia de controles de gestión
 Falta de seguimiento de expedientes
 Deficiencias en sistemas de información
 
-8. Coincidencias de Datos Sospechosas (¡REGLAS ESTRICTAS!)
-Solo reporta una incidencia si encuentras **evidencia textual y explícita**. NO hagas inferencias geográficas vagas.
-- **Datos idénticos**: Domicilios, CUITs, teléfonos o correos electrónicos que se repiten textualmente entre oferentes que deberían ser competidores.
-- **Vínculos societarios**: Representantes legales o apoderados compartidos entre empresas competidoras.
-- **Similitudes extremas**: Propuestas técnicas o económicas con redacción, estructura o errores idénticos.
-- **Fechas sospechosas**: Fechas de constitución de una empresa muy cercanas a la fecha de la licitación.
+8. Vínculos Societarios Explícitos
+- Busca **únicamente** si el texto menciona explícitamente que representantes legales o apoderados son compartidos entre empresas que deberían ser competidoras. No infieras nada que no esté escrito.
 
 9. Posibles Direccionamientos (¡REGLAS ESTRICTAS!)
-Solo reporta un posible direccionamiento si los requisitos son **excesivamente específicos y restrictivos** de forma injustificada.
+Solo reporta un posible direccionamiento si los **requisitos técnicos** del pliego son excesivamente específicos y restrictivos de forma injustificada. NO analices la lista de invitados para esto.
 - **Requisitos "foto"**: Especificaciones técnicas que solo un producto o proveedor en el mercado puede cumplir (ej. "procesador marca X modelo Y", en lugar de "procesador con características equivalentes o superiores a...").
 - **Plazos imposibles**: Plazos de presentación de ofertas o de ejecución que son objetivamente demasiado cortos para que cualquier empresa, excepto una con información previa, pueda cumplirlos.
 - **Criterios de evaluación sesgados**: Criterios que puntúan características únicas de un solo proveedor en lugar de capacidades funcionales generales.
-- **NO asumas direccionamiento por invitar a empresas de una misma provincia si son ciudades distintas. Busca evidencia más fuerte.**
 
 10. Otras Irregularidades
 
