@@ -7,7 +7,7 @@ interface ProcessingMetrics {
   timestamp: Date;
   fileName?: string;
   fileSize: number;
-  method: 'gemini' | 'claude_fallback';
+  method: 'gemini' | 'gemini_pro_fallback';
   success: boolean;
   processingTimeMs: number;
   chunksUsed?: number;
@@ -169,7 +169,7 @@ class ProductionMonitor {
 export const monitor = ProductionMonitor.getInstance();
 
 export function logSuccess(
-  method: 'gemini' | 'claude_fallback',
+  method: 'gemini' | 'gemini_pro_fallback',
   fileSize: number,
   processingTimeMs: number,
   options: { fileName?: string; chunksUsed?: number } = {}
@@ -186,7 +186,7 @@ export function logSuccess(
 }
 
 export function logError(
-  method: 'gemini' | 'claude_fallback',
+  method: 'gemini' | 'gemini_pro_fallback',
   fileSize: number,
   processingTimeMs: number,
   error: string,
