@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, Loader2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ interface File {
     id: string;
     name: string;
     content: string;
-    status?: 'uploading' | 'processing' | 'error' | 'success';
+    status?: 'uploading' | 'processing' | 'error' | 'success' | 'cancelling';
     error?: string;
     processingTime?: number;
     // Chunk-specific
@@ -46,6 +46,7 @@ interface FolderGridProps {
     onDismissError: (file: File, folderId: string) => void;
     onRenameFolder: (folder: FolderData) => void;
     onDeleteFolder: (folder: FolderData) => void;
+    onCancelProcessing: (fileId: string, folderId: string) => void;
 }
 
 const FileItem: React.FC<{
@@ -57,13 +58,16 @@ const FileItem: React.FC<{
   onMove: (file: File, folderId: string) => void;
   onDelete: (file: File, folderId: string) => void;
   onDismissError: (file: File, folderId: string) => void;
-}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
+  onCancel: (fileId: string, folderId: string) => void;
+}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError, onCancel }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
 
-  if (file.status === 'uploading' || file.status === 'processing') {
+  if (file.status === 'uploading' || file.status === 'processing' || file.status === 'cancelling') {
     const statusText = file.status === 'uploading' 
       ? t('preparePage.uploadingStatus') 
+      : file.status === 'cancelling'
+      ? 'Cancelando...'
       : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}`;
 
     return (
@@ -73,9 +77,20 @@ const FileItem: React.FC<{
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground truncate block">{file.name}</span>
             <p className="text-xs text-muted-foreground">
-                {statusText}...
+                {statusText}
             </p>
           </div>
+          {file.status === 'processing' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onCancel(file.id, folderId)}
+              className="text-xs h-auto p-1 text-destructive hover:bg-destructive/10"
+            >
+              <XCircle className="h-4 w-4 mr-1" />
+              Cancelar
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -166,7 +181,8 @@ export function FolderGrid({
     onDeleteFile,
     onDismissError,
     onRenameFolder,
-    onDeleteFolder
+    onDeleteFolder,
+    onCancelProcessing,
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
@@ -249,6 +265,7 @@ export function FolderGrid({
                                     onMove={onMoveFile}
                                     onDelete={onDeleteFile}
                                     onDismissError={onDismissError}
+                                    onCancel={onCancelProcessing}
                                 />
                             ))
                         ) : (
@@ -260,3 +277,5 @@ export function FolderGrid({
         </div>
     );
 }
+
+    

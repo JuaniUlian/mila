@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,7 @@ type File = {
   id: string;
   name: string;
   content: string;
-  status?: 'uploading' | 'processing' | 'error' | 'success';
+  status?: 'uploading' | 'processing' | 'error' | 'success' | 'cancelling';
   error?: string;
   startTime?: number;
   processingTime?: number;
@@ -126,8 +126,11 @@ export default function PreparePage() {
   const [folderToAction, setFolderToAction] = useState<FolderIdentifier>(null);
   const [renamedFolderName, setRenamedFolderName] = useState('');
 
-
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
+
+  // Ref for cancellation logic
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
 
   // Load from localStorage on mount
@@ -239,8 +242,25 @@ export default function PreparePage() {
     return 'Ocurrió un error inesperado durante el procesamiento.';
   }
 
+  const handleCancelProcessing = (fileId: string, folderId: string) => {
+    setIsCancelling(true);
+    abortControllerRef.current?.abort();
+
+    setFolders(prev => prev.map(f => f.id === folderId ? {
+      ...f,
+      files: f.files.map(file => file.id === fileId ? { ...file, status: 'cancelling' } : file)
+    } : f));
+
+    toast({
+      title: "Cancelando...",
+      description: "El proceso de carga se detendrá después del fragmento actual."
+    });
+  };
+
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
+    setIsCancelling(false);
+    abortControllerRef.current = new AbortController();
 
     const updateFileState = (update: Partial<File>) => {
       setFolders(prev =>
@@ -266,16 +286,18 @@ export default function PreparePage() {
     try {
         updateFileState({ status: 'processing' });
 
-        // Special handling for PDFs: chunking
         if (rawFile.name.endsWith('.pdf')) {
             const fileBuffer = await rawFile.arrayBuffer();
             const pdfDoc = await PDFDocument.load(fileBuffer);
             const totalPages = pdfDoc.getPageCount();
-            const chunkSize = 3; // Process 3 pages at a time
+            const chunkSize = 3; 
             const numChunks = Math.ceil(totalPages / chunkSize);
             let combinedText = '';
 
             for (let i = 0; i < numChunks; i++) {
+                if (isCancelling) {
+                    throw new Error('Cancelled');
+                }
                 const chunkProgress = `${i + 1}/${numChunks}`;
                 updateFileState({ progress: chunkProgress });
                 
@@ -297,7 +319,7 @@ export default function PreparePage() {
                 const response = await fetch('/api/extract-text', { 
                   method: 'POST', 
                   body: formData,
-                  signal: controller.signal 
+                  signal: abortControllerRef.current.signal,
                 });
                 clearTimeout(timeoutId);
 
@@ -312,10 +334,9 @@ export default function PreparePage() {
             updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
 
         } else {
-             // Standard processing for non-PDF files
             const formData = new FormData();
             formData.append('file', rawFile);
-            const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+            const response = await fetch('/api/extract-text', { method: 'POST', body: formData, signal: abortControllerRef.current.signal });
 
             if (!response.ok) {
                 const errorText = await response.text().catch(() => `Server error: ${response.status}`);
@@ -330,9 +351,24 @@ export default function PreparePage() {
             description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
         });
       
-    } catch (err) {
-        const errorMessage = getFriendlyErrorMessage(err);
-        updateFileState({ status: 'error', error: errorMessage, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
+    } catch (err: any) {
+        if (err.name === 'AbortError' || err.message === 'Cancelled') {
+            toast({
+                title: "Proceso cancelado",
+                description: `La carga de "${rawFile.name}" ha sido detenida.`,
+                variant: 'destructive'
+            });
+            // Remove the cancelled file from the list
+            setFolders(prev => prev.map(f => f.id === folderId ? {
+                ...f, files: f.files.filter(file => file.id !== tempId)
+            } : f));
+        } else {
+            const errorMessage = getFriendlyErrorMessage(err);
+            updateFileState({ status: 'error', error: errorMessage, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
+        }
+    } finally {
+        setIsCancelling(false);
+        abortControllerRef.current = null;
     }
   };
 
@@ -792,6 +828,7 @@ export default function PreparePage() {
                           onDismissError={handleDismissFileError}
                           onRenameFolder={handleOpenRenameFolderModal}
                           onDeleteFolder={handleOpenDeleteFolderModal}
+                          onCancelProcessing={handleCancelProcessing}
                         />
                     </CardContent>
                 </Card>
@@ -1059,3 +1096,5 @@ export default function PreparePage() {
   );
 }
 
+
+    
