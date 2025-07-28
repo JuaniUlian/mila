@@ -108,11 +108,19 @@
   .card-neumorphism:hover {
       @apply shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff];
   }
-
-  .border-gradient-red { @apply border-l-red-500; }
-  .border-gradient-amber { @apply border-l-amber-500; }
-  .border-gradient-sky { @apply border-l-sky-500; }
-  .border-gradient-gray { @apply border-l-gray-400; }
+  
+  .border-gradient-red {
+    border-image: linear-gradient(to bottom, hsl(var(--severity-high)), hsl(var(--severity-high) / 0.7), transparent) 1;
+  }
+  .border-gradient-amber {
+    border-image: linear-gradient(to bottom, hsl(var(--severity-medium)), hsl(var(--severity-medium) / 0.7), transparent) 1;
+  }
+  .border-gradient-sky {
+    border-image: linear-gradient(to bottom, hsl(var(--severity-low)), hsl(var(--severity-low) / 0.7), transparent) 1;
+  }
+  .border-gradient-gray {
+    border-image: linear-gradient(to bottom, hsl(var(--severity-informative)), hsl(var(--severity-informative) / 0.7), transparent) 1;
+  }
 
   .hover-hud-red:hover { background: radial-gradient(circle, hsl(var(--severity-high) / 0.1), transparent 70%); }
   .hover-hud-amber:hover { background: radial-gradient(circle, hsl(var(--severity-medium) / 0.1), transparent 70%); }

@@ -4,8 +4,8 @@
 import React, { useState, useMemo } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
+import { validateSuggestionEdit, type ValidateSuggestionEditOutput } from '@/ai/flows/validate-suggestion-edit';
 
 interface IncidentsListProps {
   findings: FindingWithStatus[];
@@ -51,12 +52,16 @@ const SEVERITY_ORDER: Record<string, number> = {
 };
 
 
-const IncidentItemContent = ({ finding, onFindingStatusChange }: {
+const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose }: {
   finding: FindingWithStatus;
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
+  onDialogClose: () => void;
 }) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<ValidateSuggestionEditOutput | null>(null);
+
   const [editForm, setEditForm] = useState({
     propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
     propuesta_procedimiento: finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento || '',
@@ -65,9 +70,25 @@ const IncidentItemContent = ({ finding, onFindingStatusChange }: {
   const handleSave = () => {
     onFindingStatusChange(finding.id, 'modified', editForm);
     setIsEditing(false);
+    onDialogClose();
     toast({ title: "Sugerencia Modificada", description: "La propuesta de solución ha sido actualizada." });
   };
+
+  const handleApply = () => {
+    onFindingStatusChange(finding.id, 'applied');
+    onDialogClose();
+  }
   
+  const handleMarkAsHandled = () => {
+    onFindingStatusChange(finding.id, 'applied');
+    onDialogClose();
+  }
+
+  const handleDiscard = () => {
+    onFindingStatusChange(finding.id, 'discarded');
+    onDialogClose();
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -123,19 +144,17 @@ const IncidentItemContent = ({ finding, onFindingStatusChange }: {
           {finding.status === 'pending' ? (
             <>
               {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-                  <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+                  <Button size="sm" className="btn-neu-light" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
               ) : (
                   <>
-                      <Button size="sm" className="btn-neu-green" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                      <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
                       <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
                   </>
               )}
-              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onFindingStatusChange(finding.id, 'discarded')}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
             </>
           ) : (
-              <DialogClose asChild>
-                  <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
-              </DialogClose>
+             <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
           )}
       </div>
     </div>
@@ -182,6 +201,7 @@ export function IncidentsList({
 
   const getTranslatedStatus = (status: FindingStatus) => {
     const statusKey = `reportPreviewPage.status.${status}`;
+    // @ts-ignore
     const translated = t(statusKey);
     return translated === statusKey ? status : translated;
   };
@@ -256,7 +276,7 @@ export function IncidentsList({
                 <DialogTitle className="text-xl">{selectedFinding.titulo_incidencia}</DialogTitle>
               </DialogHeader>
               <div className="p-6 overflow-y-auto">
-                <IncidentItemContent finding={selectedFinding} onFindingStatusChange={onFindingStatusChange} />
+                <IncidentItemContent finding={selectedFinding} onFindingStatusChange={onFindingStatusChange} onDialogClose={() => setSelectedFinding(null)} />
               </div>
             </>
           )}
