@@ -117,17 +117,17 @@ const IncidentItemContent = ({ finding, onFindingStatusChange }: {
 
       <div className="flex gap-2 pt-4 border-t items-center justify-end">
           {finding.status === 'pending' ? (
-              <>
-                  {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-                      <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
-                  ) : (
-                      <>
-                          <Button size="sm" className="btn-neu-green" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                          <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
-                      </>
-                  )}
-                  <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onFindingStatusChange(finding.id, 'discarded')}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
-              </>
+            <>
+              {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
+                  <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+              ) : (
+                  <>
+                      <Button size="sm" className="btn-neu-green" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                      <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                  </>
+              )}
+              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onFindingStatusChange(finding.id, 'discarded')}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+            </>
           ) : (
               <DialogClose asChild>
                   <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
@@ -175,6 +175,12 @@ export function IncidentsList({
     );
   }
 
+  const getTranslatedStatus = (status: FindingStatus) => {
+    const statusKey = `reportPreviewPage.status.${status}`;
+    const translated = t(statusKey);
+    return translated === statusKey ? status : translated;
+  };
+
   return (
     <div className="space-y-6">
       {Object.entries(findingsByCategory).map(([category, categoryFindings]) => {
@@ -183,9 +189,9 @@ export function IncidentsList({
         const categoryIcon = Object.values(TYPE_TO_CATEGORY).find(c => c.label === category)?.icon || AlertTriangle;
 
         return (
-          <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn("w-full bg-slate-50 rounded-xl overflow-hidden card-neumorphism")}>
+          <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn("w-full bg-slate-50 rounded-xl overflow-hidden card-neumorphism border-l-4", SEVERITY_GRADIENT[highestSeverity])}>
             <AccordionItem value="item-1" className="border-b-0">
-              <AccordionTrigger className={cn("p-4 hover:no-underline w-full text-left group border-l-4 transition-colors duration-300", SEVERITY_GRADIENT[highestSeverity], SEVERITY_HOVER_HUD[highestSeverity])}>
+              <AccordionTrigger className={cn("p-4 hover:no-underline w-full text-left group transition-colors duration-300", SEVERITY_HOVER_HUD[highestSeverity])}>
                 <div className="flex items-center gap-4 w-full">
                   {React.createElement(categoryIcon, { className: "h-6 w-6 text-primary" })}
                   <h3 className="text-lg font-semibold text-foreground flex-1">{category}</h3>
@@ -223,7 +229,7 @@ export function IncidentsList({
                             finding.status === 'discarded' && 'bg-slate-200 text-slate-600',
                             finding.status === 'modified' && 'bg-blue-100 text-blue-800'
                           )}>
-                            {finding.status}
+                            {getTranslatedStatus(finding.status)}
                           </span>
                           <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                         </div>
