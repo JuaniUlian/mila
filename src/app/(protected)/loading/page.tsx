@@ -9,6 +9,15 @@ import { validateDocument, type ValidateDocumentOutput, type ValidateDocumentInp
 import type { MilaAppPData, DocumentBlock, Suggestion, SuggestionSeverity, SuggestionCategory } from '@/components/mila/types';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 // New function to calculate scores based on findings
 function calculateScoresFromFindings(findings: ValidateDocumentOutput['findings']): { complianceScore: number, legalRiskScore: number } {
@@ -104,6 +113,8 @@ export default function LoadingPage() {
   const [progress, setProgress] = useState(0);
   const [estimatedTime, setEstimatedTime] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [isErrorAlertOpen, setIsErrorAlertOpen] = useState(false);
+  const [errorAlertContent, setErrorAlertContent] = useState({ title: '', description: '' });
 
   const loadingTexts = useMemo(() => ({
     status1: t('loadingPage.status1'),
@@ -173,6 +184,15 @@ export default function LoadingPage() {
           documentContent,
           regulations,
         });
+
+        if (!aiResult.isRelevantDocument) {
+            setErrorAlertContent({
+                title: "Archivo no pertinente",
+                description: aiResult.relevancyReasoning || "El documento no parece ser un archivo válido para el análisis de la administración pública.",
+            });
+            setIsErrorAlertOpen(true);
+            return;
+        }
         
         setStatusText(loadingTexts.status4);
         const generatedData = mapAiOutputToAppData(aiResult, documentName, documentContent);
@@ -194,13 +214,9 @@ export default function LoadingPage() {
           title = "Configuración de Servidor Requerida";
           description = "Para usar la IA, las credenciales del servidor de Firebase deben estar configuradas en el archivo .env. Por favor, consulte la documentación para configurarlo. Para una demostración visual sin IA, puede usar el 'Modo Invitado'.";
         }
-        
-        toast({
-          title: title,
-          description: description,
-          variant: "destructive"
-        });
-        router.push('/prepare');
+
+        setErrorAlertContent({ title, description });
+        setIsErrorAlertOpen(true);
       }
     };
     
@@ -212,6 +228,7 @@ export default function LoadingPage() {
   const remainingTime = Math.max(0, Math.round(estimatedTime - elapsedTime));
 
   return (
+    <>
     <div className="flex flex-col items-center justify-center flex-1 p-4">
       <div className="w-full max-w-lg text-center bg-white/50 backdrop-blur-lg p-8 rounded-2xl shadow-lg border border-white/30">
         <svg width="64" height="64" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="text-blue-600 mb-6 inline-block">
@@ -271,6 +288,21 @@ export default function LoadingPage() {
         </div>
       </div>
     </div>
+
+    <AlertDialog open={isErrorAlertOpen} onOpenChange={setIsErrorAlertOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>{errorAlertContent.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+                {errorAlertContent.description}
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogAction onClick={() => router.push('/prepare')}>
+                Volver a Preparación
+            </AlertDialogAction>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
 

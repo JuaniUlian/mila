@@ -42,7 +42,9 @@ const FindingSchema = z.object({
 });
 
 const ValidateDocumentOutputSchema = z.object({
-    findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento."),
+    isRelevantDocument: z.boolean().describe("Indica si el documento analizado parece ser un documento genuino y pertinente de la administración pública."),
+    relevancyReasoning: z.string().describe("Si isRelevantDocument es false, explica brevemente por qué el documento se considera irrelevante o 'basura' (ej: 'El contenido parece ser un código de programación en lugar de un documento administrativo'). Si es relevante, este campo debe estar vacío."),
+    findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento. Si el documento no es relevante, este array debe estar vacío."),
     complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo (calculado como 100 menos las penalizaciones por la gravedad de cada hallazgo)."),
     legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal (calculado como 100 - complianceScore)."),
 });
@@ -57,7 +59,17 @@ const prompt = ai.definePrompt({
     name: 'validateDocumentPrompt',
     input: { schema: ValidateDocumentInputSchema },
     output: { schema: ValidateDocumentOutputSchema },
-    prompt: `Eres un asistente especializado en auditoría legal-administrativa que detecta incidencias y irregularidades en documentos públicos mediante el análisis cruzado con su marco normativo correspondiente.
+    prompt: `Eres un auditor experto en control de la administración pública. Tu primera y más importante tarea es realizar un filtro de relevancia sobre el documento proporcionado.
+
+**Paso 1: Verificación de Relevancia (OBLIGATORIO)**
+Analiza el \`documentContent\` para determinar si es un documento administrativo, legal o técnico pertinente para una entidad gubernamental (ej. pliego, decreto, resolución, contrato, informe técnico, etc.).
+
+*   **SI ES RELEVANTE:** Procede con el análisis completo como se detalla a continuación. Establece \`isRelevantDocument\` en \`true\` y deja \`relevancyReasoning\` vacío.
+*   **SI NO ES RELEVANTE:** Detén el análisis inmediatamente. Establece \`isRelevantDocument\` en \`false\`, rellena \`relevancyReasoning\` con una explicación clara y concisa del porqué (ej: "El documento parece ser un archivo de código HTML", "El contenido es un poema y no un documento administrativo", "El texto es ininteligible o basura"), y devuelve el campo \`findings\` como un array vacío.
+
+**Paso 2: Análisis de Irregularidades (Solo si el documento es relevante)**
+Si el documento es relevante, analízalo sistemáticamente para identificar irregularidades.
+
 Contexto del Proceso
 El usuario ha completado un proceso de dos pasos donde participan:
 Partes Involucradas:
