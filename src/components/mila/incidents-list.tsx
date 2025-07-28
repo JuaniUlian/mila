@@ -1,127 +1,83 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { simulateScoreChange, type FindingWithStatus, type FindingStatus } from '@/ai/flows/compliance-scoring';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useMemo } from 'react';
+import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen, ChevronDown } from 'lucide-react';
+import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, ChevronDown, AlertTriangle } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { Separator } from '../ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { validateSuggestionEdit } from '@/ai/flows/validate-suggestion-edit';
 
 interface IncidentsListProps {
   findings: FindingWithStatus[];
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
-  onFindingEdit?: (findingId: string, modifications: any) => void;
-  currentScoring?: {
-    complianceScore: number;
-    legalRiskScore: number;
-  } | null;
 }
 
-const TYPE_TO_CATEGORY: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  'Irregularidad': { 
-    label: 'Legal', 
-    color: 'red', 
-    icon: Scale
-  },
-  'Mejora de Redacción': { 
-    label: 'Redacción', 
-    color: 'blue', 
-    icon: FilePen
-  },
-  'Sin hallazgos relevantes': { 
-    label: 'Informativo', 
-    color: 'gray', 
-    icon: Lightbulb
-  }
+const TYPE_TO_CATEGORY: Record<string, { label: string; icon: React.ElementType }> = {
+  'Irregularidad': { label: 'Legal', icon: Scale },
+  'Mejora de Redacción': { label: 'Redacción', icon: FilePen },
+  'Sin hallazgos relevantes': { label: 'Informativo', icon: Lightbulb }
 };
 
-const SEVERITY_COLORS: Record<string, {text: string, bg: string, border: string}> = {
-  'Alta': {text: 'text-red-800', bg: 'bg-red-100', border: 'border-red-400'},
-  'Media': {text: 'text-amber-800', bg: 'bg-amber-100', border: 'border-amber-400'}, 
-  'Baja': {text: 'text-sky-800', bg: 'bg-sky-100', border: 'border-sky-400'},
-  'Informativa': {text: 'text-slate-800', bg: 'bg-slate-100', border: 'border-slate-400'}
+const SEVERITY_LINE_COLOR: Record<string, string> = {
+  'Alta': 'bg-red-500',
+  'Media': 'bg-amber-500', 
+  'Baja': 'bg-sky-500',
+  'Informativa': 'bg-gray-400'
 };
 
-const STATUS_STYLES: Record<FindingStatus, { bg: string; border: string; label: string; icon: React.ElementType }> = {
-  'pending': {
-    bg: 'bg-white',
-    border: 'border-gray-300',
-    label: 'Pendiente',
-    icon: Loader2
-  },
-  'applied': {
-    bg: 'bg-green-50',
-    border: 'border-green-300',
-    label: 'Aplicado',
-    icon: Check
-  },
-  'discarded': {
-    bg: 'bg-gray-100',
-    border: 'border-gray-300',
-    label: 'Descartado',
-    icon: Trash2
-  },
-  'modified': {
-    bg: 'bg-blue-50',
-    border: 'border-blue-300',
-    label: 'Modificado',
-    icon: Edit3
-  }
+const SEVERITY_TEXT_COLOR: Record<string, string> = {
+  'Alta': 'text-red-600',
+  'Media': 'text-amber-600',
+  'Baja': 'text-sky-600',
+  'Informativa': 'text-gray-600',
 };
 
 
 export function IncidentsList({ 
   findings, 
   onFindingStatusChange, 
-  onFindingEdit,
-  currentScoring 
 }: IncidentsListProps) {
-  const [expandedFindings, setExpandedFindings] = useState<Set<string>>(new Set());
   const [editingFinding, setEditingFinding] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     propuesta_redaccion?: string;
     propuesta_procedimiento?: string;
-    justificacion_legal?: string;
-    justificacion_tecnica?: string;
   }>({});
-
+  
+  const [expandedDetails, setExpandedDetails] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
   const { language } = useLanguage();
   const t = useTranslations(language);
 
-  // Filtrar hallazgos válidos (excluir "Sin hallazgos relevantes")
-  const validFindings = findings.filter(finding => 
-    finding.tipo !== 'Sin hallazgos relevantes'
-  );
 
-  // Agrupar por gravedad para mejor organización
-  const findingsByGravity = validFindings.reduce((acc, finding) => {
-    if (!acc[finding.gravedad]) acc[finding.gravedad] = [];
-    acc[finding.gravedad].push(finding);
-    return acc;
-  }, {} as Record<string, FindingWithStatus[]>);
+  const validFindings = useMemo(() => findings.filter(f => f.tipo !== 'Sin hallazgos relevantes'), [findings]);
 
-  const toggleExpanded = (findingId: string) => {
-    const newExpanded = new Set(expandedFindings);
-    if (newExpanded.has(findingId)) {
-      newExpanded.delete(findingId);
-    } else {
-      newExpanded.add(findingId);
-    }
-    setExpandedFindings(newExpanded);
+  const findingsByCategory = useMemo(() => {
+    const grouped: Record<string, FindingWithStatus[]> = {};
+    validFindings.forEach(finding => {
+      const categoryLabel = TYPE_TO_CATEGORY[finding.tipo]?.label || 'Otros';
+      if (!grouped[categoryLabel]) {
+        grouped[categoryLabel] = [];
+      }
+      grouped[categoryLabel].push(finding);
+    });
+    return grouped;
+  }, [validFindings]);
+
+  const toggleDetails = (findingId: string) => {
+    setExpandedDetails(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(findingId)) {
+        newSet.delete(findingId);
+      } else {
+        newSet.add(findingId);
+      }
+      return newSet;
+    });
   };
 
   const startEditing = (finding: FindingWithStatus) => {
@@ -129,247 +85,142 @@ export function IncidentsList({
     setEditForm({
       propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
       propuesta_procedimiento: finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento || '',
-      justificacion_legal: finding.userModifications?.justificacion_legal || finding.justificacion_legal,
-      justificacion_tecnica: finding.userModifications?.justificacion_tecnica || finding.justificacion_tecnica,
     });
   };
-
+  
   const saveEditing = (findingId: string) => {
     onFindingStatusChange(findingId, 'modified', editForm);
     setEditingFinding(null);
     setEditForm({});
+    toast({ title: t('analysisPage.toastSuggestionModified'), description: t('analysisPage.toastSuggestionTextUpdated') });
   };
-
+  
   const cancelEditing = () => {
     setEditingFinding(null);
     setEditForm({});
   };
 
-  const getScorePreview = (findingId: string, newStatus: FindingStatus) => {
-    if (!currentScoring) return null;
-    return simulateScoreChange(findings, findingId, newStatus);
-  };
-
-  const FindingCard = ({ finding }: { finding: FindingWithStatus }) => {
-    const isExpanded = expandedFindings.has(finding.id);
-    const isEditing = editingFinding === finding.id;
-    const category = TYPE_TO_CATEGORY[finding.tipo];
-    const statusStyle = STATUS_STYLES[finding.status];
-    const severityStyle = SEVERITY_COLORS[finding.gravedad];
-
-    return (
-      <AccordionItem value={finding.id} className={cn("border rounded-xl incident-card-hover overflow-hidden", statusStyle.border, statusStyle.bg)}>
-        <AccordionTrigger className="p-4 hover:no-underline" onClick={(e) => {
-            e.preventDefault();
-            toggleExpanded(finding.id)
-        }}>
-            <div className="flex items-start justify-between w-full">
-              <div className="flex-1 text-left space-y-1">
-                <div className="flex items-center gap-2">
-                  <category.icon className={cn("h-5 w-5", severityStyle.text)} />
-                  <h3 className="font-semibold text-gray-900">
-                    {finding.titulo_incidencia}
-                  </h3>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-gray-500 pl-7">
-                    <span>Pág: {finding.pagina}</span>
-                    <span>Norma: {finding.nombre_archivo_normativa}</span>
-                    {finding.articulo_o_seccion !== 'N/A' && (
-                      <span>Art: {finding.articulo_o_seccion}</span>
-                    )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                <span className={cn("px-2 py-1 text-xs font-semibold rounded-full", severityStyle.bg, severityStyle.text)}>
-                  {finding.gravedad}
-                </span>
-                 <span className={cn("px-2 py-1 text-xs font-semibold rounded-full", statusStyle.bg, statusStyle.border, "border")}>
-                   <statusStyle.icon className={cn("inline h-3 w-3 mr-1", statusStyle.label === 'Pendiente' && 'animate-spin')} />
-                  {statusStyle.label}
-                </span>
-                <ChevronDown className={cn("h-5 w-5 transition-transform", isExpanded && "rotate-180")} />
-              </div>
-            </div>
-        </AccordionTrigger>
-        <AccordionContent className="px-4 pb-4">
-            <div className="space-y-4 border-t pt-4">
-            {/* Evidencia */}
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">📋 Evidencia:</h4>
-              <div className="bg-amber-50 border-l-4 border-amber-400 p-3 text-sm">
-                <em className="text-gray-800">"{finding.evidencia}"</em>
-              </div>
-            </div>
-
-            {/* Propuestas */}
-            {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">💡 Propuesta de Solución:</h4>
-                
-                {isEditing ? (
-                  <div className="space-y-3 bg-blue-50 p-3 rounded">
-                    {finding.propuesta_redaccion && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Propuesta de Redacción:</label>
-                        <Textarea
-                          value={editForm.propuesta_redaccion || ''}
-                          onChange={(e) => setEditForm({...editForm, propuesta_redaccion: e.target.value})}
-                          className="w-full p-2 border rounded text-sm"
-                          rows={3}
-                        />
-                      </div>
-                    )}
-                    
-                    {finding.propuesta_procedimiento && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Propuesta de Procedimiento:</label>
-                        <Textarea
-                          value={editForm.propuesta_procedimiento || ''}
-                          onChange={(e) => setEditForm({...editForm, propuesta_procedimiento: e.target.value})}
-                          className="w-full p-2 border rounded text-sm"
-                          rows={2}
-                        />
-                      </div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => saveEditing(finding.id)}
-                        size="sm"
-                        className="bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        <Check className="mr-1 h-4 w-4" /> Guardar
-                      </Button>
-                      <Button
-                        onClick={cancelEditing}
-                        size="sm"
-                        variant="ghost"
-                      >
-                        <XCircle className="mr-1 h-4 w-4" /> Cancelar
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-green-50 p-3 rounded text-sm space-y-2 border-l-4 border-green-400">
-                    {(finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion) && (
-                      <div>
-                        <strong className="text-gray-800">Redacción sugerida:</strong>
-                        <p className="mt-1 italic">
-                          "{finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion}"
-                        </p>
-                      </div>
-                    )}
-                    
-                    {(finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento) && (
-                      <div>
-                        <strong className="text-gray-800">Procedimiento sugerido:</strong>
-                        <p className="mt-1">{finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Justificaciones */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">⚖️ Justificación Legal:</h4>
-                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                  {finding.userModifications?.justificacion_legal || finding.justificacion_legal}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">🔧 Justificación Técnica:</h4>
-                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                  {finding.userModifications?.justificacion_tecnica || finding.justificacion_tecnica}
-                </p>
-              </div>
-            </div>
-
-            {/* Consecuencias estimadas */}
-            <div>
-              <h4 className="font-medium text-gray-700 mb-2">⚠️ Consecuencias Estimadas:</h4>
-              <p className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                {finding.consecuencia_estimada}
-              </p>
-            </div>
-
-            {/* Botones de acción */}
-            <div className="flex gap-2 pt-4 border-t">
-              {finding.status === 'pending' && (
-                <>
-                  <Button
-                    onClick={() => onFindingStatusChange(finding.id, 'applied')}
-                    className="bg-green-600 text-white hover:bg-green-700"
-                  >
-                    <Check className="mr-2 h-4 w-4"/> Aplicar Solución
-                  </Button>
-                  
-                  {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
-                    <Button
-                      onClick={() => startEditing(finding)}
-                       className="bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      <Edit3 className="mr-2 h-4 w-4"/> Editar Propuesta
-                    </Button>
-                  )}
-                  
-                  <Button
-                    onClick={() => onFindingStatusChange(finding.id, 'discarded')}
-                    variant="outline"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4"/> Descartar
-                  </Button>
-                </>
-              )}
-
-              {finding.status !== 'pending' && (
-                <Button
-                  onClick={() => onFindingStatusChange(finding.id, 'pending')}
-                  variant="outline"
-                  className="text-amber-600 border-amber-300 hover:bg-amber-50"
-                >
-                  ↩️ Revertir a Pendiente
-                </Button>
-              )}
-            </div>
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    );
-  };
 
   if (validFindings.length === 0) {
     return (
-      <Card className="h-full flex flex-col items-center justify-center bg-green-50/50 border-green-200 shadow-sm text-center p-8">
+      <div className="h-full flex flex-col items-center justify-center bg-green-50/50 border border-green-200 shadow-sm text-center p-8 rounded-xl">
         <Check className="w-16 h-16 text-green-400 mb-4" />
         <h3 className="text-xl font-semibold text-foreground">{t('analysisPage.excellent')}</h3>
         <p className="text-muted-foreground">{t('analysisPage.noPendingIncidents')}</p>
-        <p className="text-muted-foreground">{t('analysisPage.documentValidated')}</p>
-      </Card>
+      </div>
     );
   }
-  
-  const gravityOrder = ['Alta', 'Media', 'Baja', 'Informativa'];
 
   return (
-    <Card className="h-full flex flex-col bg-transparent border-none shadow-none overflow-visible">
-      <CardHeader className="p-0 pb-4">
-        <CardTitle className="text-xl font-bold text-card-foreground">🔍 Hallazgos Identificados</CardTitle>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto p-0">
-         <Accordion type="multiple" className="space-y-4">
-              {gravityOrder.map(gravity => {
-                const findingsForGravity = findingsByGravity[gravity];
-                if (!findingsForGravity || findingsForGravity.length === 0) return null;
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold text-foreground">Incidencias y Sugerencias</h2>
+      {Object.entries(findingsByCategory).map(([category, categoryFindings]) => {
+        const highestSeverity = ['Alta', 'Media', 'Baja', 'Informativa'].find(s => categoryFindings.some(f => f.gravedad === s)) || 'Informativa';
+        const pendingCount = categoryFindings.filter(f => f.status === 'pending').length;
+        const categoryIcon = Object.values(TYPE_TO_CATEGORY).find(c => c.label === category)?.icon || AlertTriangle;
 
-                return findingsForGravity.map(finding => (
-                  <FindingCard key={finding.id} finding={finding} />
-                ));
-              })}
+        return (
+          <Accordion type="single" collapsible key={category} className="w-full bg-slate-50 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <AccordionItem value={category} className="border-b-0">
+              <AccordionTrigger className="p-4 hover:no-underline hover:bg-slate-100/70 data-[state=open]:bg-slate-100/70 w-full text-left">
+                <div className="flex items-center gap-4 w-full">
+                  <div className={cn("w-1.5 h-8 rounded-full", SEVERITY_LINE_COLOR[highestSeverity])} />
+                  {React.createElement(categoryIcon, { className: "h-6 w-6 text-primary" })}
+                  <h3 className="text-lg font-semibold text-foreground flex-1">{category}</h3>
+                  {pendingCount > 0 && (
+                    <span className="text-xs font-medium text-muted-foreground bg-slate-200 px-2 py-1 rounded-md">
+                      {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
+                    </span>
+                  )}
+                  <ChevronDown className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground" />
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="p-4 pt-2 bg-white">
+                <div className="space-y-2">
+                  {categoryFindings.map((finding) => (
+                    <div key={finding.id} className="border rounded-lg overflow-hidden">
+                      <div className="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-50" onClick={() => toggleDetails(finding.id)}>
+                        <div className="flex-1">
+                          <p className="font-medium text-foreground">{finding.titulo_incidencia}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Normativa: {finding.nombre_archivo_normativa} - Artículo: {finding.articulo_o_seccion}
+                          </p>
+                        </div>
+                        <ChevronRight className={cn("h-5 w-5 text-muted-foreground transition-transform", expandedDetails.has(finding.id) && "rotate-90")} />
+                      </div>
+
+                      {expandedDetails.has(finding.id) && (
+                         <div className="p-4 border-t bg-slate-50/50 space-y-4">
+                            <div>
+                                <h4 className="font-medium text-sm text-gray-700 mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
+                                <div className="bg-amber-50 border-l-4 border-amber-400 p-3 text-sm">
+                                    <em className="text-gray-800">"{finding.evidencia}"</em>
+                                </div>
+                            </div>
+
+                            {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
+                              <div>
+                                  <h4 className="font-medium text-sm text-gray-700 mb-2 flex items-center gap-2"><Lightbulb size={16}/> Propuesta de Solución:</h4>
+                                  {editingFinding === finding.id ? (
+                                    <div className="space-y-3 bg-blue-50/50 p-3 rounded-md">
+                                        {finding.propuesta_redaccion !== undefined && (
+                                            <div>
+                                                <Label className="text-xs font-medium mb-1 block">Propuesta de Redacción:</Label>
+                                                <Textarea value={editForm.propuesta_redaccion} onChange={e => setEditForm({...editForm, propuesta_redaccion: e.target.value})} rows={3} />
+                                            </div>
+                                        )}
+                                        {finding.propuesta_procedimiento !== undefined && (
+                                           <div>
+                                                <Label className="text-xs font-medium mb-1 block">Propuesta de Procedimiento:</Label>
+                                                <Textarea value={editForm.propuesta_procedimiento} onChange={e => setEditForm({...editForm, propuesta_procedimiento: e.target.value})} rows={2} />
+                                            </div>
+                                        )}
+                                        <div className="flex gap-2">
+                                            <Button size="sm" onClick={() => saveEditing(finding.id)}><Check className="mr-1 h-4 w-4"/> Guardar</Button>
+                                            <Button size="sm" variant="ghost" onClick={cancelEditing}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
+                                        </div>
+                                    </div>
+                                  ) : (
+                                    <div className="bg-green-50 p-3 rounded text-sm space-y-2 border-l-4 border-green-400">
+                                      {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
+                                        <div><strong className="text-gray-800">Redacción sugerida:</strong><p className="mt-1 italic">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
+                                      )}
+                                      {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
+                                        <div><strong className="text-gray-800">Procedimiento sugerido:</strong><p className="mt-1">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
+                                      )}
+                                    </div>
+                                  )}
+                              </div>
+                            )}
+
+                            <div className="grid md:grid-cols-2 gap-4 text-sm">
+                                <div><h4 className="font-medium text-gray-700 mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-gray-600 bg-gray-100 p-2 rounded-md">{finding.justificacion_legal}</p></div>
+                                <div><h4 className="font-medium text-gray-700 mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-gray-600 bg-gray-100 p-2 rounded-md">{finding.justificacion_tecnica}</p></div>
+                            </div>
+                            
+                            <div><h4 className="font-medium text-sm text-gray-700 mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-red-500"/> Consecuencias Estimadas:</h4><p className="text-sm text-red-700 bg-red-50 p-2 rounded-md">{finding.consecuencia_estimada}</p></div>
+
+                            <div className="flex gap-2 pt-4 border-t">
+                              {finding.status === 'pending' ? (
+                                <>
+                                  <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                                  {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && <Button size="sm" variant="outline" onClick={() => startEditing(finding)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>}
+                                  <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onFindingStatusChange(finding.id, 'discarded')}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+                                </>
+                              ) : (
+                                <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
+                              )}
+                            </div>
+                         </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
-      </CardContent>
-    </Card>
+        );
+      })}
+    </div>
   );
 }

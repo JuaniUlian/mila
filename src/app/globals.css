@@ -32,12 +32,13 @@
     --input: 220 13% 91%;
     --ring: 223 100% 65%;
 
-    --radius: 1.25rem; /* 20px */
+    --radius: 1rem; /* 16px */
     
     /* Severity Colors (for text, borders, etc.) */
     --severity-high: 0 84% 60%;
     --severity-medium: 38 92% 55%; /* Orange/Yellow */
     --severity-low: 185 84% 60%; /* Light Blue */
+    --severity-informative: 220 10% 45%;
   }
 
   .dark {
@@ -95,8 +96,8 @@
     @apply transition-all duration-300;
   }
   .incident-card-hover:hover {
-    @apply shadow-2xl scale-[1.02];
-    box-shadow: 0 0 20px rgba(0, 128, 255, 0.15), 0 0 6px rgba(255, 255, 255, 0.4) inset;
+    @apply shadow-xl scale-[1.01];
+    box-shadow: 0 0 15px rgba(0, 128, 255, 0.10), 0 0 4px rgba(255, 255, 255, 0.3) inset;
   }
   .btn-neu-light {
     @apply bg-white text-gray-700 font-semibold border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:shadow-[inset_2px_2px_5px_#e2e8f0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;

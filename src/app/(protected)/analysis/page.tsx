@@ -55,9 +55,14 @@ export default function PlanillaVivaPage() {
       }
       const data = JSON.parse(storedData);
       setDocumentName(data.documentName || 'Documento sin título');
-      setFindings(data.findings || []);
-      setInitialScoring(data.initialScoring);
-      updateScoring(data.findings || []);
+      
+      const findingsWithStatus = data.findings || [];
+      setFindings(findingsWithStatus);
+      
+      const initialScoringData = data.initialScoring || calculateDynamicComplianceScore(findingsWithStatus.filter((f:FindingWithStatus) => f.status === 'pending'));
+      setInitialScoring(initialScoringData);
+      
+      updateScoring(findingsWithStatus);
     } catch (e) {
       console.error("Failed to parse analysis data from localStorage", e);
       toast({ title: "Error", description: "Los datos de análisis están corruptos.", variant: "destructive" });
@@ -109,7 +114,6 @@ export default function PlanillaVivaPage() {
       description: impact.impactDescription,
     });
     
-    // Persist changes
     const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
     localStorage.setItem('validation-results', JSON.stringify({ ...currentData, findings: updatedFindings }));
 
@@ -130,12 +134,6 @@ export default function PlanillaVivaPage() {
       console.error("Failed to save report data", error);
       toast({ title: "Error al generar el informe", variant: "destructive" });
     }
-  };
-
-  const handleDownloadCorrectedDocument = () => {
-    // Similar a handleDownloadReport, pero para el documento corregido.
-    // Necesitaría una función que genere el texto final.
-    toast({ title: "Función no implementada" });
   };
   
   if (!currentScoring) {
@@ -161,7 +159,6 @@ export default function PlanillaVivaPage() {
               <IncidentsList 
                   findings={findings}
                   onFindingStatusChange={handleUpdateFinding}
-                  currentScoring={currentScoring}
               />
           </div>
           <div className="w-full h-full min-h-0">
@@ -170,9 +167,7 @@ export default function PlanillaVivaPage() {
                   documentName={documentName}
                   currentScoring={currentScoring}
                   onDownloadReport={handleDownloadReport}
-                  appliedChangesExist={findings.some(f => f.status === 'applied' || f.status === 'modified')}
-                  onDownloadCorrectedDocument={handleDownloadCorrectedDocument}
-              />
+               />
           </div>
         </main>
       </div>
@@ -182,15 +177,6 @@ export default function PlanillaVivaPage() {
             <DialogTitle>{t('analysisPage.reportPreviewTitle')}</DialogTitle>
           </DialogHeader>
           <iframe src="/report-preview" className="w-full h-full border-0" title={t('analysisPage.reportPreviewTitle')} />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isCorrectedDocModalOpen} onOpenChange={setIsCorrectedDocModalOpen}>
-        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
-          <DialogHeader className="p-4 bg-gradient-to-r from-slate-300 via-slate-100 to-slate-300 backdrop-blur-sm border-b border-white/20 shadow-md">
-            <DialogTitle>{t('analysisPage.correctedDocPreviewTitle')}</DialogTitle>
-          </DialogHeader>
-          <iframe src="/corrected-doc-preview" className="w-full h-full border-0" title={t('analysisPage.correctedDocPreviewTitle')} />
         </DialogContent>
       </Dialog>
     </>

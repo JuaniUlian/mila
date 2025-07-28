@@ -2,14 +2,13 @@
 "use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, FileCheck2 } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { 
-  generateScoringReport, 
-  getRiskCategory,
   type FindingWithStatus 
 } from '@/ai/flows/compliance-scoring';
+import { cn } from '@/lib/utils';
 
 interface RisksPanelProps {
   findings: FindingWithStatus[];
@@ -17,7 +16,12 @@ interface RisksPanelProps {
   currentScoring: {
     complianceScore: number;
     legalRiskScore: number;
-    riskCategory: ReturnType<typeof getRiskCategory>;
+    riskCategory: {
+        category: string;
+        label: string;
+        color: string;
+        description: string;
+    };
     progress: {
       total: number;
       resolved: number;
@@ -27,165 +31,87 @@ interface RisksPanelProps {
     breakdown: any;
   };
   onDownloadReport: () => void;
-  appliedChangesExist: boolean;
-  onDownloadCorrectedDocument: () => void;
 }
+
+const SEVERITY_TEXT_COLOR: Record<string, string> = {
+  'Alta': 'text-red-600',
+  'Media': 'text-amber-600',
+  'Baja': 'text-sky-600',
+  'Informativa': 'text-gray-600',
+};
+
+const SEVERITY_DOT_COLOR: Record<string, string> = {
+  'Alta': 'bg-red-500',
+  'Media': 'bg-amber-500',
+  'Baja': 'bg-sky-500',
+  'Informativa': 'bg-gray-400',
+};
 
 export function RisksPanel({ 
   findings, 
-  documentName, 
   currentScoring,
   onDownloadReport,
-  appliedChangesExist,
-  onDownloadCorrectedDocument
 }: RisksPanelProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  
-  const report = generateScoringReport(findings);
-  
-  // Análisis de riesgos específicos
-  const criticalFindings = findings.filter(f => f.gravedad === 'Alta' && f.status === 'pending');
-  const legalFindings = findings.filter(f => f.tipo === 'Irregularidad');
-  const unresolvedFindings = findings.filter(f => f.status === 'pending');
-
-  // Riesgos específicos identificados
-  const identifiedRisks = [
-    ...criticalFindings.map(f => ({
-      type: 'critical',
-      title: f.titulo_incidencia,
-      description: f.consecuencia_estimada,
-      severity: 'Alta' as const,
-      article: f.articulo_o_seccion,
-      normative: f.nombre_archivo_normativa
-    })),
-    ...legalFindings.filter(f => f.status === 'pending' && f.gravedad !== 'Alta').map(f => ({
-      type: 'legal',
-      title: f.titulo_incidencia,
-      description: f.consecuencia_estimada,
-      severity: f.gravedad as 'Media' | 'Baja',
-      article: f.articulo_o_seccion,
-      normative: f.nombre_archivo_normativa
-    }))
-  ];
-
-  const RiskCategoryBadge = () => {
-    const { riskCategory } = currentScoring;
-    const colorClasses = {
-      green: 'bg-green-100 text-green-800 border-green-200',
-      lime: 'bg-lime-100 text-lime-800 border-lime-200',
-      yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      orange: 'bg-orange-100 text-orange-800 border-orange-200',
-      red: 'bg-red-100 text-red-800 border-red-200',
-    };
-
-    return (
-      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${colorClasses[riskCategory.color as keyof typeof colorClasses] || colorClasses.yellow}`}>
-        <span className="mr-2">
-          {riskCategory.color === 'green' ? '🟢' :
-           riskCategory.color === 'lime' ? '🟡' :
-           riskCategory.color === 'yellow' ? '🟡' :
-           riskCategory.color === 'orange' ? '🟠' : '🔴'}
-        </span>
-        Riesgo {riskCategory.label}
-      </div>
-    );
-  };
-
-  const ProgressBar = ({ current, total, label }: { current: number; total: number; label: string }) => {
-    const percentage = total > 0 ? (current / total) * 100 : 100;
-    
-    return (
-      <div className="mb-3">
-        <div className="flex justify-between text-sm font-medium text-gray-700 mb-1">
-          <span>{label}</span>
-          <span>{current}/{total} ({Math.round(percentage)}%)</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${percentage}%` }}
-          ></div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="bg-white/60 backdrop-blur-xl border-white/50 shadow-xl rounded-2xl p-6 flex flex-col h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">
-          📊 Panel de Riesgos
-        </h2>
-        <RiskCategoryBadge />
-      </div>
+      <h2 className="text-xl font-semibold text-gray-900 mb-1">
+        Resultados Parciales
+      </h2>
+      <p className="text-sm text-muted-foreground mb-6">Resumen del análisis en tiempo real.</p>
+      
+      <div className="space-y-4 text-sm">
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-foreground">Cumplimiento General</span>
+          <span className="font-bold text-lg text-primary">{currentScoring.complianceScore}%</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="font-medium text-foreground">Incidencias Totales</span>
+          <span className="font-bold text-lg text-primary">{currentScoring.progress.total}</span>
+        </div>
 
-      {/* Métricas principales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-blue-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-blue-600 mb-1">
-            {currentScoring.complianceScore}%
-          </div>
-          <div className="text-sm text-blue-800">Cumplimiento</div>
-        </div>
-        
-        <div className="bg-red-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-red-600 mb-1">
-            {criticalFindings.length}
-          </div>
-          <div className="text-sm text-red-800">Críticos Pendientes</div>
-        </div>
-        
-        <div className="bg-green-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-green-600 mb-1">
-            {currentScoring.progress.resolved}
-          </div>
-          <div className="text-sm text-green-800">Resueltos</div>
-        </div>
-      </div>
-
-      <div className="flex-grow space-y-3 text-sm overflow-y-auto">
-        <ProgressBar 
-            current={currentScoring.progress.resolved} 
-            total={currentScoring.progress.total}
-            label="Hallazgos Totales"
-          />
-        {report.details.recommendations.map((recommendation, index) => (
-          <div key={index} className="flex items-start gap-2 text-sm">
-            <span className="text-blue-500 mt-1">•</span>
-            <span className="text-gray-700">{recommendation}</span>
-          </div>
+        {Object.entries(currentScoring.breakdown.penaltiesByGravity).map(([gravity, data]: [string, any]) => (
+           <div key={gravity} className="flex justify-between items-center">
+             <div className="flex items-center gap-2">
+               <span className={cn("h-2.5 w-2.5 rounded-full", SEVERITY_DOT_COLOR[gravity])}></span>
+               <span className="text-foreground">Gravedad {gravity}</span>
+             </div>
+             <span className={cn("font-semibold", SEVERITY_TEXT_COLOR[gravity])}>{data.count}</span>
+           </div>
         ))}
-        {criticalFindings.length > 0 && (
-          <div className="flex items-start gap-2 text-sm">
-            <span className="text-red-500 mt-1">⚠️</span>
-            <span className="text-gray-700">
-              Priorizar la resolución de {criticalFindings.length} hallazgo(s) crítico(s) para reducir riesgo legal
-            </span>
-          </div>
-        )}
-      </div>
 
-      <div className="flex-col items-stretch pt-6 space-y-3 mt-auto">
+        <div className="border-t pt-4 mt-4 !space-y-4">
+          <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-green-600"/>
+                <span className="font-medium text-foreground">Correcciones Aplicadas</span>
+              </div>
+              <span className="font-bold text-lg text-green-600">{currentScoring.progress.resolved}</span>
+          </div>
+          <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <BookCheck className="h-4 w-4 text-muted-foreground"/>
+                <span className="font-medium text-foreground">Normativas Involucradas</span>
+              </div>
+              <span className="font-bold text-lg text-muted-foreground">
+                {new Set(findings.map(f => f.nombre_archivo_normativa)).size}
+              </span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-auto pt-6">
           <Button 
-              className="w-full text-base py-6 btn-neu-light"
+              className="w-full text-base py-6 bg-primary text-primary-foreground hover:bg-primary/90"
               size="lg"
               onClick={onDownloadReport}
           >
               <Download className="mr-2 h-5 w-5" />
               {t('analysisPage.downloadReport')}
           </Button>
-          {appliedChangesExist && (
-              <Button 
-                  className="w-full text-base py-6 btn-neu-green"
-                  size="lg"
-                  onClick={onDownloadCorrectedDocument}
-              >
-                  <FileCheck2 className="mr-2 h-5 w-5" />
-                  {t('analysisPage.downloadCorrectedDoc')}
-              </Button>
-          )}
-          <p className="text-xs text-muted-foreground text-center mt-2">{t('analysisPage.downloadReportDesc')}</p>
+          <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>
     </div>
   );
