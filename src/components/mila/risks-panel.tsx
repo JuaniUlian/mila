@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, BookCheck, Check, FileOutput } from 'lucide-react';
+import { Download, BookCheck, FileOutput } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { 
@@ -89,7 +89,7 @@ export function RisksPanel({
         <div className="border-t pt-4 mt-4 !space-y-4">
           <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-green-600"/>
+                <FileOutput className="h-4 w-4 text-green-600"/>
                 <span className="font-medium text-foreground">Correcciones Aplicadas</span>
               </div>
               <span className="font-bold text-lg text-green-600">{currentScoring.progress.resolved}</span>
@@ -123,7 +123,7 @@ export function RisksPanel({
                 onClick={onDownloadAuditReport}
             >
                 <FileOutput className="mr-2 h-5 w-5" />
-                Informe para Auditoría
+                Descargar Informe de Auditoría
             </Button>
           )}
 
