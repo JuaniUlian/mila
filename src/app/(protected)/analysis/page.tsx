@@ -84,18 +84,17 @@ export default function PlanillaVivaPage() {
     setScore(newScoring.complianceScore);
   }, [setScore]);
 
-  const handleUpdateFinding = useCallback((findingId: string, newStatus: FindingStatus, newText?: string) => {
+  const handleUpdateFinding = useCallback((findingId: string, newStatus: FindingStatus, userModifications?: any) => {
     const impact = simulateScoreChange(findings, findingId, newStatus);
     
     const updatedFindings = findings.map(f => {
       if (f.id === findingId) {
-        const updatedFinding = { ...f, status: newStatus };
-        if (newText !== undefined) {
-          updatedFinding.propuesta_redaccion = newText;
-          // Marcar como modificado si el texto cambia
-          if (newStatus === 'applied') {
-            updatedFinding.status = 'modified';
-          }
+        const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
+        if(userModifications) {
+            updatedFinding.userModifications = userModifications;
+             if (newStatus === 'pending') {
+              updatedFinding.status = 'modified';
+            }
         }
         return updatedFinding;
       }

@@ -99,7 +99,8 @@ export function IncidentsList({
     justificacion_tecnica?: string;
   }>({});
 
-  const { t } = useTranslations('es');
+  const { language } = useLanguage();
+  const t = useTranslations(language);
 
   // Filtrar hallazgos válidos (excluir "Sin hallazgos relevantes")
   const validFindings = findings.filter(finding => 
@@ -158,7 +159,10 @@ export function IncidentsList({
 
     return (
       <AccordionItem value={finding.id} className={cn("border rounded-xl incident-card-hover overflow-hidden", statusStyle.border, statusStyle.bg)}>
-        <AccordionTrigger className="p-4 hover:no-underline" onClick={() => toggleExpanded(finding.id)}>
+        <AccordionTrigger className="p-4 hover:no-underline" onClick={(e) => {
+            e.preventDefault();
+            toggleExpanded(finding.id)
+        }}>
             <div className="flex items-start justify-between w-full">
               <div className="flex-1 text-left space-y-1">
                 <div className="flex items-center gap-2">
