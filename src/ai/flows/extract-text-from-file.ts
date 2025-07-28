@@ -46,7 +46,7 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
       const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
       extractedText = buffer.toString('utf-8');
     
-    // PDF and other image-based formats require AI
+    // PDF and other image-based formats require AI with a 2-level fallback
     } else if (fileType.includes('pdf') || fileType.startsWith('image/')) {
         console.log(`Attempting extraction with Gemini-Flash for ${fileName}`);
         try {
@@ -64,7 +64,7 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
             console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro.`, geminiError);
             logError('gemini', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, geminiError instanceof Error ? geminiError.message : String(geminiError), { fileName });
             
-            // Fallback to a different model if Flash fails
+            // Fallback 1: Gemini Pro
             const genkitResponse = await ai.generate({
                 model: 'googleai/gemini-1.5-pro',
                 prompt: [

@@ -9,10 +9,10 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
   api: {
-    bodyParser: {
-      sizeLimit: '10mb', // Increase size limit for large file uploads
-    },
+    // Deshabilitar bodyParser para esta ruta específica para manejar streaming de archivos grandes
+    bodyParser: false,
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
@@ -32,6 +32,13 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  // Configuración experimental para mejor rendimiento
+  experimental: {
+    // Mejorar streaming para archivos grandes
+    serverComponentsExternalPackages: ['sharp', 'mammoth'],
+    // Optimizar memory usage
+    isrMemoryCacheSize: 0,
   },
 };
 

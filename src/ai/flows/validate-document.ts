@@ -79,7 +79,7 @@ export async function validateDocument(input: ValidateDocumentInput): Promise<Va
   return validateDocumentFlow(input);
 }
 
-// PROMPT ACTUALIZADO que usa un modelo de Google (Gemini 1.5 Pro)
+// PROMPT ACTUALIZADO que usa el modelo Gemini 1.5 Pro
 const prompt = ai.definePrompt({
   name: 'validateDocumentPromptWithGeminiPro',
   model: 'googleai/gemini-1.5-pro',
@@ -139,7 +139,7 @@ const validateDocumentFlow = ai.defineFlow(
     
     try {
       // EJECUTAR EL PROMPT (solo obtiene hallazgos, no calcula scores)
-      console.log('🤖 Ejecutando análisis con Gemini Pro...');
+      console.log('🤖 Ejecutando análisis con Gemini 1.5 Pro...');
       const { output: aiOutput } = await prompt(input);
       
       if (!aiOutput) {
