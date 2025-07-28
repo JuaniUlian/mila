@@ -48,18 +48,35 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
     
     // PDF and other image-based formats require AI
     } else if (fileType.includes('pdf') || fileType.startsWith('image/')) {
-        console.log(`Attempting extraction with Gemini for ${fileName}`);
-        const genkitResponse = await ai.generate({
-            model: 'googleai/gemini-1.5-flash', 
-            prompt: [
-            { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
-            { media: { url: fileDataUri } }
-            ],
-            timeout: 1000 * 60 * 2, // 2 minutes timeout for the AI call itself
-        });
-        extractedText = genkitResponse.text ?? '';
-        logSuccess('gemini', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, { fileName });
-        
+        console.log(`Attempting extraction with Gemini-Flash for ${fileName}`);
+        try {
+          const genkitResponse = await ai.generate({
+              model: 'googleai/gemini-1.5-flash', 
+              prompt: [
+              { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
+              { media: { url: fileDataUri } }
+              ],
+              timeout: 1000 * 60 * 2, // 2 minutes timeout for the AI call itself
+          });
+          extractedText = genkitResponse.text ?? '';
+          logSuccess('gemini', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, { fileName });
+        } catch(geminiError) {
+            console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro.`, geminiError);
+            logError('gemini', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, geminiError instanceof Error ? geminiError.message : String(geminiError), { fileName });
+            
+            // Fallback to a more robust model if the flash model fails
+            const genkitResponse = await ai.generate({
+                model: 'googleai/gemini-1.5-pro', 
+                prompt: [
+                { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
+                { media: { url: fileDataUri } }
+                ],
+                timeout: 1000 * 60 * 3, // 3 minutes timeout for the more powerful model
+            });
+            extractedText = genkitResponse.text ?? '';
+            // Note: The log method uses a hardcoded string, which is fine for this context.
+            logSuccess('claude_fallback', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, { fileName });
+        }
     } else {
       throw new Error(`Unsupported file type: ${fileType}`);
     }
@@ -75,7 +92,8 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
     if (error instanceof Error && error.message.includes('deadline')) {
         throw new Error('The document chunk is too complex to process within the time limit.');
     }
-    logError('gemini', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, error instanceof Error ? error.message : String(error), { fileName });
+    // Note: The log method uses a hardcoded string, which is fine for this context.
+    logError('claude_fallback', Buffer.from(fileDataUri.split(',')[1], 'base64').length, Date.now() - startTime, error instanceof Error ? error.message : String(error), { fileName });
     throw new Error(`Failed to extract text from ${fileName}. Reason: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

@@ -79,7 +79,7 @@ export async function validateDocument(input: ValidateDocumentInput): Promise<Va
   return validateDocumentFlow(input);
 }
 
-// PROMPT ACTUALIZADO que usa un modelo de Gemini más potente
+// PROMPT ACTUALIZADO que usa un modelo de Google AI (Gemini 1.5 Pro)
 const prompt = ai.definePrompt({
   name: 'validateDocumentPromptWithGeminiPro',
   model: 'googleai/gemini-1.5-pro',
