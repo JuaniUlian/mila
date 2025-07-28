@@ -62,5 +62,3 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
     throw new Error(`Failed to extract text from ${fileName}.`);
   }
 }
-
-    
