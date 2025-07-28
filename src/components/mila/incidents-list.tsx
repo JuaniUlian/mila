@@ -26,10 +26,10 @@ const TYPE_TO_CATEGORY: Record<string, { label: string; icon: React.ElementType;
 };
 
 const SEVERITY_GRADIENT: Record<string, string> = {
-  'Alta': 'from-red-500',
-  'Media': 'from-amber-500', 
-  'Baja': 'from-sky-500',
-  'Informativa': 'from-gray-400'
+  'Alta': 'border-red-500',
+  'Media': 'border-amber-500', 
+  'Baja': 'border-sky-500',
+  'Informativa': 'border-gray-400'
 };
 
 const SEVERITY_TEXT_COLOR: Record<string, string> = {
@@ -37,6 +37,13 @@ const SEVERITY_TEXT_COLOR: Record<string, string> = {
   'Media': 'text-amber-600',
   'Baja': 'text-sky-600',
   'Informativa': 'text-gray-600',
+};
+
+const SEVERITY_ORDER: Record<string, number> = {
+    'Alta': 1,
+    'Media': 2,
+    'Baja': 3,
+    'Informativa': 4,
 };
 
 
@@ -84,7 +91,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange }: {
                       </div>
                   )}
                   <div className="flex gap-2 justify-end">
-                      <Button size="sm" onClick={handleSave}><Check className="mr-1 h-4 w-4"/> Guardar</Button>
+                      <Button size="sm" onClick={handleSave} className="btn-neu-light"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
                       <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
                   </div>
               </div>
@@ -111,14 +118,14 @@ const IncidentItemContent = ({ finding, onFindingStatusChange }: {
       <div className="flex gap-2 pt-4 border-t items-center justify-end">
         {finding.status === 'pending' ? (
           <>
+            {finding.propuesta_procedimiento && !finding.propuesta_redaccion && (
+                <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+            )}
             {finding.propuesta_redaccion && (
               <>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                <Button size="sm" className="btn-neu-green" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
               </>
-            )}
-            {finding.propuesta_procedimiento && !finding.propuesta_redaccion && (
-               <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
             )}
             <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onFindingStatusChange(finding.id, 'discarded')}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
           </>
@@ -152,6 +159,10 @@ export function IncidentsList({
       }
       grouped[categoryLabel].push(finding);
     });
+    // Sort findings within each category by severity
+    for (const category in grouped) {
+        grouped[category].sort((a, b) => SEVERITY_ORDER[a.gravedad] - SEVERITY_ORDER[b.gravedad]);
+    }
     return grouped;
   }, [validFindings]);
 
@@ -173,11 +184,10 @@ export function IncidentsList({
         const categoryIcon = Object.values(TYPE_TO_CATEGORY).find(c => c.label === category)?.icon || AlertTriangle;
 
         return (
-          <Accordion type="single" collapsible key={category} defaultValue="item-1" className="w-full bg-slate-50 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn("w-full bg-slate-50 rounded-xl shadow-sm overflow-hidden border-l-4", SEVERITY_GRADIENT[highestSeverity])}>
             <AccordionItem value="item-1" className="border-b-0">
               <AccordionTrigger className="p-4 hover:no-underline hover:bg-slate-100/70 data-[state=open]:bg-slate-100/70 w-full text-left group">
                 <div className="flex items-center gap-4 w-full">
-                  <div className={cn("w-1.5 h-10 rounded-full bg-gradient-to-b to-transparent", SEVERITY_GRADIENT[highestSeverity])} />
                   {React.createElement(categoryIcon, { className: "h-6 w-6 text-primary" })}
                   <h3 className="text-lg font-semibold text-foreground flex-1">{category}</h3>
                   {pendingCount > 0 && (
@@ -193,11 +203,14 @@ export function IncidentsList({
                   {categoryFindings.map((finding) => (
                     <div 
                       key={finding.id} 
-                      className="incident-card-hover group relative pl-5 pr-4 py-3 rounded-lg border border-slate-200 cursor-pointer bg-white"
+                      className={cn(
+                        "incident-card-hover group relative rounded-lg border cursor-pointer bg-white pl-4",
+                        "border-l-4",
+                        SEVERITY_GRADIENT[finding.gravedad]
+                      )}
                       onClick={() => setSelectedFinding(finding)}
                     >
-                      <div className={cn("absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg bg-gradient-to-b to-transparent", SEVERITY_GRADIENT[finding.gravedad])} />
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between py-3 pr-4">
                         <div className="flex-1">
                           <p className="font-medium text-foreground">{finding.titulo_incidencia}</p>
                           <p className="text-xs text-muted-foreground">
