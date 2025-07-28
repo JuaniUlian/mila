@@ -249,6 +249,7 @@ export default function PreparePage() {
   const getFriendlyErrorMessage = (error: any): string => {
     if (typeof error === 'string') {
         try {
+            // Attempt to parse if it's a JSON string
             const parsed = JSON.parse(error);
             if (parsed.message) return parsed.message;
         } catch(e) {
@@ -257,22 +258,22 @@ export default function PreparePage() {
         return error;
     }
     if (error instanceof Error) {
-        // For Genkit errors or others that might not be JSON
+        // For Genkit errors or others that might have a specific structure
         if (error.message.includes('deadline')) {
-            return 'The request to the AI server timed out. Please try again.';
+            return 'El servidor tardó demasiado en responder (timeout). Intente de nuevo con un archivo más pequeño o revise la conexión.';
         }
         if (error.message.includes('API key')) {
-            return 'The AI API key is invalid or missing. Please check your server configuration.';
+            return 'La clave de API para el servicio de IA no es válida o está ausente. Revise la configuración del servidor.';
         }
-        if (error.message.includes('status 500')) {
-             return 'An unexpected response was received from the server.'
+        if (error.message.includes('500')) {
+             return 'El servidor encontró un error interno inesperado. Por favor, intente más tarde.'
         }
         if (error.message.includes('Failed to fetch')) {
-             return 'Could not connect to the processing server. Please check your connection and try again.';
+             return 'No se pudo conectar con el servidor de procesamiento. Revise su conexión a internet.';
         }
         return error.message;
     }
-    return 'An unexpected error occurred during processing.';
+    return 'Ocurrió un error inesperado durante el procesamiento.';
   }
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
@@ -339,6 +340,7 @@ export default function PreparePage() {
       
       } catch (err) {
         const errorMessage = getFriendlyErrorMessage(err);
+        console.error("Detailed Error:", err); // Log the full error to the console for debugging
         setFolders(prevFolders =>
           prevFolders.map(folder => ({
             ...folder,
@@ -1157,3 +1159,4 @@ export default function PreparePage() {
     
 
     
+
