@@ -57,8 +57,8 @@ export const SCORING_CONFIG = {
   
   // Bonificaciones por resolución
   RESOLUTION_BONUSES: {
-    'applied': 1.0,    // Recupera el 100% de la penalización
-    'modified': 0.8,   // Recupera el 80% si fue modificado por el usuario
+    'applied': 0.0,    // "Marcar como atendido" no recupera puntos, solo lo registra
+    'modified': 1.0,   // Modificar y aplicar sí recupera el 100% de la penalización
     'discarded': 0.0,  // No recupera nada si se descarta
     'pending': 0.0,    // No recupera nada si está pendiente
   } as const,
@@ -158,12 +158,14 @@ export function calculateDynamicComplianceScore(findingsWithStatus: FindingWithS
     criticalFindings: number;
     totalPenalty: number;
     recoveredPoints: number;
-    penaltiesByGravity: Record<string, { count: number; penalty: number; recovered: number }>;
+    potentialPoints: number;
+    penaltiesByGravity: Record<string, { count: number; penalty: number; recovered: number; potential: number }>;
   };
 } {
   let totalPenalty = 0;
   let recoveredPoints = 0;
-  const penaltiesByGravity: Record<string, { count: number; penalty: number; recovered: number }> = {};
+  let potentialPoints = 0; // Puntos de "applied" que no se recuperan pero se marcan como potenciales
+  const penaltiesByGravity: Record<string, { count: number; penalty: number; recovered: number; potential: number }> = {};
   
   let criticalFindings = 0;
   let resolvedFindings = 0;
@@ -185,6 +187,11 @@ export function calculateDynamicComplianceScore(findingsWithStatus: FindingWithS
     const recoveredForThisFinding = Math.round(finalPenalty * resolutionBonus);
     recoveredPoints += recoveredForThisFinding;
     
+    // Si el estado es 'applied', sumar a potencial en lugar de recuperado
+    if (finding.status === 'applied') {
+      potentialPoints += finalPenalty;
+    }
+
     // Contar críticos y resueltos
     if (finding.gravedad === 'Alta') {
       criticalFindings++;
@@ -197,11 +204,14 @@ export function calculateDynamicComplianceScore(findingsWithStatus: FindingWithS
     // Breakdown por gravedad
     const key = finding.gravedad;
     if (!penaltiesByGravity[key]) {
-      penaltiesByGravity[key] = { count: 0, penalty: 0, recovered: 0 };
+      penaltiesByGravity[key] = { count: 0, penalty: 0, recovered: 0, potential: 0 };
     }
     penaltiesByGravity[key].count++;
     penaltiesByGravity[key].penalty += finalPenalty;
     penaltiesByGravity[key].recovered += recoveredForThisFinding;
+    if (finding.status === 'applied') {
+        penaltiesByGravity[key].potential += finalPenalty;
+    }
   });
 
   // Calcular puntaje final con puntos recuperados
@@ -231,6 +241,7 @@ export function calculateDynamicComplianceScore(findingsWithStatus: FindingWithS
       criticalFindings,
       totalPenalty,
       recoveredPoints,
+      potentialPoints,
       penaltiesByGravity,
     }
   };
@@ -299,7 +310,7 @@ export function simulateScoreChange(
   const difference = newResult.complianceScore - currentResult.complianceScore;
   
   const impactDescriptions = {
-    'applied': difference > 0 ? `+${difference} puntos al aplicar la corrección` : 'Sin cambio en el puntaje',
+    'applied': `Se registra la acción. El puntaje no cambia, pero se reflejará como potencial mejora en el informe de auditoría.`,
     'modified': difference > 0 ? `+${difference} puntos al aplicar la corrección modificada` : 'Sin cambio en el puntaje',
     'discarded': difference !== 0 ? `${difference} puntos al descartar (penalización permanece)` : 'Sin cambio en el puntaje',
     'pending': difference !== 0 ? `${difference} puntos al marcar como pendiente` : 'Sin cambio en el puntaje',

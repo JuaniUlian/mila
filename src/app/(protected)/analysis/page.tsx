@@ -149,38 +149,40 @@ export default function PlanillaVivaPage() {
   }, [setScore]);
 
   const handleUpdateFinding = useCallback((findingId: string, newStatus: FindingStatus, userModifications?: any) => {
-    const updatedFindings = findings.map(f => {
-      if (f.id === findingId) {
-        const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
-        if(userModifications) {
-            updatedFinding.userModifications = userModifications;
-            if (newStatus !== 'discarded' && newStatus !== 'applied') {
-              updatedFinding.status = 'modified';
+    setFindings(prevFindings => {
+        const updatedFindings = prevFindings.map(f => {
+            if (f.id === findingId) {
+                const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
+                if (userModifications) {
+                    updatedFinding.userModifications = userModifications;
+                    if (newStatus !== 'discarded') {
+                        updatedFinding.status = 'modified';
+                    }
+                }
+                return updatedFinding;
             }
+            return f;
+        });
+
+        updateScoring(updatedFindings);
+        
+        const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
+        localStorage.setItem('validation-results', JSON.stringify({ ...currentData, findings: updatedFindings }));
+
+        let toastTitle = "Sugerencia actualizada";
+        if (newStatus === 'applied' || newStatus === 'modified') {
+          toastTitle = "Sugerencia aplicada";
+        } else if (newStatus === 'discarded') {
+          toastTitle = "Sugerencia descartada";
         }
-        return updatedFinding;
-      }
-      return f;
+
+        toast({
+          title: toastTitle,
+        });
+
+        return updatedFindings;
     });
-
-    setFindings(updatedFindings);
-    updateScoring(updatedFindings);
-    
-    let toastTitle = "Sugerencia actualizada";
-    if (newStatus === 'applied' || newStatus === 'modified') {
-      toastTitle = "Sugerencia aplicada";
-    } else if (newStatus === 'discarded') {
-      toastTitle = "Sugerencia descartada";
-    }
-
-    toast({
-      title: toastTitle,
-    });
-    
-    const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
-    localStorage.setItem('validation-results', JSON.stringify({ ...currentData, findings: updatedFindings }));
-
-  }, [findings, toast, updateScoring]);
+  }, [toast, updateScoring]);
 
   const handleDownloadReport = () => {
     if (!currentScoring) return;
@@ -192,8 +194,6 @@ export default function PlanillaVivaPage() {
       };
 
       localStorage.setItem('milaReportData', JSON.stringify(reportData));
-      // In a real app, you would navigate to a report page or open a PDF generation service.
-      // For this prototype, we'll just log it.
       console.log("Report data saved to localStorage for preview:", reportData);
       toast({title: "Preparando informe", description: "La previsualización del informe se abrirá en una nueva pestaña."})
       window.open('/report-preview', '_blank');
