@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -39,12 +40,15 @@ type File = {
   id: string;
   name: string;
   content: string;
-  status?: 'uploading' | 'processing' | 'error' | 'success' | 'cancelling';
+  status?: 'uploading' | 'processing' | 'paused' | 'cancelling' | 'error' | 'success';
   error?: string;
   startTime?: number;
   processingTime?: number;
   // Chunk-specific progress
-  progress?: string; // e.g. "1/5"
+  totalChunks?: number;
+  currentChunk?: number;
+  totalEstimatedTime?: number;
+  elapsedTime?: number;
 };
 
 type Regulation = {
@@ -87,6 +91,12 @@ const initialRegulations: Regulation[] = [
 const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
 const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
 
+const estimateChunkProcessingTime = (numPages: number): number => {
+    // Estimación base para PDF escaneado (OCR intensivo)
+    const timePerScannedPage = 8; // segundos
+    return numPages * timePerScannedPage;
+};
+
 export default function PreparePage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -128,9 +138,10 @@ export default function PreparePage() {
 
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
 
-  // Ref for cancellation logic
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const [isCancelling, setIsCancelling] = useState(false);
+  // Refs for pause/cancel logic
+  const isPausedRef = useRef<Map<string, boolean>>(new Map());
+  const abortControllerRef = useRef<Map<string, AbortController>>(new Map());
+  const timerRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
 
   // Load from localStorage on mount
@@ -242,25 +253,41 @@ export default function PreparePage() {
     return 'Ocurrió un error inesperado durante el procesamiento.';
   }
 
-  const handleCancelProcessing = (fileId: string, folderId: string) => {
-    setIsCancelling(true);
-    abortControllerRef.current?.abort();
+  const cleanupProcess = (fileId: string) => {
+    isPausedRef.current.delete(fileId);
+    abortControllerRef.current.delete(fileId);
+    if (timerRef.current.has(fileId)) {
+      clearInterval(timerRef.current.get(fileId));
+      timerRef.current.delete(fileId);
+    }
+  };
 
-    setFolders(prev => prev.map(f => f.id === folderId ? {
+  const handlePauseOrResume = (fileId: string) => {
+    isPausedRef.current.set(fileId, !isPausedRef.current.get(fileId));
+    setFolders(prev => prev.map(f => ({
       ...f,
-      files: f.files.map(file => file.id === fileId ? { ...file, status: 'cancelling' } : file)
-    } : f));
+      files: f.files.map(file => file.id === fileId ? { ...file, status: isPausedRef.current.get(fileId) ? 'paused' : 'processing' } : file)
+    })));
+  };
 
+  const handleCancel = (fileId: string, folderId: string) => {
+    isPausedRef.current.set(fileId, true); // Pausar primero
+    abortControllerRef.current.get(fileId)?.abort();
+    cleanupProcess(fileId);
+    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f));
     toast({
-      title: "Cancelando...",
-      description: "El proceso de carga se detendrá después del fragmento actual."
+      title: "Proceso Cancelado",
+      description: "La carga del archivo ha sido cancelada.",
+      variant: "destructive"
     });
   };
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
-    setIsCancelling(false);
-    abortControllerRef.current = new AbortController();
+    
+    // Setup controls for this specific file
+    isPausedRef.current.set(tempId, false);
+    abortControllerRef.current.set(tempId, new AbortController());
 
     const updateFileState = (update: Partial<File>) => {
       setFolders(prev =>
@@ -277,51 +304,71 @@ export default function PreparePage() {
       );
     };
 
-    const filePlaceholder: File = {
-      id: tempId, name: rawFile.name, content: '', status: 'uploading',
-      startTime: Date.now(),
-    };
+    const filePlaceholder: File = { id: tempId, name: rawFile.name, content: '', status: 'uploading' };
     setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, filePlaceholder] } : f));
 
     try {
-        updateFileState({ status: 'processing' });
-
         if (rawFile.name.endsWith('.pdf')) {
             const fileBuffer = await rawFile.arrayBuffer();
             const pdfDoc = await PDFDocument.load(fileBuffer);
             const totalPages = pdfDoc.getPageCount();
-            const chunkSize = 3; 
+            const chunkSize = 3;
             const numChunks = Math.ceil(totalPages / chunkSize);
             let combinedText = '';
 
+            const totalEstimatedTime = estimateChunkProcessingTime(totalPages);
+            updateFileState({
+                totalChunks: numChunks,
+                currentChunk: 0,
+                totalEstimatedTime,
+                elapsedTime: 0,
+            });
+
+            // Start timer
+            const intervalId = setInterval(() => {
+                setFolders(prev => prev.map(f => ({
+                    ...f,
+                    files: f.files.map(file => {
+                        if (file.id === tempId && file.status === 'processing') {
+                            return { ...file, elapsedTime: (file.elapsedTime || 0) + 1 };
+                        }
+                        return file;
+                    })
+                })));
+            }, 1000);
+            timerRef.current.set(tempId, intervalId);
+
+            updateFileState({ status: 'processing', currentChunk: 1 });
+
             for (let i = 0; i < numChunks; i++) {
-                if (isCancelling) {
+                while (isPausedRef.current.get(tempId)) {
+                    await new Promise(res => setTimeout(res, 500)); // Wait while paused
+                }
+
+                if (abortControllerRef.current.get(tempId)?.signal.aborted) {
                     throw new Error('Cancelled');
                 }
-                const chunkProgress = `${i + 1}/${numChunks}`;
-                updateFileState({ progress: chunkProgress });
+
+                updateFileState({ currentChunk: i + 1 });
                 
                 const chunkDoc = await PDFDocument.create();
                 const startPage = i * chunkSize;
                 const endPage = Math.min(startPage + chunkSize, totalPages);
-                const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: endPage - startPage }, (_, k) => startPage + k));
+                const pageIndices = Array.from({ length: endPage - startPage }, (_, k) => startPage + k);
+                const copiedPages = await chunkDoc.copyPages(pdfDoc, pageIndices);
                 copiedPages.forEach(page => chunkDoc.addPage(page));
                 
                 const chunkBytes = await chunkDoc.save();
-                const chunkFile = new File([chunkBytes], `chunk_${i + 1}_of_${numChunks}.pdf`, { type: 'application/pdf' });
+                const chunkFile = new File([chunkBytes], `chunk_${i + 1}.pdf`, { type: 'application/pdf' });
                 
                 const formData = new FormData();
                 formData.append('file', chunkFile);
 
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
-
                 const response = await fetch('/api/extract-text', { 
                   method: 'POST', 
                   body: formData,
-                  signal: abortControllerRef.current.signal,
+                  signal: abortControllerRef.current.get(tempId)?.signal,
                 });
-                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     const errorText = await response.text().catch(() => `Server error: ${response.status}`);
@@ -336,7 +383,7 @@ export default function PreparePage() {
         } else {
             const formData = new FormData();
             formData.append('file', rawFile);
-            const response = await fetch('/api/extract-text', { method: 'POST', body: formData, signal: abortControllerRef.current.signal });
+            const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
 
             if (!response.ok) {
                 const errorText = await response.text().catch(() => `Server error: ${response.status}`);
@@ -352,23 +399,12 @@ export default function PreparePage() {
         });
       
     } catch (err: any) {
-        if (err.name === 'AbortError' || err.message === 'Cancelled') {
-            toast({
-                title: "Proceso cancelado",
-                description: `La carga de "${rawFile.name}" ha sido detenida.`,
-                variant: 'destructive'
-            });
-            // Remove the cancelled file from the list
-            setFolders(prev => prev.map(f => f.id === folderId ? {
-                ...f, files: f.files.filter(file => file.id !== tempId)
-            } : f));
-        } else {
+        if (err.name !== 'AbortError' && err.message !== 'Cancelled') {
             const errorMessage = getFriendlyErrorMessage(err);
             updateFileState({ status: 'error', error: errorMessage, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
         }
     } finally {
-        setIsCancelling(false);
-        abortControllerRef.current = null;
+        cleanupProcess(tempId);
     }
   };
 
@@ -646,6 +682,23 @@ export default function PreparePage() {
     setFileToAction(null);
   };
 
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+  const [fileToCancel, setFileToCancel] = useState<{fileId: string, folderId: string} | null>(null);
+
+  const handleOpenCancelConfirm = (fileId: string, folderId: string) => {
+    setFileToCancel({ fileId, folderId });
+    setIsCancelConfirmOpen(true);
+  };
+  
+  const handleConfirmCancel = () => {
+    if (fileToCancel) {
+      handleCancel(fileToCancel.fileId, fileToCancel.folderId);
+    }
+    setIsCancelConfirmOpen(false);
+    setFileToCancel(null);
+  };
+
+
   const handleOpenDeleteModal = (file: File, folderId: string) => {
     setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content });
     setIsDeleteModalOpen(true);
@@ -828,7 +881,8 @@ export default function PreparePage() {
                           onDismissError={handleDismissFileError}
                           onRenameFolder={handleOpenRenameFolderModal}
                           onDeleteFolder={handleOpenDeleteFolderModal}
-                          onCancelProcessing={handleCancelProcessing}
+                          onPauseOrResume={handlePauseOrResume}
+                          onCancel={handleOpenCancelConfirm}
                         />
                     </CardContent>
                 </Card>
@@ -1031,6 +1085,23 @@ export default function PreparePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <Dialog open={isCancelConfirmOpen} onOpenChange={setIsCancelConfirmOpen}>
+        <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+            <DialogHeader>
+                <DialogTitle>Confirmar Cancelación</DialogTitle>
+                <DialogDescription>
+                    ¿Está seguro de que desea cancelar el procesamiento de este archivo? Todo el progreso se perderá.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button variant="ghost">Volver</Button>
+                </DialogClose>
+                <Button variant="destructive" onClick={handleConfirmCancel}>Sí, Cancelar</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Regulation Action Dialogs */}
       <Dialog open={isRenameRegulationModalOpen} onOpenChange={setIsRenameRegulationModalOpen}>
@@ -1095,6 +1166,3 @@ export default function PreparePage() {
     </div>
   );
 }
-
-
-    

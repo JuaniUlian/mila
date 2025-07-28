@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, Loader2, XCircle } from 'lucide-react';
+import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, XCircle, Pause, Play, Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,16 +16,20 @@ import {
 import { FileUploadButton } from './file-upload-button';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { Progress } from '../ui/progress';
 
 interface File {
     id: string;
     name: string;
     content: string;
-    status?: 'uploading' | 'processing' | 'error' | 'success' | 'cancelling';
+    status?: 'uploading' | 'processing' | 'paused' | 'cancelling' | 'error' | 'success';
     error?: string;
     processingTime?: number;
     // Chunk-specific
-    progress?: string; // e.g. "1/5"
+    totalChunks?: number;
+    currentChunk?: number;
+    totalEstimatedTime?: number;
+    elapsedTime?: number;
 }
 
 interface FolderData {
@@ -46,7 +50,22 @@ interface FolderGridProps {
     onDismissError: (file: File, folderId: string) => void;
     onRenameFolder: (folder: FolderData) => void;
     onDeleteFolder: (folder: FolderData) => void;
-    onCancelProcessing: (fileId: string, folderId: string) => void;
+    onPauseOrResume: (fileId: string) => void;
+    onCancel: (fileId: string, folderId: string) => void;
+}
+
+const formatTime = (seconds: number): string => {
+    if (isNaN(seconds) || seconds < 0) return '...';
+    
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    if (h > 0) return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    if (m > 0) return `${pad(m)}m:${pad(s)}s`;
+    return `${s}s`;
 }
 
 const FileItem: React.FC<{
@@ -58,39 +77,57 @@ const FileItem: React.FC<{
   onMove: (file: File, folderId: string) => void;
   onDelete: (file: File, folderId: string) => void;
   onDismissError: (file: File, folderId: string) => void;
+  onPauseOrResume: (fileId: string) => void;
   onCancel: (fileId: string, folderId: string) => void;
-}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError, onCancel }) => {
+}> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError, onPauseOrResume, onCancel }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
 
-  if (file.status === 'uploading' || file.status === 'processing' || file.status === 'cancelling') {
-    const statusText = file.status === 'uploading' 
-      ? t('preparePage.uploadingStatus') 
-      : file.status === 'cancelling'
-      ? 'Cancelando...'
-      : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}`;
+  if (['uploading', 'processing', 'paused'].includes(file.status || '')) {
+    const isProcessing = file.status === 'processing';
+    const isPaused = file.status === 'paused';
+    const progressPercentage = (file.totalChunks && file.currentChunk) 
+      ? ((file.currentChunk -1) / file.totalChunks) * 100
+      : 0;
+    const remainingTime = (file.totalEstimatedTime || 0) - (file.elapsedTime || 0);
+
+    let statusText = 'Analizando Archivo...';
+    if(isPaused) statusText = 'Proceso Pausado';
+    else if(isProcessing && file.totalChunks) {
+        statusText = `Procesando parte ${file.currentChunk} de ${file.totalChunks}`
+    }
 
     return (
-      <div className="p-2 text-sm rounded-lg border border-transparent">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 text-muted-foreground flex-shrink-0 animate-spin" />
+      <div className="p-3 text-sm rounded-lg border bg-blue-50 border-blue-200">
+        <div className="flex items-center gap-3 mb-2">
+          <Loader className="h-5 w-5 text-blue-600 flex-shrink-0 animate-spin" />
           <div className="flex-1 min-w-0">
-            <span className="font-medium text-foreground truncate block">{file.name}</span>
-            <p className="text-xs text-muted-foreground">
-                {statusText}
-            </p>
+            <span className="font-semibold text-foreground truncate block">{file.name}</span>
           </div>
-          {file.status === 'processing' && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onCancel(file.id, folderId)}
-              className="text-xs h-auto p-1 text-destructive hover:bg-destructive/10"
-            >
-              <XCircle className="h-4 w-4 mr-1" />
-              Cancelar
-            </Button>
-          )}
+        </div>
+        <div className='space-y-2'>
+            <div className='flex justify-between items-baseline text-xs'>
+                <span className='text-blue-700 font-medium'>{statusText}</span>
+                {isProcessing && <span className='text-muted-foreground font-mono'>~{formatTime(remainingTime)} restantes</span>}
+            </div>
+            <Progress value={progressPercentage} className='h-1.5' indicatorClassName='bg-blue-600' />
+            <div className='flex items-center justify-end gap-2 pt-1'>
+                {isProcessing && (
+                    <Button variant="ghost" size="sm" onClick={() => onPauseOrResume(file.id)} className='text-xs h-7 px-2 text-primary hover:bg-primary/10'>
+                        <Pause className='h-3 w-3 mr-1'/> Pausar
+                    </Button>
+                )}
+                 {isPaused && (
+                    <>
+                        <Button variant="ghost" size="sm" onClick={() => onPauseOrResume(file.id)} className='text-xs h-7 px-2 text-green-600 hover:bg-green-100'>
+                            <Play className='h-3 w-3 mr-1'/> Reanudar
+                        </Button>
+                         <Button variant="ghost" size="sm" onClick={() => onCancel(file.id, folderId)} className='text-xs h-7 px-2 text-destructive hover:bg-destructive/10'>
+                            <XCircle className='h-3 w-3 mr-1'/> Cancelar
+                        </Button>
+                    </>
+                 )}
+            </div>
         </div>
       </div>
     );
@@ -182,7 +219,8 @@ export function FolderGrid({
     onDismissError,
     onRenameFolder,
     onDeleteFolder,
-    onCancelProcessing,
+    onPauseOrResume,
+    onCancel
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
@@ -265,7 +303,8 @@ export function FolderGrid({
                                     onMove={onMoveFile}
                                     onDelete={onDeleteFile}
                                     onDismissError={onDismissError}
-                                    onCancel={onCancelProcessing}
+                                    onPauseOrResume={onPauseOrResume}
+                                    onCancel={onCancel}
                                 />
                             ))
                         ) : (
@@ -277,5 +316,3 @@ export function FolderGrid({
         </div>
     );
 }
-
-    
