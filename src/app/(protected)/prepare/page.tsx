@@ -312,7 +312,14 @@ export default function PreparePage() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
+                // CORRECTED ERROR HANDLING
+                const contentType = response.headers.get("content-type");
+                let errorData;
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    errorData = await response.json();
+                } else {
+                    errorData = { error: `El servidor devolvió un error inesperado (estado: ${response.status}).` };
+                }
                 throw new Error(errorData.error || `Server error: ${response.status}`);
             }
             const result = await response.json();
@@ -487,7 +494,14 @@ export default function PreparePage() {
                     body: JSON.stringify({ fileDataUri }),
                  });
                  if (!response.ok) {
-                    const errorData = await response.json();
+                    // CORRECTED ERROR HANDLING
+                    const contentType = response.headers.get("content-type");
+                    let errorData;
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        errorData = await response.json();
+                    } else {
+                        errorData = { error: `El servidor devolvió un error inesperado (estado: ${response.status}).` };
+                    }
                     throw new Error(errorData.error || `Server error: ${response.status}`);
                  }
                  const result = await response.json();
@@ -1106,3 +1120,5 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
