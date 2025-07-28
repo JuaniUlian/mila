@@ -149,8 +149,6 @@ export default function PlanillaVivaPage() {
   }, [setScore]);
 
   const handleUpdateFinding = useCallback((findingId: string, newStatus: FindingStatus, userModifications?: any) => {
-    const impact = simulateScoreChange(findings, findingId, newStatus);
-    
     const updatedFindings = findings.map(f => {
       if (f.id === findingId) {
         const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
@@ -168,9 +166,15 @@ export default function PlanillaVivaPage() {
     setFindings(updatedFindings);
     updateScoring(updatedFindings);
     
+    let toastTitle = "Sugerencia actualizada";
+    if (newStatus === 'applied' || newStatus === 'modified') {
+      toastTitle = "Sugerencia aplicada";
+    } else if (newStatus === 'discarded') {
+      toastTitle = "Sugerencia descartada";
+    }
+
     toast({
-      title: "Puntaje actualizado",
-      description: impact.impactDescription,
+      title: toastTitle,
     });
     
     const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
