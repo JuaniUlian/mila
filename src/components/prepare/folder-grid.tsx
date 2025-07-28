@@ -79,29 +79,11 @@ const FileItem: React.FC<{
 }> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const [countdown, setCountdown] = useState(file.chunkEstimatedTime ? Math.round(file.chunkEstimatedTime) : 0);
-  
-  useEffect(() => {
-    if (file.status === 'processing' && file.chunkEstimatedTime) {
-      setCountdown(Math.round(file.chunkEstimatedTime));
-      const interval = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0; // Hold at 0 if it takes longer
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
-  }, [file.status, file.chunkEstimatedTime, file.progress]);
 
   if (file.status === 'uploading' || file.status === 'processing') {
     const timeRemaining = file.totalEstimatedTime !== undefined && file.elapsedTime !== undefined
         ? formatTime(file.totalEstimatedTime - file.elapsedTime)
-        : (countdown > 0 ? `~${countdown}s` : '');
+        : '';
 
     const statusText = file.status === 'uploading' 
       ? t('preparePage.uploadingStatus') 

@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import JSZip from 'jszip';
 import { PDFDocument } from 'pdf-lib';
+import { patchPackage } from 'patch-package';
 
 
 type File = {
@@ -92,18 +93,20 @@ const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
 const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
 
 const estimateProcessingTime = (file: { name: string, size?: number, pageCount?: number }): number => {
-    if (file.pageCount) { // It's a PDF chunk
-        // Scanned PDFs are slow. Estimate 15 seconds per page.
-        return 5 + file.pageCount * 15;
+    // For PDFs, the primary factor is page count, especially for scanned docs.
+    if (file.pageCount) {
+        // Scanned PDFs are slow. Estimate 8 seconds per page.
+        return 2 + file.pageCount * 8;
     }
 
+    // For other files, use size.
     const sizeInMB = (file.size ?? 0) / (1024 * 1024);
     const baseTime = 5; // seconds
 
     if (file.name.endsWith('.pdf')) {
-        // This is a rough total estimation, not per chunk. Chunks are handled above.
-        // A large scanned PDF can take a long time.
-        return baseTime + sizeInMB * 60; // 60 seconds per MB for scanned PDFs
+        // This is a rough total estimation for non-chunked or unknown page count PDFs.
+        // It's less accurate than page count.
+        return baseTime + sizeInMB * 45; // 45 seconds per MB for scanned PDFs
     }
     if (file.name.endsWith('.docx')) {
         return baseTime + sizeInMB * 8;
@@ -291,11 +294,12 @@ export default function PreparePage() {
     try {
         updateFileState({ status: 'processing' });
 
+        // Special handling for PDFs: chunking
         if (rawFile.name.endsWith('.pdf')) {
             const fileBuffer = await rawFile.arrayBuffer();
             const pdfDoc = await PDFDocument.load(fileBuffer);
             const totalPages = pdfDoc.getPageCount();
-            const chunkSize = 10;
+            const chunkSize = 3; // Process 3 pages at a time
             const numChunks = Math.ceil(totalPages / chunkSize);
             let combinedText = '';
 
@@ -1094,4 +1098,3 @@ export default function PreparePage() {
     </div>
   );
 }
-
