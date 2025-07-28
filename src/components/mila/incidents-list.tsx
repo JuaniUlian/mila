@@ -210,7 +210,7 @@ export function IncidentsList({
                     <div 
                       key={finding.id} 
                       className={cn(
-                        "group relative rounded-lg cursor-pointer bg-white border-l-4 card-neumorphism",
+                        "group relative rounded-lg cursor-pointer bg-white card-neumorphism transition-all duration-300 hover:scale-[1.02] border-l-4",
                         SEVERITY_GRADIENT[finding.gravedad],
                         SEVERITY_HOVER_HUD[finding.gravedad]
                       )}
