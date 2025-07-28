@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -93,7 +94,7 @@ export function MainHeader() {
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link href="/" aria-label={t('sidebar.home') || 'Inicio'} className="flex items-center justify-center h-12 w-12 rounded-full p-1.5 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 transition-all duration-200">
+                                <Link href="/home" aria-label={t('sidebar.home') || 'Inicio'} className="flex items-center justify-center h-12 w-12 rounded-full p-1.5 bg-white/30 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/50 transition-all duration-200">
                                     <Logo variant="color" className="h-full w-full" />
                                 </Link>
                             </TooltipTrigger>
