@@ -11,7 +11,5 @@ export const ai = genkit({
       apiKey: process.env.GEMINI_API_KEY,
     }),
   ],
-  model: 'googleai/gemini-1.5-pro',
-  // Set a longer timeout for flows to handle large file processing.
-  flowTimeout: '5m',
+  model: 'googleai/gemini-1.5'
 });

@@ -72,16 +72,17 @@ const ValidateDocumentOutputSchema = z.object({
 export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema>;
 
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
-  console.log('🔍 Iniciando validación de documento...');
+  console.log('🔍 Iniciando validación de documento con Gemini Pro...');
   console.log(`📄 Documento: ${input.documentName}`);
   console.log(`📚 Normativas: ${input.regulations.length}`);
   
   return validateDocumentFlow(input);
 }
 
-// PROMPT ACTUALIZADO que ya no incluye cálculo de scores
+// PROMPT ACTUALIZADO que usa un modelo de Gemini más potente
 const prompt = ai.definePrompt({
-  name: 'validateDocumentPrompt',
+  name: 'validateDocumentPromptWithGeminiPro',
+  model: 'googleai/gemini-1.5-pro',
   input: { schema: ValidateDocumentInputSchema },
   output: { 
     schema: z.object({
@@ -138,14 +139,14 @@ const validateDocumentFlow = ai.defineFlow(
     
     try {
       // EJECUTAR EL PROMPT (solo obtiene hallazgos, no calcula scores)
-      console.log('🤖 Ejecutando análisis con IA...');
+      console.log('🤖 Ejecutando análisis con Gemini Pro...');
       const { output: aiOutput } = await prompt(input);
       
       if (!aiOutput) {
         throw new Error('La IA no devolvió ningún resultado');
       }
       
-      console.log(`📊 IA encontró ${aiOutput.findings.length} hallazgos`);
+      console.log(`📊 Gemini Pro encontró ${aiOutput.findings.length} hallazgos`);
       
       // Si el documento no es relevante, devolver resultado básico
       if (!aiOutput.isRelevantDocument) {
@@ -195,10 +196,9 @@ const validateDocumentFlow = ai.defineFlow(
           description: riskCategory.description,
         },
       };
-      
     } catch (error) {
-      console.error('❌ Error en validateDocumentFlow:', error);
-      throw error;
+        console.error("Error en el flujo de validación:", error);
+        throw new Error(`El análisis del documento falló: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 );
