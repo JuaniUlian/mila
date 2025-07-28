@@ -34,7 +34,7 @@ export default function LoadingPage() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isErrorAlertOpen, setIsErrorAlertOpen] = useState(false);
   const [errorAlertContent, setErrorAlertContent] = useState({ title: '', description: '' });
-  const [validationResults, setValidationResults] = useState<ValidateDocumentOutput | null>(null);
+  const [validationResults, setValidationResults] = useState<(ValidateDocumentOutput & { documentName: string }) | null>(null);
 
   const loadingTexts = useMemo(() => ({
     status1: t('loadingPage.status1'),

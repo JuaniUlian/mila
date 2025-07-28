@@ -2,14 +2,13 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import type { Suggestion, SuggestionCategory, SuggestionSeverity, DocumentBlock } from './types';
+import { simulateScoreChange, type FindingWithStatus, type FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen } from 'lucide-react';
+import { Check, Edit3, Trash2, Sparkles, XCircle, FileText, Lightbulb, Scale, FlaskConical, AlertTriangle, Loader2, ChevronRight, BookCheck, ClipboardList, FilePen, ChevronDown } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
-import { ScrollArea } from '../ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
@@ -22,413 +21,351 @@ import {
 } from '@/components/ui/dialog';
 import { validateSuggestionEdit } from '@/ai/flows/validate-suggestion-edit';
 
-type SuggestionWithBlockId = Suggestion & { blockId: string };
-
-interface IncidentItemContentProps {
-  suggestion: SuggestionWithBlockId;
-  originalText: string;
-  regulationContent?: string;
-  onUpdateStatus: (newStatus: Suggestion['status']) => void;
-  onUpdateText: (newText: string) => void;
-  onClose: () => void;
-}
-
-const IncidentItemContent: React.FC<IncidentItemContentProps> = ({ suggestion, originalText, regulationContent, onUpdateStatus, onUpdateText, onClose }) => {
-  const [mode, setMode] = useState<'view' | 'editing' | 'validated'>('view');
-  const [currentText, setCurrentText] = useState(suggestion.text || '');
-  const [isValidationLoading, setIsValidationLoading] = useState(false);
-  const { toast } = useToast();
-  const { language } = useLanguage();
-  const t = useTranslations(language);
-
-  const getProposalTitle = () => {
-    if (mode === 'validated') {
-      return t('analysisPage.improvedProposal');
-    }
-    if (suggestion.proceduralSuggestion) {
-      return t('analysisPage.solutionProposal');
-    }
-    return t('analysisPage.draftingProposal');
-  };
-
-  const handleValidate = async () => {
-    if (!suggestion.text) { // Can't validate if there's no original suggestion text
-        toast({ title: "Error", description: "No hay texto de sugerencia original para validar.", variant: "destructive" });
-        return;
-    }
-
-    setIsValidationLoading(true);
-
-    try {
-        const result = await validateSuggestionEdit({
-            originalText: suggestion.evidence,
-            originalSuggestion: suggestion.text,
-            userEditedSuggestion: currentText,
-            legalJustification: suggestion.justification.legal,
-            // Pass regulation content, or a generic statement if none exists.
-            regulationContent: regulationContent || "Principios generales de buena administración y claridad contractual.",
-        });
-
-        setCurrentText(result.improvedProposal);
-        setMode('validated');
-        toast({
-            title: result.isValid ? t('analysisPage.toastValidationSuccessTitle') : t('analysisPage.toastValidationNeedsReviewTitle'),
-            description: result.feedback,
-        });
-
-    } catch (error) {
-        console.error("Error during suggestion validation:", error);
-        toast({
-            title: t('analysisPage.toastValidationErrorTitle'),
-            description: t('analysisPage.toastValidationErrorDesc'),
-            variant: "destructive",
-        });
-    } finally {
-        setIsValidationLoading(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setCurrentText(suggestion.text || '');
-    setMode('view');
-  };
-
-  const handleApply = () => {
-    onUpdateText(currentText);
-    onClose();
-  };
-
-  const handleDiscardOriginal = () => {
-    onUpdateStatus('discarded');
-    onClose();
-  };
-
-  const handleBackToEdit = () => {
-    setMode('editing');
-  };
-
-  const handleEdit = () => {
-    setMode('editing');
-  };
-  
-  const baseButtonClasses = "font-semibold rounded-lg text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-150 ease-in-out";
-  const greenButtonClasses = "bg-gradient-to-br from-green-500 to-green-600";
-  const blueButtonClasses = "bg-gradient-to-br from-blue-500 to-blue-600";
-  const redButtonClasses = "bg-gradient-to-br from-red-500 to-red-600";
-  const neutralButtonClasses = "bg-gradient-to-br from-slate-400 to-slate-500 text-slate-100";
-
-
-  return (
-    <div className="space-y-6">
-        <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700"><FileText size={16}/> {t('analysisPage.originalText')}</h4>
-            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
-                <p className="text-sm font-sans text-slate-800 max-h-32 overflow-y-auto">{suggestion.evidence}</p>
-            </div>
-        </div>
-
-        <Separator className="bg-slate-300/70"/>
-        
-        <div>
-            <h4 className="text-base font-semibold mb-2 flex items-center gap-2 text-slate-700">
-              {suggestion.proceduralSuggestion ? <ClipboardList size={16}/> : <Lightbulb size={16} className="text-primary"/>}
-              {getProposalTitle()}
-            </h4>
-            {mode === 'editing' ? (
-              <Textarea
-                  value={currentText}
-                  onChange={(e) => setCurrentText(e.target.value)}
-                  rows={5}
-                  className="w-full text-sm p-3 border-slate-300 rounded-lg bg-white shadow-inner focus-visible:ring-primary mb-2 text-foreground"
-                  aria-label="Editar sugerencia"
-              />
-            ) : (
-              <div className={cn(
-                "p-3 border rounded-xl text-sm text-slate-800",
-                "bg-white/60 shadow-inner border-white/80"
-                )}>
-                  <p className="leading-relaxed">{suggestion.proceduralSuggestion || currentText}</p>
-              </div>
-            )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
-                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><Scale size={14}/> {t('analysisPage.legalJustification')}</h5>
-                <p className="text-slate-700 text-xs">{suggestion.justification.legal}</p>
-            </div>
-            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80">
-                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><FlaskConical size={14}/> {t('analysisPage.technicalJustification')}</h5>
-                <p className="text-slate-700 text-xs">{suggestion.justification.technical}</p>
-            </div>
-            <div className="bg-white/60 p-3 rounded-xl shadow-inner border border-white/80 md:col-span-2">
-                <h5 className="font-semibold mb-1.5 flex items-center gap-1.5 text-slate-600"><AlertTriangle size={14}/> {t('analysisPage.estimatedConsequence')}</h5>
-                <p className="text-slate-700 text-xs">{suggestion.estimatedConsequence}</p>
-            </div>
-        </div>
-        
-        <Separator className="bg-slate-300/70"/>
-        
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          {mode === 'view' && (
-              <>
-                  {suggestion.text ? (
-                    // Wording suggestion actions
-                    <>
-                      <Button size="sm" onClick={handleApply} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
-                        <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
-                      </Button>
-                      <Button size="sm" onClick={handleEdit} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, blueButtonClasses)}>
-                          <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
-                      </Button>
-                    </>
-                  ) : suggestion.proceduralSuggestion ? (
-                    // Procedural suggestion action
-                    <Button size="sm" onClick={() => onUpdateStatus('applied')} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, greenButtonClasses)}>
-                      <Check className="mr-2 h-4 w-4"/> {t('analysisPage.markAsHandled')}
-                    </Button>
-                  ) : null }
-                  
-                  <Button size="sm" onClick={handleDiscardOriginal} disabled={suggestion.status !== 'pending'} className={cn(baseButtonClasses, redButtonClasses)}>
-                      <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
-                  </Button>
-              </>
-          )}
-          {mode === 'editing' && (
-              <>
-                  {!suggestion.proceduralSuggestion && (
-                      <Button size="sm" onClick={handleValidate} disabled={isValidationLoading} className={cn(baseButtonClasses, greenButtonClasses)}>
-                          {isValidationLoading ? (
-                              <>
-                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                  {t('analysisPage.validating')}
-                              </>
-                          ) : (
-                              <>
-                                  <Sparkles className="mr-2 h-4 w-4" />
-                                  {t('analysisPage.validate')}
-                              </>
-                          )}
-                      </Button>
-                  )}
-                  <Button size="sm" onClick={handleCancelEdit} disabled={isValidationLoading} className={cn(baseButtonClasses, neutralButtonClasses)}>
-                      <XCircle className="mr-2 h-4 w-4"/> {t('analysisPage.cancel')}
-                  </Button>
-              </>
-          )}
-          {mode === 'validated' && (
-              <>
-                  <Button size="sm" onClick={handleApply} className={cn(baseButtonClasses, greenButtonClasses)}>
-                      <Check className="mr-2 h-4 w-4"/> {t('analysisPage.apply')}
-                  </Button>
-                  <Button size="sm" onClick={handleBackToEdit} className={cn(baseButtonClasses, blueButtonClasses)}>
-                      <Edit3 className="mr-2 h-4 w-4"/> {t('analysisPage.edit')}
-                  </Button>
-                  <Button size="sm" onClick={handleDiscardOriginal} className={cn(baseButtonClasses, redButtonClasses)}>
-                      <Trash2 className="mr-2 h-4 w-4"/> {t('analysisPage.discard')}
-                  </Button>
-              </>
-          )}
-        </div>
-    </div>
-  );
-}
-
-
 interface IncidentsListProps {
-  suggestions: SuggestionWithBlockId[];
-  blocks: DocumentBlock[];
-  selectedRegulations: {name: string, content: string}[];
-  onUpdateSuggestionStatus: (blockId: string, suggestionId: string, status: Suggestion['status']) => void;
-  onUpdateSuggestionText: (blockId: string, suggestionId: string, newText: string) => void;
-  overallComplianceScore: number;
+  findings: FindingWithStatus[];
+  onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
+  onFindingEdit?: (findingId: string, modifications: any) => void;
+  currentScoring?: {
+    complianceScore: number;
+    legalRiskScore: number;
+  } | null;
 }
 
-const getSeverityGradientClass = (severity: SuggestionSeverity) => {
-    switch (severity) {
-      case 'high':
-        return 'from-red-500 to-red-400';
-      case 'medium':
-        return 'from-amber-400 to-amber-300';
-      case 'low':
-        return 'from-sky-400 to-sky-300';
-    }
+const TYPE_TO_CATEGORY: Record<string, { label: string; color: string; icon: React.ElementType }> = {
+  'Irregularidad': { 
+    label: 'Legal', 
+    color: 'red', 
+    icon: Scale
+  },
+  'Mejora de Redacción': { 
+    label: 'Redacción', 
+    color: 'blue', 
+    icon: FilePen
+  },
+  'Sin hallazgos relevantes': { 
+    label: 'Informativo', 
+    color: 'gray', 
+    icon: Lightbulb
+  }
 };
 
-const getCategoryGradientStyle = (suggestions: SuggestionWithBlockId[]): React.CSSProperties => {
-  const severities = new Set(suggestions.map(s => s.severity));
-  const colors: string[] = [];
-
-  const severityColors = {
-    high: 'hsl(var(--destructive))',
-    medium: 'hsl(var(--severity-medium))',
-    low: 'hsl(var(--severity-low))',
-  };
-
-  if (severities.has('high')) colors.push(severityColors.high);
-  if (severities.has('medium')) colors.push(severityColors.medium);
-  if (severities.has('low')) colors.push(severityColors.low);
-
-  if (colors.length === 0) return { background: 'hsl(var(--border))' };
-  if (colors.length === 1) return { backgroundColor: colors[0] };
-  return { backgroundImage: `linear-gradient(to bottom, ${colors.join(', ')})` };
+const SEVERITY_COLORS: Record<string, {text: string, bg: string, border: string}> = {
+  'Alta': {text: 'text-red-800', bg: 'bg-red-100', border: 'border-red-400'},
+  'Media': {text: 'text-amber-800', bg: 'bg-amber-100', border: 'border-amber-400'}, 
+  'Baja': {text: 'text-sky-800', bg: 'bg-sky-100', border: 'border-sky-400'},
+  'Informativa': {text: 'text-slate-800', bg: 'bg-slate-100', border: 'border-slate-400'}
 };
 
-const categoryIcons: { [key in SuggestionCategory]: React.ElementType } = {
-  Legal: Scale,
-  Administrativa: ClipboardList,
-  Redacción: FilePen,
-};
-
-const getHighestSeverityColorClass = (suggestions: SuggestionWithBlockId[]): string => {
-    const severities = new Set(suggestions.map(s => s.severity));
-    if (severities.has('high')) return 'text-[hsl(var(--severity-high))]';
-    if (severities.has('medium')) return 'text-[hsl(var(--severity-medium))]';
-    if (severities.has('low')) return 'text-[hsl(var(--severity-low))]';
-    return 'text-muted-foreground';
+const STATUS_STYLES: Record<FindingStatus, { bg: string; border: string; label: string; icon: React.ElementType }> = {
+  'pending': {
+    bg: 'bg-white',
+    border: 'border-gray-300',
+    label: 'Pendiente',
+    icon: Loader2
+  },
+  'applied': {
+    bg: 'bg-green-50',
+    border: 'border-green-300',
+    label: 'Aplicado',
+    icon: Check
+  },
+  'discarded': {
+    bg: 'bg-gray-100',
+    border: 'border-gray-300',
+    label: 'Descartado',
+    icon: Trash2
+  },
+  'modified': {
+    bg: 'bg-blue-50',
+    border: 'border-blue-300',
+    label: 'Modificado',
+    icon: Edit3
+  }
 };
 
 
 export function IncidentsList({ 
-  suggestions, 
-  blocks, 
-  selectedRegulations,
-  onUpdateSuggestionStatus, 
-  onUpdateSuggestionText, 
-  overallComplianceScore,
+  findings, 
+  onFindingStatusChange, 
+  onFindingEdit,
+  currentScoring 
 }: IncidentsListProps) {
-  const { language } = useLanguage();
-  const t = useTranslations(language);
-  const [dialogSuggestion, setDialogSuggestion] = useState<SuggestionWithBlockId | null>(null);
-  
-  const severityOrder: { [key in SuggestionSeverity]: number } = { high: 0, medium: 1, low: 2 };
+  const [expandedFindings, setExpandedFindings] = useState<Set<string>>(new Set());
+  const [editingFinding, setEditingFinding] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<{
+    propuesta_redaccion?: string;
+    propuesta_procedimiento?: string;
+    justificacion_legal?: string;
+    justificacion_tecnica?: string;
+  }>({});
 
-  const pendingSuggestions = useMemo(() => {
-    return [...suggestions]
-      .filter(s => s.status === 'pending')
-      .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
-  }, [suggestions]);
+  const { t } = useTranslations('es');
 
-  const [openCategories, setOpenCategories] = useState<string[]>([]);
+  // Filtrar hallazgos válidos (excluir "Sin hallazgos relevantes")
+  const validFindings = findings.filter(finding => 
+    finding.tipo !== 'Sin hallazgos relevantes'
+  );
 
-  const groupedSuggestions = useMemo(() => {
-    const groups: { [key in SuggestionCategory]?: SuggestionWithBlockId[] } = {};
-    pendingSuggestions.forEach(suggestion => {
-      const category = suggestion.category;
-      if (!groups[category]) groups[category] = [];
-      groups[category]?.push(suggestion);
-    });
-    return Object.entries(groups)
-      .map(([category, suggestions]) => ({ category: category as SuggestionCategory, suggestions: suggestions || [] }))
-      .filter(group => group.suggestions.length > 0);
-  }, [pendingSuggestions]);
+  // Agrupar por gravedad para mejor organización
+  const findingsByGravity = validFindings.reduce((acc, finding) => {
+    if (!acc[finding.gravedad]) acc[finding.gravedad] = [];
+    acc[finding.gravedad].push(finding);
+    return acc;
+  }, {} as Record<string, FindingWithStatus[]>);
 
-  const getRegulationContent = (suggestion: SuggestionWithBlockId | null) => {
-    if (!suggestion || !suggestion.appliedNorm || suggestion.appliedNorm.includes('N/A')) return undefined;
-    const allRegulations = JSON.parse(localStorage.getItem('selectedRegulations') || '[]');
-    const regulation = allRegulations.find((r: { name: string, content: string }) => suggestion.appliedNorm.startsWith(r.name));
-    return regulation?.content;
+  const toggleExpanded = (findingId: string) => {
+    const newExpanded = new Set(expandedFindings);
+    if (newExpanded.has(findingId)) {
+      newExpanded.delete(findingId);
+    } else {
+      newExpanded.add(findingId);
+    }
+    setExpandedFindings(newExpanded);
   };
+
+  const startEditing = (finding: FindingWithStatus) => {
+    setEditingFinding(finding.id);
+    setEditForm({
+      propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
+      propuesta_procedimiento: finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento || '',
+      justificacion_legal: finding.userModifications?.justificacion_legal || finding.justificacion_legal,
+      justificacion_tecnica: finding.userModifications?.justificacion_tecnica || finding.justificacion_tecnica,
+    });
+  };
+
+  const saveEditing = (findingId: string) => {
+    onFindingStatusChange(findingId, 'modified', editForm);
+    setEditingFinding(null);
+    setEditForm({});
+  };
+
+  const cancelEditing = () => {
+    setEditingFinding(null);
+    setEditForm({});
+  };
+
+  const getScorePreview = (findingId: string, newStatus: FindingStatus) => {
+    if (!currentScoring) return null;
+    return simulateScoreChange(findings, findingId, newStatus);
+  };
+
+  const FindingCard = ({ finding }: { finding: FindingWithStatus }) => {
+    const isExpanded = expandedFindings.has(finding.id);
+    const isEditing = editingFinding === finding.id;
+    const category = TYPE_TO_CATEGORY[finding.tipo];
+    const statusStyle = STATUS_STYLES[finding.status];
+    const severityStyle = SEVERITY_COLORS[finding.gravedad];
+
+    return (
+      <AccordionItem value={finding.id} className={cn("border rounded-xl incident-card-hover overflow-hidden", statusStyle.border, statusStyle.bg)}>
+        <AccordionTrigger className="p-4 hover:no-underline" onClick={() => toggleExpanded(finding.id)}>
+            <div className="flex items-start justify-between w-full">
+              <div className="flex-1 text-left space-y-1">
+                <div className="flex items-center gap-2">
+                  <category.icon className={cn("h-5 w-5", severityStyle.text)} />
+                  <h3 className="font-semibold text-gray-900">
+                    {finding.titulo_incidencia}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-gray-500 pl-7">
+                    <span>Pág: {finding.pagina}</span>
+                    <span>Norma: {finding.nombre_archivo_normativa}</span>
+                    {finding.articulo_o_seccion !== 'N/A' && (
+                      <span>Art: {finding.articulo_o_seccion}</span>
+                    )}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+                <span className={cn("px-2 py-1 text-xs font-semibold rounded-full", severityStyle.bg, severityStyle.text)}>
+                  {finding.gravedad}
+                </span>
+                 <span className={cn("px-2 py-1 text-xs font-semibold rounded-full", statusStyle.bg, statusStyle.border, "border")}>
+                   <statusStyle.icon className={cn("inline h-3 w-3 mr-1", statusStyle.label === 'Pendiente' && 'animate-spin')} />
+                  {statusStyle.label}
+                </span>
+                <ChevronDown className={cn("h-5 w-5 transition-transform", isExpanded && "rotate-180")} />
+              </div>
+            </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-4 pb-4">
+            <div className="space-y-4 border-t pt-4">
+            {/* Evidencia */}
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">📋 Evidencia:</h4>
+              <div className="bg-amber-50 border-l-4 border-amber-400 p-3 text-sm">
+                <em className="text-gray-800">"{finding.evidencia}"</em>
+              </div>
+            </div>
+
+            {/* Propuestas */}
+            {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">💡 Propuesta de Solución:</h4>
+                
+                {isEditing ? (
+                  <div className="space-y-3 bg-blue-50 p-3 rounded">
+                    {finding.propuesta_redaccion && (
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Propuesta de Redacción:</label>
+                        <Textarea
+                          value={editForm.propuesta_redaccion || ''}
+                          onChange={(e) => setEditForm({...editForm, propuesta_redaccion: e.target.value})}
+                          className="w-full p-2 border rounded text-sm"
+                          rows={3}
+                        />
+                      </div>
+                    )}
+                    
+                    {finding.propuesta_procedimiento && (
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Propuesta de Procedimiento:</label>
+                        <Textarea
+                          value={editForm.propuesta_procedimiento || ''}
+                          onChange={(e) => setEditForm({...editForm, propuesta_procedimiento: e.target.value})}
+                          className="w-full p-2 border rounded text-sm"
+                          rows={2}
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => saveEditing(finding.id)}
+                        size="sm"
+                        className="bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <Check className="mr-1 h-4 w-4" /> Guardar
+                      </Button>
+                      <Button
+                        onClick={cancelEditing}
+                        size="sm"
+                        variant="ghost"
+                      >
+                        <XCircle className="mr-1 h-4 w-4" /> Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-green-50 p-3 rounded text-sm space-y-2 border-l-4 border-green-400">
+                    {(finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion) && (
+                      <div>
+                        <strong className="text-gray-800">Redacción sugerida:</strong>
+                        <p className="mt-1 italic">
+                          "{finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion}"
+                        </p>
+                      </div>
+                    )}
+                    
+                    {(finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento) && (
+                      <div>
+                        <strong className="text-gray-800">Procedimiento sugerido:</strong>
+                        <p className="mt-1">{finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Justificaciones */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">⚖️ Justificación Legal:</h4>
+                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                  {finding.userModifications?.justificacion_legal || finding.justificacion_legal}
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">🔧 Justificación Técnica:</h4>
+                <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                  {finding.userModifications?.justificacion_tecnica || finding.justificacion_tecnica}
+                </p>
+              </div>
+            </div>
+
+            {/* Consecuencias estimadas */}
+            <div>
+              <h4 className="font-medium text-gray-700 mb-2">⚠️ Consecuencias Estimadas:</h4>
+              <p className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                {finding.consecuencia_estimada}
+              </p>
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-2 pt-4 border-t">
+              {finding.status === 'pending' && (
+                <>
+                  <Button
+                    onClick={() => onFindingStatusChange(finding.id, 'applied')}
+                    className="bg-green-600 text-white hover:bg-green-700"
+                  >
+                    <Check className="mr-2 h-4 w-4"/> Aplicar Solución
+                  </Button>
+                  
+                  {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
+                    <Button
+                      onClick={() => startEditing(finding)}
+                       className="bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                      <Edit3 className="mr-2 h-4 w-4"/> Editar Propuesta
+                    </Button>
+                  )}
+                  
+                  <Button
+                    onClick={() => onFindingStatusChange(finding.id, 'discarded')}
+                    variant="outline"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4"/> Descartar
+                  </Button>
+                </>
+              )}
+
+              {finding.status !== 'pending' && (
+                <Button
+                  onClick={() => onFindingStatusChange(finding.id, 'pending')}
+                  variant="outline"
+                  className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                >
+                  ↩️ Revertir a Pendiente
+                </Button>
+              )}
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    );
+  };
+
+  if (validFindings.length === 0) {
+    return (
+      <Card className="h-full flex flex-col items-center justify-center bg-green-50/50 border-green-200 shadow-sm text-center p-8">
+        <Check className="w-16 h-16 text-green-400 mb-4" />
+        <h3 className="text-xl font-semibold text-foreground">{t('analysisPage.excellent')}</h3>
+        <p className="text-muted-foreground">{t('analysisPage.noPendingIncidents')}</p>
+        <p className="text-muted-foreground">{t('analysisPage.documentValidated')}</p>
+      </Card>
+    );
+  }
   
-  const useDarkText = overallComplianceScore >= 75;
-  const getTranslatedCategory = (category: SuggestionCategory) => t(`suggestionCategories.${category}`);
+  const gravityOrder = ['Alta', 'Media', 'Baja', 'Informativa'];
 
   return (
-    <div className="h-full">
-      <Card className="h-full flex flex-col bg-transparent border-none shadow-none overflow-visible">
-        <CardHeader className="p-4 border-b border-white/10 transition-all duration-300">
-          <CardTitle className="text-xl font-bold text-card-foreground">{t('analysisPage.incidentsTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-4">
-          <ScrollArea className="h-full w-full pr-2">
-              {pendingSuggestions.length > 0 ? (
-                  <Accordion type="multiple" value={openCategories} onValueChange={setOpenCategories} className="space-y-4">
-                  {groupedSuggestions.map(({ category, suggestions: s_group }) => {
-                      const Icon = categoryIcons[category];
-                      const iconColorClass = getHighestSeverityColorClass(s_group);
-                      return (
-                      <AccordionItem
-                        key={category}
-                        value={category}
-                        className="group incident-card-hover border rounded-2xl border-white/20 shadow-lg transition-all duration-500 bg-white/30 backdrop-blur-md"
-                      >
-                          <AccordionTrigger suppressHydrationWarning className="pl-2 pr-4 py-4 hover:no-underline data-[state=open]:border-b data-[state=open]:border-white/20 rounded-t-2xl data-[state=open]:rounded-b-none transition-colors duration-300 relative">
-                              <div className="absolute left-0 top-0 bottom-0 w-1.5" style={getCategoryGradientStyle(s_group)}/>
-                              <div className="flex items-center gap-3 flex-1 pl-4">
-                                {Icon && <Icon className={cn("h-6 w-6", iconColorClass)} />}
-                                <span className="text-lg font-semibold text-left text-card-foreground transition-colors">{getTranslatedCategory(category)}</span>
-                              </div>
-                              <div className="bg-white/40 backdrop-blur-sm text-foreground text-xs font-semibold px-3 py-1 rounded-full shadow-inner mr-2">
-                                  {s_group.length} {s_group.length === 1 ? t('analysisPage.pendingSingular') : t('analysisPage.pendingPlural')}
-                              </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="pl-6 pr-3 pb-3 pt-2 space-y-3">
-                              {s_group.map(suggestion => (
-                                <div key={suggestion.id} className="rounded-lg shadow-sm overflow-hidden incident-card-hover border border-white/20 bg-white/40 backdrop-blur-sm">
-                                  <div className="relative pl-3">
-                                    <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b rounded-l-lg", getSeverityGradientClass(suggestion.severity))} />
-                                      <button 
-                                        className="p-4 w-full flex items-center justify-between text-left hover:bg-white/20 transition-colors"
-                                        onClick={() => setDialogSuggestion(suggestion)}
-                                      >
-                                        <div className="flex-1 space-y-1 pr-4">
-                                            <p className="font-semibold text-card-foreground">{suggestion.errorType}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {t('suggestionCategories.normativa')}: {suggestion.appliedNorm.includes('N/A') ? 'Mejora de redacción general' : suggestion.appliedNorm}
-                                            </p>
-                                        </div>
-                                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                      </button>
-                                  </div>
-                                </div>
-                              ))}
-                          </AccordionContent>
-                      </AccordionItem>
-                  )})}
-                  </Accordion>
-              ) : (
-                  <div className="h-full flex items-center justify-center">
-                      <Card className="p-6 w-full max-w-md bg-white/20 backdrop-blur-md border-white/30 shadow-lg">
-                          <CardContent className="p-0 flex flex-col items-center justify-center text-center">
-                              <Check className="w-16 h-16 text-green-400 mb-4" />
-                              <h3 className={cn("text-xl font-semibold", useDarkText ? 'text-foreground' : 'text-white')}>{t('analysisPage.excellent')}</h3>
-                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>{t('analysisPage.noPendingIncidents')}</p>
-                              <p className={cn(useDarkText ? 'text-muted-foreground' : 'text-white/80')}>{t('analysisPage.documentValidated')}</p>
-                          </CardContent>
-                      </Card>
-                  </div>
-              )}
-          </ScrollArea>
-        </CardContent>
-      </Card>
+    <Card className="h-full flex flex-col bg-transparent border-none shadow-none overflow-visible">
+      <CardHeader className="p-0 pb-4">
+        <CardTitle className="text-xl font-bold text-card-foreground">🔍 Hallazgos Identificados</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 overflow-y-auto p-0">
+         <Accordion type="multiple" className="space-y-4">
+              {gravityOrder.map(gravity => {
+                const findingsForGravity = findingsByGravity[gravity];
+                if (!findingsForGravity || findingsForGravity.length === 0) return null;
 
-      <Dialog open={!!dialogSuggestion} onOpenChange={(isOpen) => !isOpen && setDialogSuggestion(null)}>
-        <DialogContent className="max-w-3xl w-full p-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-slate-100 shadow-xl border-0">
-          {dialogSuggestion && (
-            <>
-              <DialogHeader className="p-4 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 backdrop-blur-sm border-b border-white/20 shadow-md">
-                  <DialogTitle className="text-slate-800">{dialogSuggestion.errorType}</DialogTitle>
-              </DialogHeader>
-              <div className="p-6 overflow-y-auto max-h-[75vh]">
-                <IncidentItemContent 
-                  suggestion={dialogSuggestion}
-                  originalText={dialogSuggestion.evidence}
-                  regulationContent={getRegulationContent(dialogSuggestion)}
-                  onUpdateStatus={(newStatus) => {
-                      onUpdateSuggestionStatus(dialogSuggestion.blockId, dialogSuggestion.id, newStatus);
-                      setDialogSuggestion(null);
-                  }}
-                  onUpdateText={(newText) => {
-                      onUpdateSuggestionText(dialogSuggestion.blockId, dialogSuggestion.id, newText);
-                      setDialogSuggestion(null);
-                  }}
-                  onClose={() => setDialogSuggestion(null)}
-                />
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+                return findingsForGravity.map(finding => (
+                  <FindingCard key={finding.id} finding={finding} />
+                ));
+              })}
+          </Accordion>
+      </CardContent>
+    </Card>
   );
 }

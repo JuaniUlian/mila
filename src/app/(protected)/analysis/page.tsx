@@ -121,9 +121,6 @@ export default function PlanillaVivaPage() {
     try {
       const reportData = {
           documentTitle: documentName,
-          blocks: [], // Mantener la estructura, aunque no la usemos igual
-          overallComplianceScore: currentScoring.complianceScore,
-          overallCompletenessIndex: 0, // Dato obsoleto, pero se mantiene por compatibilidad
           findings: findings,
           scoringReport: generateScoringReport(findings)
       };
@@ -149,23 +146,6 @@ export default function PlanillaVivaPage() {
       </div>
     );
   }
-
-  const allSuggestions = findings.map(finding => ({
-      ...finding,
-      blockId: 'main-block', // Usar un ID de bloque ficticio
-      text: finding.propuesta_redaccion,
-      proceduralSuggestion: finding.propuesta_procedimiento,
-      justification: {
-        legal: finding.justificacion_legal,
-        technical: finding.justificacion_tecnica,
-      },
-      appliedNorm: `${finding.nombre_archivo_normativa} - ${finding.articulo_o_seccion}`,
-      errorType: finding.titulo_incidencia,
-      estimatedConsequence: finding.consecuencia_estimada,
-      completenessImpact: 0,
-      category: finding.tipo === "Irregularidad" ? 'Legal' : 'Redacción',
-      isEditable: !!finding.propuesta_redaccion,
-  }));
   
   return (
     <>
@@ -180,26 +160,16 @@ export default function PlanillaVivaPage() {
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           <div className="lg:col-span-2 w-full h-full min-h-0">
               <IncidentsList 
-                  suggestions={allSuggestions}
-                  blocks={[]}
-                  selectedRegulations={[]}
-                  onUpdateSuggestionStatus={(blockId, suggestionId, newStatus) => handleUpdateFinding(suggestionId, newStatus)}
-                  onUpdateSuggestionText={(blockId, suggestionId, newText) => handleUpdateFinding(suggestionId, 'applied', newText)}
-                  overallComplianceScore={currentScoring.complianceScore}
+                  findings={findings}
+                  onFindingStatusChange={handleUpdateFinding}
+                  currentScoring={currentScoring}
               />
           </div>
           <div className="w-full h-full min-h-0">
                <RisksPanel
-                  documentData={{
-                    documentTitle: documentName,
-                    overallComplianceScore: currentScoring.complianceScore,
-                    overallCompletenessIndex: 0,
-                    blocks: findings.length > 0 ? [{
-                        id: 'main', name: 'General', category: 'General', alertLevel: 'none',
-                        completenessIndex: 0, maxCompleteness: 10, originalText: '',
-                        suggestions: allSuggestions, alerts:[], missingConnections: [], applicableNorms: []
-                    }] : []
-                  }}
+                  findings={findings}
+                  documentName={documentName}
+                  currentScoring={currentScoring}
                   onDownloadReport={handleDownloadReport}
                   appliedChangesExist={findings.some(f => f.status === 'applied' || f.status === 'modified')}
                   onDownloadCorrectedDocument={handleDownloadCorrectedDocument}
@@ -226,3 +196,4 @@ export default function PlanillaVivaPage() {
       </Dialog>
     </>
   );
+}
