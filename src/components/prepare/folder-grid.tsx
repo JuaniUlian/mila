@@ -24,8 +24,12 @@ interface File {
     status?: 'uploading' | 'processing' | 'error' | 'success';
     error?: string;
     processingTime?: number;
-    estimatedTime?: number;
-    progress?: string;
+    // Chunk-specific
+    progress?: string; // e.g. "1/5"
+    chunkEstimatedTime?: number;
+    // Total progress
+    totalEstimatedTime?: number;
+    elapsedTime?: number;
 }
 
 interface FolderData {
@@ -48,6 +52,21 @@ interface FolderGridProps {
     onDeleteFolder: (folder: FolderData) => void;
 }
 
+const formatTime = (seconds: number): string => {
+  if (isNaN(seconds) || seconds < 0) return '';
+  
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+
+  const hStr = h > 0 ? `${String(h).padStart(2, '0')}h:` : '';
+  const mStr = (h > 0 || m > 0) ? `${String(m).padStart(2, '0')}m:` : '';
+  const sStr = `${String(s).padStart(2, '0')}s`;
+
+  return `${hStr}${mStr}${sStr}`;
+};
+
+
 const FileItem: React.FC<{
   file: File;
   folderId: string;
@@ -60,11 +79,11 @@ const FileItem: React.FC<{
 }> = ({ file, folderId, isSelected, onSelect, onRename, onMove, onDelete, onDismissError }) => {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const [countdown, setCountdown] = useState(file.estimatedTime ? Math.round(file.estimatedTime) : 0);
-
+  const [countdown, setCountdown] = useState(file.chunkEstimatedTime ? Math.round(file.chunkEstimatedTime) : 0);
+  
   useEffect(() => {
-    if (file.status === 'processing' && file.estimatedTime) {
-      setCountdown(Math.round(file.estimatedTime));
+    if (file.status === 'processing' && file.chunkEstimatedTime) {
+      setCountdown(Math.round(file.chunkEstimatedTime));
       const interval = setInterval(() => {
         setCountdown(prev => {
           if (prev <= 1) {
@@ -77,10 +96,17 @@ const FileItem: React.FC<{
 
       return () => clearInterval(interval);
     }
-  }, [file.status, file.estimatedTime, file.progress]); // Rerun effect if progress changes
+  }, [file.status, file.chunkEstimatedTime, file.progress]);
 
   if (file.status === 'uploading' || file.status === 'processing') {
-    const timeRemaining = countdown > 0 ? ` ~${countdown}s restantes` : '';
+    const timeRemaining = file.totalEstimatedTime !== undefined && file.elapsedTime !== undefined
+        ? formatTime(file.totalEstimatedTime - file.elapsedTime)
+        : (countdown > 0 ? `~${countdown}s` : '');
+
+    const statusText = file.status === 'uploading' 
+      ? t('preparePage.uploadingStatus') 
+      : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}`;
+
     return (
       <div className="p-2 text-sm rounded-lg border border-transparent">
         <div className="flex items-center gap-3">
@@ -88,9 +114,7 @@ const FileItem: React.FC<{
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground truncate block">{file.name}</span>
             <p className="text-xs text-muted-foreground">
-              {file.status === 'uploading'
-                ? t('preparePage.uploadingStatus')
-                : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}...${timeRemaining}`}
+                {statusText}... {timeRemaining && `~${timeRemaining} restantes`}
             </p>
           </div>
         </div>

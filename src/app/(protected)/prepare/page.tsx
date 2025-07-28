@@ -42,8 +42,12 @@ type File = {
   error?: string;
   startTime?: number;
   processingTime?: number;
-  estimatedTime?: number;
+  // Chunk-specific progress
   progress?: string; // e.g. "1/5"
+  chunkEstimatedTime?: number;
+  // Total progress for a single file
+  totalEstimatedTime?: number;
+  elapsedTime?: number;
 };
 
 type Regulation = {
@@ -87,17 +91,17 @@ const initialRegulations: Regulation[] = [
 const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
 const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
 
-const estimateProcessingTime = (file: globalThis.File | {pageCount: number}): number => {
-    if ('pageCount' in file) { // It's a PDF chunk
+const estimateProcessingTime = (file: { name: string, size?: number, pageCount?: number }): number => {
+    if (file.pageCount) { // It's a PDF chunk
         // Scanned PDFs are slow. Estimate 15 seconds per page.
         return 5 + file.pageCount * 15;
     }
 
-    const sizeInMB = file.size / (1024 * 1024);
+    const sizeInMB = (file.size ?? 0) / (1024 * 1024);
     const baseTime = 5; // seconds
 
     if (file.name.endsWith('.pdf')) {
-        // This is for the total estimation, not per chunk. Chunks are handled above.
+        // This is a rough total estimation, not per chunk. Chunks are handled above.
         // A large scanned PDF can take a long time.
         return baseTime + sizeInMB * 60; // 60 seconds per MB for scanned PDFs
     }
@@ -262,7 +266,6 @@ export default function PreparePage() {
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
-    const estimatedTime = estimateProcessingTime(rawFile);
 
     const updateFileState = (update: Partial<File>) => {
       setFolders(prev =>
@@ -281,7 +284,7 @@ export default function PreparePage() {
 
     const filePlaceholder: File = {
       id: tempId, name: rawFile.name, content: '', status: 'uploading',
-      startTime: Date.now(), estimatedTime,
+      startTime: Date.now(),
     };
     setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, filePlaceholder] } : f));
 
@@ -289,33 +292,45 @@ export default function PreparePage() {
         updateFileState({ status: 'processing' });
 
         if (rawFile.name.endsWith('.pdf')) {
-            // PDF Chunking Logic
             const fileBuffer = await rawFile.arrayBuffer();
             const pdfDoc = await PDFDocument.load(fileBuffer);
             const totalPages = pdfDoc.getPageCount();
-            const chunkSize = 3; // Process 3 pages at a time - very conservative for scanned docs
+            const chunkSize = 10;
             const numChunks = Math.ceil(totalPages / chunkSize);
             let combinedText = '';
+
+            // Calculate total estimated time for all chunks
+            const totalEstimatedTime = Array.from({ length: numChunks }, (_, i) => {
+              const startPage = i * chunkSize;
+              const endPage = Math.min(startPage + chunkSize, totalPages);
+              return estimateProcessingTime({ name: rawFile.name, pageCount: endPage - startPage });
+            }).reduce((acc, time) => acc + time, 0);
+
+            let elapsedTime = 0;
+            updateFileState({ totalEstimatedTime, elapsedTime });
+
+            const timer = setInterval(() => {
+                elapsedTime++;
+                updateFileState({ elapsedTime });
+            }, 1000);
 
             for (let i = 0; i < numChunks; i++) {
                 const chunkProgress = `${i + 1}/${numChunks}`;
                 const startPage = i * chunkSize;
                 const endPage = Math.min(startPage + chunkSize, totalPages);
                 const chunkPageCount = endPage - startPage;
+                const chunkEstimatedTime = estimateProcessingTime({ name: rawFile.name, pageCount: chunkPageCount });
 
-                const chunkEstimatedTime = estimateProcessingTime({ pageCount: chunkPageCount });
-                updateFileState({ progress: chunkProgress, estimatedTime: chunkEstimatedTime });
+                updateFileState({ progress: chunkProgress, chunkEstimatedTime });
                 
                 const chunkDoc = await PDFDocument.create();
                 const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: chunkPageCount }, (_, k) => startPage + k));
                 copiedPages.forEach(page => chunkDoc.addPage(page));
-
                 const chunkBytes = await chunkDoc.save();
                 const chunkFile = new File([chunkBytes], `chunk_${i + 1}_of_${numChunks}.pdf`, { type: 'application/pdf' });
                 
                 const formData = new FormData();
                 formData.append('file', chunkFile);
-
                 const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
 
                 if (!response.ok) {
@@ -325,13 +340,14 @@ export default function PreparePage() {
                 const result = await response.json();
                 combinedText += result.extractedText + '\n\n';
             }
+            
+            clearInterval(timer);
             updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
 
         } else {
              // Standard processing for non-PDF files
             const formData = new FormData();
             formData.append('file', rawFile);
-
             const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
 
             if (!response.ok) {
@@ -419,7 +435,7 @@ export default function PreparePage() {
   const processSingleRegulation = async (rawFile: globalThis.File) => {
     // This function can reuse the processSingleDocument logic as it's very similar
     const tempId = `reg-${Date.now()}`;
-    const estimatedTime = estimateProcessingTime(rawFile);
+    const estimatedTime = estimateProcessingTime({ name: rawFile.name, size: rawFile.size });
     const regulationPlaceholder: Regulation = {
         id: tempId,
         name: rawFile.name,
@@ -1078,3 +1094,4 @@ export default function PreparePage() {
     </div>
   );
 }
+
