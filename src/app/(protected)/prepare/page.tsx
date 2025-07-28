@@ -31,6 +31,7 @@ import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import JSZip from 'jszip';
+import { PDFDocument } from 'pdf-lib';
 
 
 type File = {
@@ -42,6 +43,7 @@ type File = {
   startTime?: number;
   processingTime?: number;
   estimatedTime?: number;
+  progress?: string; // e.g. "1/5"
 };
 
 type Regulation = {
@@ -266,64 +268,82 @@ export default function PreparePage() {
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
     const estimatedTime = estimateProcessingTime(rawFile);
-    const filePlaceholder: File = {
-      id: tempId,
-      name: rawFile.name,
-      content: '',
-      status: 'uploading',
-      startTime: Date.now(),
-      estimatedTime,
+
+    const updateFileState = (update: Partial<File>) => {
+      setFolders(prev =>
+        prev.map(f =>
+          f.id === folderId
+            ? {
+                ...f,
+                files: f.files.map(file =>
+                  file.id === tempId ? { ...file, ...update } : file
+                ),
+              }
+            : f
+        )
+      );
     };
 
-    setFolders(prevFolders =>
-      prevFolders.map(folder =>
-        folder.id === folderId
-          ? { ...folder, files: [...folder.files, filePlaceholder] }
-          : folder
-      )
-    );
+    const filePlaceholder: File = {
+      id: tempId, name: rawFile.name, content: '', status: 'uploading',
+      startTime: Date.now(), estimatedTime,
+    };
+    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, filePlaceholder] } : f));
 
     try {
-        setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === tempId ? { ...file, status: 'processing' } : file) })));
+        updateFileState({ status: 'processing' });
 
-        const formData = new FormData();
-        formData.append('file', rawFile);
+        if (rawFile.name.endsWith('.pdf')) {
+            // PDF Chunking Logic
+            const fileBuffer = await rawFile.arrayBuffer();
+            const pdfDoc = await PDFDocument.load(fileBuffer);
+            const totalPages = pdfDoc.getPageCount();
+            const chunkSize = 10; // Process 10 pages at a time
+            const numChunks = Math.ceil(totalPages / chunkSize);
+            let combinedText = '';
 
-        const response = await fetch('/api/extract-text', {
-            method: 'POST',
-            body: formData,
-        });
+            for (let i = 0; i < numChunks; i++) {
+                const chunkProgress = `${i + 1}/${numChunks}`;
+                updateFileState({ progress: chunkProgress });
 
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type");
-            let errorData;
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                errorData = await response.json();
-            } else {
-                const errorText = await response.text();
-                errorData = { error: `El servidor devolvió un error inesperado (estado: ${response.status}). Detalles: ${errorText}` };
+                const startPage = i * chunkSize;
+                const endPage = Math.min(startPage + chunkSize, totalPages);
+                
+                const chunkDoc = await PDFDocument.create();
+                const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: endPage - startPage }, (_, k) => startPage + k));
+                copiedPages.forEach(page => chunkDoc.addPage(page));
+
+                const chunkBytes = await chunkDoc.save();
+                const chunkFile = new File([chunkBytes], `chunk_${i}.pdf`, { type: 'application/pdf' });
+                
+                const formData = new FormData();
+                formData.append('file', chunkFile);
+
+                const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+                if (!response.ok) {
+                    const errorText = await response.text().catch(() => `Server error: ${response.status}`);
+                    throw new Error(getFriendlyErrorMessage({ message: errorText }));
+                }
+                const result = await response.json();
+                combinedText += result.extractedText + '\n\n';
             }
-            throw new Error(errorData.error || `Server error: ${response.status}`);
-        }
-        const result = await response.json();
-        const extractedContent = result.extractedText;
+             updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
 
-        if (extractedContent === null) {
-            throw new Error("No se pudo extraer contenido del archivo.");
-        }
+        } else {
+             // Standard processing for non-PDF files
+            const formData = new FormData();
+            formData.append('file', rawFile);
 
-        setFolders(prevFolders =>
-          prevFolders.map(folder => ({
-            ...folder,
-            files: folder.files.map(f => {
-              if (f.id === tempId) {
-                const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
-                return { ...f, content: extractedContent || "No content extracted.", status: 'success', processingTime };
-              }
-              return f;
-            }),
-          }))
-        );
+            const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+
+            if (!response.ok) {
+                const errorText = await response.text().catch(() => `Server error: ${response.status}`);
+                throw new Error(getFriendlyErrorMessage({ message: errorText }));
+            }
+            const result = await response.json();
+            updateFileState({ status: 'success', content: result.extractedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
+        }
+        
         toast({
             title: t('preparePage.toastFileUploaded'),
             description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
@@ -331,21 +351,10 @@ export default function PreparePage() {
       
     } catch (err) {
         const errorMessage = getFriendlyErrorMessage(err);
-        console.error("Detailed Error:", err);
-        setFolders(prevFolders =>
-          prevFolders.map(folder => ({
-            ...folder,
-            files: folder.files.map(f => {
-              if (f.id === tempId) {
-                const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
-                return { ...f, status: 'error', error: errorMessage, processingTime };
-              }
-              return f;
-            }),
-          }))
-        );
+        updateFileState({ status: 'error', error: errorMessage, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
     }
   };
+
 
   const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
     if (rawFile.name.endsWith('.zip')) {

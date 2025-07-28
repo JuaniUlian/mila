@@ -25,6 +25,7 @@ interface File {
     error?: string;
     processingTime?: number;
     estimatedTime?: number;
+    progress?: string;
 }
 
 interface FolderData {
@@ -88,7 +89,7 @@ const FileItem: React.FC<{
             <p className="text-xs text-muted-foreground">
               {file.status === 'uploading'
                 ? t('preparePage.uploadingStatus')
-                : `${t('preparePage.processingStatus')}... ${countdown > 0 ? `~${countdown}s restantes` : ''}`}
+                : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}...`}
             </p>
           </div>
         </div>

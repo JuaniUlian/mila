@@ -5,9 +5,7 @@ import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 // Aumentar el límite de tamaño del cuerpo de la solicitud
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
+    bodyParser: false, // Let the server handle the raw request body
   },
 };
 
