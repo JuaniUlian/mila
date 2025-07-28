@@ -248,8 +248,8 @@ export default function PreparePage() {
 
   const getFriendlyErrorMessage = (error: any): string => {
     if (typeof error === 'string') {
+        // Attempt to parse if it's a JSON string from the server
         try {
-            // Attempt to parse if it's a JSON string
             const parsed = JSON.parse(error);
             if (parsed.message) return parsed.message;
         } catch(e) {
@@ -258,7 +258,7 @@ export default function PreparePage() {
         return error;
     }
     if (error instanceof Error) {
-        // For Genkit errors or others that might have a specific structure
+        // For Genkit errors or other client-side errors
         if (error.message.includes('deadline')) {
             return 'El servidor tardó demasiado en responder (timeout). Intente de nuevo con un archivo más pequeño o revise la conexión.';
         }
