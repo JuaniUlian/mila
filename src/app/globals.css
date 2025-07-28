@@ -96,8 +96,7 @@
     @apply transition-all duration-300;
   }
   .incident-card-hover:hover {
-    @apply shadow-xl scale-[1.01];
-    box-shadow: 0 0 15px rgba(0, 128, 255, 0.10), 0 0 4px rgba(255, 255, 255, 0.3) inset;
+    @apply shadow-xl scale-[1.01] border-primary/20 bg-primary/5;
   }
   .btn-neu-light {
     @apply bg-white text-gray-700 font-semibold border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:shadow-[inset_2px_2px_5px_#e2e8f0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;

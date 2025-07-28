@@ -97,7 +97,8 @@ export default function PlanillaVivaPage() {
         const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
         if(userModifications) {
             updatedFinding.userModifications = userModifications;
-             if (newStatus === 'pending') {
+            // If the user saves an edit, the status should become 'modified'
+            if (newStatus !== 'discarded' && newStatus !== 'applied') {
               updatedFinding.status = 'modified';
             }
         }
