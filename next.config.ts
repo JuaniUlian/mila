@@ -12,9 +12,7 @@ const nextConfig: NextConfig = {
   // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
   api: {
     // Aumentar límite de tamaño de body para PDFs grandes
-    bodyParser: {
-      sizeLimit: '50mb', // Aumentar de 1MB a 50MB
-    },
+    bodyParser: false, // Deshabilitar para usar multipart/form-data
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,

@@ -30,7 +30,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
-import mammoth from 'mammoth';
 import JSZip from 'jszip';
 
 
@@ -287,44 +286,27 @@ export default function PreparePage() {
     try {
         setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === tempId ? { ...file, status: 'processing' } : file) })));
 
-        let extractedContent: string | null = null;
+        const formData = new FormData();
+        formData.append('file', rawFile);
 
-        if (rawFile.name.endsWith('.docx')) {
-            const arrayBuffer = await rawFile.arrayBuffer();
-            const result = await mammoth.extractRawText({ arrayBuffer });
-            extractedContent = result.value;
-        } else if (rawFile.name.endsWith('.txt') || rawFile.name.endsWith('.md')) {
-            extractedContent = await rawFile.text();
-        } else if (rawFile.name.endsWith('.pdf')) {
-            // PDFs are sent to the server for OCR
-            const reader = new FileReader();
-            const fileDataUri = await new Promise<string>((resolve, reject) => {
-                reader.onload = e => resolve(e.target?.result as string);
-                reader.onerror = e => reject(e);
-                reader.readAsDataURL(rawFile);
-            });
-            
-            const response = await fetch('/api/extract-text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileDataUri }),
-            });
+        const response = await fetch('/api/extract-text', {
+            method: 'POST',
+            body: formData,
+        });
 
-            if (!response.ok) {
-                const contentType = response.headers.get("content-type");
-                let errorData;
-                if (contentType && contentType.indexOf("application/json") !== -1) {
-                    errorData = await response.json();
-                } else {
-                    errorData = { error: `El servidor devolvió un error inesperado (estado: ${response.status}).` };
-                }
-                throw new Error(errorData.error || `Server error: ${response.status}`);
+        if (!response.ok) {
+            const contentType = response.headers.get("content-type");
+            let errorData;
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                errorData = await response.json();
+            } else {
+                const errorText = await response.text();
+                errorData = { error: `El servidor devolvió un error inesperado (estado: ${response.status}). Detalles: ${errorText}` };
             }
-            const result = await response.json();
-            extractedContent = result.extractedText;
-        } else {
-            throw new Error(`Tipo de archivo no soportado: ${rawFile.name.split('.').pop()}`);
+            throw new Error(errorData.error || `Server error: ${response.status}`);
         }
+        const result = await response.json();
+        const extractedContent = result.extractedText;
 
         if (extractedContent === null) {
             throw new Error("No se pudo extraer contenido del archivo.");
@@ -450,33 +432,20 @@ export default function PreparePage() {
     };
     
     try {
-        let extractedContent: string | null = null;
-        if (rawFile.name.endsWith('.docx')) {
-            const arrayBuffer = await rawFile.arrayBuffer();
-            extractedContent = (await mammoth.extractRawText({ arrayBuffer })).value;
-        } else if (rawFile.name.endsWith('.txt') || rawFile.name.endsWith('.md')) {
-            extractedContent = await rawFile.text();
-        } else if (rawFile.name.endsWith('.pdf')) {
-            const reader = new FileReader();
-            const fileDataUri = await new Promise<string>((resolve, reject) => {
-                reader.onload = e => resolve(e.target?.result as string);
-                reader.onerror = e => reject(e);
-                reader.readAsDataURL(rawFile);
-            });
-            const response = await fetch('/api/extract-text', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileDataUri }),
-            });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Server returned a non-JSON error response' }));
-                throw new Error(errorData.error || `Server error: ${response.status}`);
-            }
-            const result = await response.json();
-            extractedContent = result.extractedText;
-        } else {
-            throw new Error(`Unsupported file type: ${rawFile.name.split('.').pop()}`);
+        const formData = new FormData();
+        formData.append('file', rawFile);
+
+        const response = await fetch('/api/extract-text', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Server returned a non-JSON error response' }));
+            throw new Error(errorData.error || `Server error: ${response.status}`);
         }
+        const result = await response.json();
+        const extractedContent = result.extractedText;
 
         if (extractedContent === null) {
             throw new Error("Could not extract content from file.");
@@ -1103,7 +1072,5 @@ export default function PreparePage() {
     </div>
   );
 }
-
-    
 
     
