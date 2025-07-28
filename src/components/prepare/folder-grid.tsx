@@ -80,6 +80,7 @@ const FileItem: React.FC<{
   }, [file.status, file.estimatedTime]);
 
   if (file.status === 'uploading' || file.status === 'processing') {
+    const timeRemaining = countdown > 0 ? ` ~${countdown}s restantes` : '';
     return (
       <div className="p-2 text-sm rounded-lg border border-transparent">
         <div className="flex items-center gap-3">
@@ -89,7 +90,7 @@ const FileItem: React.FC<{
             <p className="text-xs text-muted-foreground">
               {file.status === 'uploading'
                 ? t('preparePage.uploadingStatus')
-                : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}...`}
+                : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}...${timeRemaining}`}
             </p>
           </div>
         </div>
