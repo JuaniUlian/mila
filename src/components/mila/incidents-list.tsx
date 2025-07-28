@@ -178,6 +178,7 @@ export function IncidentsList({
   const getTranslatedStatus = (status: FindingStatus) => {
     const statusKey = `reportPreviewPage.status.${status}`;
     const translated = t(statusKey);
+    // Fallback to the original status if translation is not found
     return translated === statusKey ? status : translated;
   };
 
