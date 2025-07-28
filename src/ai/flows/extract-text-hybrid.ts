@@ -79,7 +79,7 @@ function determineProcessingStrategy(
     const model = preferredModel === 'auto' ? 'gemini' : preferredModel;
     return {
       strategy: 'direct',
-      model: model === 'claude' ? 'claude-sonnet-4-20250514' : 'googleai/gemini-1.5-flash',
+      model: model === 'claude' ? 'claude-3-sonnet-20240229' : 'googleai/gemini-1.5-flash',
       useChunking: false
     };
   }
@@ -128,7 +128,7 @@ async function processWithClaude(dataUri: string): Promise<{ text: string; proce
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-3-sonnet-20240229',
       max_tokens: 8192,
       messages: [
         {
@@ -177,7 +177,7 @@ async function postProcessWithClaude(extractedText: string): Promise<string> {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-3-sonnet-20240229',
       max_tokens: 8192,
       messages: [
         {
