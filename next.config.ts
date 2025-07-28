@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
+  api: {
+    // Aumentar límite de tamaño de body para PDFs grandes
+    bodyParser: {
+      sizeLimit: '50mb', // Aumentar de 1MB a 50MB
+    },
+    // Timeout para requests largos (OCR puede tomar tiempo)
+    responseLimit: false,
+    externalResolver: true,
+  },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -28,10 +38,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-};
-
-export default nextConfig;
-
-    
-
-    
+  // Configuración experimental para mejor rendimiento
+  experimental: {
+    // Mejorar streaming para archivos grandes
+    serverComponentsExternalPackages: ['sharp'],
+    // Optimizar memory usage
+    isrMemoryCacheSize: 0,
+  },
+  
+  // Headers para manejar uploads grandes
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Max-Age',
+            value: '8640

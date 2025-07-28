@@ -1,17 +1,14 @@
-
 'use server';
 /**
- * @fileOverview An AI flow to validate an administrative document against a set of normative documents.
- *
- * - validateDocument - A function that handles the document validation process.
- * - ValidateDocumentInput - The input type for the validateDocument function.
- * - ValidateDocumentOutput - The return type for the validateDocument function.
+ * @fileOverview Flujo de validación actualizado con scoring centralizado y preciso
+ * REEMPLAZA el cálculo hardcodeado por el sistema centralizado
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'zod';
+import { ai } from '@/ai/genkit';
+import { z } from 'zod';
+import { calculateBaseComplianceScore, getRiskCategory, type Finding } from './compliance-scoring';
 
-// Input Schema
+// ESQUEMAS ORIGINALES (mantener compatibilidad)
 const RegulationSchema = z.object({
   name: z.string().describe("The name of the normative document file."),
   content: z.string().describe("The full text content of the normative document."),
@@ -22,204 +19,111 @@ const ValidateDocumentInputSchema = z.object({
   documentContent: z.string().describe("The full text content of the administrative document."),
   regulations: z.array(RegulationSchema).describe("An array of normative documents to validate against."),
 });
+
 export type ValidateDocumentInput = z.infer<typeof ValidateDocumentInputSchema>;
 
-// Output Schema
+// ESQUEMA DE HALLAZGO (debe coincidir exactamente con compliance-scoring.ts)
 const FindingSchema = z.object({
-    nombre_archivo_normativa: z.string().describe("Nombre del archivo de norma o manual usado como referencia para este hallazgo."),
-    nombre_archivo_documento: z.string().describe("Nombre del archivo del documento que se está analizando."),
-    tipo: z.enum(["Irregularidad", "Mejora de Redacción", "Sin hallazgos relevantes"]).describe("El tipo de hallazgo. 'Irregularidad' para errores legales/normativos. 'Mejora de Redacción' para problemas de claridad, estilo o ambigüedad."),
-    titulo_incidencia: z.string().describe("Un título breve y claro que describa el problema identificado (ej: 'Falta de claridad en las bases', 'Ambigüedad en el objeto')."),
-    articulo_o_seccion: z.string().describe("Artículo o sección específica de la normativa que se aplicó. Para mejoras de redacción, puede ser 'N/A' si no aplica a una norma específica."),
-    pagina: z.string().describe("Número de página del documento analizado donde se encuentra la evidencia del hallazgo."),
-    gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
-    evidencia: z.string().describe("CITA TEXTUAL Y LITERAL del DOCUMENTO_A_REVISAR que contiene el error o la frase a mejorar. NUNCA, BAJO NINGUNA CIRCUNSTANCIA, debe contener texto de las NORMAS_DE_CONSULTA."),
-    propuesta_procedimiento: z.string().optional().describe("Acción de procedimiento administrativo a realizar (ej. 'emitir dictamen técnico', 'convocar nueva licitación'). Usar solo para indicar trámites, no para sugerir texto. Omitir si la solución es solo una corrección de redacción."),
-    propuesta_redaccion: z.string().optional().describe("Texto alternativo completo y listo para reemplazar el original. NUNCA debe contener instrucciones. Omitir si la solución es puramente de procedimiento."),
-    justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia o la mejora. Para mejoras de redacción, la justificación debe basarse en principios de claridad y precisión contractual/administrativa."),
-    justificacion_tecnica: z.string().describe("Elementos objetivos y técnicos que sustentan la identificación de la inconsistencia (referencias al propio documento, prácticas administrativas aceptadas, etc.)."),
-    consecuencia_estimada: z.string().describe("Consecuencias potenciales si no se corrige la inconsistencia (ej. 'nulidad del proceso', 'riesgo de impugnaciones', 'confusión en los oferentes').")
+  nombre_archivo_normativa: z.string().describe("Nombre del archivo de norma o manual usado como referencia para este hallazgo."),
+  nombre_archivo_documento: z.string().describe("Nombre del archivo del documento que se está analizando."),
+  tipo: z.enum(["Irregularidad", "Mejora de Redacción", "Sin hallazgos relevantes"]).describe("El tipo de hallazgo."),
+  titulo_incidencia: z.string().describe("Un título breve y claro que describa el problema identificado."),
+  articulo_o_seccion: z.string().describe("Artículo o sección específica de la normativa que se aplicó."),
+  pagina: z.string().describe("Número de página del documento analizado donde se encuentra la evidencia del hallazgo."),
+  gravedad: z.enum(["Alta", "Media", "Baja", "Informativa"]).describe("La severidad del hallazgo."),
+  evidencia: z.string().describe("CITA TEXTUAL Y LITERAL del DOCUMENTO_A_REVISAR que contiene el error o la frase a mejorar."),
+  propuesta_procedimiento: z.string().optional().describe("Acción de procedimiento administrativo a realizar."),
+  propuesta_redaccion: z.string().optional().describe("Texto alternativo completo y listo para reemplazar el original."),
+  justificacion_legal: z.string().describe("Explicación jurídica que fundamenta la inconsistencia o la mejora."),
+  justificacion_tecnica: z.string().describe("Elementos objetivos y técnicos que sustentan la identificación de la inconsistencia."),
+  consecuencia_estimada: z.string().describe("Consecuencias potenciales si no se corrige la inconsistencia."),
 });
 
+// ESQUEMA DE SALIDA ACTUALIZADO con información de scoring detallada
 const ValidateDocumentOutputSchema = z.object({
-    isRelevantDocument: z.boolean().describe("Indica si el documento analizado parece ser un documento genuino y pertinente de la administración pública."),
-    relevancyReasoning: z.string().describe("Si isRelevantDocument es false, explica brevemente por qué el documento se considera irrelevante o 'basura' (ej: 'El contenido parece ser un código de programación en lugar de un documento administrativo'). Si es relevante, este campo debe estar vacío."),
-    findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento. Si el documento no es relevante, este array debe estar vacío."),
-    complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo (calculado como 100 menos las penalizaciones por la gravedad de cada hallazgo)."),
-    legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal (calculado como 100 - complianceScore)."),
+  isRelevantDocument: z.boolean().describe("Indica si el documento analizado parece ser un documento genuino y pertinente de la administración pública."),
+  relevancyReasoning: z.string().describe("Si isRelevantDocument es false, explica brevemente por qué el documento se considera irrelevante."),
+  findings: z.array(FindingSchema).describe("Una lista de todos los hallazgos encontrados en el documento."),
+  
+  // SCORES CALCULADOS CON EL SISTEMA CENTRALIZADO
+  complianceScore: z.number().min(0).max(100).describe("El porcentaje de Cumplimiento Normativo calculado con el sistema centralizado."),
+  legalRiskScore: z.number().min(0).max(100).describe("El porcentaje de Riesgo Legal (100 - complianceScore)."),
+  
+  // INFORMACIÓN ADICIONAL DE SCORING
+  scoringBreakdown: z.object({
+    totalFindings: z.number().describe("Número total de hallazgos válidos"),
+    criticalFindings: z.number().describe("Número de hallazgos críticos (Alta gravedad)"),
+    totalPenalty: z.number().describe("Penalización total aplicada"),
+    penaltiesByGravity: z.record(z.object({
+      count: z.number(),
+      penalty: z.number()
+    })).describe("Desglose de penalizaciones por gravedad"),
+  }).describe("Desglose detallado del cálculo de puntaje"),
+  
+  riskCategory: z.object({
+    category: z.string().describe("Categoría de riesgo (VERY_LOW, LOW, MEDIUM, HIGH, VERY_HIGH)"),
+    label: z.string().describe("Etiqueta legible de la categoría"),
+    color: z.string().describe("Color asociado a la categoría"),
+    description: z.string().describe("Descripción de la categoría de riesgo"),
+  }).describe("Categorización del riesgo basada en el puntaje"),
 });
+
 export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema>;
 
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
-  // Authorization check removed for simpler demo environment.
+  console.log('🔍 Iniciando validación de documento...');
+  console.log(`📄 Documento: ${input.documentName}`);
+  console.log(`📚 Normativas: ${input.regulations.length}`);
+  
   return validateDocumentFlow(input);
 }
 
+// PROMPT ACTUALIZADO que ya no incluye cálculo de scores
 const prompt = ai.definePrompt({
-    name: 'validateDocumentPrompt',
-    input: { schema: ValidateDocumentInputSchema },
-    output: { schema: ValidateDocumentOutputSchema },
-    prompt: `Eres un auditor experto en control de la administración pública. Tu primera y más importante tarea es realizar un filtro de relevancia sobre el documento proporcionado.
+  name: 'validateDocumentPrompt',
+  input: { schema: ValidateDocumentInputSchema },
+  output: { 
+    schema: z.object({
+      isRelevantDocument: z.boolean(),
+      relevancyReasoning: z.string(),
+      findings: z.array(FindingSchema),
+    })
+  },
+  prompt: `Eres un auditor experto en control de la administración pública. Tu tarea es analizar el documento y identificar hallazgos, pero NO calcular puntajes (eso se hace automáticamente después).
 
 **Paso 1: Verificación de Relevancia (OBLIGATORIO)**
-Analiza el \`documentContent\` para determinar si es un documento administrativo, legal o técnico pertinente para una entidad gubernamental (ej. pliego, decreto, resolución, contrato, informe técnico, etc.).
+Analiza el \`documentContent\` para determinar si es un documento administrativo, legal o técnico pertinente para una entidad gubernamental.
 
-*   **SI ES RELEVANTE:** Procede con el análisis completo como se detalla a continuación. Establece \`isRelevantDocument\` en \`true\` y deja \`relevancyReasoning\` vacío.
-*   **SI NO ES RELEVANTE:** Detén el análisis inmediatamente. Establece \`isRelevantDocument\` en \`false\`, rellena \`relevancyReasoning\` con una explicación clara y concisa del porqué (ej: "El documento parece ser un archivo de código HTML", "El contenido es un poema y no un documento administrativo", "El texto es ininteligible o basura"), y devuelve el campo \`findings\` como un array vacío.
+*   **SI ES RELEVANTE:** Procede con el análisis completo. Establece \`isRelevantDocument\` en \`true\` y deja \`relevancyReasoning\` vacío.
+*   **SI NO ES RELEVANTE:** Detén el análisis. Establece \`isRelevantDocument\` en \`false\`, rellena \`relevancyReasoning\` con una explicación clara, y devuelve \`findings\` como array vacío.
 
-**Paso 2: Análisis de Irregularidades (Solo si el documento es relevante)**
-Si el documento es relevante, analízalo sistemáticamente para identificar irregularidades.
+**Paso 2: Análisis de Hallazgos (Solo si el documento es relevante)**
+Identifica sistemáticamente irregularidades de cualquier tipo: redacción, forma, materia, procedimentales, legales, contables, administrativas, vínculos societarios, direccionamientos, etc.
 
-Contexto del Proceso
-El usuario ha completado un proceso de dos pasos donde participan:
-Partes Involucradas:
-
-Organismo público emisor: Entidad que emite el documento administrativo
-Ciudadanos/Administrados: Destinatarios o beneficiarios del acto administrativo
-Proveedores/Contratistas: En caso de licitaciones, compras o contrataciones
-Organismos de control: Entidades fiscalizadoras competentes
-Otros organismos públicos: Que puedan tener competencias concurrentes
-
-Documentos Cargados:
-
-Documento administrativo a auditar (contratos, licitaciones, decretos, resoluciones, trámites, etc.)
-Marco normativo aplicable (leyes, reglamentos, manuales, criterios técnicos)
-
-Limitaciones Técnicas del Sistema:
-
-El texto ha sido extraído mediante OCR (Reconocimiento Óptico de Caracteres)
-Pueden existir errores de lectura en números, fechas o caracteres especiales
-La calidad del texto depende de la legibilidad del documento original
-Algunos elementos gráficos, tablas o firmas pueden no ser interpretados correctamente
-
-Objetivo
-Identificar únicamente incidencias que requieran atención, corrección o aclaración. El usuario podrá:
-
-Aceptar la incidencia detectada
-Editar la propuesta de solución
-Re-validar contra la normativa
-Descartar la incidencia
-
-Tipos de Incidencias a Detectar
-1. Incidencias de Redacción
-
-Errores gramaticales u ortográficos
-Redacción confusa o ambigua
-Terminología inadecuada o imprecisa
-Contradicciones internas en el texto
-Uso incorrecto de términos técnicos o jurídicos
-Falta de claridad en instrucciones o procedimientos
-
-2. Incidencias de Forma
-
-Formato incorrecto del documento
-Ausencia de encabezados, fechas o numeración
-Firmas faltantes o incorrectas
-Sellos o membretes ausentes
-Estructura documental inadecuada
-Falta de anexos o documentos complementarios requeridos
-
-3. Incidencias de Materia
-
-Contenido que excede la competencia del órgano emisor
-Regulación de aspectos no autorizados por la norma habilitante
-Contradicción con normativa de jerarquía superior
-Invasión de competencias de otros organismos
-Regulación de materias reservadas a otros poderes
-
-4. Incidencias Procedimentales
-
-Omisión de etapas obligatorias del procedimiento
-Incumplimiento de plazos establecidos
-Falta de consultas o audiencias públicas requeridas
-Ausencia de estudios técnicos obligatorios
-Falta de dictámenes preceptivos
-Notificaciones insuficientes o incorrectas
-
-5. Incidencias Legales
-
-Falta de fundamentación jurídica
-Violación de principios constitucionales
-Incumplimiento de normativa específica aplicable
-Ausencia de base legal para la actuación
-Vulneración de derechos fundamentales
-Contradicción con jurisprudencia establecida
-
-6. Incidencias Contables
-
-Errores en cálculos o montos
-Falta de respaldo documental de gastos
-Inconsistencias en presupuestos o costos
-Ausencia de códigos presupuestarios correctos
-Partidas no autorizadas o mal imputadas
-Falta de controles financieros requeridos
-
-7. Incidencias Administrativas
-
-Ausencia de registros o archivos necesarios
-Falta de comunicaciones internas requeridas
-Incumplimiento de circuitos administrativos
-Ausencia de controles de gestión
-Falta de seguimiento de expedientes
-Deficiencias en sistemas de información
-
-8. Vínculos Societarios Explícitos
-- Busca **únicamente** si el texto menciona explícitamente que representantes legales o apoderados son compartidos entre empresas que deberían ser competidoras. No infieras nada que no esté escrito.
-
-9. Posibles Direccionamientos (¡REGLAS ESTRICTAS!)
-Solo reporta un posible direccionamiento si los **requisitos técnicos** del pliego son excesivamente específicos y restrictivos de forma injustificada. NO analices la lista de invitados para esto.
-- **Requisitos "foto"**: Especificaciones técnicas que solo un producto o proveedor en el mercado puede cumplir (ej. "procesador marca X modelo Y", en lugar de "procesador con características equivalentes o superiores a...").
-- **Plazos imposibles**: Plazos de presentación de ofertas o de ejecución que son objetivamente demasiado cortos para que cualquier empresa, excepto una con información previa, pueda cumplirlos.
-- **Criterios de evaluación sesgados**: Criterios que puntúan características únicas de un solo proveedor en lugar de capacidades funcionales generales.
-
-10. Otras Irregularidades
-
-Aspectos éticos comprometidos
-Conflictos de interés no declarados
-Falta de transparencia en procesos
-Irregularidades en publicaciones oficiales
-Deficiencias en mecanismos de control
-Incumplimientos de buenas prácticas administrativas
-
-Instrucciones Finales
-
-Analiza sistemáticamente cada sección del documento contra la normativa aplicable
-Detecta solo irregularidades reales que requieran corrección
-Proporciona evidencia textual para cada incidencia
-Ofrece soluciones específicas y viables
-Justifica técnica y legalmente cada detección
-No detectes aspectos positivos - solo irregularidades que necesiten atención
-Para el campo 'articulo_o_seccion', si no aplica una norma específica (ej. mejora de redacción), utiliza el valor 'N/A'.
-
-Si no detectas irregularidades relevantes, responde con un array "findings" vacío.
+**IMPORTANTE SOBRE GRAVEDAD:**
+- **Alta**: Problemas que pueden causar nulidad, impugnaciones legales, o violaciones normativas graves
+- **Media**: Inconsistencias importantes que afectan la validez o claridad del documento
+- **Baja**: Problemas menores de redacción o formato que conviene corregir
+- **Informativa**: Observaciones técnicas o sugerencias de mejora
 
 **CONTEXTO PARA LA EJECUCIÓN:**
 *   **DOCUMENTO_A_REVISAR:**
     *   Nombre: {{{documentName}}}
-    *   Contenido:
-        \`\`\`
-        {{{documentContent}}}
-        \`\`\`
+    *   Contenido: \`\`\`{{{documentContent}}}\`\`\`
 
 *   **NORMAS_DE_CONSULTA:**
     {{#each regulations}}
     *   Nombre Norma: {{this.name}}
-    *   Contenido Norma:
-        \`\`\`
-        {{{this.content}}}
-        \`\`\`
+    *   Contenido Norma: \`\`\`{{{this.content}}}\`\`\`
     {{/each}}
 
-**REGLA FUNDAMENTAL E INQUEBRANTABLE:**
-El campo \`evidencia\` de cada hallazgo debe ser una **CITA LITERAL y EXACTA** de un fragmento del **DOCUMENTO_A_REVISAR**.
-**JAMÁS, BAJO NINGUNA CIRCUNSTANCIA**, utilices texto de las **NORMAS_DE_CONSULTA** para rellenar el campo \`evidencia\`.
+**REGLAS CRÍTICAS:**
+1. El campo \`evidencia\` debe ser una **CITA LITERAL** del **DOCUMENTO_A_REVISAR**, nunca de las normas.
+2. Si la solución es cambio de texto: usar \`propuesta_redaccion\`, NO \`propuesta_procedimiento\`.
+3. Si la solución es acción administrativa: usar \`propuesta_procedimiento\`, NO \`propuesta_redaccion\`.
+4. Ser preciso con la gravedad: no sobre-penalizar problemas menores ni sub-valorar problemas graves.
 
-**REGLAS PARA PROPUESTAS:**
-*   Si la solución es un cambio de texto, rellena el campo \`propuesta_redaccion\` con el texto completo y mejorado. **NO** rellenes el campo \`propuesta_procedimiento\` en este caso.
-*   Si la solución es una acción administrativa (ej. "emitir dictamen"), rellena el campo \`propuesta_procedimiento\`. **NO** rellenes el campo \`propuesta_redaccion\` en este caso.
-
-Responde únicamente en el formato JSON solicitado. No incluyas texto, comillas o decoraciones antes o después del JSON.
-`,
+Responde únicamente en formato JSON sin decoraciones adicionales.`,
 });
 
 const validateDocumentFlow = ai.defineFlow(
@@ -229,12 +133,76 @@ const validateDocumentFlow = ai.defineFlow(
     outputSchema: ValidateDocumentOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    // Return a default score, the client will recalculate it based on findings.
-    if (output) {
-      output.complianceScore = 100;
-      output.legalRiskScore = 0;
+    const startTime = Date.now();
+    
+    try {
+      // EJECUTAR EL PROMPT (solo obtiene hallazgos, no calcula scores)
+      console.log('🤖 Ejecutando análisis con IA...');
+      const { output: aiOutput } = await prompt(input);
+      
+      if (!aiOutput) {
+        throw new Error('La IA no devolvió ningún resultado');
+      }
+      
+      console.log(`📊 IA encontró ${aiOutput.findings.length} hallazgos`);
+      
+      // Si el documento no es relevante, devolver resultado básico
+      if (!aiOutput.isRelevantDocument) {
+        console.log('❌ Documento marcado como no relevante');
+        return {
+          isRelevantDocument: false,
+          relevancyReasoning: aiOutput.relevancyReasoning,
+          findings: [],
+          complianceScore: 100, // Documento irrelevante = sin penalización
+          legalRiskScore: 0,
+          scoringBreakdown: {
+            totalFindings: 0,
+            criticalFindings: 0,
+            totalPenalty: 0,
+            penaltiesByGravity: {},
+          },
+          riskCategory: {
+            category: 'VERY_LOW',
+            label: 'Muy Bajo',
+            color: 'green',
+            description: 'Documento no relevante para análisis',
+          },
+        };
+      }
+      
+      // CALCULAR SCORES CON EL SISTEMA CENTRALIZADO
+      console.log('🧮 Calculando puntajes con sistema centralizado...');
+      const scoringResult = calculateBaseComplianceScore(aiOutput.findings as Finding[]);
+      const riskCategory = getRiskCategory(scoringResult.complianceScore);
+      
+      console.log(`✅ Análisis completado en ${Date.now() - startTime}ms`);
+      console.log(`📈 Puntaje: ${scoringResult.complianceScore}% (${riskCategory.label})`);
+      console.log(`🔍 Hallazgos críticos: ${scoringResult.breakdown.criticalFindings}`);
+      
+      // DEVOLVER RESULTADO COMPLETO CON SCORING PRECISO
+      return {
+        isRelevantDocument: true,
+        relevancyReasoning: '',
+        findings: aiOutput.findings,
+        complianceScore: scoringResult.complianceScore,
+        legalRiskScore: scoringResult.legalRiskScore,
+        scoringBreakdown: {
+          totalFindings: scoringResult.breakdown.totalFindings,
+          criticalFindings: scoringResult.breakdown.criticalFindings,
+          totalPenalty: scoringResult.breakdown.totalPenalty,
+          penaltiesByGravity: scoringResult.breakdown.penaltiesByGravity,
+        },
+        riskCategory: {
+          category: riskCategory.category,
+          label: riskCategory.label,
+          color: riskCategory.color,
+          description: riskCategory.description,
+        },
+      };
+      
+    } catch (error) {
+      console.error('❌ Error en validateDocumentFlow:', error);
+      throw error;
     }
-    return output!;
   }
 );

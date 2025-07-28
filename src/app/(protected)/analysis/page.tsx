@@ -1,311 +1,148 @@
 
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { mockData as defaultMockData } from '@/components/mila/mock-data';
-import { upsMockData } from '@/components/mila/mock-data-ups';
-import type { MilaAppPData, DocumentBlock, Suggestion } from '@/components/mila/types';
 import { useLayout } from '@/context/LayoutContext';
-
 import { PageHeader } from '@/components/mila/page-header';
 import { IncidentsList } from '@/components/mila/incidents-list';
 import { RisksPanel } from '@/components/mila/risks-panel';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-// Define severity weights for score calculation
-const severityWeights: { [key in Suggestion['severity']]: number } = {
-  high: 25,
-  medium: 15,
-  low: 5,
-};
+import { 
+  calculateDynamicComplianceScore, 
+  simulateScoreChange,
+  getRiskCategory,
+  generateScoringReport,
+  type FindingWithStatus,
+  type FindingStatus 
+} from '@/ai/flows/compliance-scoring';
 
 export default function PlanillaVivaPage() {
-  const [initialData, setInitialData] = useState<MilaAppPData | null>(null);
-  const [documentData, setDocumentData] = useState<MilaAppPData | null>(null);
+  const router = useRouter();
+  const [documentName, setDocumentName] = useState('');
+  const [findings, setFindings] = useState<FindingWithStatus[]>([]);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isCorrectedDocModalOpen, setIsCorrectedDocModalOpen] = useState(false);
-  const [appliedChangesExist, setAppliedChangesExist] = useState(false);
   const { toast } = useToast();
-  const { score, setScore, isInitialPageLoad, setIsInitialPageLoad } = useLayout();
+  const { setScore, setIsInitialPageLoad } = useLayout();
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const [selectedRegulations, setSelectedRegulations] = useState<{name: string, content: string}[]>([]);
+
+  const [currentScoring, setCurrentScoring] = useState<{
+    complianceScore: number;
+    legalRiskScore: number;
+    riskCategory: ReturnType<typeof getRiskCategory>;
+    progress: ReturnType<typeof calculateDynamicComplianceScore>['progress'];
+    breakdown: any;
+  } | null>(null);
+  
+  const [initialScoring, setInitialScoring] = useState<any>(null);
 
   useEffect(() => {
-    // Set initial state to true when component mounts
     setIsInitialPageLoad(true);
-    const timer = setTimeout(() => {
-      setIsInitialPageLoad(false);
-    }, 1000);
-
-    // Cleanup on unmount
-    return () => {
-      clearTimeout(timer);
-      // Reset to true when leaving the page to ensure transition runs again
-      setIsInitialPageLoad(true); 
-    };
-  }, [setIsInitialPageLoad]);
-
-  useEffect(() => {
-    document.title = 'MILA | Más Inteligencia Legal y Administrativa';
     
-    let dataToLoad: MilaAppPData | null = null;
-    
-    // PRIMARY: Try to load fully processed data from the loading page
-    const analysisDataRaw = localStorage.getItem('milaAnalysisData');
-    if (analysisDataRaw) {
-        try {
-            dataToLoad = JSON.parse(analysisDataRaw);
-            // Optional: clean up the data from localStorage after loading
-            // localStorage.removeItem('milaAnalysisData');
-        } catch (e) {
-            console.error("Failed to parse analysis data from localStorage", e);
-            dataToLoad = null;
-        }
-    }
-
-    // FALLBACK: If no processed data, use the old mock data logic
-    if (!dataToLoad) {
-        console.warn("No processed analysis data found, falling back to mock data.");
-        const savedFileName = localStorage.getItem('selectedDocumentName');
-        const savedDocumentContent = localStorage.getItem('selectedDocumentContent');
-        const savedRegulationsRaw = localStorage.getItem('selectedRegulations');
-        const regs: {name: string, content: string}[] = savedRegulationsRaw ? JSON.parse(savedRegulationsRaw) : [];
-        setSelectedRegulations(regs);
-
-        let mockDataToUse: MilaAppPData;
-
-        if (savedFileName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
-          mockDataToUse = JSON.parse(JSON.stringify(upsMockData));
-        } else {
-          mockDataToUse = JSON.parse(JSON.stringify(defaultMockData));
-        }
-        
-        if (savedDocumentContent && mockDataToUse.blocks.length > 0) {
-            mockDataToUse.blocks.forEach(block => {
-                block.originalText = savedDocumentContent;
-            });
-        }
-
-        if (regs.length > 0) {
-          let regulationIndex = 0;
-          mockDataToUse.blocks.forEach(block => {
-            block.suggestions.forEach(suggestion => {
-              const selectedReg = regs[regulationIndex % regs.length];
-              suggestion.appliedNorm = selectedReg.name;
-              regulationIndex++;
-            });
-          });
-        }
-
-        if (savedFileName) {
-            mockDataToUse.documentTitle = `${t('analysisPage.documentTitlePrefix')} ${savedFileName}`;
-        }
-        
-        dataToLoad = mockDataToUse;
-    }
-
-    if (dataToLoad) {
-      setInitialData(dataToLoad);
-      setDocumentData(dataToLoad);
-      // Determine if text changes exist on initial load
-      const hasAppliedTextChanges = dataToLoad.blocks.some(block =>
-        block.suggestions.some(suggestion => suggestion.status === 'applied' && suggestion.isEditable)
-      );
-      setAppliedChangesExist(hasAppliedTextChanges);
-    }
-  }, [t]);
-
-  const totalSeverityWeight = useMemo(() => {
-    if (!initialData) return 0;
-    return initialData.blocks.reduce((total, block) => {
-      return total + block.suggestions.reduce((blockTotal, suggestion) => {
-        return blockTotal + (severityWeights[suggestion.severity] || 0);
-      }, 0);
-    }, 0);
-  }, [initialData]);
-
-  const recalculateScores = useCallback((updatedBlocks: DocumentBlock[]): { newComplianceScore: number, newCompletenessIndex: number } => {
-    if (!initialData) return { newComplianceScore: 0, newCompletenessIndex: 0 };
-
-    const baseScore = initialData.overallComplianceScore;
-    const maxScore = 100;
-    const pointsToGain = maxScore - baseScore;
-
-    // Calculate compliance score based on severity of resolved suggestions
-    let resolvedSeverityWeight = 0;
-    updatedBlocks.forEach(block => {
-      block.suggestions.forEach(suggestion => {
-        if (suggestion.status === 'applied') {
-          resolvedSeverityWeight += severityWeights[suggestion.severity] || 0;
-        }
-      });
-    });
-    
-    const complianceScore = totalSeverityWeight > 0
-      ? baseScore + (resolvedSeverityWeight / totalSeverityWeight) * pointsToGain
-      : maxScore;
-      
-    const newComplianceScore = Math.min(maxScore, Math.round(complianceScore));
-
-    // Keep the original completeness index calculation
-    let totalCompletenessAchieved = 0;
-    let totalMaxCompleteness = 0;
-    updatedBlocks.forEach(block => {
-      totalCompletenessAchieved += block.completenessIndex;
-      totalMaxCompleteness += block.maxCompleteness;
-    });
-
-    const newCompletenessIndex = totalMaxCompleteness > 0
-      ? parseFloat(((totalCompletenessAchieved / totalMaxCompleteness) * 10).toFixed(1))
-      : 10;
-
-    return {
-      newComplianceScore,
-      newCompletenessIndex: Math.min(10, Math.max(0, newCompletenessIndex)),
-    };
-  }, [totalSeverityWeight, initialData]);
-
-
-  useEffect(() => {
-    if (documentData) {
-        setScore(documentData.overallComplianceScore);
-    }
-    // Cleanup function to reset the score when the page is left
-    return () => {
-      setScore(null);
-    };
-  }, [documentData, setScore]);
-
-  const handleUpdateSuggestionStatus = useCallback((blockId: string, suggestionId: string, newStatus: Suggestion['status']) => {
-    setDocumentData(prevData => {
-      if (!prevData) return null;
-      
-      let updatedBlocks = [...prevData.blocks];
-      const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
-      if (blockIndex === -1) return prevData;
-
-      const blockToUpdate = { ...updatedBlocks[blockIndex] };
-      const suggestionIndex = blockToUpdate.suggestions.findIndex(s => s.id === suggestionId);
-      if (suggestionIndex === -1) return prevData;
-
-      const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
-      if (suggestionToUpdate.status === newStatus) return prevData; 
-
-      suggestionToUpdate.status = newStatus;
-      blockToUpdate.suggestions = [...blockToUpdate.suggestions];
-      blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
-      
-      updatedBlocks[blockIndex] = blockToUpdate;
-      
-      // Recalculate score on any status change
-      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-      
-      return {
-        ...prevData,
-        blocks: updatedBlocks,
-        overallCompletenessIndex: newCompletenessIndex,
-        overallComplianceScore: newComplianceScore
-      };
-    });
-    
-    if (newStatus === 'applied') {
-      toast({
-        title: t('analysisPage.toastSuggestionApplied'),
-        description: "El estado de la sugerencia ha sido actualizado para el informe.",
-      });
-    } else if (newStatus === 'discarded') {
-      toast({
-        title: t('analysisPage.toastSuggestionDiscarded'),
-        description: t('analysisPage.toastSuggestionHasBeenDiscarded'),
-      });
-    }
-
-  }, [t, toast, recalculateScores]);
-
-  const handleUpdateSuggestionText = useCallback((blockId: string, suggestionId: string, newText: string) => {
-    setDocumentData(prevData => {
-      if (!prevData) return null;
-      const updatedBlocks = [...prevData.blocks];
-      const blockIndex = updatedBlocks.findIndex(b => b.id === blockId);
-      if (blockIndex === -1) return prevData;
-
-      const blockToUpdate = { ...updatedBlocks[blockIndex] };
-      const suggestionIndex = blockToUpdate.suggestions.findIndex(s => s.id === suggestionId);
-      if (suggestionIndex === -1) return prevData;
-
-      const suggestionToUpdate = { ...blockToUpdate.suggestions[suggestionIndex] };
-
-      // Only add to completeness if it's the first time being applied
-      if (suggestionToUpdate.status === 'pending' && suggestionToUpdate.completenessImpact) {
-        blockToUpdate.completenessIndex = Math.min(
-          blockToUpdate.maxCompleteness, 
-          blockToUpdate.completenessIndex + suggestionToUpdate.completenessImpact
-        );
+    try {
+      const storedData = localStorage.getItem('validation-results');
+      if (!storedData) {
+        toast({ title: "Error", description: "No se encontraron datos de análisis.", variant: "destructive" });
+        router.push('/prepare');
+        return;
       }
+      const data = JSON.parse(storedData);
+      setDocumentName(data.documentName || 'Documento sin título');
+      setFindings(data.findings || []);
+      setInitialScoring(data.initialScoring);
+      updateScoring(data.findings || []);
+    } catch (e) {
+      console.error("Failed to parse analysis data from localStorage", e);
+      toast({ title: "Error", description: "Los datos de análisis están corruptos.", variant: "destructive" });
+      router.push('/prepare');
+    }
 
-      suggestionToUpdate.text = newText;
-      suggestionToUpdate.status = 'applied';
-      suggestionToUpdate.isEditable = true; // Ensure this is true after editing
+    const timer = setTimeout(() => setIsInitialPageLoad(false), 500);
+    return () => clearTimeout(timer);
+  }, [router, setIsInitialPageLoad, toast]);
 
-      blockToUpdate.suggestions = [...blockToUpdate.suggestions];
-      blockToUpdate.suggestions[suggestionIndex] = suggestionToUpdate;
-      updatedBlocks[blockIndex] = blockToUpdate;
+  const updateScoring = useCallback((currentFindings: FindingWithStatus[]) => {
+    const result = calculateDynamicComplianceScore(currentFindings);
+    const riskCategory = getRiskCategory(result.complianceScore);
+    
+    const newScoring = {
+      complianceScore: result.complianceScore,
+      legalRiskScore: result.legalRiskScore,
+      riskCategory,
+      progress: result.progress,
+      breakdown: result.breakdown,
+    };
+    
+    setCurrentScoring(newScoring);
+    setScore(newScoring.complianceScore);
+  }, [setScore]);
 
-      const { newComplianceScore, newCompletenessIndex } = recalculateScores(updatedBlocks);
-
-      return {
-        ...prevData,
-        blocks: updatedBlocks,
-        overallCompletenessIndex: newCompletenessIndex,
-        overallComplianceScore: newComplianceScore
-      };
+  const handleUpdateFinding = useCallback((findingId: string, newStatus: FindingStatus, newText?: string) => {
+    const impact = simulateScoreChange(findings, findingId, newStatus);
+    
+    const updatedFindings = findings.map(f => {
+      if (f.id === findingId) {
+        const updatedFinding = { ...f, status: newStatus };
+        if (newText !== undefined) {
+          updatedFinding.propuesta_redaccion = newText;
+          // Marcar como modificado si el texto cambia
+          if (newStatus === 'applied') {
+            updatedFinding.status = 'modified';
+          }
+        }
+        return updatedFinding;
+      }
+      return f;
     });
 
-    setAppliedChangesExist(true);
+    setFindings(updatedFindings);
+    updateScoring(updatedFindings);
+    
     toast({
-      title: t('analysisPage.toastSuggestionModified'),
-      description: t('analysisPage.toastSuggestionTextUpdated'),
+      title: "Puntaje actualizado",
+      description: impact.impactDescription,
     });
-  }, [recalculateScores, t, toast]);
+    
+    // Persist changes
+    const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
+    localStorage.setItem('validation-results', JSON.stringify({ ...currentData, findings: updatedFindings }));
 
+  }, [findings, toast, updateScoring]);
 
   const handleDownloadReport = () => {
-    if (!documentData) return;
+    if (!currentScoring) return;
     try {
-      localStorage.setItem('milaReportData', JSON.stringify(documentData));
+      const reportData = {
+          documentTitle: documentName,
+          blocks: [], // Mantener la estructura, aunque no la usemos igual
+          overallComplianceScore: currentScoring.complianceScore,
+          overallCompletenessIndex: 0, // Dato obsoleto, pero se mantiene por compatibilidad
+          findings: findings,
+          scoringReport: generateScoringReport(findings)
+      };
+
+      localStorage.setItem('milaReportData', JSON.stringify(reportData));
       setIsReportModalOpen(true);
     } catch (error) {
-      console.error("Failed to save report data to localStorage", error);
-      toast({
-        title: t('analysisPage.toastReportError'),
-        description: t('analysisPage.toastReportErrorDesc'),
-        variant: "destructive",
-      });
+      console.error("Failed to save report data", error);
+      toast({ title: "Error al generar el informe", variant: "destructive" });
     }
   };
 
   const handleDownloadCorrectedDocument = () => {
-    if (!documentData) return;
-    try {
-      localStorage.setItem('milaCorrectedDocData', JSON.stringify(documentData));
-      setIsCorrectedDocModalOpen(true);
-    } catch (error) {
-      console.error("Failed to save corrected doc data to localStorage", error);
-      toast({
-        title: t('analysisPage.toastReportError'),
-        description: t('analysisPage.toastReportErrorDesc'),
-        variant: "destructive",
-      });
-    }
+    // Similar a handleDownloadReport, pero para el documento corregido.
+    // Necesitaría una función que genere el texto final.
+    toast({ title: "Función no implementada" });
   };
-
-  if (!documentData || !initialData) {
+  
+  if (!currentScoring) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-100">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -313,40 +150,58 @@ export default function PlanillaVivaPage() {
     );
   }
 
-  const { documentTitle, blocks, overallComplianceScore } = documentData;
+  const allSuggestions = findings.map(finding => ({
+      ...finding,
+      blockId: 'main-block', // Usar un ID de bloque ficticio
+      text: finding.propuesta_redaccion,
+      proceduralSuggestion: finding.propuesta_procedimiento,
+      justification: {
+        legal: finding.justificacion_legal,
+        technical: finding.justificacion_tecnica,
+      },
+      appliedNorm: `${finding.nombre_archivo_normativa} - ${finding.articulo_o_seccion}`,
+      errorType: finding.titulo_incidencia,
+      estimatedConsequence: finding.consecuencia_estimada,
+      completenessImpact: 0,
+      category: finding.tipo === "Irregularidad" ? 'Legal' : 'Redacción',
+      isEditable: !!finding.propuesta_redaccion,
+  }));
   
-  const allSuggestions = blocks.flatMap(block => 
-    block.suggestions.map(s => ({ ...s, blockId: block.id }))
-  );
-  const totalSuggestions = allSuggestions.length;
-  const appliedSuggestionsCount = allSuggestions.filter(s => s.status === 'applied').length;
-
   return (
     <>
       <div className="w-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
         <PageHeader 
-          documentTitle={documentTitle}
-          overallComplianceScore={overallComplianceScore}
-          appliedSuggestionsCount={appliedSuggestionsCount}
-          totalSuggestions={totalSuggestions}
-          isInitialPageLoad={isInitialPageLoad}
+          documentTitle={documentName}
+          overallComplianceScore={currentScoring.complianceScore}
+          appliedSuggestionsCount={currentScoring.progress.resolved}
+          totalSuggestions={currentScoring.progress.total}
+          isInitialPageLoad={false}
         />
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           <div className="lg:col-span-2 w-full h-full min-h-0">
               <IncidentsList 
                   suggestions={allSuggestions}
-                  blocks={blocks}
-                  onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
-                  onUpdateSuggestionText={handleUpdateSuggestionText}
-                  overallComplianceScore={overallComplianceScore}
-                  selectedRegulations={selectedRegulations}
+                  blocks={[]}
+                  selectedRegulations={[]}
+                  onUpdateSuggestionStatus={(blockId, suggestionId, newStatus) => handleUpdateFinding(suggestionId, newStatus)}
+                  onUpdateSuggestionText={(blockId, suggestionId, newText) => handleUpdateFinding(suggestionId, 'applied', newText)}
+                  overallComplianceScore={currentScoring.complianceScore}
               />
           </div>
           <div className="w-full h-full min-h-0">
                <RisksPanel
-                  documentData={documentData}
+                  documentData={{
+                    documentTitle: documentName,
+                    overallComplianceScore: currentScoring.complianceScore,
+                    overallCompletenessIndex: 0,
+                    blocks: findings.length > 0 ? [{
+                        id: 'main', name: 'General', category: 'General', alertLevel: 'none',
+                        completenessIndex: 0, maxCompleteness: 10, originalText: '',
+                        suggestions: allSuggestions, alerts:[], missingConnections: [], applicableNorms: []
+                    }] : []
+                  }}
                   onDownloadReport={handleDownloadReport}
-                  appliedChangesExist={appliedChangesExist}
+                  appliedChangesExist={findings.some(f => f.status === 'applied' || f.status === 'modified')}
                   onDownloadCorrectedDocument={handleDownloadCorrectedDocument}
               />
           </div>
@@ -371,4 +226,3 @@ export default function PlanillaVivaPage() {
       </Dialog>
     </>
   );
-}
