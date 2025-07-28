@@ -11,8 +11,8 @@ const nextConfig: NextConfig = {
   },
   // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
   api: {
-    // Aumentar límite de tamaño de body para PDFs grandes
-    bodyParser: false, // Deshabilitar para usar multipart/form-data
+    // Deshabilitar bodyParser para esta ruta específica para manejar streaming de archivos grandes
+    bodyParser: false,
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
@@ -36,24 +36,9 @@ const nextConfig: NextConfig = {
   // Configuración experimental para mejor rendimiento
   experimental: {
     // Mejorar streaming para archivos grandes
-    serverComponentsExternalPackages: ['sharp'],
+    serverComponentsExternalPackages: ['sharp', 'mammoth'],
     // Optimizar memory usage
     isrMemoryCacheSize: 0,
-  },
-  
-  // Headers para manejar uploads grandes
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          {
-            key: 'Access-Control-Max-Age',
-            value: '86400',
-          },
-        ],
-      },
-    ]
   },
 };
 
