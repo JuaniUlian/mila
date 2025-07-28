@@ -239,6 +239,7 @@ export default function PreparePage() {
   
   const getFriendlyErrorMessage = (error: any): string => {
     if (typeof error === 'string') {
+        // Handle JSON string error messages from the API
         try {
             const parsed = JSON.parse(error);
             if (parsed.error) return parsed.error;
@@ -264,15 +265,6 @@ export default function PreparePage() {
   }
 
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
-    if (rawFile.name.endsWith('.zip')) {
-        toast({
-            title: t('preparePage.unsupportedInZip'),
-            description: t('preparePage.unsupportedInZipDesc').replace('{fileName}', rawFile.name),
-            variant: 'destructive',
-        });
-        return;
-    }
-
     const tempId = `temp-${Date.now()}`;
     const estimatedTime = estimateProcessingTime(rawFile);
     const filePlaceholder: File = {
@@ -292,19 +284,26 @@ export default function PreparePage() {
       )
     );
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === tempId ? { ...file, status: 'processing' } : file) })));
-      const fileDataUri = e.target?.result as string;
-      
-      try {
-        if (!fileDataUri) throw new Error("Could not read file data.");
-        
-        let extractedContent: string;
+    try {
+        setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === tempId ? { ...file, status: 'processing' } : file) })));
+
+        let extractedContent: string | null = null;
+
         if (rawFile.name.endsWith('.docx')) {
-            const arrayBuffer = await (await fetch(fileDataUri)).arrayBuffer();
-            extractedContent = (await mammoth.extractRawText({ arrayBuffer })).value;
-        } else {
+            const arrayBuffer = await rawFile.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            extractedContent = result.value;
+        } else if (rawFile.name.endsWith('.txt') || rawFile.name.endsWith('.md')) {
+            extractedContent = await rawFile.text();
+        } else if (rawFile.name.endsWith('.pdf')) {
+            // PDFs are sent to the server for OCR
+            const reader = new FileReader();
+            const fileDataUri = await new Promise<string>((resolve, reject) => {
+                reader.onload = e => resolve(e.target?.result as string);
+                reader.onerror = e => reject(e);
+                reader.readAsDataURL(rawFile);
+            });
+            
             const response = await fetch('/api/extract-text', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -312,7 +311,6 @@ export default function PreparePage() {
             });
 
             if (!response.ok) {
-                // CORRECTED ERROR HANDLING
                 const contentType = response.headers.get("content-type");
                 let errorData;
                 if (contentType && contentType.indexOf("application/json") !== -1) {
@@ -324,6 +322,12 @@ export default function PreparePage() {
             }
             const result = await response.json();
             extractedContent = result.extractedText;
+        } else {
+            throw new Error(`Tipo de archivo no soportado: ${rawFile.name.split('.').pop()}`);
+        }
+
+        if (extractedContent === null) {
+            throw new Error("No se pudo extraer contenido del archivo.");
         }
 
         setFolders(prevFolders =>
@@ -343,7 +347,7 @@ export default function PreparePage() {
             description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
         });
       
-      } catch (err) {
+    } catch (err) {
         const errorMessage = getFriendlyErrorMessage(err);
         console.error("Detailed Error:", err);
         setFolders(prevFolders =>
@@ -358,26 +362,7 @@ export default function PreparePage() {
             }),
           }))
         );
-      }
-    };
-    
-    reader.onerror = () => {
-        const errorMessage = 'Error reading file data.';
-        setFolders(prevFolders =>
-          prevFolders.map(folder => ({
-            ...folder,
-            files: folder.files.map(f => {
-              if (f.id === tempId) {
-                const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
-                return { ...f, status: 'error', error: errorMessage, processingTime };
-              }
-              return f;
-            }),
-          }))
-        );
-    };
-
-    reader.readAsDataURL(rawFile);
+    }
   };
 
   const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
@@ -402,6 +387,11 @@ export default function PreparePage() {
                 };
                 const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
                 const file = new File([fileBlob], zipEntry.name, { type: supportedTypes[ext] || fileBlob.type });
+                // Skip unsupported files inside ZIP
+                if (!file.type && !Object.keys(supportedTypes).includes(ext)) {
+                    console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
+                    continue;
+                }
                 await processSingleDocument(file, folderId);
             }
         } catch (error) {
@@ -434,15 +424,6 @@ export default function PreparePage() {
   };
   
   const processSingleRegulation = async (rawFile: globalThis.File) => {
-    if (rawFile.name.endsWith('.zip')) {
-        toast({
-            title: t('preparePage.unsupportedInZip'),
-            description: t('preparePage.unsupportedInZipDesc').replace('{fileName}', rawFile.name),
-            variant: 'destructive',
-        });
-        return;
-    }
-
     const tempId = `reg-${Date.now()}`;
     const estimatedTime = estimateProcessingTime(rawFile);
     const regulationPlaceholder: Regulation = {
@@ -467,60 +448,58 @@ export default function PreparePage() {
         })
       );
     };
-
-    const handleError = (errorMsg: string) => {
-      updateRegulationState(tempId, { status: 'error', error: errorMsg });
-      toast({
-        title: `Error al procesar ${rawFile.name}`,
-        description: errorMsg,
-        variant: 'destructive',
-      });
-    };
     
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const fileDataUri = e.target?.result as string;
-        try {
-            if (!fileDataUri) throw new Error("Could not read file data.");
-            
-            let extractedContent: string;
-            if (rawFile.name.endsWith('.docx')) {
-                const arrayBuffer = await (await fetch(fileDataUri)).arrayBuffer();
-                extractedContent = (await mammoth.extractRawText({ arrayBuffer })).value;
-            } else {
-                 const response = await fetch('/api/extract-text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileDataUri }),
-                 });
-                 if (!response.ok) {
-                    // CORRECTED ERROR HANDLING
-                    const contentType = response.headers.get("content-type");
-                    let errorData;
-                    if (contentType && contentType.indexOf("application/json") !== -1) {
-                        errorData = await response.json();
-                    } else {
-                        errorData = { error: `El servidor devolvió un error inesperado (estado: ${response.status}).` };
-                    }
-                    throw new Error(errorData.error || `Server error: ${response.status}`);
-                 }
-                 const result = await response.json();
-                 extractedContent = result.extractedText;
+    try {
+        let extractedContent: string | null = null;
+        if (rawFile.name.endsWith('.docx')) {
+            const arrayBuffer = await rawFile.arrayBuffer();
+            extractedContent = (await mammoth.extractRawText({ arrayBuffer })).value;
+        } else if (rawFile.name.endsWith('.txt') || rawFile.name.endsWith('.md')) {
+            extractedContent = await rawFile.text();
+        } else if (rawFile.name.endsWith('.pdf')) {
+            const reader = new FileReader();
+            const fileDataUri = await new Promise<string>((resolve, reject) => {
+                reader.onload = e => resolve(e.target?.result as string);
+                reader.onerror = e => reject(e);
+                reader.readAsDataURL(rawFile);
+            });
+            const response = await fetch('/api/extract-text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileDataUri }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Server returned a non-JSON error response' }));
+                throw new Error(errorData.error || `Server error: ${response.status}`);
             }
-
-            updateRegulationState(tempId, { 
-                content: extractedContent || 'No se pudo extraer contenido.',
-                status: 'success'
-            });
-            toast({
-                title: t('preparePage.toastFileUploaded'),
-                description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
-            });
-        } catch (err) {
-            handleError(getFriendlyErrorMessage(err));
+            const result = await response.json();
+            extractedContent = result.extractedText;
+        } else {
+            throw new Error(`Unsupported file type: ${rawFile.name.split('.').pop()}`);
         }
-    };
-    reader.readAsDataURL(rawFile);
+
+        if (extractedContent === null) {
+            throw new Error("Could not extract content from file.");
+        }
+        
+        updateRegulationState(tempId, { 
+            content: extractedContent || 'No se pudo extraer contenido.',
+            status: 'success'
+        });
+        toast({
+            title: t('preparePage.toastFileUploaded'),
+            description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
+        });
+
+    } catch (err) {
+        const errorMsg = getFriendlyErrorMessage(err);
+        updateRegulationState(tempId, { status: 'error', error: errorMsg });
+        toast({
+            title: `Error al procesar ${rawFile.name}`,
+            description: errorMsg,
+            variant: 'destructive',
+        });
+    }
   };
 
   const handleRegulationUpload = async (rawFile: globalThis.File) => {
@@ -545,6 +524,10 @@ export default function PreparePage() {
                 };
                 const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
                 const file = new File([fileBlob], zipEntry.name, { type: supportedTypes[ext] || fileBlob.type });
+                if (!file.type && !Object.keys(supportedTypes).includes(ext)) {
+                    console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
+                    continue;
+                }
                 await processSingleRegulation(file);
             }
         } catch (error) {
@@ -1120,5 +1103,7 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    
 
     
