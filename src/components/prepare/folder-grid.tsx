@@ -59,8 +59,8 @@ const formatTime = (seconds: number): string => {
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
 
-  const hStr = h > 0 ? `${String(h).padStart(2, '0')}h:` : '';
-  const mStr = (h > 0 || m > 0) ? `${String(m).padStart(2, '0')}m:` : '';
+  const hStr = h > 0 ? `${String(h).padStart(2, '0')}h ` : '';
+  const mStr = (h > 0 || m > 0) ? `${String(m).padStart(2, '0')}m ` : '';
   const sStr = `${String(s).padStart(2, '0')}s`;
 
   return `${hStr}${mStr}${sStr}`;
