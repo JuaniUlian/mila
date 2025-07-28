@@ -15,9 +15,6 @@ const nextConfig: NextConfig = {
     bodyParser: {
       sizeLimit: '50mb', // Aumentar de 1MB a 50MB
     },
-    // Timeout para requests largos (OCR puede tomar tiempo)
-    responseLimit: false,
-    externalResolver: true,
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,

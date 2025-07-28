@@ -24,32 +24,22 @@ const ExtractTextFromFileOutputSchema = z.object({
 });
 export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
 
-// The exported function that will be called by the client.
+// This function is NOT a Server Action anymore. It's a regular async function
+// to be called by the API route.
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  return extractTextFromFileFlow(input);
+  // This is the key integration point. It uses a powerful model capable of handling large inputs.
+  const genkitResponse = await ai.generate({
+    // The 1.5 models are excellent for large document understanding.
+    model: 'googleai/gemini-1.5-flash',
+    prompt: [
+      { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
+      { media: { url: input.fileDataUri } }
+    ],
+    // A generous timeout is crucial for large files that take time to process.
+    timeout: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Ensure we always return a string, even if the model fails to extract text.
+  const extractedText = genkitResponse.text ?? '';
+  return { extractedText };
 }
-
-const extractTextFromFileFlow = ai.defineFlow(
-  {
-    name: 'extractTextFromFileFlow',
-    inputSchema: ExtractTextFromFileInputSchema,
-    outputSchema: ExtractTextFromFileOutputSchema,
-  },
-  async (flowInput) => {
-    // This is the key integration point. It uses a powerful model capable of handling large inputs.
-    const genkitResponse = await ai.generate({
-      // The 1.5 models are excellent for large document understanding.
-      model: 'googleai/gemini-1.5-flash',
-      prompt: [
-        { text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document.' },
-        { media: { url: flowInput.fileDataUri } }
-      ],
-      // A generous timeout is crucial for large files that take time to process.
-      timeout: 1000 * 60 * 5, // 5 minutes
-    });
-
-    // Ensure we always return a string, even if the model fails to extract text.
-    const extractedText = genkitResponse.text ?? '';
-    return { extractedText };
-  }
-);

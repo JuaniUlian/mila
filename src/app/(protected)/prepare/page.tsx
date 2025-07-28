@@ -31,8 +31,6 @@ import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import mammoth from 'mammoth';
-import type { ExtractTextFromFileOutput } from '@/ai/flows/extract-text-from-file';
-import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 import JSZip from 'jszip';
 
 
@@ -90,17 +88,17 @@ const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
 
 const estimateProcessingTime = (file: globalThis.File): number => {
     const sizeInMB = file.size / (1024 * 1024);
-    const baseTime = 2; // seconds
+    const baseTime = 5; // seconds
 
     if (file.name.endsWith('.pdf')) {
         // PDFs are slower due to OCR
-        return baseTime + sizeInMB * 15; // 15 seconds per MB
+        return baseTime + sizeInMB * 20; // 20 seconds per MB
     }
     if (file.name.endsWith('.docx')) {
-        return baseTime + sizeInMB * 5; // 5 seconds per MB
+        return baseTime + sizeInMB * 8; // 8 seconds per MB
     }
     // Text files
-    return baseTime + sizeInMB * 2; // 2 seconds per MB
+    return baseTime + sizeInMB * 3; // 3 seconds per MB
 };
 
 export default function PreparePage() {
@@ -239,27 +237,16 @@ export default function PreparePage() {
     router.push('/loading');
   };
   
-  const showToast = (title: string, description: string) => {
-    toast({
-      title,
-      description,
-    });
-  };
-
   const getFriendlyErrorMessage = (error: any): string => {
     if (typeof error === 'string') {
-        // Attempt to parse if it's a JSON string from the server
         try {
             const parsed = JSON.parse(error);
-            if (parsed.message) return parsed.message;
-        } catch(e) {
-            // Not a JSON string, return as is
-        }
+            if (parsed.error) return parsed.error;
+        } catch(e) { /* Not JSON */ }
         return error;
     }
     if (error instanceof Error) {
-        // For Genkit errors or other client-side errors
-        if (error.message.includes('deadline')) {
+        if (error.message.includes('deadline') || error.message.includes('504')) {
             return 'El servidor tardó demasiado en responder (timeout). Intente de nuevo con un archivo más pequeño o revise la conexión.';
         }
         if (error.message.includes('API key')) {
@@ -308,20 +295,28 @@ export default function PreparePage() {
     const reader = new FileReader();
     reader.onload = async (e) => {
       setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === tempId ? { ...file, status: 'processing' } : file) })));
-      const fileData = e.target?.result;
+      const fileDataUri = e.target?.result as string;
       
       try {
-        if (!fileData) throw new Error("Could not read file data.");
+        if (!fileDataUri) throw new Error("Could not read file data.");
         
         let extractedContent: string;
         if (rawFile.name.endsWith('.docx')) {
-          extractedContent = (await mammoth.extractRawText({ arrayBuffer: fileData as ArrayBuffer })).value;
-        } else if (rawFile.name.endsWith('.pdf')) {
-          extractedContent = (await extractTextFromFile({ fileDataUri: fileData as string })).extractedText;
-        } else if (rawFile.type.startsWith('text/')) {
-          extractedContent = fileData as string;
+            const arrayBuffer = await (await fetch(fileDataUri)).arrayBuffer();
+            extractedContent = (await mammoth.extractRawText({ arrayBuffer })).value;
         } else {
-          throw new Error('Unsupported file type.');
+            const response = await fetch('/api/extract-text', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileDataUri }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Server error: ${response.status}`);
+            }
+            const result = await response.json();
+            extractedContent = result.extractedText;
         }
 
         setFolders(prevFolders =>
@@ -336,11 +331,14 @@ export default function PreparePage() {
             }),
           }))
         );
-        showToast(t('preparePage.toastFileUploaded'), t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name));
+        toast({
+            title: t('preparePage.toastFileUploaded'),
+            description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
+        });
       
       } catch (err) {
         const errorMessage = getFriendlyErrorMessage(err);
-        console.error("Detailed Error:", err); // Log the full error to the console for debugging
+        console.error("Detailed Error:", err);
         setFolders(prevFolders =>
           prevFolders.map(folder => ({
             ...folder,
@@ -372,27 +370,7 @@ export default function PreparePage() {
         );
     };
 
-    if (rawFile.name.endsWith('.docx')) {
-      reader.readAsArrayBuffer(rawFile);
-    } else if (rawFile.name.endsWith('.pdf')) {
-      reader.readAsDataURL(rawFile);
-    } else if (rawFile.type.startsWith('text/')) {
-      reader.readAsText(rawFile);
-    } else {
-      const errorMessage = 'Unsupported file type.';
-      setFolders(prevFolders =>
-        prevFolders.map(folder => ({
-          ...folder,
-          files: folder.files.map(f => {
-            if (f.id === tempId) {
-              const processingTime = f.startTime ? parseFloat(((Date.now() - f.startTime) / 1000).toFixed(2)) : undefined;
-              return { ...f, status: 'error', error: errorMessage, processingTime };
-            }
-            return f;
-          }),
-        }))
-      );
-    }
+    reader.readAsDataURL(rawFile);
   };
 
   const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
@@ -493,67 +471,42 @@ export default function PreparePage() {
     };
     
     const reader = new FileReader();
+    reader.onload = async (e) => {
+        const fileDataUri = e.target?.result as string;
+        try {
+            if (!fileDataUri) throw new Error("Could not read file data.");
+            
+            let extractedContent: string;
+            if (rawFile.name.endsWith('.docx')) {
+                const arrayBuffer = await (await fetch(fileDataUri)).arrayBuffer();
+                extractedContent = (await mammoth.extractRawText({ arrayBuffer })).value;
+            } else {
+                 const response = await fetch('/api/extract-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileDataUri }),
+                 });
+                 if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Server error: ${response.status}`);
+                 }
+                 const result = await response.json();
+                 extractedContent = result.extractedText;
+            }
 
-    try {
-      if (rawFile.name.endsWith('.docx')) {
-        reader.onload = async (e) => {
-          const arrayBuffer = e.target?.result;
-          if (arrayBuffer) {
-            try {
-              const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer as ArrayBuffer });
-              updateRegulationState(tempId, { 
-                  content: result.value || 'No se pudo extraer contenido.',
-                  status: 'success'
-              });
-              toast({
+            updateRegulationState(tempId, { 
+                content: extractedContent || 'No se pudo extraer contenido.',
+                status: 'success'
+            });
+            toast({
                 title: t('preparePage.toastFileUploaded'),
                 description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
-              });
-            } catch (err) {
-               handleError('Falló al analizar el archivo .docx.');
-            }
-          }
-        };
-        reader.readAsArrayBuffer(rawFile);
-      } else if (rawFile.name.endsWith('.pdf')) {
-        reader.onload = async (e) => {
-          const fileDataUri = e.target?.result as string;
-          if (fileDataUri) {
-            try {
-              const result = await extractTextFromFile({ fileDataUri });
-              updateRegulationState(tempId, { 
-                  content: result.extractedText || 'No se pudo extraer texto del PDF.',
-                  status: 'success'
-              });
-              toast({
-                title: t('preparePage.toastFileUploaded'),
-                description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
-              });
-            } catch (error) {
-              handleError(getFriendlyErrorMessage(error));
-            }
-          }
-        };
-        reader.readAsDataURL(rawFile);
-      } else if (rawFile.type.startsWith('text/')) {
-        reader.onload = (e) => {
-          const content = e.target?.result as string;
-          updateRegulationState(tempId, { 
-              content: content || "No se pudo leer el contenido.",
-              status: 'success'
-          });
-          toast({
-            title: t('preparePage.toastFileUploaded'),
-            description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name),
-          });
-        };
-        reader.readAsText(rawFile);
-      } else {
-        handleError('Tipo de archivo no soportado para normativas.');
-      }
-    } catch (err) {
-      handleError(getFriendlyErrorMessage(err));
-    }
+            });
+        } catch (err) {
+            handleError(getFriendlyErrorMessage(err));
+        }
+    };
+    reader.readAsDataURL(rawFile);
   };
 
   const handleRegulationUpload = async (rawFile: globalThis.File) => {
