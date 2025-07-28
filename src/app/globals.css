@@ -92,21 +92,33 @@
     @apply bg-white/50 backdrop-blur-lg border-white/30 shadow-2xl scale-105;
     box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
   }
-  .incident-card-hover {
-    @apply transition-all duration-300;
-  }
-  .incident-card-hover:hover {
-    @apply shadow-xl scale-[1.01] bg-primary/5;
-  }
   .btn-neu-light {
-    @apply bg-slate-50 text-gray-700 font-semibold border-transparent shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:shadow-[inset_2px_2px_5px_#e2e8f0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;
+    @apply bg-slate-50 text-gray-700 font-semibold border border-slate-200/50 shadow-[5px_5px_10px_rgba(209,213,219,0.5),-5px_-5px_10px_rgba(255,255,255,0.8)] hover:shadow-inner active:shadow-[inset_4px_4px_8px_rgba(209,213,219,0.8),inset_-4px_-4px_8px_rgba(255,255,255,1)] transition-shadow duration-200 ease-in-out;
   }
   .btn-neu-dark {
     @apply bg-slate-800 text-slate-200 font-semibold border-transparent shadow-[5px_5px_10px_#1f2937,-5px_-5px_10px_#475569] hover:bg-slate-800 hover:shadow-[2px_2px_5px_#1f2937,-2px_-2px_5px_#475569] active:shadow-[inset_2px_2px_5px_#1f2937,inset_-2px_-2px_5px_#475569] transition-shadow duration-200 ease-in-out;
   }
   .btn-neu-green {
-    @apply bg-green-100 text-green-800 font-semibold border-transparent shadow-[5px_5px_10px_#bbf7d0,-5px_-5px_10px_#ffffff] hover:bg-green-100 hover:shadow-[2px_2px_5px_#bbf7d0,-2px_-2px_5px_#ffffff] active:shadow-[inset_2px_2px_5px_#bbf7d0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;
+    @apply bg-green-100 text-green-800 font-semibold border border-green-200/50 shadow-[5px_5px_10px_#bbf7d0,-5px_-5px_10px_#ffffff] hover:bg-green-100 hover:shadow-inner active:shadow-[inset_2px_2px_5px_#bbf7d0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;
   }
+
+  .card-neumorphism {
+      @apply bg-slate-50 rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
+  }
+  .card-neumorphism:hover {
+      @apply shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff];
+  }
+
+  .border-gradient-red { @apply border-l-red-500; }
+  .border-gradient-amber { @apply border-l-amber-500; }
+  .border-gradient-sky { @apply border-l-sky-500; }
+  .border-gradient-gray { @apply border-l-gray-400; }
+
+  .hover-hud-red:hover { background: radial-gradient(circle, hsl(var(--severity-high) / 0.1), transparent 70%); }
+  .hover-hud-amber:hover { background: radial-gradient(circle, hsl(var(--severity-medium) / 0.1), transparent 70%); }
+  .hover-hud-sky:hover { background: radial-gradient(circle, hsl(var(--severity-low) / 0.1), transparent 70%); }
+  .hover-hud-gray:hover { background: radial-gradient(circle, hsl(var(--severity-informative) / 0.1), transparent 70%); }
+
 
   /* Animated Backgrounds */
   .lava-background {
