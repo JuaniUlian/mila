@@ -5,7 +5,7 @@ import React, { useState, useMemo } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle } from 'lucide-react';
+import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
@@ -19,10 +19,14 @@ interface IncidentsListProps {
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
 }
 
-const TYPE_TO_CATEGORY: Record<string, { label: string; icon: React.ElementType; color: string; }> = {
-  'Irregularidad': { label: 'Legal', icon: Scale, color: 'red-600' },
-  'Mejora de Redacción': { label: 'Redacción', icon: FilePen, color: 'blue-600' },
-  'Sin hallazgos relevantes': { label: 'Informativo', icon: Lightbulb, color: 'gray-600' }
+const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
+  'Legal': { icon: Scale },
+  'Redacción': { icon: FilePen },
+  'Procedimental': { icon: Briefcase },
+  'Administrativa': { icon: ClipboardList },
+  'Formal': { icon: DraftingCompass },
+  'Técnica': { icon: AlertTriangle },
+  'Informativo': { icon: Lightbulb },
 };
 
 const SEVERITY_GRADIENT: Record<string, string> = {
@@ -152,7 +156,8 @@ export function IncidentsList({
   const findingsByCategory = useMemo(() => {
     const grouped: Record<string, FindingWithStatus[]> = {};
     validFindings.forEach(finding => {
-      const categoryLabel = TYPE_TO_CATEGORY[finding.tipo]?.label || 'Otros';
+      // @ts-ignore
+      const categoryLabel = finding.category || 'Otros';
       if (!grouped[categoryLabel]) {
         grouped[categoryLabel] = [];
       }
@@ -178,7 +183,6 @@ export function IncidentsList({
   const getTranslatedStatus = (status: FindingStatus) => {
     const statusKey = `reportPreviewPage.status.${status}`;
     const translated = t(statusKey);
-    // Fallback to the original status if translation is not found
     return translated === statusKey ? status : translated;
   };
 
@@ -187,7 +191,7 @@ export function IncidentsList({
       {Object.entries(findingsByCategory).map(([category, categoryFindings]) => {
         const highestSeverity = ['Alta', 'Media', 'Baja', 'Informativa'].find(s => categoryFindings.some(f => f.gravedad === s)) || 'Informativa';
         const pendingCount = categoryFindings.filter(f => f.status === 'pending').length;
-        const categoryIcon = Object.values(TYPE_TO_CATEGORY).find(c => c.label === category)?.icon || AlertTriangle;
+        const categoryIcon = CATEGORY_META[category]?.icon || AlertTriangle;
 
         return (
           <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn("w-full bg-slate-50 rounded-xl overflow-hidden card-neumorphism border-l-4", SEVERITY_GRADIENT[highestSeverity])}>

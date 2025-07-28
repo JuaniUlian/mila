@@ -7,7 +7,6 @@ import { useLayout } from '@/context/LayoutContext';
 import { PageHeader } from '@/components/mila/page-header';
 import { IncidentsList } from '@/components/mila/incidents-list';
 import { RisksPanel } from '@/components/mila/risks-panel';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Loader2 } from 'lucide-react';
@@ -22,12 +21,73 @@ import {
   type FindingStatus 
 } from '@/ai/flows/compliance-scoring';
 
+function determineCategory(finding: any): string {
+  const titulo = finding.titulo_incidencia.toLowerCase();
+  const justificacion = finding.justificacion_legal.toLowerCase();
+  const tecnica = finding.justificacion_tecnica.toLowerCase();
+  const evidencia = finding.evidencia.toLowerCase();
+  
+  // Combinar todo el texto para análisis más preciso
+  const allText = `${titulo} ${justificacion} ${tecnica} ${evidencia}`.toLowerCase();
+  
+  // 1. LEGAL - Irregularidades normativas, legales, constitucionales
+  if (allText.match(/\b(ley|legal|artículo|decreto|norma|constitucional|jurisprudencia|normativ|reglament|jurídic|ilegal|inconstitucional|violación|incumplimiento normativo)\b/) ||
+      finding.tipo === 'Irregularidad' && allText.match(/\b(base legal|fundamentación|marco legal|competencia|atribución)\b/)) {
+    return 'Legal';
+  }
+  
+  // 2. PROCEDIMENTAL - Procedimientos, trámites, etapas, plazos
+  if (allText.match(/\b(procedimiento|trámite|proceso|etapa|fase|plazo|término|notificación|audiencia|consulta|dictamen|informe técnico|estudio|evaluación previa|secuencia)\b/) ||
+      allText.match(/\b(debido proceso|procedimiento administrativo|expediente|actuación|resolución|decisión)\b/)) {
+    return 'Procedimental';
+  }
+  
+  // 3. ADMINISTRATIVA - Gestión administrativa, registros, archivos
+  if (allText.match(/\b(administrativ|gestión|expediente|archivo|registro|documentación|comunicación|organización|control|supervisión|seguimiento)\b/) ||
+      allText.match(/\b(órgano|entidad|funcionario|servidor público|competencia administrativa|acto administrativo)\b/)) {
+    return 'Administrativa';
+  }
+  
+  // 4. FORMAL - Formato, estructura, firma, membrete, presentación
+  if (allText.match(/\b(forma|formato|estructura|encabezado|membrete|firma|sello|presentación|apariencia|diseño|layout)\b/) ||
+      allText.match(/\b(formal|formalidad|requisito formal|aspecto formal|elemento formal)\b/) ||
+      titulo.match(/\b(falta|ausencia|carece|sin).*(firma|sello|membrete|encabezado|formato)\b/)) {
+    return 'Formal';
+  }
+  
+  // 5. TÉCNICA - Especificaciones técnicas, cálculos, mediciones, presupuestos
+  if (allText.match(/\b(técnic|especificación|cálculo|medición|presupuesto|costo|evaluación técnica|criterio técnico|parámetro|estándar técnico)\b/) ||
+      allText.match(/\b(ingeniería|arquitectura|construcción|obra|proyecto técnico|diseño técnico|análisis técnico)\b/) ||
+      allText.match(/\b(requisito técnico|capacidad técnica|propuesta técnica|evaluación técnica)\b/)) {
+    return 'Técnica';
+  }
+  
+  // 6. REDACCIÓN - Mejoras de redacción, claridad, ambigüedad, gramática
+  if (finding.tipo === 'Mejora de Redacción' || 
+      allText.match(/\b(redacción|redactar|claridad|ambig|confus|imprecis|ortograf|gramática|sintaxis|estilo|lenguaje)\b/) ||
+      allText.match(/\b(texto|párrafo|oración|frase|palabra|terminología|vocabulario|expresión)\b/) ||
+      titulo.match(/\b(mejora|mejorar|clarificar|precisar|corregir).*(redacción|texto|lenguaje)\b/)) {
+    return 'Redacción';
+  }
+  
+  // FALLBACK: Si no encaja en ninguna categoría específica
+  switch (finding.tipo) {
+    case 'Irregularidad':
+      return 'Legal';
+    case 'Mejora de Redacción':
+      return 'Redacción';
+    case 'Sin hallazgos relevantes':
+      return 'Informativo';
+    default:
+      return 'Administrativa';
+  }
+}
+
+
 export default function PlanillaVivaPage() {
   const router = useRouter();
   const [documentName, setDocumentName] = useState('');
   const [findings, setFindings] = useState<FindingWithStatus[]>([]);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isCorrectedDocModalOpen, setIsCorrectedDocModalOpen] = useState(false);
   const { toast } = useToast();
   const { setScore, setIsInitialPageLoad } = useLayout();
   const { language } = useLanguage();
@@ -41,8 +101,6 @@ export default function PlanillaVivaPage() {
     breakdown: any;
   } | null>(null);
   
-  const [initialScoring, setInitialScoring] = useState<any>(null);
-
   useEffect(() => {
     setIsInitialPageLoad(true);
     
@@ -56,11 +114,12 @@ export default function PlanillaVivaPage() {
       const data = JSON.parse(storedData);
       setDocumentName(data.documentName || 'Documento sin título');
       
-      const findingsWithStatus = data.findings || [];
+      const findingsWithStatus = (data.findings || []).map((f: any) => ({
+          ...f,
+          category: determineCategory(f)
+      }));
+
       setFindings(findingsWithStatus);
-      
-      const initialScoringData = data.initialScoring || calculateDynamicComplianceScore(findingsWithStatus.filter((f:FindingWithStatus) => f.status === 'pending'));
-      setInitialScoring(initialScoringData);
       
       updateScoring(findingsWithStatus);
     } catch (e) {
@@ -97,7 +156,6 @@ export default function PlanillaVivaPage() {
         const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
         if(userModifications) {
             updatedFinding.userModifications = userModifications;
-            // If the user saves an edit, the status should become 'modified'
             if (newStatus !== 'discarded' && newStatus !== 'applied') {
               updatedFinding.status = 'modified';
             }
@@ -130,7 +188,11 @@ export default function PlanillaVivaPage() {
       };
 
       localStorage.setItem('milaReportData', JSON.stringify(reportData));
-      setIsReportModalOpen(true);
+      // In a real app, you would navigate to a report page or open a PDF generation service.
+      // For this prototype, we'll just log it.
+      console.log("Report data saved to localStorage for preview:", reportData);
+      toast({title: "Preparando informe", description: "La previsualización del informe se abrirá en una nueva pestaña."})
+      window.open('/report-preview', '_blank');
     } catch (error) {
       console.error("Failed to save report data", error);
       toast({ title: "Error al generar el informe", variant: "destructive" });
@@ -172,14 +234,6 @@ export default function PlanillaVivaPage() {
           </div>
         </main>
       </div>
-      <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
-        <DialogContent className="max-w-6xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
-          <DialogHeader className="p-4 bg-gradient-to-r from-slate-300 via-slate-100 to-slate-300 backdrop-blur-sm border-b border-white/20 shadow-md">
-            <DialogTitle>{t('analysisPage.reportPreviewTitle')}</DialogTitle>
-          </DialogHeader>
-          <iframe src="/report-preview" className="w-full h-full border-0" title={t('analysisPage.reportPreviewTitle')} />
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

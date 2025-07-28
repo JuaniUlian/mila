@@ -161,12 +161,7 @@ const validateDocumentFlow = ai.defineFlow(
             totalPenalty: 0,
             penaltiesByGravity: {},
           },
-          riskCategory: {
-            category: 'VERY_LOW',
-            label: 'Muy Bajo',
-            color: 'green',
-            description: 'Documento no relevante para análisis',
-          },
+          riskCategory: getRiskCategory(100),
         };
       }
       
