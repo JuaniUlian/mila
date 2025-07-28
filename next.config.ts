@@ -54,4 +54,12 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Access-Control-Max-Age',
-            value: '8640
+            value: '86400',
+          },
+        ],
+      },
+    ]
+  },
+};
+
+export default nextConfig;
