@@ -160,7 +160,7 @@ async function executeChunkingMethod(dataUri: string): Promise<string> {
     throw new Error('No se pudo extraer texto de ningún chunk');
   }
   
-  console.log(`✅ Chunking: ${results.length - failedChunks}/${chunks.length} chunks exitosos`);
+  console.log(`✅ Chunking: ${results.length - failedChunks}/${results.length} chunks exitosos`);
   return combinedText;
 }
 
