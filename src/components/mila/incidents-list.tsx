@@ -111,8 +111,15 @@ const IncidentItemContent = ({ finding, onFindingStatusChange }: {
       <div className="flex gap-2 pt-4 border-t items-center justify-end">
         {finding.status === 'pending' ? (
           <>
-            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-            {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>}
+            {finding.propuesta_redaccion && (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+              </>
+            )}
+            {finding.propuesta_procedimiento && !finding.propuesta_redaccion && (
+               <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => onFindingStatusChange(finding.id, 'applied')}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+            )}
             <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => onFindingStatusChange(finding.id, 'discarded')}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
           </>
         ) : (
