@@ -87,19 +87,25 @@ const initialRegulations: Regulation[] = [
 const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
 const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
 
-const estimateProcessingTime = (file: globalThis.File): number => {
+const estimateProcessingTime = (file: globalThis.File | {pageCount: number}): number => {
+    if ('pageCount' in file) { // It's a PDF chunk
+        // Scanned PDFs are slow. Estimate 15 seconds per page.
+        return 5 + file.pageCount * 15;
+    }
+
     const sizeInMB = file.size / (1024 * 1024);
     const baseTime = 5; // seconds
 
     if (file.name.endsWith('.pdf')) {
-        // PDFs are slower due to OCR
-        return baseTime + sizeInMB * 20; // 20 seconds per MB
+        // This is for the total estimation, not per chunk. Chunks are handled above.
+        // A large scanned PDF can take a long time.
+        return baseTime + sizeInMB * 60; // 60 seconds per MB for scanned PDFs
     }
     if (file.name.endsWith('.docx')) {
-        return baseTime + sizeInMB * 8; // 8 seconds per MB
+        return baseTime + sizeInMB * 8;
     }
     // Text files
-    return baseTime + sizeInMB * 3; // 3 seconds per MB
+    return baseTime + sizeInMB * 3;
 };
 
 export default function PreparePage() {
@@ -240,27 +246,16 @@ export default function PreparePage() {
   
   const getFriendlyErrorMessage = (error: any): string => {
     if (typeof error === 'string') {
-        // Handle JSON string error messages from the API
-        try {
-            const parsed = JSON.parse(error);
-            if (parsed.error) return parsed.error;
-        } catch(e) { /* Not JSON */ }
+        if (error.includes('504') || error.includes('deadline')) {
+          return 'El servidor tardó demasiado en responder (timeout). El chunk del documento era demasiado complejo. Por favor, intente de nuevo.';
+        }
+        if (error.includes('API key')) {
+          return 'La clave de API para el servicio de IA no es válida o está ausente. Revise la configuración del servidor.';
+        }
         return error;
     }
     if (error instanceof Error) {
-        if (error.message.includes('deadline') || error.message.includes('504')) {
-            return 'El servidor tardó demasiado en responder (timeout). Intente de nuevo con un archivo más pequeño o revise la conexión.';
-        }
-        if (error.message.includes('API key')) {
-            return 'La clave de API para el servicio de IA no es válida o está ausente. Revise la configuración del servidor.';
-        }
-        if (error.message.includes('500')) {
-             return 'El servidor encontró un error interno inesperado. Por favor, intente más tarde.'
-        }
-        if (error.message.includes('Failed to fetch')) {
-             return 'No se pudo conectar con el servidor de procesamiento. Revise su conexión a internet.';
-        }
-        return error.message;
+        return getFriendlyErrorMessage(error.message);
     }
     return 'Ocurrió un error inesperado durante el procesamiento.';
   }
@@ -298,36 +293,39 @@ export default function PreparePage() {
             const fileBuffer = await rawFile.arrayBuffer();
             const pdfDoc = await PDFDocument.load(fileBuffer);
             const totalPages = pdfDoc.getPageCount();
-            const chunkSize = 10; // Process 10 pages at a time
+            const chunkSize = 3; // Process 3 pages at a time - very conservative for scanned docs
             const numChunks = Math.ceil(totalPages / chunkSize);
             let combinedText = '';
 
             for (let i = 0; i < numChunks; i++) {
                 const chunkProgress = `${i + 1}/${numChunks}`;
-                updateFileState({ progress: chunkProgress });
-
                 const startPage = i * chunkSize;
                 const endPage = Math.min(startPage + chunkSize, totalPages);
+                const chunkPageCount = endPage - startPage;
+
+                const chunkEstimatedTime = estimateProcessingTime({ pageCount: chunkPageCount });
+                updateFileState({ progress: chunkProgress, estimatedTime: chunkEstimatedTime });
                 
                 const chunkDoc = await PDFDocument.create();
-                const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: endPage - startPage }, (_, k) => startPage + k));
+                const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: chunkPageCount }, (_, k) => startPage + k));
                 copiedPages.forEach(page => chunkDoc.addPage(page));
 
                 const chunkBytes = await chunkDoc.save();
-                const chunkFile = new File([chunkBytes], `chunk_${i}.pdf`, { type: 'application/pdf' });
+                const chunkFile = new File([chunkBytes], `chunk_${i + 1}_of_${numChunks}.pdf`, { type: 'application/pdf' });
                 
                 const formData = new FormData();
                 formData.append('file', chunkFile);
 
                 const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+
                 if (!response.ok) {
                     const errorText = await response.text().catch(() => `Server error: ${response.status}`);
-                    throw new Error(getFriendlyErrorMessage({ message: errorText }));
+                    throw new Error(getFriendlyErrorMessage(errorText));
                 }
                 const result = await response.json();
                 combinedText += result.extractedText + '\n\n';
             }
-             updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
+            updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
 
         } else {
              // Standard processing for non-PDF files
@@ -338,7 +336,7 @@ export default function PreparePage() {
 
             if (!response.ok) {
                 const errorText = await response.text().catch(() => `Server error: ${response.status}`);
-                throw new Error(getFriendlyErrorMessage({ message: errorText }));
+                throw new Error(getFriendlyErrorMessage(errorText));
             }
             const result = await response.json();
             updateFileState({ status: 'success', content: result.extractedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
@@ -377,6 +375,10 @@ export default function PreparePage() {
                   'md': 'text/markdown'
                 };
                 const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
+                if (ext === 'zip') {
+                  console.warn(`Skipping nested zip file: ${zipEntry.name}`);
+                  continue;
+                }
                 const file = new File([fileBlob], zipEntry.name, { type: supportedTypes[ext] || fileBlob.type });
                 // Skip unsupported files inside ZIP
                 if (!file.type && !Object.keys(supportedTypes).includes(ext)) {
@@ -415,6 +417,7 @@ export default function PreparePage() {
   };
   
   const processSingleRegulation = async (rawFile: globalThis.File) => {
+    // This function can reuse the processSingleDocument logic as it's very similar
     const tempId = `reg-${Date.now()}`;
     const estimatedTime = estimateProcessingTime(rawFile);
     const regulationPlaceholder: Regulation = {
@@ -450,18 +453,13 @@ export default function PreparePage() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Server returned a non-JSON error response' }));
-            throw new Error(errorData.error || `Server error: ${response.status}`);
+            const errorText = await response.text().catch(() => `Server error: ${response.status}`);
+            throw new Error(getFriendlyErrorMessage(errorText));
         }
         const result = await response.json();
-        const extractedContent = result.extractedText;
-
-        if (extractedContent === null) {
-            throw new Error("Could not extract content from file.");
-        }
         
         updateRegulationState(tempId, { 
-            content: extractedContent || 'No se pudo extraer contenido.',
+            content: result.extractedText || 'No se pudo extraer contenido.',
             status: 'success'
         });
         toast({
@@ -472,11 +470,6 @@ export default function PreparePage() {
     } catch (err) {
         const errorMsg = getFriendlyErrorMessage(err);
         updateRegulationState(tempId, { status: 'error', error: errorMsg });
-        toast({
-            title: `Error al procesar ${rawFile.name}`,
-            description: errorMsg,
-            variant: 'destructive',
-        });
     }
   };
 
@@ -501,6 +494,10 @@ export default function PreparePage() {
                   'md': 'text/markdown'
                 };
                 const ext = zipEntry.name.split('.').pop()?.toLowerCase() || '';
+                 if (ext === 'zip') {
+                  console.warn(`Skipping nested zip file: ${zipEntry.name}`);
+                  continue;
+                }
                 const file = new File([fileBlob], zipEntry.name, { type: supportedTypes[ext] || fileBlob.type });
                 if (!file.type && !Object.keys(supportedTypes).includes(ext)) {
                     console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
@@ -1081,4 +1078,3 @@ export default function PreparePage() {
     </div>
   );
 }
-

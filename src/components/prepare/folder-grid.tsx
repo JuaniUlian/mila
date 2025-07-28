@@ -77,7 +77,7 @@ const FileItem: React.FC<{
 
       return () => clearInterval(interval);
     }
-  }, [file.status, file.estimatedTime]);
+  }, [file.status, file.estimatedTime, file.progress]); // Rerun effect if progress changes
 
   if (file.status === 'uploading' || file.status === 'processing') {
     const timeRemaining = countdown > 0 ? ` ~${countdown}s restantes` : '';
@@ -277,5 +277,3 @@ export function FolderGrid({
         </div>
     );
 }
-
-    
