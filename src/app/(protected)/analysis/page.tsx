@@ -199,6 +199,32 @@ export default function PlanillaVivaPage() {
     }
   };
   
+  const handleDownloadAuditReport = () => {
+    if (!currentScoring) return;
+    try {
+      const resolvedFindings = findings.filter(f => f.status === 'applied' || f.status === 'modified');
+      if(resolvedFindings.length === 0) {
+        toast({ title: "Sin acciones", description: "No hay sugerencias aplicadas para reportar."});
+        return;
+      }
+
+      const reportData = {
+          documentTitle: `Informe de Auditoría - ${documentName}`,
+          findings: resolvedFindings,
+          scoringReport: generateScoringReport(resolvedFindings) // Scoring only for resolved
+      };
+
+      localStorage.setItem('milaReportData', JSON.stringify(reportData));
+      console.log("Audit report data saved to localStorage for preview:", reportData);
+      toast({title: "Preparando informe de auditoría", description: "La previsualización del informe se abrirá en una nueva pestaña."})
+      window.open('/report-preview', '_blank');
+
+    } catch (error) {
+      console.error("Failed to save audit report data", error);
+      toast({ title: "Error al generar el informe de auditoría", variant: "destructive" });
+    }
+  }
+  
   if (!currentScoring) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-100">
@@ -230,6 +256,7 @@ export default function PlanillaVivaPage() {
                   documentName={documentName}
                   currentScoring={currentScoring}
                   onDownloadReport={handleDownloadReport}
+                  onDownloadAuditReport={handleDownloadAuditReport}
                />
           </div>
         </main>

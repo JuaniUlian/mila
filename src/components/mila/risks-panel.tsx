@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, BookCheck, Check } from 'lucide-react';
+import { Download, BookCheck, Check, FileOutput } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { 
@@ -31,6 +31,7 @@ interface RisksPanelProps {
     breakdown: any;
   };
   onDownloadReport: () => void;
+  onDownloadAuditReport: () => void;
 }
 
 const SEVERITY_TEXT_COLOR: Record<string, string> = {
@@ -51,9 +52,12 @@ export function RisksPanel({
   findings, 
   currentScoring,
   onDownloadReport,
+  onDownloadAuditReport,
 }: RisksPanelProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
+  
+  const hasResolvedFindings = currentScoring.progress.resolved > 0;
 
   return (
     <div className="bg-white/60 backdrop-blur-xl border-white/50 shadow-xl rounded-2xl p-6 flex flex-col h-full">
@@ -102,7 +106,7 @@ export function RisksPanel({
         </div>
       </div>
       
-      <div className="mt-auto pt-6">
+      <div className="mt-auto pt-6 space-y-3">
           <Button 
               className="w-full text-base py-6 bg-primary text-primary-foreground hover:bg-primary/90"
               size="lg"
@@ -111,6 +115,18 @@ export function RisksPanel({
               <Download className="mr-2 h-5 w-5" />
               {t('analysisPage.downloadReport')}
           </Button>
+
+          {hasResolvedFindings && (
+            <Button 
+                className="w-full text-base py-6 btn-neu-light"
+                size="lg"
+                onClick={onDownloadAuditReport}
+            >
+                <FileOutput className="mr-2 h-5 w-5" />
+                Informe para Auditoría
+            </Button>
+          )}
+
           <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>
     </div>

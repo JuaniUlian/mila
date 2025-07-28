@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
-import { validateSuggestionEdit, type ValidateSuggestionEditOutput } from '@/ai/flows/validate-suggestion-edit';
 
 interface IncidentsListProps {
   findings: FindingWithStatus[];
@@ -59,8 +58,6 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose }: 
 }) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationResult, setValidationResult] = useState<ValidateSuggestionEditOutput | null>(null);
 
   const [editForm, setEditForm] = useState({
     propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
@@ -144,7 +141,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose }: 
           {finding.status === 'pending' ? (
             <>
               {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-                  <Button size="sm" className="btn-neu-light" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+                  <Button size="sm" className="btn-neu-green" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
               ) : (
                   <>
                       <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
@@ -170,11 +167,11 @@ export function IncidentsList({
   const { language } = useLanguage();
   const t = useTranslations(language);
 
-  const validFindings = useMemo(() => findings.filter(f => f.tipo !== 'Sin hallazgos relevantes'), [findings]);
+  const pendingFindings = useMemo(() => findings.filter(f => f.status === 'pending' && f.tipo !== 'Sin hallazgos relevantes'), [findings]);
 
   const findingsByCategory = useMemo(() => {
     const grouped: Record<string, FindingWithStatus[]> = {};
-    validFindings.forEach(finding => {
+    pendingFindings.forEach(finding => {
       // @ts-ignore
       const categoryLabel = finding.category || 'Otros';
       if (!grouped[categoryLabel]) {
@@ -187,9 +184,9 @@ export function IncidentsList({
         grouped[category].sort((a, b) => SEVERITY_ORDER[a.gravedad] - SEVERITY_ORDER[b.gravedad]);
     }
     return grouped;
-  }, [validFindings]);
+  }, [pendingFindings]);
 
-  if (validFindings.length === 0) {
+  if (pendingFindings.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-green-50/50 border border-green-200 shadow-sm text-center p-8 rounded-xl">
         <Check className="w-16 h-16 text-green-400 mb-4" />
@@ -209,6 +206,8 @@ export function IncidentsList({
   return (
     <div className="space-y-6">
       {Object.entries(findingsByCategory).map(([category, categoryFindings]) => {
+        if(categoryFindings.length === 0) return null;
+
         const highestSeverity = ['Alta', 'Media', 'Baja', 'Informativa'].find(s => categoryFindings.some(f => f.gravedad === s)) || 'Informativa';
         const pendingCount = categoryFindings.filter(f => f.status === 'pending').length;
         const categoryIcon = CATEGORY_META[category]?.icon || AlertTriangle;
