@@ -72,14 +72,21 @@ const ValidateDocumentOutputSchema = z.object({
 export type ValidateDocumentOutput = z.infer<typeof ValidateDocumentOutputSchema>;
 
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
-  console.log('🔍 Iniciando validación de documento con Gemini Pro...');
-  console.log(`📄 Documento: ${input.documentName}`);
-  console.log(`📚 Normativas: ${input.regulations.length}`);
+  console.log('🔍 Iniciando validación de documento...');
   
-  return validateDocumentFlow(input);
+  try {
+    const { validateWithClaude } = await import('./claude-validation');
+    const claudeResult = await validateWithClaude(input);
+    console.log('✅ Validación completada con Claude como primario.');
+    return claudeResult;
+  } catch (claudeError) {
+    console.warn('⚠️ Fallback: La validación con Claude falló, intentando con Gemini. Error:', claudeError);
+    // Si Claude falla, usa Gemini como fallback
+    return validateDocumentFlow(input);
+  }
 }
 
-// PROMPT ACTUALIZADO que usa el modelo Gemini 1.5 Pro
+// PROMPT DE GEMINI (usado como fallback)
 const prompt = ai.definePrompt({
   name: 'validateDocumentPromptWithGeminiPro',
   model: 'googleai/gemini-1.5-pro',
@@ -139,7 +146,7 @@ const validateDocumentFlow = ai.defineFlow(
     
     try {
       // EJECUTAR EL PROMPT (solo obtiene hallazgos, no calcula scores)
-      console.log('🤖 Ejecutando análisis con Gemini 1.5 Pro...');
+      console.log('🤖 Ejecutando análisis con Gemini 1.5 Pro (Fallback)...');
       const { output: aiOutput } = await prompt(input);
       
       if (!aiOutput) {
@@ -172,7 +179,7 @@ const validateDocumentFlow = ai.defineFlow(
       const scoringResult = calculateBaseComplianceScore(aiOutput.findings as Finding[]);
       const riskCategory = getRiskCategory(scoringResult.complianceScore);
       
-      console.log(`✅ Análisis completado en ${Date.now() - startTime}ms`);
+      console.log(`✅ Análisis (Fallback) completado en ${Date.now() - startTime}ms`);
       console.log(`📈 Puntaje: ${scoringResult.complianceScore}% (${riskCategory.label})`);
       console.log(`🔍 Hallazgos críticos: ${scoringResult.breakdown.criticalFindings}`);
       
@@ -197,7 +204,7 @@ const validateDocumentFlow = ai.defineFlow(
         },
       };
     } catch (error) {
-        console.error("Error en el flujo de validación:", error);
+        console.error("Error en el flujo de validación (Fallback):", error);
         throw new Error(`El análisis del documento falló: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
