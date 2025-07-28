@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,10 +26,6 @@ interface File {
     processingTime?: number;
     // Chunk-specific
     progress?: string; // e.g. "1/5"
-    chunkEstimatedTime?: number;
-    // Total progress
-    totalEstimatedTime?: number;
-    elapsedTime?: number;
 }
 
 interface FolderData {
@@ -52,21 +48,6 @@ interface FolderGridProps {
     onDeleteFolder: (folder: FolderData) => void;
 }
 
-const formatTime = (seconds: number): string => {
-  if (isNaN(seconds) || seconds < 0) return '';
-  
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-
-  const hStr = h > 0 ? `${String(h).padStart(2, '0')}h ` : '';
-  const mStr = (h > 0 || m > 0) ? `${String(m).padStart(2, '0')}m ` : '';
-  const sStr = `${String(s).padStart(2, '0')}s`;
-
-  return `${hStr}${mStr}${sStr}`;
-};
-
-
 const FileItem: React.FC<{
   file: File;
   folderId: string;
@@ -81,10 +62,6 @@ const FileItem: React.FC<{
   const t = useTranslations(language);
 
   if (file.status === 'uploading' || file.status === 'processing') {
-    const timeRemaining = file.totalEstimatedTime !== undefined && file.elapsedTime !== undefined
-        ? formatTime(file.totalEstimatedTime - file.elapsedTime)
-        : '';
-
     const statusText = file.status === 'uploading' 
       ? t('preparePage.uploadingStatus') 
       : `${t('preparePage.processingStatus')} ${file.progress ? `(${file.progress})` : ''}`;
@@ -96,7 +73,7 @@ const FileItem: React.FC<{
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground truncate block">{file.name}</span>
             <p className="text-xs text-muted-foreground">
-                {statusText}... {timeRemaining && `~${timeRemaining} restantes`}
+                {statusText}...
             </p>
           </div>
         </div>

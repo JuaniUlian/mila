@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2, AlertTriangle, MoreVertical, PenLine, Trash2 } from 'lucide-react';
@@ -24,7 +24,6 @@ interface Regulation {
     status?: 'processing' | 'error' | 'success';
     error?: string;
     processingTime?: number;
-    estimatedTime?: number;
 }
 
 interface RegulationItemProps {
@@ -39,32 +38,14 @@ interface RegulationItemProps {
 const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
     const { language } = useLanguage();
     const t = useTranslations(language);
-    const [countdown, setCountdown] = useState(regulation.estimatedTime ? Math.round(regulation.estimatedTime) : 0);
-
-    useEffect(() => {
-        if (regulation.status === 'processing' && regulation.estimatedTime) {
-            setCountdown(Math.round(regulation.estimatedTime));
-            const interval = setInterval(() => {
-                setCountdown(prev => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        return 0; // Hold at 0
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-
-            return () => clearInterval(interval);
-        }
-    }, [regulation.status, regulation.estimatedTime]);
-
+    
     if (regulation.status === 'processing') {
         return (
             <div className="bg-white/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm p-4 flex items-center gap-4">
                 <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
                 <div className="flex-1">
                     <p className="font-medium text-foreground">{regulation.name}</p>
-                    <p className="text-sm text-muted-foreground">{t('preparePage.processingStatus')}... {countdown > 0 ? `~${countdown}s restantes` : ''}</p>
+                    <p className="text-sm text-muted-foreground">{t('preparePage.processingStatus')}...</p>
                 </div>
             </div>
         );

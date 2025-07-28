@@ -45,10 +45,6 @@ type File = {
   processingTime?: number;
   // Chunk-specific progress
   progress?: string; // e.g. "1/5"
-  chunkEstimatedTime?: number;
-  // Total progress for a single file
-  totalEstimatedTime?: number;
-  elapsedTime?: number;
 };
 
 type Regulation = {
@@ -59,7 +55,6 @@ type Regulation = {
     error?: string;
     startTime?: number;
     processingTime?: number;
-    estimatedTime?: number;
 };
 
 // Mock Data
@@ -91,29 +86,6 @@ const initialRegulations: Regulation[] = [
 
 const FOLDERS_STORAGE_KEY = 'mila-prepare-folders';
 const REGULATIONS_STORAGE_KEY = 'mila-prepare-regulations';
-
-const estimateProcessingTime = (file: { name: string, size?: number, pageCount?: number }): number => {
-    // For PDFs, the primary factor is page count, especially for scanned docs.
-    if (file.pageCount) {
-        // Scanned PDFs are slow. Estimate 8 seconds per page.
-        return 2 + file.pageCount * 8;
-    }
-
-    // For other files, use size.
-    const sizeInMB = (file.size ?? 0) / (1024 * 1024);
-    const baseTime = 5; // seconds
-
-    if (file.name.endsWith('.pdf')) {
-        // This is a rough total estimation for non-chunked or unknown page count PDFs.
-        // It's less accurate than page count.
-        return baseTime + sizeInMB * 45; // 45 seconds per MB for scanned PDFs
-    }
-    if (file.name.endsWith('.docx')) {
-        return baseTime + sizeInMB * 8;
-    }
-    // Text files
-    return baseTime + sizeInMB * 3;
-};
 
 export default function PreparePage() {
   const router = useRouter();
@@ -303,39 +275,31 @@ export default function PreparePage() {
             const numChunks = Math.ceil(totalPages / chunkSize);
             let combinedText = '';
 
-            // Calculate total estimated time for all chunks
-            const totalEstimatedTime = Array.from({ length: numChunks }, (_, i) => {
-              const startPage = i * chunkSize;
-              const endPage = Math.min(startPage + chunkSize, totalPages);
-              return estimateProcessingTime({ name: rawFile.name, pageCount: endPage - startPage });
-            }).reduce((acc, time) => acc + time, 0);
-
-            let elapsedTime = 0;
-            updateFileState({ totalEstimatedTime, elapsedTime });
-
-            const timer = setInterval(() => {
-                elapsedTime++;
-                updateFileState({ elapsedTime });
-            }, 1000);
-
             for (let i = 0; i < numChunks; i++) {
                 const chunkProgress = `${i + 1}/${numChunks}`;
-                const startPage = i * chunkSize;
-                const endPage = Math.min(startPage + chunkSize, totalPages);
-                const chunkPageCount = endPage - startPage;
-                const chunkEstimatedTime = estimateProcessingTime({ name: rawFile.name, pageCount: chunkPageCount });
-
-                updateFileState({ progress: chunkProgress, chunkEstimatedTime });
+                updateFileState({ progress: chunkProgress });
                 
                 const chunkDoc = await PDFDocument.create();
-                const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: chunkPageCount }, (_, k) => startPage + k));
+                const startPage = i * chunkSize;
+                const endPage = Math.min(startPage + chunkSize, totalPages);
+                const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: endPage - startPage }, (_, k) => startPage + k));
                 copiedPages.forEach(page => chunkDoc.addPage(page));
+                
                 const chunkBytes = await chunkDoc.save();
                 const chunkFile = new File([chunkBytes], `chunk_${i + 1}_of_${numChunks}.pdf`, { type: 'application/pdf' });
                 
                 const formData = new FormData();
                 formData.append('file', chunkFile);
-                const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+
+                const response = await fetch('/api/extract-text', { 
+                  method: 'POST', 
+                  body: formData,
+                  signal: controller.signal 
+                });
+                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     const errorText = await response.text().catch(() => `Server error: ${response.status}`);
@@ -345,7 +309,6 @@ export default function PreparePage() {
                 combinedText += result.extractedText + '\n\n';
             }
             
-            clearInterval(timer);
             updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (filePlaceholder.startTime ?? 0)) / 1000 });
 
         } else {
@@ -437,16 +400,13 @@ export default function PreparePage() {
   };
   
   const processSingleRegulation = async (rawFile: globalThis.File) => {
-    // This function can reuse the processSingleDocument logic as it's very similar
     const tempId = `reg-${Date.now()}`;
-    const estimatedTime = estimateProcessingTime({ name: rawFile.name, size: rawFile.size });
     const regulationPlaceholder: Regulation = {
         id: tempId,
         name: rawFile.name,
         content: '',
         status: 'processing',
         startTime: Date.now(),
-        estimatedTime,
     };
 
     setRegulations(prev => [...prev, regulationPlaceholder]);
@@ -1098,3 +1058,4 @@ export default function PreparePage() {
     </div>
   );
 }
+
