@@ -213,4 +213,8 @@ export async function getMonitoringData() {
     health,
     stats: {
       last24Hours: stats24h,
-      lastHour: stats1
+      lastHour: stats1h,
+    },
+    timestamp: new Date().toISOString(),
+  };
+}

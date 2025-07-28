@@ -295,9 +295,14 @@ async function processChunkSafely(chunkDataUri: string, chunkIndex: number, tota
   return '';
 }
 
-// FLUJO ORIGINAL DE GENKIT (sin cambios para mantener compatibilidad)
+// FLUJO ORIGINAL DE GENKIT (con la corrección de sintaxis)
 const extractTextFromFileFlow = ai.defineFlow(
   {
     name: 'extractTextFromFileFlow',
     inputSchema: ExtractTextFromFileInputSchema,
-    outputSchema
+    outputSchema: ExtractTextFromFileOutputSchema,
+  },
+  async (flowInput) => {
+    return extractTextFromFile(flowInput);
+  }
+);
