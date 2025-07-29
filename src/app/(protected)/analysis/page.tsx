@@ -148,40 +148,43 @@ export default function PlanillaVivaPage() {
   }, [setScore]);
 
   const handleUpdateFinding = useCallback((findingId: string, newStatus: FindingStatus, userModifications?: any) => {
-    setFindings(prevFindings => {
-        const updatedFindings = prevFindings.map(f => {
-            if (f.id === findingId) {
-                const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
-                if (userModifications) {
-                    updatedFinding.userModifications = userModifications;
-                    if (newStatus !== 'discarded') {
-                        updatedFinding.status = 'modified';
-                    }
-                }
-                return updatedFinding;
-            }
-            return f;
-        });
+    const updatedFindings = findings.map(f => {
+      if (f.id === findingId) {
+        const updatedFinding: FindingWithStatus = { ...f, status: newStatus };
+        if (userModifications) {
+          updatedFinding.userModifications = userModifications;
+          if (newStatus !== 'discarded') {
+            updatedFinding.status = 'modified';
+          }
+        }
+        return updatedFinding;
+      }
+      return f;
+    });
 
-        updateScoring(updatedFindings);
-        
+    // Update state first
+    setFindings(updatedFindings);
+    updateScoring(updatedFindings);
+    
+    // Then handle side effects like localStorage and toasts
+    try {
         const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
         localStorage.setItem('validation-results', JSON.stringify({ ...currentData, findings: updatedFindings }));
+    } catch (e) {
+        console.error("Failed to update localStorage", e);
+    }
 
-        let toastTitle = "Sugerencia actualizada";
-        if (newStatus === 'applied' || newStatus === 'modified') {
-          toastTitle = "Sugerencia aplicada";
-        } else if (newStatus === 'discarded') {
-          toastTitle = "Sugerencia descartada";
-        }
+    let toastTitle = "Sugerencia actualizada";
+    if (newStatus === 'applied' || newStatus === 'modified') {
+      toastTitle = "Sugerencia aplicada";
+    } else if (newStatus === 'discarded') {
+      toastTitle = "Sugerencia descartada";
+    }
 
-        toast({
-          title: toastTitle,
-        });
-
-        return updatedFindings;
+    toast({
+      title: toastTitle,
     });
-  }, [toast, updateScoring]);
+  }, [findings, toast, updateScoring]);
 
   const handleDownloadReport = (type: 'current' | 'original' | 'audit') => {
     if (!currentScoring) return;
