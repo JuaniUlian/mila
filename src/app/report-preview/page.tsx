@@ -3,13 +3,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { ReportPreview } from '@/components/mila/report-preview';
-import type { MilaAppPData } from '@/components/mila/types';
+import type { FindingWithStatus } from '@/ai/flows/compliance-scoring';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
+interface ReportData {
+    documentTitle: string;
+    findings: FindingWithStatus[];
+    scoringReport: any;
+}
+
 export default function ReportPage() {
-  const [reportData, setReportData] = useState<MilaAppPData | null>(null);
+  const [reportData, setReportData] = useState<ReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { language } = useLanguage();
   const t = useTranslations(language);

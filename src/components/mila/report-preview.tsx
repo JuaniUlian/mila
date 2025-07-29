@@ -2,32 +2,39 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { MilaAppPData, Suggestion } from '@/components/mila/types';
+import type { FindingStatus, FindingWithStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
-interface ReportPreviewProps {
-  data: MilaAppPData;
+interface ReportData {
+    documentTitle: string;
+    findings: FindingWithStatus[];
+    scoringReport: any; // You might want to type this more strictly
 }
 
-const getSeverityStyles = (severity: Suggestion['severity']) => {
+interface ReportPreviewProps {
+  data: ReportData;
+}
+
+const getSeverityStyles = (severity: FindingWithStatus['gravedad']) => {
   switch (severity) {
-    case 'high':
+    case 'Alta':
       return 'border-l-red-500 bg-red-50';
-    case 'medium':
+    case 'Media':
       return 'border-l-amber-500 bg-amber-50';
-    case 'low':
+    case 'Baja':
       return 'border-l-sky-500 bg-sky-50';
     default:
       return 'border-l-gray-300 bg-gray-50';
   }
 };
 
-const getStatusStyles = (status: Suggestion['status']) => {
+const getStatusStyles = (status: FindingStatus) => {
     switch(status) {
         case 'applied':
+        case 'modified':
             return 'bg-green-100 text-green-800';
         case 'discarded':
             return 'bg-red-100 text-red-800';
@@ -38,7 +45,7 @@ const getStatusStyles = (status: Suggestion['status']) => {
 
 
 export function ReportPreview({ data }: ReportPreviewProps) {
-  const { documentTitle, blocks, overallComplianceScore, overallCompletenessIndex } = data;
+  const { documentTitle, findings, scoringReport } = data;
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [currentDate, setCurrentDate] = useState('');
@@ -48,27 +55,29 @@ export function ReportPreview({ data }: ReportPreviewProps) {
     setCurrentDate(new Date().toLocaleDateString('es-ES'));
   }, []);
   
-  const allSuggestionsWithContext = blocks.flatMap(block => 
-    block.suggestions.map(suggestion => ({
-      ...suggestion,
-      blockName: block.name,
-      evidence: suggestion.evidence || block.originalText, // Fallback to block's original text if evidence is missing
-    }))
-  );
-  
-  const appliedCount = allSuggestionsWithContext.filter(s => s.status === 'applied').length;
-  const discardedCount = allSuggestionsWithContext.filter(s => s.status === 'discarded').length;
+  const appliedCount = findings.filter(f => f.status === 'applied' || f.status === 'modified').length;
+  const discardedCount = findings.filter(f => f.status === 'discarded').length;
 
   const handlePrint = () => {
     window.print();
   };
 
-  const getTranslatedStatus = (status: Suggestion['status']) => {
-    return t(`reportPreviewPage.status.${status}`);
+  const getTranslatedStatus = (status: FindingStatus) => {
+    // @ts-ignore
+    const key = `reportPreviewPage.status.${status}`;
+    // @ts-ignore
+    const translated = t(key);
+    // @ts-ignore
+    return translated === key ? status : translated;
   }
 
-  const getTranslatedSeverity = (severity: Suggestion['severity']) => {
-    return t(`reportPreviewPage.severity.${severity}`);
+  const getTranslatedSeverity = (severity: FindingWithStatus['gravedad']) => {
+    // @ts-ignore
+    const key = `reportPreviewPage.severity.${severity}`;
+    // @ts-ignore
+    const translated = t(key);
+    // @ts-ignore
+    return translated === key ? severity : translated;
   }
 
   return (
@@ -111,13 +120,13 @@ export function ReportPreview({ data }: ReportPreviewProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-slate-50 p-4 rounded-lg border">
                 <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.complianceScore')}</h3>
-                <p className="text-4xl font-bold text-blue-600">{overallComplianceScore.toFixed(0)}<span className="text-2xl text-gray-500">/100</span></p>
-                <p className="text-sm text-gray-500 mt-1">{t('reportPreviewPage.complianceScoreDesc')}</p>
+                <p className="text-4xl font-bold text-blue-600">{scoringReport.summary.complianceScore.toFixed(0)}<span className="text-2xl text-gray-500">/100</span></p>
+                <p className="text-sm text-gray-500 mt-1">{scoringReport.summary.riskCategory.description}</p>
             </div>
              <div className="bg-slate-50 p-4 rounded-lg border">
-                <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.completenessIndex')}</h3>
-                <p className="text-4xl font-bold text-teal-600">{overallCompletenessIndex.toFixed(1)}<span className="text-2xl text-gray-500">/10.0</span></p>
-                <p className="text-sm text-gray-500 mt-1">{t('reportPreviewPage.completenessIndexDesc')}</p>
+                <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.riskLevel')}</h3>
+                <p className="text-4xl font-bold text-teal-600">{scoringReport.summary.riskCategory.label}</p>
+                 <p className="text-sm text-gray-500 mt-1">{t('reportPreviewPage.completenessIndexDesc')}</p>
             </div>
              <div className="bg-slate-50 p-4 rounded-lg border md:col-span-2">
                 <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.actionsSummary')}</h3>
@@ -131,8 +140,8 @@ export function ReportPreview({ data }: ReportPreviewProps) {
                         <p className="text-sm text-gray-500">{t('reportPreviewPage.discardedSuggestions')}</p>
                     </div>
                      <div className="text-center">
-                        <p className="text-2xl font-bold text-yellow-600">{allSuggestionsWithContext.length - appliedCount - discardedCount}</p>
-                        <p className="text-sm text-gray-500">{t('reportPreviewPage.status.pending')}</p>
+                        <p className="text-2xl font-bold text-yellow-600">{findings.length - appliedCount - discardedCount}</p>
+                        <p className="text-sm text-gray-500">{getTranslatedStatus('pending')}</p>
                     </div>
                 </div>
             </div>
@@ -142,31 +151,37 @@ export function ReportPreview({ data }: ReportPreviewProps) {
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{t('reportPreviewPage.findingsTitle')}</h2>
           <div className="space-y-8">
-            {allSuggestionsWithContext.length > 0 ? allSuggestionsWithContext.map(suggestion => (
-              <div key={suggestion.id} className={`p-4 rounded-md border-l-4 ${getSeverityStyles(suggestion.severity)}`}>
+            {findings.length > 0 ? findings.map(finding => (
+              <div key={finding.id} className={`p-4 rounded-md border-l-4 ${getSeverityStyles(finding.gravedad)}`}>
                 <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-bold text-gray-900">{suggestion.errorType}</h3>
+                    <h3 className="text-lg font-bold text-gray-900">{finding.titulo_incidencia}</h3>
                     <div className="flex items-center gap-4">
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusStyles(suggestion.status)}`}>
-                            {getTranslatedStatus(suggestion.status)}
+                        <span className={`text-xs font-semibold px-2 py-1 rounded-full ${getStatusStyles(finding.status)}`}>
+                            {getTranslatedStatus(finding.status)}
                         </span>
-                        <span className="text-sm font-semibold capitalize text-gray-700">{getTranslatedSeverity(suggestion.severity)}</span>
+                        <span className="text-sm font-semibold capitalize text-gray-700">{getTranslatedSeverity(finding.gravedad)}</span>
                     </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
-                    <span className="font-semibold">{t('reportPreviewPage.block')}</span> {suggestion.blockName}
+                    <span className="font-semibold">{t('reportPreviewPage.norma')}</span> {finding.nombre_archivo_normativa} ({finding.articulo_o_seccion})
                 </p>
                 <div className="space-y-4">
                     <div>
                         <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.originalTextContext')}</h4>
-                        <p className="text-sm text-gray-600 p-3 bg-gray-100 border rounded-md font-mono">{suggestion.evidence}</p>
+                        <p className="text-sm text-gray-600 p-3 bg-gray-100 border rounded-md font-mono">{finding.evidencia}</p>
                     </div>
+                     {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
+                        <div>
+                          <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.solutionProposal')}</h4>
+                          <div className="text-sm text-green-800 p-3 bg-green-100 border-l-4 border-green-400 rounded-md">
+                            {finding.propuesta_redaccion && <p><strong>{t('reportPreviewPage.wording')}: </strong>{finding.propuesta_redaccion}</p>}
+                            {finding.propuesta_procedimiento && <p><strong>{t('reportPreviewPage.procedure')}: </strong>{finding.propuesta_procedimiento}</p>}
+                          </div>
+                        </div>
+                    )}
                     <div>
                         <h4 className="font-semibold text-gray-700 mb-1">{t('reportPreviewPage.legalJustification')}</h4>
-                        <p className="text-sm text-gray-600">{suggestion.justification.legal}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                            <span className="font-semibold">{t('reportPreviewPage.regulation')}</span> {suggestion.appliedNorm}
-                        </p>
+                        <p className="text-sm text-gray-600">{finding.justificacion_legal}</p>
                     </div>
                 </div>
               </div>

@@ -33,7 +33,6 @@ import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import JSZip from 'jszip';
 import { PDFDocument } from 'pdf-lib';
-import { patchPackage } from 'patch-package';
 
 
 type File = {
@@ -257,7 +256,7 @@ export default function PreparePage() {
     isPausedRef.current.delete(fileId);
     abortControllerRef.current.delete(fileId);
     if (timerRef.current.has(fileId)) {
-      clearInterval(timerRef.current.get(fileId));
+      clearInterval(timerRef.current.get(fileId) as NodeJS.Timeout);
       timerRef.current.delete(fileId);
     }
   };
@@ -1166,3 +1165,4 @@ export default function PreparePage() {
     </div>
   );
 }
+
