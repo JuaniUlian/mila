@@ -122,10 +122,10 @@
     border-image: linear-gradient(to bottom, hsl(var(--severity-informative)), hsl(var(--severity-informative) / 0.7), transparent) 1;
   }
 
-  .hover-hud-red:hover { background: radial-gradient(circle, hsl(var(--severity-high) / 0.1), transparent 70%); }
-  .hover-hud-amber:hover { background: radial-gradient(circle, hsl(var(--severity-medium) / 0.1), transparent 70%); }
-  .hover-hud-sky:hover { background: radial-gradient(circle, hsl(var(--severity-low) / 0.1), transparent 70%); }
-  .hover-hud-gray:hover { background: radial-gradient(circle, hsl(var(--severity-informative) / 0.1), transparent 70%); }
+  .hover-hud-red:hover { background: linear-gradient(to right, hsl(var(--severity-high) / 0.15), transparent 80%); }
+  .hover-hud-amber:hover { background: linear-gradient(to right, hsl(var(--severity-medium) / 0.15), transparent 80%); }
+  .hover-hud-sky:hover { background: linear-gradient(to right, hsl(var(--severity-low) / 0.15), transparent 80%); }
+  .hover-hud-gray:hover { background: linear-gradient(to right, hsl(var(--severity-informative) / 0.15), transparent 80%); }
 
 
   /* Animated Backgrounds */
