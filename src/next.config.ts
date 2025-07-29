@@ -9,11 +9,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
-  api: {
-    // Deshabilitar bodyParser para esta ruta específica para manejar streaming de archivos grandes
-    bodyParser: false,
-  },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -33,12 +28,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Mover serverComponentsExternalPackages fuera de experimental
+  serverComponentsExternalPackages: ['sharp', 'mammoth'],
   // Configuración experimental para mejor rendimiento
   experimental: {
-    // Mejorar streaming para archivos grandes
-    serverComponentsExternalPackages: ['sharp', 'mammoth'],
     // Optimizar memory usage
-    isrMemoryCacheSize: 0,
+    // isrMemoryCacheSize: 0, // Esta opción ya no es reconocida, se elimina
   },
 };
 
