@@ -14,7 +14,6 @@ import { useRouter } from 'next/navigation';
 
 import { 
   calculateDynamicComplianceScore, 
-  simulateScoreChange,
   getRiskCategory,
   generateScoringReport,
   type FindingWithStatus,
@@ -184,50 +183,58 @@ export default function PlanillaVivaPage() {
     });
   }, [toast, updateScoring]);
 
-  const handleDownloadReport = () => {
+  const handleDownloadReport = (type: 'current' | 'original' | 'audit') => {
     if (!currentScoring) return;
-    try {
-      const reportData = {
-          documentTitle: documentName,
-          findings: findings,
-          scoringReport: generateScoringReport(findings)
-      };
 
-      localStorage.setItem('milaReportData', JSON.stringify(reportData));
-      console.log("Report data saved to localStorage for preview:", reportData);
-      toast({title: "Preparando informe", description: "La previsualización del informe se abrirá en una nueva pestaña."})
-      window.open('/report-preview', '_blank');
+    let reportData: any;
+    let toastTitle = "Preparando informe";
+    let toastDescription = "La previsualización del informe se abrirá en una nueva pestaña.";
+
+    try {
+        switch (type) {
+            case 'current':
+                reportData = {
+                    documentTitle: `${documentName} - Informe de Progreso`,
+                    findings: findings,
+                    scoringReport: generateScoringReport(findings)
+                };
+                toastTitle = "Preparando Informe de Progreso";
+                break;
+            
+            case 'original':
+                const originalFindings = findings.map(f => ({ ...f, status: 'pending' as const, userModifications: undefined }));
+                 reportData = {
+                    documentTitle: `${documentName} - Informe Original de IA`,
+                    findings: originalFindings,
+                    scoringReport: generateScoringReport(originalFindings)
+                };
+                toastTitle = "Preparando Informe Original";
+                break;
+
+            case 'audit':
+                const resolvedFindings = findings.filter(f => f.status === 'applied' || f.status === 'modified');
+                if (resolvedFindings.length === 0) {
+                    toast({ title: "Sin acciones", description: "No hay sugerencias aplicadas para reportar." });
+                    return;
+                }
+                reportData = {
+                    documentTitle: `Informe de Auditoría - ${documentName}`,
+                    findings: resolvedFindings,
+                    scoringReport: generateScoringReport(resolvedFindings)
+                };
+                toastTitle = "Preparando Informe de Auditoría";
+                break;
+        }
+        
+        localStorage.setItem('milaReportData', JSON.stringify(reportData));
+        toast({ title: toastTitle, description: toastDescription });
+        window.open('/report-preview', '_blank');
+
     } catch (error) {
-      console.error("Failed to save report data", error);
-      toast({ title: "Error al generar el informe", variant: "destructive" });
+        console.error(`Failed to save ${type} report data`, error);
+        toast({ title: `Error al generar el informe de ${type}`, variant: "destructive" });
     }
   };
-  
-  const handleDownloadAuditReport = () => {
-    if (!currentScoring) return;
-    try {
-      const resolvedFindings = findings.filter(f => f.status === 'applied' || f.status === 'modified');
-      if(resolvedFindings.length === 0) {
-        toast({ title: "Sin acciones", description: "No hay sugerencias aplicadas para reportar."});
-        return;
-      }
-
-      const reportData = {
-          documentTitle: `Informe de Auditoría - ${documentName}`,
-          findings: resolvedFindings,
-          scoringReport: generateScoringReport(resolvedFindings) // Scoring only for resolved
-      };
-
-      localStorage.setItem('milaReportData', JSON.stringify(reportData));
-      console.log("Audit report data saved to localStorage for preview:", reportData);
-      toast({title: "Preparando informe de auditoría", description: "La previsualización del informe se abrirá en una nueva pestaña."})
-      window.open('/report-preview', '_blank');
-
-    } catch (error) {
-      console.error("Failed to save audit report data", error);
-      toast({ title: "Error al generar el informe de auditoría", variant: "destructive" });
-    }
-  }
   
   if (!currentScoring) {
     return (
@@ -260,7 +267,6 @@ export default function PlanillaVivaPage() {
                   documentName={documentName}
                   currentScoring={currentScoring}
                   onDownloadReport={handleDownloadReport}
-                  onDownloadAuditReport={handleDownloadAuditReport}
                />
           </div>
         </main>

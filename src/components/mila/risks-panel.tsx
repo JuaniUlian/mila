@@ -2,12 +2,11 @@
 "use client";
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, BookCheck, FileOutput, Check } from 'lucide-react';
+import { Download, BookCheck, FileOutput, Check, FileClock } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { 
-  type FindingWithStatus,
-  generateScoringReport
+  type FindingWithStatus
 } from '@/ai/flows/compliance-scoring';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -32,8 +31,7 @@ interface RisksPanelProps {
     };
     breakdown: any;
   };
-  onDownloadReport: () => void;
-  onDownloadAuditReport: () => void;
+  onDownloadReport: (type: 'current' | 'original' | 'audit') => void;
 }
 
 const SEVERITY_TEXT_COLOR: Record<string, string> = {
@@ -54,58 +52,13 @@ export function RisksPanel({
   findings, 
   documentName,
   currentScoring,
+  onDownloadReport
 }: RisksPanelProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  const { toast } = useToast();
   
   const hasResolvedFindings = findings.some(f => f.status === 'applied' || f.status === 'modified');
   
-  const handleDownloadReport = () => {
-    try {
-      const originalFindings = findings.map(f => ({ ...f, status: 'pending' as const }));
-      const reportData = {
-          documentTitle: documentName,
-          findings: originalFindings,
-          scoringReport: generateScoringReport(originalFindings)
-      };
-
-      localStorage.setItem('milaReportData', JSON.stringify(reportData));
-      console.log("Original report data saved to localStorage for preview:", reportData);
-      toast({title: "Preparando informe original", description: "La previsualización del informe se abrirá en una nueva pestaña."})
-      window.open('/report-preview', '_blank');
-    } catch (error) {
-      console.error("Failed to save report data", error);
-      toast({ title: "Error al generar el informe", variant: "destructive" });
-    }
-  };
-  
-  const handleDownloadAuditReport = () => {
-    try {
-      const resolvedFindings = findings.filter(f => f.status === 'applied' || f.status === 'modified');
-      if(resolvedFindings.length === 0) {
-        toast({ title: "Sin acciones", description: "No hay sugerencias aplicadas para reportar."});
-        return;
-      }
-      
-      const reportData = {
-          documentTitle: `Informe de Auditoría - ${documentName}`,
-          findings: resolvedFindings,
-          scoringReport: generateScoringReport(resolvedFindings)
-      };
-
-      localStorage.setItem('milaReportData', JSON.stringify(reportData));
-      console.log("Audit report data saved to localStorage for preview:", reportData);
-      toast({title: "Preparando informe de auditoría", description: "La previsualización del informe se abrirá en una nueva pestaña."})
-      window.open('/report-preview', '_blank');
-
-    } catch (error) {
-      console.error("Failed to save audit report data", error);
-      toast({ title: "Error al generar el informe de auditoría", variant: "destructive" });
-    }
-  }
-
-
   return (
     <div className="bg-white/60 backdrop-blur-xl border-white/50 shadow-xl rounded-2xl p-6 flex flex-col h-full">
       <h2 className="text-xl font-semibold text-gray-900 mb-1">
@@ -157,22 +110,33 @@ export function RisksPanel({
           <Button 
               className="w-full text-base py-6 bg-primary text-primary-foreground hover:bg-primary/90"
               size="lg"
-              onClick={handleDownloadReport}
+              onClick={() => onDownloadReport('current')}
           >
               <Download className="mr-2 h-5 w-5" />
-              {t('analysisPage.downloadReport')}
+              Descargar Informe de Progreso
           </Button>
-
-          {hasResolvedFindings && (
+          
+           {hasResolvedFindings && (
             <Button 
                 className="w-full text-base py-6 btn-neu-light"
                 size="lg"
-                onClick={handleDownloadAuditReport}
+                onClick={() => onDownloadReport('audit')}
             >
                 <FileOutput className="mr-2 h-5 w-5" />
                 Descargar Informe de Auditoría
             </Button>
           )}
+
+           <Button 
+              variant="outline"
+              className="w-full text-base py-6 btn-neu-light"
+              size="lg"
+              onClick={() => onDownloadReport('original')}
+          >
+              <FileClock className="mr-2 h-5 w-5" />
+              Descargar Informe Original (IA)
+          </Button>
+
 
           <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>
