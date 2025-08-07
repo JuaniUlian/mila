@@ -9,6 +9,7 @@ import {
   type FindingWithStatus
 } from '@/ai/flows/compliance-scoring';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RisksPanelProps {
   findings: FindingWithStatus[];
@@ -92,23 +93,39 @@ export function RisksPanel({
       </div>
       
       <div className="mt-auto pt-6 space-y-3">
-          <Button 
-              className="w-full btn-neu-light text-primary"
-              onClick={onDownloadReport}
-          >
-              <Download className="mr-2 h-5 w-5" />
-              {t('analysisPage.downloadReport')}
-          </Button>
-          
-           {hasCorrections && (
-             <Button 
-                className="w-full btn-neu-light"
-                onClick={onDownloadCorrectedDoc}
-             >
-                <FileOutput className="mr-2 h-5 w-5" />
-                {t('analysisPage.downloadCorrectedDoc')}
-             </Button>
-           )}
+        <TooltipProvider>
+            <div className="flex justify-center items-center gap-4">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            className="h-14 w-14 rounded-full btn-neu-light text-primary"
+                            onClick={onDownloadReport}
+                        >
+                            <Download className="h-7 w-7" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{t('analysisPage.downloadReport')}</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                {hasCorrections && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                className="h-14 w-14 rounded-full btn-neu-light text-primary"
+                                onClick={onDownloadCorrectedDoc}
+                            >
+                                <FileOutput className="h-7 w-7" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{t('analysisPage.downloadCorrectedDoc')}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                )}
+            </div>
+        </TooltipProvider>
 
           <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>
