@@ -59,6 +59,11 @@ export function RisksPanel({
   const { language } = useLanguage();
   const t = useTranslations(language);
   
+  const hasCorrections = findings.some(f => 
+    (f.status === 'applied' || f.status === 'modified') && 
+    (f.propuesta_redaccion || f.userModifications?.propuesta_redaccion)
+  );
+
   return (
     <div className="bg-white/60 backdrop-blur-xl border-white/50 shadow-xl rounded-2xl p-6 flex flex-col h-full">
       <h2 className="text-xl font-semibold text-gray-900 mb-1">
@@ -116,14 +121,16 @@ export function RisksPanel({
               Descargar Informe de Auditoría
           </Button>
           
-           <Button 
-              className="w-full text-base py-6 btn-neu-light"
-              size="lg"
-              onClick={onDownloadCorrectedDoc}
-           >
-              <FileOutput className="mr-2 h-5 w-5" />
-              Descargar Documento Corregido
-           </Button>
+           {hasCorrections && (
+             <Button 
+                className="w-full text-base py-6 btn-neu-light"
+                size="lg"
+                onClick={onDownloadCorrectedDoc}
+             >
+                <FileOutput className="mr-2 h-5 w-5" />
+                Descargar Documento Corregido
+             </Button>
+           )}
 
           <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>

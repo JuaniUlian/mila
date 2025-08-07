@@ -258,16 +258,22 @@ export const translations = {
     originalTextContext: t('Contexto del Texto Original (Evidencia):', 'Original Text Context (Evidence):'),
     legalJustification: t('Justificación Legal (Incumplimiento):', 'Legal Justification (Non-compliance):'),
     regulation: t('Normativa:', 'Regulation:'),
+    norma: t('Marco Legal Afectado:', 'Affected Legal Framework:'),
+    solutionProposal: t('Propuesta de Solución', 'Solution Proposal'),
+    wording: t('Redacción', 'Wording'),
+    procedure: t('Procedimiento', 'Procedure'),
     noInconsistencies: t('No se encontraron inconsistencias.', 'No inconsistencies were found.'),
     status: {
       pending: t('Pendiente', 'Pending'),
       applied: t('Aplicado', 'Applied'),
       discarded: t('Descartado', 'Discarded'),
+      modified: t('Modificado y Aplicado', 'Modified and Applied'),
     },
     severity: {
-      high: t('Alta', 'High'),
-      medium: t('Media', 'Medium'),
-      low: t('Baja', 'Low'),
+      Alta: t('Alta', 'High'),
+      Media: t('Media', 'Medium'),
+      Baja: t('Baja', 'Low'),
+      Informativa: t('Informativa', 'Informative'),
     },
   },
   
@@ -332,6 +338,6 @@ export const useTranslations = (lang: Language) => {
       if (!result) return key; // Return key if path is invalid
     }
     // Fallback to Spanish if the selected language translation is not available
-    return result?.[lang] || result?.['es'] || key;
+    return result?.['es'] || result?.[lang] || key;
   }, [lang]);
 };
