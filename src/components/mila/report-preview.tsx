@@ -123,12 +123,12 @@ export function ReportPreview({ data }: ReportPreviewProps) {
             <div className="bg-slate-50 p-4 rounded-lg border">
                 <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.complianceScore')}</h3>
                 <p className="text-4xl font-bold text-blue-600">{scoringReport.summary.complianceScore.toFixed(0)}<span className="text-2xl text-gray-500">/100</span></p>
-                <p className="text-sm text-gray-500 mt-1">{scoringReport.summary.riskCategory.description}</p>
+                <p className="text-sm text-gray-500 mt-1">{t('reportPreviewPage.complianceScoreDesc')}</p>
             </div>
              <div className="bg-slate-50 p-4 rounded-lg border">
                 <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.riskLevel')}</h3>
                 <p className="text-4xl font-bold text-teal-600">{scoringReport.summary.riskCategory.label}</p>
-                 <p className="text-sm text-gray-500 mt-1">{t('reportPreviewPage.completenessIndexDesc')}</p>
+                 <p className="text-sm text-gray-500 mt-1">{scoringReport.summary.riskCategory.description}</p>
             </div>
              <div className="bg-slate-50 p-4 rounded-lg border md:col-span-2">
                 <h3 className="font-semibold text-gray-700">{t('reportPreviewPage.actionsSummary')}</h3>
