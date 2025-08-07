@@ -102,6 +102,10 @@
     @apply bg-green-100 text-green-800 font-semibold border border-green-200/50 shadow-[5px_5px_10px_#bbf7d0,-5px_-5px_10px_#ffffff] hover:bg-green-100 hover:shadow-inner active:shadow-[inset_2px_2px_5px_#bbf7d0,inset_-2px_-2px_5px_#ffffff] transition-shadow duration-200 ease-in-out;
   }
 
+  .btn-glass-neu {
+    @apply bg-slate-800/80 text-white backdrop-blur-sm border border-slate-600/50 font-semibold shadow-[inset_2px_2px_4px_rgba(255,255,255,0.1),_4px_4px_8px_rgba(0,0,0,0.3)] hover:bg-slate-700/80 active:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4)] transition-all duration-200 ease-in-out;
+  }
+
   .card-neumorphism {
       @apply bg-slate-50 rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
   }

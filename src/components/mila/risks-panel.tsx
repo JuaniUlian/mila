@@ -92,40 +92,26 @@ export function RisksPanel({
         ))}
       </div>
       
-      <div className="mt-auto pt-6 space-y-3">
-        <TooltipProvider>
-            <div className="flex justify-center items-center gap-4">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button
-                            className="h-14 w-14 rounded-full btn-neu-light text-primary"
-                            onClick={onDownloadReport}
-                        >
-                            <Download className="h-7 w-7" />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{t('analysisPage.downloadReport')}</p>
-                    </TooltipContent>
-                </Tooltip>
+       <div className="mt-auto pt-6 space-y-3">
+          <Button
+            className="w-full text-base py-6 btn-glass-neu"
+            size="lg"
+            onClick={onDownloadReport}
+          >
+            <Download className="mr-2 h-5 w-5" />
+            {t('analysisPage.downloadReport')}
+          </Button>
 
-                {hasCorrections && (
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button
-                                className="h-14 w-14 rounded-full btn-neu-light text-primary"
-                                onClick={onDownloadCorrectedDoc}
-                            >
-                                <FileOutput className="h-7 w-7" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>{t('analysisPage.downloadCorrectedDoc')}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                )}
-            </div>
-        </TooltipProvider>
+          {hasCorrections && (
+            <Button
+              className="w-full text-base py-6 btn-glass-neu"
+              size="lg"
+              onClick={onDownloadCorrectedDoc}
+            >
+              <FileOutput className="mr-2 h-5 w-5" />
+              {t('analysisPage.downloadCorrectedDoc')}
+            </Button>
+          )}
 
           <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>
