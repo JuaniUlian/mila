@@ -31,7 +31,8 @@ interface RisksPanelProps {
     };
     breakdown: any;
   };
-  onDownloadReport: (type: 'current' | 'original' | 'audit') => void;
+  onDownloadReport: () => void;
+  onDownloadCorrectedDoc: () => void;
 }
 
 const SEVERITY_TEXT_COLOR: Record<string, string> = {
@@ -52,12 +53,11 @@ export function RisksPanel({
   findings, 
   documentName,
   currentScoring,
-  onDownloadReport
+  onDownloadReport,
+  onDownloadCorrectedDoc
 }: RisksPanelProps) {
   const { language } = useLanguage();
   const t = useTranslations(language);
-  
-  const hasResolvedFindings = findings.some(f => f.status === 'applied' || f.status === 'modified');
   
   return (
     <div className="bg-white/60 backdrop-blur-xl border-white/50 shadow-xl rounded-2xl p-6 flex flex-col h-full">
@@ -110,33 +110,20 @@ export function RisksPanel({
           <Button 
               className="w-full text-base py-6 bg-primary text-primary-foreground hover:bg-primary/90"
               size="lg"
-              onClick={() => onDownloadReport('current')}
+              onClick={onDownloadReport}
           >
               <Download className="mr-2 h-5 w-5" />
-              Descargar Informe de Progreso
+              Descargar Informe de Auditoría
           </Button>
           
-           {hasResolvedFindings && (
-            <Button 
-                className="w-full text-base py-6 btn-neu-light"
-                size="lg"
-                onClick={() => onDownloadReport('audit')}
-            >
-                <FileOutput className="mr-2 h-5 w-5" />
-                Descargar Informe de Auditoría
-            </Button>
-          )}
-
            <Button 
-              variant="outline"
               className="w-full text-base py-6 btn-neu-light"
               size="lg"
-              onClick={() => onDownloadReport('original')}
-          >
-              <FileClock className="mr-2 h-5 w-5" />
-              Descargar Informe Original (IA)
-          </Button>
-
+              onClick={onDownloadCorrectedDoc}
+           >
+              <FileOutput className="mr-2 h-5 w-5" />
+              Descargar Documento Corregido
+           </Button>
 
           <p className="text-xs text-muted-foreground text-center mt-2 px-4">{t('analysisPage.downloadReportDesc')}</p>
       </div>

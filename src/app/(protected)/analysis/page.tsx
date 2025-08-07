@@ -162,11 +162,9 @@ export default function PlanillaVivaPage() {
       return f;
     });
 
-    // Update state first
     setFindings(updatedFindings);
     updateScoring(updatedFindings);
     
-    // Then handle side effects like localStorage and toasts
     try {
         const currentData = JSON.parse(localStorage.getItem('validation-results') || '{}');
         localStorage.setItem('validation-results', JSON.stringify({ ...currentData, findings: updatedFindings }));
@@ -186,56 +184,65 @@ export default function PlanillaVivaPage() {
     });
   }, [findings, toast, updateScoring]);
 
-  const handleDownloadReport = (type: 'current' | 'original' | 'audit') => {
+  const handleDownloadReport = () => {
     if (!currentScoring) return;
-
-    let reportData: any;
-    let toastTitle = "Preparando informe";
-    let toastDescription = "La previsualización del informe se abrirá en una nueva pestaña.";
-
+    
     try {
-        switch (type) {
-            case 'current':
-                reportData = {
-                    documentTitle: `${documentName} - Informe de Progreso`,
-                    findings: findings,
-                    scoringReport: generateScoringReport(findings)
-                };
-                toastTitle = "Preparando Informe de Progreso";
-                break;
-            
-            case 'original':
-                const originalFindings = findings.map(f => ({ ...f, status: 'pending' as const, userModifications: undefined }));
-                 reportData = {
-                    documentTitle: `${documentName} - Informe Original de IA`,
-                    findings: originalFindings,
-                    scoringReport: generateScoringReport(originalFindings)
-                };
-                toastTitle = "Preparando Informe Original";
-                break;
-
-            case 'audit':
-                const resolvedFindings = findings.filter(f => f.status === 'applied' || f.status === 'modified');
-                if (resolvedFindings.length === 0) {
-                    toast({ title: "Sin acciones", description: "No hay sugerencias aplicadas para reportar." });
-                    return;
-                }
-                reportData = {
-                    documentTitle: `Informe de Auditoría - ${documentName}`,
-                    findings: resolvedFindings,
-                    scoringReport: generateScoringReport(resolvedFindings)
-                };
-                toastTitle = "Preparando Informe de Auditoría";
-                break;
-        }
-        
-        localStorage.setItem('milaReportData', JSON.stringify(reportData));
-        toast({ title: toastTitle, description: toastDescription });
-        window.open('/report-preview', '_blank');
+      const reportData = {
+          documentTitle: `${documentName} - Informe de Auditoría`,
+          findings: findings,
+          scoringReport: generateScoringReport(findings)
+      };
+      
+      localStorage.setItem('milaReportData', JSON.stringify(reportData));
+      toast({ 
+        title: "Preparando Informe de Auditoría", 
+        description: "La previsualización del informe se abrirá en una nueva pestaña." 
+      });
+      window.open('/report-preview', '_blank');
 
     } catch (error) {
-        console.error(`Failed to save ${type} report data`, error);
-        toast({ title: `Error al generar el informe de ${type}`, variant: "destructive" });
+        console.error(`Failed to save report data`, error);
+        toast({ title: `Error al generar el informe`, variant: "destructive" });
+    }
+  };
+
+  const handleDownloadCorrectedDoc = () => {
+    try {
+        const originalContent = localStorage.getItem('selectedDocumentContent');
+        if (!originalContent) {
+            toast({ title: "Error", description: "No se encontró el contenido del documento original.", variant: "destructive" });
+            return;
+        }
+
+        const appliedSuggestions = findings.filter(f => 
+            (f.status === 'applied' || f.status === 'modified') && 
+            (f.propuesta_redaccion || f.userModifications?.propuesta_redaccion)
+        );
+
+        let correctedText = originalContent;
+        for (const suggestion of appliedSuggestions) {
+            const newText = suggestion.userModifications?.propuesta_redaccion ?? suggestion.propuesta_redaccion;
+            if (newText) {
+                correctedText = correctedText.replace(suggestion.evidencia, newText);
+            }
+        }
+        
+        const correctedDocData = {
+            documentTitle: documentName,
+            correctedText: correctedText
+        };
+        
+        localStorage.setItem('milaCorrectedDocData', JSON.stringify(correctedDocData));
+        toast({ 
+            title: "Preparando Documento Corregido",
+            description: "La previsualización del documento se abrirá en una nueva pestaña."
+        });
+        window.open('/corrected-doc-preview', '_blank');
+
+    } catch (error) {
+        console.error("Error preparing corrected document", error);
+        toast({ title: "Error al generar el documento corregido", variant: "destructive" });
     }
   };
   
@@ -270,6 +277,7 @@ export default function PlanillaVivaPage() {
                   documentName={documentName}
                   currentScoring={currentScoring}
                   onDownloadReport={handleDownloadReport}
+                  onDownloadCorrectedDoc={handleDownloadCorrectedDoc}
                />
           </div>
         </main>

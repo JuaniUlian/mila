@@ -2,49 +2,30 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { MilaAppPData } from '@/components/mila/types';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
+interface CorrectedDocData {
+  documentTitle: string;
+  correctedText: string;
+}
+
 interface CorrectedDocPreviewProps {
-  data: MilaAppPData;
+  data: CorrectedDocData;
 }
 
 export function CorrectedDocPreview({ data }: CorrectedDocPreviewProps) {
-  const { documentTitle } = data;
+  const { documentTitle, correctedText } = data;
   const { language } = useLanguage();
   const t = useTranslations(language);
   const [currentDate, setCurrentDate] = useState('');
-  const [correctedText, setCorrectedText] = useState('');
 
   useEffect(() => {
     // Set date on client-side to avoid hydration mismatch
     setCurrentDate(new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
-
-    // Generate the corrected document text
-    // Start with the original full text from the first block (assuming it contains the whole document)
-    let fullText = data.blocks[0]?.originalText || '';
-
-    // Get all suggestions that were applied and have a text change
-    const appliedSuggestions = data.blocks.flatMap(block =>
-      block.suggestions.filter(s => s.status === 'applied' && s.text && s.evidence)
-    );
-
-    // Replace the original evidence with the corrected suggestion text
-    for (const suggestion of appliedSuggestions) {
-      // Use a simple string replacement.
-      // Note: This assumes the evidence text is unique enough not to cause accidental replacements.
-      // For a more robust solution, a diff-patch library or more complex logic would be needed.
-      if (suggestion.evidence) {
-         fullText = fullText.replace(suggestion.evidence, suggestion.text!);
-      }
-    }
-    
-    setCorrectedText(fullText);
-
-  }, [data]);
+  }, []);
   
   const handlePrint = () => {
     window.print();

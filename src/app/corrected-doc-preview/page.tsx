@@ -3,13 +3,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { CorrectedDocPreview } from '@/components/mila/corrected-doc-preview';
-import type { MilaAppPData } from '@/components/mila/types';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 
+interface CorrectedDocData {
+    documentTitle: string;
+    correctedText: string;
+}
+
 export default function CorrectedDocPage() {
-  const [docData, setDocData] = useState<MilaAppPData | null>(null);
+  const [docData, setDocData] = useState<CorrectedDocData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { language } = useLanguage();
   const t = useTranslations(language);

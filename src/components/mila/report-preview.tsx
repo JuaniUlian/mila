@@ -57,6 +57,8 @@ export function ReportPreview({ data }: ReportPreviewProps) {
   
   const appliedCount = findings.filter(f => f.status === 'applied' || f.status === 'modified').length;
   const discardedCount = findings.filter(f => f.status === 'discarded').length;
+  const pendingCount = findings.length - appliedCount - discardedCount;
+
 
   const handlePrint = () => {
     window.print();
@@ -140,7 +142,7 @@ export function ReportPreview({ data }: ReportPreviewProps) {
                         <p className="text-sm text-gray-500">{t('reportPreviewPage.discardedSuggestions')}</p>
                     </div>
                      <div className="text-center">
-                        <p className="text-2xl font-bold text-yellow-600">{findings.length - appliedCount - discardedCount}</p>
+                        <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
                         <p className="text-sm text-gray-500">{getTranslatedStatus('pending')}</p>
                     </div>
                 </div>
