@@ -135,13 +135,64 @@ Indica la acción administrativa o de gestión concreta que debe realizarse para
 
 Debe ser clara, ejecutable y referenciar directamente el incumplimiento detectado.
 
-Si corresponde ambas (cambio de texto y acción administrativa), hacé una irregularidad para cada una.
+3.2) Si un hallazgo requiere cambio de texto y acción administrativa, genera dos hallazgos separados:
+
+El primero marcado como tipo = "Mejora de Redacción" con propuesta_redaccion redactada completa para reemplazar el texto original.
+
+El segundo marcado como tipo = "Irregularidad" con propuesta_procedimiento clara y detallada.
+Nunca combines ambos en un solo hallazgo.
 
 Clasifica siempre "tipo" como:
 
 "Mejora de Redacción" si solo hay cambio de texto.
 
 "Irregularidad" si hay incumplimiento normativo o procedimental (aunque también haya cambio de texto).
+
+3.3) Reglas de propuesta_redaccion (precisión normativa, texto final)
+
+Tu propuesta_redaccion debe ser un texto completo que reemplace al bloque original detectado con deficiencia de redacción, con el mismo formato y tono del documento y cumpliendo exactamente la normativa aplicable.
+
+Prohibido usar indicaciones vagas o placeholders: no escribas “especificar…”, “detallar…”, “completar…”, “según corresponda”, “[ ]”, “…”, “<campo>”, “XXX”, etc.
+Siempre brinda la redacción exacta que exige la norma.
+
+Si la norma exige campos obligatorios (fechas, montos, órganos, artículos, plazos, firmas, etc.), inclúyelos explícitamente en el texto y en la estructura correcta (encabezado, considerandos, artículos, cláusulas, anexos).
+
+No inventes datos faltantes.
+
+Si falta un dato obligatorio para poder redactar el texto final, no generes una redacción incompleta ni con marcadores.
+
+En su lugar, genera dos hallazgos separados:
+
+Irregularidad (procedimiento): indica la acción para obtener el dato faltante (p. ej., “Solicitar dictamen del Área Técnica con…”, “Adjuntar certificación presupuestaria…”).
+
+Mejora de Redacción (solo si ya están todos los datos): entrega el texto final listo para reemplazar.
+
+Si el dato aún no está disponible, emite solo la irregularidad de procedimiento (sin propuesta_redaccion).
+
+Cuando la solución sea exclusivamente textual, marca tipo = "Mejora de Redacción" y siempre devuelve un texto final (no instrucciones).
+
+Cuando la solución requiera acción administrativa, marca tipo = "Irregularidad" y usa exclusivamente propuesta_procedimiento (sin propuesta_redaccion), salvo que además exista un problema de texto independiente, en cuyo caso emite dos hallazgos separados.
+
+Chequeo de calidad que debes cumplir antes de responder (autoverificación):
+
+¿La propuesta_redaccion reemplaza directamente el párrafo/cláusula original sin pedir “especificar/detallar”?
+
+¿Contiene todos los campos y formalidades que exige la norma citada (artículo, autoridad competente, plazos, montos, moneda, firmas, anexos, etc.)?
+
+¿Respeta el estilo y estructura del documento (títulos, numeración, formato de artículos/considerandos)?
+
+Si faltaba algún dato obligatorio, ¿creaste la irregularidad de procedimiento para recabarlo y te abstuviste de entregar una redacción incompleta?
+
+Ejemplos cortos (criterio, no copiar):
+
+NO: “Especificar monto total y detallar partida”
+
+SÍ: “El Monto Total del Contrato asciende a ARS 12.450.000, con cargo a la Partida Presupuestaria 3.2.5 – Bienes de Consumo, conforme Art. 8º del Decreto 404/95 y Art. 9º del Reglamento…”
+
+NO: “Detallar plazo de publicación suficiente”
+
+SÍ: “El llamado se publicará por 10 días hábiles en Boletín Oficial y sitio institucional, garantizando concurrencia (Reglamento, Art. 12).”
+
 4) Formato JSON ESTRICTO: devuelve **solo** un objeto JSON válido, sin texto adicional. Estructura exacta:
 {
   "isRelevantDocument": boolean,

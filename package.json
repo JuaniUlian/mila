@@ -46,10 +46,11 @@
     "genkit": "^1.8.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.475.0",
-    "mammoth": "^1.7.2",
-    "next": "15.2.3",
+    "mammoth": "^1.10.0",
+    "next": "^15.4.6",
     "patch-package": "^8.0.0",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.4.54",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
@@ -57,6 +58,7 @@
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
