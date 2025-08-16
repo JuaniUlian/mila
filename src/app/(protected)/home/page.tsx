@@ -49,7 +49,7 @@ export default function LandingPage() {
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900">{t('hero.title')}</h1>
           <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600">{t('hero.subtitle')}</p>
-           <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 sm:hidden">
+           <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
               <Button onClick={handleDemoClick} size="lg" className="btn-neu-light rounded-full animate-subtle-breathing">
                 {t('nav.demo')}
               </Button>

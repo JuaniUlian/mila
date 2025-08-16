@@ -82,6 +82,12 @@
 }
 
 @layer components {
+  .bg-prepare-page {
+    background-image: url('/background/home.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
   .glass {
     @apply bg-white/30 backdrop-blur-sm border border-white/20 shadow-md;
   }

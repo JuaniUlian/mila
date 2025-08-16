@@ -20,7 +20,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     if (pathname === '/loading') {
       backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200 bg-200% animate-gradient-bg';
     } else if (pathname === '/prepare') {
-      backgroundClasses = 'bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200';
+      backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       // For analysis, we start with a neutral color and change it on the client
       backgroundClasses = 'bg-gradient-to-b from-slate-200/50 via-slate-100/50 to-white';
@@ -47,6 +47,8 @@ export default function MainContent({ children }: { children: React.ReactNode })
           backgroundClasses = 'bg-gradient-to-br from-sky-200 via-sky-100 to-white';
       }
       setBodyClassName(cn("flex min-h-screen flex-col transition-all duration-500", backgroundClasses, showHeader ? "pt-4" : ""));
+    } else if (pathname === '/prepare') {
+        setBodyClassName(cn("flex min-h-screen flex-col transition-all duration-500", "bg-prepare-page", showHeader ? "pt-4" : ""));
     } else {
       // For other pages, ensure the class name is consistent
       setBodyClassName(baseBodyClassName);
