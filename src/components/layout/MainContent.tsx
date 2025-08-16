@@ -43,7 +43,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   }, [pathname, score, isInitialPageLoad, showHeader]);
   
   return (
-    <div className={bodyClassName}>
+    <div className={bodyClassName} suppressHydrationWarning={true}>
       {showHeader && <MainHeader />}
       <main className="flex-1">
         {children}
