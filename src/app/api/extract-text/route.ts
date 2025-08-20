@@ -47,8 +47,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error in /api/extract-text:', error);
+    const errorMessage = error.message || 'An unexpected error occurred on the server.';
     return NextResponse.json({ 
-        error: error.message || 'An unexpected error occurred on the server.' 
+        error: `Server-side extraction failed: ${errorMessage}` 
     }, { status: 500 });
   }
 }
