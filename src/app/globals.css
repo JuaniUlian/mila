@@ -92,7 +92,7 @@
     background-image: url('/background/home.jpeg');
     background-size: 150% auto;
     background-position: center;
-    animation: subtle-breathing 24s ease-in-out infinite alternate;
+    animation: subtle-breathing 48s ease-in-out infinite alternate;
   }
   .bg-analysis-grave {
     background-image: url('/background/Grave.jpeg');
