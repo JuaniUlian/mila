@@ -92,7 +92,7 @@
     background-image: url('/background/home.jpeg');
     background-size: 150% auto;
     background-position: center;
-    animation: slow-pan 40s linear infinite alternate;
+    animation: subtle-breathing 8s ease-in-out infinite alternate;
   }
   .bg-analysis-grave {
     background-image: url('/background/Grave.jpeg');
@@ -210,4 +210,13 @@
 	0% { background-position: 0% 50%; }
 	50% { background-position: 100% 50%; }
 	100% { background-position: 0% 50%; }
+}
+
+@keyframes subtle-breathing {
+  from {
+    background-size: 150% auto;
+  }
+  to {
+    background-size: 155% auto;
+  }
 }
