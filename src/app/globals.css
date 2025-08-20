@@ -88,6 +88,30 @@
     background-position: center;
     background-attachment: fixed;
   }
+  .bg-loading-page {
+    background-image: url('/background/home.jpeg');
+    background-size: 150% auto;
+    background-position: center;
+    animation: slow-pan 40s linear infinite alternate;
+  }
+  .bg-analysis-grave {
+    background-image: url('/background/Grave.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  .bg-analysis-alerta {
+    background-image: url('/background/alerta.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  .bg-analysis-celeste {
+    background-image: url('/background/celeste.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
   .glass {
     @apply bg-white/30 backdrop-blur-sm border border-white/20 shadow-md;
   }
@@ -158,6 +182,15 @@
     background: linear-gradient(135deg, #6a9113, #141517, #6a9113);
     background-size: 400% 400%;
     animation: water-flow 18s ease infinite;
+  }
+}
+
+@keyframes slow-pan {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
   }
 }
 

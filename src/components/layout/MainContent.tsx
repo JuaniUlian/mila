@@ -18,20 +18,18 @@ export default function MainContent({ children }: { children: React.ReactNode })
     let backgroundClasses = 'bg-slate-100'; // Default background
 
     if (pathname === '/loading') {
-      backgroundClasses = 'bg-gradient-to-r from-white via-sky-200 to-slate-200 bg-200% animate-gradient-bg';
+      backgroundClasses = 'bg-loading-page';
     } else if (pathname === '/prepare') {
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
-          backgroundClasses = 'bg-gradient-to-b from-slate-200/50 via-slate-100/50 to-white';
-      } else if (score < 40) {
-          backgroundClasses = 'bg-gradient-to-br from-red-200 via-red-100 to-white';
-      } else if (score < 75) {
-          backgroundClasses = 'bg-gradient-to-br from-amber-200 via-amber-100 to-white';
-      } else if (score < 100) {
-          backgroundClasses = 'bg-gradient-to-br from-green-200 via-green-100 to-white';
-      } else { // score === 100
-          backgroundClasses = 'bg-gradient-to-br from-sky-200 via-sky-100 to-white';
+          backgroundClasses = 'bg-analysis-celeste';
+      } else if (score <= 50) {
+          backgroundClasses = 'bg-analysis-grave';
+      } else if (score <= 79) {
+          backgroundClasses = 'bg-analysis-alerta';
+      } else { // score >= 80
+          backgroundClasses = 'bg-analysis-celeste';
       }
     }
 
