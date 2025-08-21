@@ -39,12 +39,10 @@ export function MainHeader() {
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
             headerBgClass = 'bg-slate-100/60';
-        } else if (score < 40) {
+        } else if (score <= 50) {
             headerBgClass = 'bg-red-200/60';
-        } else if (score < 75) {
+        } else if (score <= 79) {
             headerBgClass = 'bg-amber-200/60';
-        } else if (score < 100) {
-            headerBgClass = 'bg-green-200/60';
         } else {
             headerBgClass = 'bg-sky-200/60';
         }

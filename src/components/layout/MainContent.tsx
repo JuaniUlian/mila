@@ -13,7 +13,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   
   const showHeader = pathname !== '/';
 
-  // Calculate className consistently on both server and client
+  // Calculate className consistently on both server and client to avoid hydration errors
   const bodyClassName = useMemo(() => {
     let backgroundClasses = 'bg-slate-100'; // Default background
 
