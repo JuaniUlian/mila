@@ -34,7 +34,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     }
 
     return cn(
-      "flex min-h-screen flex-col transition-all duration-500", 
+      "flex flex-col min-h-screen transition-all duration-500", 
       backgroundClasses, 
       showHeader ? "pt-4" : ""
     );
@@ -43,7 +43,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   return (
     <div className={bodyClassName} suppressHydrationWarning={true}>
       {showHeader && <MainHeader />}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1">
         {children}
       </main>
     </div>
