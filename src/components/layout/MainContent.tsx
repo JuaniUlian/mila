@@ -43,7 +43,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   return (
     <div className={bodyClassName} suppressHydrationWarning={true}>
       {showHeader && <MainHeader />}
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         {children}
       </main>
     </div>
