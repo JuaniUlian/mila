@@ -101,7 +101,7 @@
     background-attachment: fixed;
   }
   .bg-analysis-alerta {
-    background-image: url('/background/alerta.jpeg');
+    background-image: url('/background/Alerta.jpeg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -161,27 +161,8 @@
   .hover-hud-sky:hover { background: linear-gradient(to right, hsl(var(--severity-low) / 0.15), transparent 80%); }
   .hover-hud-gray:hover { background: linear-gradient(to right, hsl(var(--severity-informative) / 0.15), transparent 80%); }
 
-
-  /* Animated Backgrounds */
-  .lava-background {
-    background: linear-gradient(135deg, #ff4e00, #ff0000, #800000, #ff4e00);
-    background-size: 400% 400%;
-    animation: lava-flow 15s ease infinite;
-  }
-  .dunes-background {
-    background: linear-gradient(135deg, #f7b733, #fc4a1a, #f7b733, #fcc25e);
-    background-size: 400% 400%;
-    animation: dune-flow 20s ease infinite;
-  }
-  .water-background {
-    background: linear-gradient(135deg, #00c6ff, #0072ff, #003cff, #00c6ff);
-    background-size: 400% 400%;
-    animation: water-flow 12s ease infinite;
-  }
-  .green-background {
-    background: linear-gradient(135deg, #6a9113, #141517, #6a9113);
-    background-size: 400% 400%;
-    animation: water-flow 18s ease infinite;
+  .glass-accordion-item {
+    @apply bg-white/20 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden;
   }
 }
 

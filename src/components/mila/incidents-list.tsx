@@ -213,27 +213,27 @@ export function IncidentsList({
         const categoryIcon = CATEGORY_META[category]?.icon || AlertTriangle;
 
         return (
-          <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn("w-full bg-slate-50 rounded-xl overflow-hidden card-neumorphism border-l-4", SEVERITY_GRADIENT[highestSeverity])}>
+          <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn("w-full glass-accordion-item border-l-4", SEVERITY_GRADIENT[highestSeverity])}>
             <AccordionItem value="item-1" className="border-b-0">
               <AccordionTrigger className={cn("p-4 hover:no-underline w-full text-left group transition-colors duration-300", SEVERITY_HOVER_HUD[highestSeverity])}>
                 <div className="flex items-center gap-4 w-full">
                   {React.createElement(categoryIcon, { className: "h-6 w-6 text-primary" })}
                   <h3 className="text-lg font-semibold text-foreground flex-1">{category}</h3>
                   {pendingCount > 0 && (
-                    <span className="text-xs font-medium text-muted-foreground bg-slate-200 px-2 py-1 rounded-md">
+                    <span className="text-xs font-medium text-muted-foreground bg-slate-200/60 px-2 py-1 rounded-md">
                       {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
                     </span>
                   )}
                   <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-4 pt-2 bg-white">
+              <AccordionContent className="p-4 pt-2 bg-white/30">
                 <div className="space-y-3">
                   {categoryFindings.map((finding) => (
                     <div 
                       key={finding.id} 
                       className={cn(
-                        "group relative rounded-lg cursor-pointer bg-white card-neumorphism transition-all duration-300 hover:scale-[1.02] border-l-4",
+                        "group relative rounded-lg cursor-pointer bg-white/40 card-neumorphism transition-all duration-300 hover:scale-[1.02] border-l-4",
                         SEVERITY_GRADIENT[finding.gravedad],
                         SEVERITY_HOVER_HUD[finding.gravedad]
                       )}
