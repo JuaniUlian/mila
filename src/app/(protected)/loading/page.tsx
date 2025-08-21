@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -19,6 +20,9 @@ import {
   generateScoringReport,
   type FindingWithStatus
 } from '@/ai/flows/compliance-scoring';
+import { mockData as pliegoMockData } from '@/components/mila/mock-data';
+import { upsMockData } from '@/components/mila/mock-data-ups';
+
 
 export default function LoadingPage() {
   const router = useRouter();
@@ -97,6 +101,28 @@ export default function LoadingPage() {
           router.push('/prepare');
           return;
         }
+        
+        // DEMO MODE: Check for hardcoded file names
+        if (documentName === 'Pliego de Bases y Condiciones.pdf' || documentName.includes('Pliego de Bases')) {
+            await new Promise(r => setTimeout(r, 1500)); // Simulate loading
+            setValidationResults({ 
+                ...(pliegoMockData as any), 
+                documentName: pliegoMockData.documentTitle,
+            });
+            setProgress(100);
+            return;
+        }
+
+        if (documentName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
+            await new Promise(r => setTimeout(r, 1500)); // Simulate loading
+            setValidationResults({ 
+                ...(upsMockData as any),
+                documentName: upsMockData.documentTitle,
+            });
+            setProgress(100);
+            return;
+        }
+
 
         const regulations = JSON.parse(regulationsRaw) as Array<{ name: string; content: string }>;
 
