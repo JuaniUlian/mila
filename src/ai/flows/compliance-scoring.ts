@@ -91,10 +91,10 @@ export const SCORING_CONFIG = {
 
   // Bonificaciones por resolución
   RESOLUTION_BONUSES: {
-    applied: 0.0,   // Registrar acción, no cambia puntaje (se reporta como potencial)
-    modified: 1.0,  // Recupera 100% de la penalización si se corrige modificando
-    discarded: 0.0,
-    pending: 0.0,
+    applied: 1.0,   // Recupera 100% de la penalización
+    modified: 1.0,  // Recupera 100% de la penalización
+    discarded: 0.0, // No recupera nada
+    pending: 0.0,   // No recupera nada
   } as const,
 
   // Bandas por gravedad para la ponderación sugerida por IA
@@ -399,7 +399,7 @@ export function simulateScoreChange(
 
   const difference = newResult.complianceScore - currentResult.complianceScore;
   const impactDescriptions = {
-    applied: 'Se registra la acción. El puntaje no cambia, pero se reflejará como potencial mejora en el informe.',
+    applied: difference > 0 ? `+${difference} puntos al aplicar la corrección` : 'Sin cambio en el puntaje',
     modified: difference > 0 ? `+${difference} puntos al aplicar la corrección modificada` : 'Sin cambio en el puntaje',
     discarded: difference !== 0 ? `${difference} puntos al descartar (penalización permanece)` : 'Sin cambio en el puntaje',
     pending: difference !== 0 ? `${difference} puntos al marcar como pendiente` : 'Sin cambio en el puntaje',
