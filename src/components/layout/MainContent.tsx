@@ -23,13 +23,13 @@ export default function MainContent({ children }: { children: React.ReactNode })
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
-          backgroundClasses = 'bg-analysis-celeste';
+          backgroundClasses = 'bg-analysis-validado';
       } else if (score <= 50) {
           backgroundClasses = 'bg-analysis-grave';
       } else if (score <= 79) {
           backgroundClasses = 'bg-analysis-alerta';
       } else { // score >= 80
-          backgroundClasses = 'bg-analysis-celeste';
+          backgroundClasses = 'bg-analysis-validado';
       }
     }
 
@@ -43,7 +43,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   return (
     <div className={bodyClassName} suppressHydrationWarning={true}>
       {showHeader && <MainHeader />}
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         {children}
       </main>
     </div>
