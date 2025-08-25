@@ -11,7 +11,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const { score, isInitialPageLoad } = useLayout();
   
-  const showHeader = pathname !== '/';
+  const showHeader = !['/', '/home'].includes(pathname);
 
   // Calculate className consistently on both server and client to avoid hydration errors
   const bodyClassName = useMemo(() => {

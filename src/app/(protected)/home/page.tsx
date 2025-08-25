@@ -26,14 +26,7 @@ export default function LandingPage() {
   
   return (
     <div className="bg-gradient-to-br from-white via-slate-300 to-sky-900/40 text-gray-800">
-      <header className="glass max-w-7xl mx-auto mt-6 px-4 py-3 flex justify-end items-center sticky top-4 z-50">
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <LanguageSwitcher variant="light" />
-          <Button onClick={handleDemoClick} className="hidden sm:inline-flex btn-neu-light rounded-full animate-subtle-breathing">
-            {t('nav.demo')}
-          </Button>
-        </div>
-      </header>
+      
 
       <main>
         <section className="text-center py-16 px-4">
