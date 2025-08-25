@@ -89,7 +89,7 @@
     background-attachment: fixed;
   }
   .dark .bg-prepare-page {
-    background-image: url('/background/dark mode.jpeg');
+    background-image: url('/background/Dark mode.jpeg');
   }
   .bg-loading-page {
     background-image: url('/background/home.jpeg');
@@ -98,7 +98,7 @@
     animation: subtle-breathing 48s ease-in-out infinite alternate;
   }
   .bg-analysis-grave {
-    background-image: url('/background/grave.png');
+    background-image: url('/background/Grave.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -110,7 +110,7 @@
     background-attachment: fixed;
   }
   .bg-analysis-validado {
-    background-image: url('/background/validado.png');
+    background-image: url('/background/Validado.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
