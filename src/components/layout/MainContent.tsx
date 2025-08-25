@@ -9,13 +9,13 @@ import { useLayout } from '@/context/LayoutContext';
 
 export default function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { score, isInitialPageLoad } = useLayout();
+  const { score, isInitialPageLoad, theme } = useLayout();
   
   const showHeader = !['/', '/home'].includes(pathname);
 
   // Calculate className consistently on both server and client to avoid hydration errors
   const bodyClassName = useMemo(() => {
-    let backgroundClasses = 'bg-slate-100'; // Default background
+    let backgroundClasses = 'bg-slate-100 dark:bg-slate-900'; // Default background
 
     if (pathname === '/loading') {
       backgroundClasses = 'bg-loading-page';

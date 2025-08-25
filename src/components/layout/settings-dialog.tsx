@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -20,6 +21,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations, type Language } from '@/lib/translations';
+import { useLayout } from '@/context/LayoutContext';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -33,6 +36,7 @@ const languages: { code: Language; name: string }[] = [
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { language, setLanguage } = useLanguage();
+  const { theme, setTheme } = useLayout();
   const t = useTranslations(language);
 
   return (
@@ -41,7 +45,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <DialogHeader>
           <DialogTitle>{t('settingsDialog.title')}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-6 py-4">
           <div className="space-y-2">
             <Label htmlFor="language-select">{t('settingsDialog.languageLabel')}</Label>
             <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
@@ -56,6 +60,23 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-3">
+             <Label>Modo</Label>
+              <RadioGroup
+                value={theme}
+                onValueChange={(value) => setTheme(value as 'light' | 'dark')}
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="light" id="light-mode" />
+                  <Label htmlFor="light-mode" className="font-normal">Claro</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="dark" id="dark-mode" />
+                  <Label htmlFor="dark-mode" className="font-normal">Oscuro</Label>
+                </div>
+              </RadioGroup>
           </div>
         </div>
         <DialogFooter>

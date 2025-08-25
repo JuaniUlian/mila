@@ -88,6 +88,9 @@
     background-position: center;
     background-attachment: fixed;
   }
+  .dark .bg-prepare-page {
+    background-image: url('/background/dark mode.jpeg');
+  }
   .bg-loading-page {
     background-image: url('/background/home.jpeg');
     background-size: 150% auto;
@@ -101,7 +104,7 @@
     background-attachment: fixed;
   }
   .bg-analysis-alerta {
-    background-image: url('/background/alerta.png');
+    background-image: url('/background/Alerta.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

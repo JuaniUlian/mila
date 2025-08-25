@@ -1,13 +1,17 @@
 
 'use client';
 
-import React, { createContext, useState, useContext, useMemo } from 'react';
+import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
+
+type Theme = 'light' | 'dark';
 
 interface LayoutContextType {
   score: number | null;
   setScore: (score: number | null) => void;
   isInitialPageLoad: boolean;
   setIsInitialPageLoad: (isInitial: boolean) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
@@ -15,8 +19,22 @@ const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const [score, setScore] = useState<number | null>(null);
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
+  const [theme, setTheme] = useState<Theme>('light');
 
-  const value = useMemo(() => ({ score, setScore, isInitialPageLoad, setIsInitialPageLoad }), [score, isInitialPageLoad]);
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [theme]);
+
+  const value = useMemo(() => ({ 
+    score, 
+    setScore, 
+    isInitialPageLoad, 
+    setIsInitialPageLoad,
+    theme,
+    setTheme
+  }), [score, isInitialPageLoad, theme]);
 
   return (
     <LayoutContext.Provider value={value}>
