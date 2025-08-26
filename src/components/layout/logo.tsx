@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 export function Logo({ className, variant = 'color' }: { className?: string, variant?: 'color' | 'monochrome' }) {
   if (variant === 'color') {
     return (
-        <svg width="512" height="512" viewBox="0 0 512 512" data-ai-hint="logo company" className={cn(className)}>
+        <svg width="512" height="512" viewBox="0 0 512 512" className={cn(className)}>
             <defs>
                 <linearGradient id="gradBorder" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#0D2B3E"/>
@@ -42,7 +42,7 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
   }
 
   return (
-    <svg width="512" height="512" viewBox="0 0 512 512" data-ai-hint="logo company monochrome silver" className={cn(className)}>
+    <svg width="512" height="512" viewBox="0 0 512 512" className={cn(className)}>
         <defs>
             <linearGradient id="silver-border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#F9FAFB" />

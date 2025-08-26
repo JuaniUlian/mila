@@ -97,7 +97,7 @@ export function MainHeader() {
                                 </Link>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>{t('sidebar.home') || 'Inicio'}</p>
+                                <p>Inicio</p>
                             </TooltipContent>
                         </Tooltip>
 
