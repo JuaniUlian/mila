@@ -105,19 +105,19 @@
     animation: subtle-breathing 48s ease-in-out infinite alternate;
   }
   .bg-analysis-grave {
-    background-image: url('/background/grave.png');
+    background-image: url('/background/Grave.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
   }
   .bg-analysis-alerta {
-    background-image: url('/background/alerta.png');
+    background-image: url('/background/Alerta.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
   }
   .bg-analysis-validado {
-    background-image: url('/background/validado.png');
+    background-image: url('/background/Validado.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
