@@ -37,7 +37,6 @@ export default function LandingPage() {
               width={200}
               height={200}
               className="h-28 w-auto"
-              data-ai-hint="logo company"
             />
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 dark:text-gray-100">{t('hero.title')}</h1>
