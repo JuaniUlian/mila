@@ -92,7 +92,7 @@ export function MainHeader() {
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link href="/home" aria-label={t('sidebar.home') || 'Inicio'} className="flex items-center justify-center h-12 w-12 rounded-full p-1.5 bg-white/30 dark:bg-slate-700/30 backdrop-blur-md border border-white/20 dark:border-slate-600/30 shadow-lg hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200">
+                                <Link href="/home" className="flex items-center justify-center h-12 w-12 rounded-full p-1.5 bg-white/30 dark:bg-slate-700/30 backdrop-blur-md border border-white/20 dark:border-slate-600/30 shadow-lg hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200">
                                     <Logo variant="color" className="h-full w-full" />
                                 </Link>
                             </TooltipTrigger>
