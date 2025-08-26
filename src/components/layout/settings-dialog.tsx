@@ -23,6 +23,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations, type Language } from '@/lib/translations';
 import { useLayout } from '@/context/LayoutContext';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { cn } from '@/lib/utils';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -41,7 +42,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white/80 backdrop-blur-xl border-white/30 rounded-2xl">
+      <DialogContent className={cn("bg-background/80 dark:bg-slate-900/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-lg text-foreground")}>
         <DialogHeader>
           <DialogTitle>{t('settingsDialog.title')}</DialogTitle>
         </DialogHeader>
@@ -49,7 +50,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           <div className="space-y-2">
             <Label htmlFor="language-select">{t('settingsDialog.languageLabel')}</Label>
             <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
-              <SelectTrigger id="language-select" className="w-full">
+              <SelectTrigger id="language-select" className="w-full bg-background/70 dark:bg-slate-800/70 border-border/50">
                 <SelectValue placeholder={t('settingsDialog.languagePlaceholder')} />
               </SelectTrigger>
               <SelectContent>
