@@ -831,8 +831,8 @@ export default function PreparePage() {
       <div className="max-w-7xl mx-auto space-y-8 relative">
         {currentStep === 1 && (
             <div className="animate-in fade-in duration-500">
-                <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-                    <CardHeader className="bg-white/20 border-b border-white/20 p-6">
+                <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                    <CardHeader className="bg-background/20 border-b border-white/20 p-6">
                         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                         <FileSignature className="h-8 w-8 text-primary"/>
                         {t('preparePage.step1')}
@@ -845,7 +845,7 @@ export default function PreparePage() {
                             <Input
                             suppressHydrationWarning
                             placeholder={t('preparePage.searchPlaceholder')}
-                            className="pl-12 py-6 w-full bg-slate-100/70 text-foreground rounded-lg border-slate-200 focus:bg-white"
+                            className="pl-12 py-6 w-full bg-background/70 text-foreground rounded-lg border-input focus:bg-white/80"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -892,8 +892,8 @@ export default function PreparePage() {
             <div className="animate-in fade-in duration-500">
                 <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
                     <AccordionItem value="item-1" className="border-none">
-                        <Card className="bg-white/20 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
-                        <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => {
+                        <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                        <AccordionTrigger suppressHydrationWarning className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => {
                             // Prevents the click from propagating and selecting the row
                             e.preventDefault();
                             e.stopPropagation();
@@ -936,7 +936,7 @@ export default function PreparePage() {
 
         {selectedFile && currentStep === 1 && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
-                <div className={cn("glass p-3 mx-4 rounded-2xl flex items-center justify-between gap-4")}>
+                <div className={cn("bg-background/70 backdrop-blur-lg p-3 mx-4 rounded-2xl flex items-center justify-between gap-4 border border-white/20 shadow-lg")}>
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileCheck className="h-7 w-7 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
@@ -958,7 +958,7 @@ export default function PreparePage() {
 
         {currentStep === 2 && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
-                <div className={cn("glass p-4 mx-4 rounded-2xl flex items-center justify-between gap-6")}>
+                <div className={cn("bg-background/70 backdrop-blur-lg p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 border border-white/20 shadow-lg")}>
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                         {isValidationReady ? (
                             <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
@@ -1165,5 +1165,3 @@ export default function PreparePage() {
     </div>
   );
 }
-
-    

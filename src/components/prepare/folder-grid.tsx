@@ -154,7 +154,7 @@ const FileItem: React.FC<{
     <div
       className={cn(
         'group/fileitem flex items-center justify-between p-2 text-sm transition-all hover:bg-primary/10 rounded-lg border border-transparent',
-        isSelected && 'bg-primary/10 border-primary/40'
+        isSelected && 'bg-primary/20 border-primary/50'
       )}
     >
       <div
@@ -227,7 +227,7 @@ export function FolderGrid({
 
     if (folders.length === 0) {
         return (
-            <div className="text-center py-10 bg-slate-100/50 rounded-lg">
+            <div className="text-center py-10 bg-background/50 rounded-lg">
                 <p className="text-base text-muted-foreground">
                     {searchQuery ? t('preparePage.noFilesFound') : t('preparePage.noFoldersOrFiles')}
                 </p>
@@ -240,22 +240,22 @@ export function FolderGrid({
             {folders.map(folder => (
                 <Card 
                     key={folder.id} 
-                    className="bg-white/30 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl"
+                    className="bg-background/50 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl"
                 >
                     <CardHeader className='pb-3 flex flex-row items-start justify-between'>
                         <div className='flex-1'>
-                            <CardTitle className="flex items-center gap-2 text-lg">
+                            <CardTitle className="flex items-center gap-2 text-lg text-foreground">
                                 <Folder className="h-6 w-6 text-primary" />
                                 {folder.name}
                             </CardTitle>
-                            <CardDescription>{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
+                            <CardDescription className="text-muted-foreground">{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
                         <div className="flex items-center">
                             <FileUploadButton
                                 onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-full flex-shrink-0"
+                                className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
                                 title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
                             >
                                 <Plus className="h-5 w-5" />
@@ -266,7 +266,7 @@ export function FolderGrid({
                                         <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 rounded-full flex-shrink-0"
+                                        className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
                                         onClick={(e) => e.stopPropagation()}
                                         >
                                         <MoreVertical className="h-5 w-5" />
@@ -316,5 +316,3 @@ export function FolderGrid({
         </div>
     );
 }
-
-    
