@@ -169,21 +169,28 @@ export function IncidentsList({
 
   const pendingFindings = useMemo(() => findings.filter(f => f.status === 'pending' && f.tipo !== 'Sin hallazgos relevantes'), [findings]);
 
-  const findingsByCategory = useMemo(() => {
-    const grouped: Record<string, FindingWithStatus[]> = {};
+  const sortedCategories = useMemo(() => {
+    const grouped: Record<string, { findings: FindingWithStatus[], highestSeverity: string }> = {};
+    
     pendingFindings.forEach(finding => {
       // @ts-ignore
       const categoryLabel = finding.category || 'Otros';
       if (!grouped[categoryLabel]) {
-        grouped[categoryLabel] = [];
+        grouped[categoryLabel] = { findings: [], highestSeverity: 'Informativa' };
       }
-      grouped[categoryLabel].push(finding);
+      grouped[categoryLabel].findings.push(finding);
+      
+      const currentHighest = SEVERITY_ORDER[grouped[categoryLabel].highestSeverity];
+      const findingSeverity = SEVERITY_ORDER[finding.gravedad];
+      if (findingSeverity < currentHighest) {
+        grouped[categoryLabel].highestSeverity = finding.gravedad;
+      }
     });
-    // Sort findings within each category by severity
-    for (const category in grouped) {
-        grouped[category].sort((a, b) => SEVERITY_ORDER[a.gravedad] - SEVERITY_ORDER[b.gravedad]);
-    }
-    return grouped;
+
+    return Object.entries(grouped).sort(([, a], [, b]) => {
+      return SEVERITY_ORDER[a.highestSeverity] - SEVERITY_ORDER[b.highestSeverity];
+    });
+    
   }, [pendingFindings]);
 
   if (pendingFindings.length === 0) {
@@ -205,10 +212,9 @@ export function IncidentsList({
 
   return (
     <div className="space-y-6">
-      {Object.entries(findingsByCategory).map(([category, categoryFindings]) => {
+      {sortedCategories.map(([category, { findings: categoryFindings, highestSeverity }]) => {
         if(categoryFindings.length === 0) return null;
 
-        const highestSeverity = ['Alta', 'Media', 'Baja', 'Informativa'].find(s => categoryFindings.some(f => f.gravedad === s)) || 'Informativa';
         const pendingCount = categoryFindings.filter(f => f.status === 'pending').length;
         const categoryIcon = CATEGORY_META[category]?.icon || AlertTriangle;
 
