@@ -4,8 +4,45 @@
 
 @layer base {
   :root {
-    --background: 221 44% 11%; /* Dark Navy Blue */
-    --foreground: 220 20% 97%; /* Light Gray-Blue */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
+    --radius: 1rem;
+    
+    --severity-high: 0 84% 60%;
+    --severity-medium: 38 92% 55%;
+    --severity-low: 185 84% 60%;
+    --severity-informative: 220 10% 45%;
+  }
+
+  .dark {
+    --background: 221 44% 11%;
+    --foreground: 220 20% 97%;
 
     --card: 221 44% 19%;
     --card-foreground: 220 20% 97%;
@@ -13,8 +50,8 @@
     --popover: 221 44% 11%;
     --popover-foreground: 220 20% 97%;
 
-    --primary: 223 100% 65%; /* Bright Blue */
-    --primary-foreground: 221 44% 11%; /* Dark Navy Blue */
+    --primary: 223 100% 65%;
+    --primary-foreground: 221 44% 11%;
 
     --secondary: 221 44% 19%;
     --secondary-foreground: 220 20% 97%;
@@ -30,36 +67,6 @@
 
     --border: 221 44% 25%;
     --input: 221 44% 25%;
-    --ring: 223 100% 65%;
-
-    --radius: 1rem; /* 16px */
-    
-    /* Severity Colors (for text, borders, etc.) */
-    --severity-high: 0 84% 60%;
-    --severity-medium: 38 92% 55%; /* Orange/Yellow */
-    --severity-low: 185 84% 60%; /* Light Blue */
-    --severity-informative: 220 10% 45%;
-  }
-
-  .dark {
-    --background: 220 15% 15%;
-    --foreground: 220 20% 97%;
-    --card: 220 15% 20%;
-    --card-foreground: 220 20% 97%;
-    --popover: 220 15% 20%;
-    --popover-foreground: 220 20% 97%;
-    --primary: 223 100% 65%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 15% 25%;
-    --secondary-foreground: 220 20% 97%;
-    --muted: 220 15% 25%;
-    --muted-foreground: 220 10% 65%;
-    --accent: 220 15% 25%;
-    --accent-foreground: 220 20% 97%;
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 30%;
-    --input: 220 15% 30%;
     --ring: 223 100% 65%;
   }
 }
@@ -116,12 +123,12 @@
     background-attachment: fixed;
   }
   .glass {
-    @apply bg-white/30 backdrop-blur-sm border border-white/20 shadow-md;
+    @apply bg-background/30 backdrop-blur-sm border border-border/20 shadow-md;
   }
   .card-hud-hover {
     @apply transition-all duration-300;
   }
-  .card-hud-hover:hover {
+  .dark .card-hud-hover:hover {
     @apply bg-white/50 backdrop-blur-lg border-white/30 shadow-2xl scale-105;
     box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
   }
@@ -140,10 +147,16 @@
   }
 
   .card-neumorphism {
-      @apply bg-slate-50 rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
+      @apply bg-background/50 rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
+      .dark & {
+        @apply bg-slate-800/50 shadow-[5px_5px_10px_#1c2532,-5px_-5px_10px_#2a394c];
+      }
   }
   .card-neumorphism:hover {
       @apply shadow-[2px_2px_5px_#d1d5db,-2px_-2px_5px_#ffffff];
+      .dark & {
+        @apply shadow-[2px_2px_5px_#1c2532,-2px_-2px_5px_#2a394c];
+      }
   }
   
   .border-gradient-red {
@@ -165,7 +178,7 @@
   .hover-hud-gray:hover { background: linear-gradient(to right, hsl(var(--severity-informative) / 0.15), transparent 80%); }
 
   .glass-accordion-item {
-    @apply bg-white/20 backdrop-blur-md border border-white/30 shadow-lg rounded-xl overflow-hidden;
+    @apply bg-background/20 backdrop-blur-md border border-border/30 shadow-lg rounded-xl overflow-hidden;
   }
 }
 

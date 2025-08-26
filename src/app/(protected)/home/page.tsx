@@ -25,7 +25,7 @@ export default function LandingPage() {
   };
   
   return (
-    <div className="bg-gradient-to-br from-white via-slate-300 to-sky-900/40 text-gray-800">
+    <div className="bg-gradient-to-br from-white via-slate-300 to-sky-900/40 text-gray-800 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900/60 dark:text-gray-200">
       
 
       <main>
@@ -40,10 +40,10 @@ export default function LandingPage() {
               data-ai-hint="logo company"
             />
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900">{t('hero.title')}</h1>
-          <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600">{t('hero.subtitle')}</p>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 dark:text-gray-100">{t('hero.title')}</h1>
+          <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600 dark:text-gray-300">{t('hero.subtitle')}</p>
            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button onClick={handleDemoClick} size="lg" className="btn-neu-light rounded-full animate-subtle-breathing">
+              <Button onClick={handleDemoClick} size="lg" className="btn-neu-light dark:btn-neu-dark rounded-full animate-subtle-breathing">
                 {t('nav.demo')}
               </Button>
             </div>
@@ -53,43 +53,43 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold text-center mb-12">{t('whatIsMila.title')}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Search className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <Search className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.analysisTitle')}</h3>
               <p>{t('whatIsMila.analysisText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <AlertTriangle className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <AlertTriangle className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.alertsTitle')}</h3>
               <p>{t('whatIsMila.alertsText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Edit className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <Edit className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.editingTitle')}</h3>
               <p>{t('whatIsMila.editingText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <TrendingUp className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <TrendingUp className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.scoreTitle')}</h3>
               <p>{t('whatIsMila.scoreText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <BookCheck className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <BookCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.normsTitle')}</h3>
               <p>{t('whatIsMila.normsText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Share2 className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <Share2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.exportTitle')}</h3>
               <p>{t('whatIsMila.exportText')}</p>
@@ -100,7 +100,7 @@ export default function LandingPage() {
         <section id="results" className="py-20 px-6 max-w-6xl mx-auto">
           <div className="text-center">
             <h2 className="text-4xl font-bold mb-4">{t('results.title')}</h2>
-            <p className="mb-10 italic text-sm text-gray-600">{t('results.disclaimer')}</p>
+            <p className="mb-10 italic text-sm text-gray-600 dark:text-gray-400">{t('results.disclaimer')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               <div className={cardBaseClasses}>
                 <h4 className="text-5xl font-extrabold text-green-600">+67%</h4>
@@ -134,29 +134,29 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-10 text-center">{t('differentiators.title')}</h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Network className="h-8 w-8 text-blue-600"/>
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <Network className="h-8 w-8 text-blue-600 dark:text-blue-400"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.trainingTitle')}</h3>
               <p>{t('differentiators.trainingText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <FileStack className="h-8 w-8 text-blue-600"/>
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <FileStack className="h-8 w-8 text-blue-600 dark:text-blue-400"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.docsTitle')}</h3>
               <p>{t('differentiators.docsText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <ShieldAlert className="h-8 w-8 text-blue-600"/>
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <ShieldAlert className="h-8 w-8 text-blue-600 dark:text-blue-400"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.risksTitle')}</h3>
               <p>{t('differentiators.risksText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Landmark className="h-8 w-8 text-blue-600"/>
+              <div className="bg-blue-100/70 dark:bg-blue-900/30 rounded-full p-3 mb-4">
+                <Landmark className="h-8 w-8 text-blue-600 dark:text-blue-400"/>
               </div>
               <h3 className="text-2xl font-semibold mb-2">{t('differentiators.govTitle')}</h3>
               <p>{t('differentiators.govText')}</p>
@@ -169,39 +169,39 @@ export default function LandingPage() {
           <div className="space-y-8">
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q1')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a1')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a1')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q7')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a7')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a7')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q2')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a2')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a2')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q3')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a3')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a3')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q8')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a8')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a8')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q4')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a4')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a4')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q5')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a5')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a5')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q6')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a6')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a6')}</p>
             </details>
             <details className={detailsBaseClasses}>
               <summary className="font-semibold cursor-pointer text-lg">{t('faq.q9')}</summary>
-              <p className="mt-2 text-gray-700">{t('faq.a9')}</p>
+              <p className="mt-2 text-gray-700 dark:text-gray-300">{t('faq.a9')}</p>
             </details>
           </div>
         </section>
@@ -239,5 +239,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    

@@ -14,10 +14,10 @@ interface PageHeaderProps {
 }
 
 const getScoreColor = (score: number) => {
-    if (score < 40) return "text-red-600";
-    if (score < 75) return "text-amber-600";
-    if (score < 100) return "text-green-600";
-    return "text-sky-600";
+    if (score < 40) return "text-red-600 dark:text-red-400";
+    if (score < 75) return "text-amber-600 dark:text-amber-400";
+    if (score < 100) return "text-green-600 dark:text-green-400";
+    return "text-sky-600 dark:text-sky-400";
 };
 
 const getProgressColorClass = (score: number) => {
@@ -37,10 +37,10 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
         if (isInitialPageLoad) {
             return "text-foreground";
         }
-        if (overallComplianceScore < 40) return "text-red-700";
-        if (overallComplianceScore < 75) return "text-amber-700";
-        if (overallComplianceScore < 100) return "text-green-700";
-        return "text-sky-700";
+        if (overallComplianceScore < 40) return "text-red-700 dark:text-red-400";
+        if (overallComplianceScore < 75) return "text-amber-700 dark:text-amber-400";
+        if (overallComplianceScore < 100) return "text-green-700 dark:text-green-400";
+        return "text-sky-700 dark:text-sky-400";
     };
 
     const primaryTextColor = getTitleColorClass();
