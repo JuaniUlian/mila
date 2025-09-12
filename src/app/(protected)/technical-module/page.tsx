@@ -44,7 +44,7 @@ const procedures = [
     icon: Stethoscope,
     documents: [
       { name: 'Requerimientos Técnicos.pdf', content: 'Contenido de los requerimientos técnicos...' },
-      { name'Certificaciones INVIMA.pdf', content: 'Contenido de las certificaciones...' },
+      { name: 'Certificaciones INVIMA.pdf', content: 'Contenido de las certificaciones...' },
       { name: 'Cronograma de Entrega.pdf', content: 'Contenido del cronograma...' },
     ],
     regulations: [regulations[0], regulations[3], regulations[5]],
@@ -122,5 +122,3 @@ export default function TechnicalModulePage() {
     </div>
   );
 }
-
-    
