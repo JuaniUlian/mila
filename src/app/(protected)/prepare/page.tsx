@@ -835,7 +835,7 @@ export default function PreparePage() {
                     <CardHeader className="bg-background/20 border-b border-white/20 p-6">
                         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
                         <FileSignature className="h-8 w-8 text-primary"/>
-                        {t('preparePage.step1')}
+                        Modo Manual: {t('preparePage.step1')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6 p-6">
@@ -1165,3 +1165,5 @@ export default function PreparePage() {
     </div>
   );
 }
+
+    

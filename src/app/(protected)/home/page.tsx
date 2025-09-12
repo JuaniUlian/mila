@@ -21,7 +21,7 @@ export default function LandingPage() {
 
   const handleDemoClick = () => {
     // Redirect directly to prepare page
-    router.push('/prepare');
+    router.push('/select-module');
   };
   
   return (
@@ -238,3 +238,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
