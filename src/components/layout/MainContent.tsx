@@ -13,13 +13,16 @@ export default function MainContent({ children }: { children: React.ReactNode })
   
   const showHeader = !['/', '/home'].includes(pathname);
 
+  // Define module paths that should share the prepare page background
+  const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module'];
+
   // Calculate className consistently on both server and client to avoid hydration errors
   const bodyClassName = useMemo(() => {
     let backgroundClasses = 'bg-background dark:bg-slate-900'; // Default background
 
     if (pathname === '/loading') {
       backgroundClasses = 'bg-loading-page';
-    } else if (pathname === '/prepare') {
+    } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
@@ -49,3 +52,5 @@ export default function MainContent({ children }: { children: React.ReactNode })
     </div>
   );
 }
+
+    

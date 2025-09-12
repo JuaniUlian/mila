@@ -2,124 +2,57 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { FileText, University, Handshake, Banknote } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { PrepareView } from '@/components/prepare/prepare-view';
+import { Landmark } from 'lucide-react';
 
-const regulations = [
-    { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' },
-    { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...', status: 'success' },
-    { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...', status: 'success' },
-    { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...', status: 'success' },
-    { id: 'reg5', name: 'Ley de Asociaciones Público-Privadas', content: 'Contenido de la ley APP...', status: 'success' },
-    { id: 'reg6', name: 'Normativa de Crédito Público', content: 'Contenido de la normativa de crédito público...', status: 'success' },
+const initialRegulations = [
+    { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' as const },
+    { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...', status: 'success' as const },
+    { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...', status: 'success' as const },
+    { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...', status: 'success' as const },
+    { id: 'reg5', name: 'Ley de Asociaciones Público-Privadas', content: 'Contenido de la ley APP...', status: 'success' as const },
+    { id: 'reg6', name: 'Normativa de Crédito Público', content: 'Contenido de la normativa de crédito público...', status: 'success' as const },
 ];
 
-const procedures = [
+const initialFolders = [
   {
-    title: 'Licitar la construcción del nuevo centro cívico',
-    icon: University,
-    documents: [
-      { name: 'Pliego de Licitación Pública.pdf', content: 'Contenido del pliego de licitación...' },
-      { name: 'Estudio de Factibilidad.pdf', content: 'Contenido del estudio de factibilidad...' },
-      { name: 'Certificación Presupuestaria.pdf', content: 'Contenido de la certificación presupuestaria...' },
+    id: 'strat1',
+    name: 'Licitar construcción de centro cívico',
+    files: [
+      { id: 'strat1-file1', name: 'Pliego de Licitación Pública.pdf', content: 'Contenido del pliego de licitación...', status: 'success' as const },
+      { id: 'strat1-file2', name: 'Estudio de Factibilidad.pdf', content: 'Contenido del estudio de factibilidad...', status: 'success' as const },
+      { id: 'strat1-file3', name: 'Certificación Presupuestaria.pdf', content: 'Contenido de la certificación presupuestaria...', status: 'success' as const },
     ],
-    regulations: [regulations[0], regulations[1], regulations[2], regulations[3]],
   },
   {
-    title: 'Concesionar de servicios',
-    icon: Handshake,
-    documents: [
-      { name: 'Borrador de Contrato de Concesión.docx', content: 'Contenido del borrador del contrato...' },
-      { name: 'Modelo Financiero.xlsx', content: 'Contenido del modelo financiero...' },
-      { name: 'Análisis de Riesgos de Concesión.pdf', content: 'Contenido del análisis de riesgos...' },
+    id: 'strat2',
+    name: 'Concesionar servicios',
+    files: [
+      { id: 'strat2-file1', name: 'Borrador de Contrato de Concesión.docx', content: 'Contenido del borrador del contrato...', status: 'success' as const },
+      { id: 'strat2-file2', name: 'Modelo Financiero.xlsx', content: 'Contenido del modelo financiero...', status: 'success' as const },
+      { id: 'strat2-file3', name: 'Análisis de Riesgos de Concesión.pdf', content: 'Contenido del análisis de riesgos...', status: 'success' as const },
     ],
-    regulations: [regulations[0], regulations[2], regulations[4]],
   },
   {
-    title: 'Solicitud financiamiento internacional',
-    icon: Banknote,
-    documents: [
-      { name: 'Memorando de Solicitud.pdf', content: 'Contenido del memorando de solicitud...' },
-      { name: 'Plan de Inversiones.pdf', content: 'Contenido del plan de inversiones...' },
-      { name: 'Marco Legal del Proyecto.pdf', content: 'Contenido del marco legal...' },
+    id: 'strat3',
+    name: 'Solicitud financiamiento internacional',
+    files: [
+      { id: 'strat3-file1', name: 'Memorando de Solicitud.pdf', content: 'Contenido del memorando de solicitud...', status: 'success' as const },
+      { id: 'strat3-file2', name: 'Plan de Inversiones.pdf', content: 'Contenido del plan de inversiones...', status: 'success' as const },
+      { id: 'strat3-file3', name: 'Marco Legal del Proyecto.pdf', content: 'Contenido del marco legal...', status: 'success' as const },
     ],
-    regulations: [regulations[1], regulations[5]],
   },
 ];
 
 export default function StrategicModulePage() {
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const handleValidate = (procedure: (typeof procedures)[0]) => {
-    const mainDocument = procedure.documents[0];
-    const combinedContent = procedure.documents.map(d => d.content).join('\n\n---\n\n');
-
-    localStorage.setItem('selectedDocumentName', mainDocument.name);
-    localStorage.setItem('selectedDocumentContent', combinedContent);
-    localStorage.setItem('selectedRegulations', JSON.stringify(procedure.regulations));
-    
-    toast({
-      title: `Iniciando análisis para: ${procedure.title}`,
-      description: 'Serás redirigido a la página de carga.',
-    });
-
-    router.push('/loading');
-  };
-
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-4">Módulo Estratégico</h1>
-        <p className="text-lg text-muted-foreground text-center mb-10">
-          Selecciona un trámite para analizarlo con las normativas preconfiguradas.
-        </p>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {procedures.map((procedure) => (
-            <Card key={procedure.title} className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg hover:shadow-2xl transition-shadow rounded-2xl flex flex-col">
-              <CardHeader>
-                <div className="p-4 bg-primary/10 rounded-full mb-4 self-center">
-                  <procedure.icon className="h-10 w-10 text-primary" />
-                </div>
-                <CardTitle className="text-xl font-bold text-center">{procedure.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <div className="flex-1">
-                  <CardDescription className="mb-4">Documentos de prueba:</CardDescription>
-                  <ul className="space-y-2 mb-4">
-                    {procedure.documents.map(doc => (
-                      <li key={doc.name} className="flex items-center text-sm">
-                        <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span className="truncate">{doc.name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <CardDescription className="mb-2">Normativa Preconfigurada:</CardDescription>
-                  <div className="flex flex-wrap gap-2">
-                    {procedure.regulations.map(reg => (
-                        <Badge key={reg.id} variant="secondary">{reg.name}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <Button onClick={() => handleValidate(procedure)} className="w-full mt-6">
-                  Validar Trámite
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="text-center mt-12">
-            <Button variant="outline" onClick={() => router.back()}>
-                Volver a Selección de Módulo
-            </Button>
-        </div>
-      </div>
-    </div>
+    <PrepareView
+        title="Módulo Estratégico"
+        titleIcon={Landmark}
+        initialFolders={initialFolders}
+        initialRegulations={initialRegulations}
+        storageKeyPrefix="mila-strategic-module"
+    />
   );
 }
 

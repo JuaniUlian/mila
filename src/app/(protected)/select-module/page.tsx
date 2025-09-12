@@ -5,11 +5,11 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Shield, Briefcase, DraftingCompass, Landmark, Truck, Building, Microscope, Stethoscope, Handshake, University, Banknote } from 'lucide-react';
+import { Briefcase, Microscope, Landmark, ChevronRight } from 'lucide-react';
 
 const modules = [
   {
-    icon: DraftingCompass,
+    icon: Briefcase,
     title: 'OPERATIVO',
     description: 'Verifica que esté toda la documentación, las firmas correctas y que se cumplan los requisitos básicos.',
     href: '/operative-module',
@@ -61,6 +61,7 @@ export default function SelectModulePage() {
         <div className="text-center">
           <Button variant="outline" size="lg" onClick={() => router.push('/prepare')}>
             Ir a Modo Manual
+            <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>
