@@ -24,6 +24,12 @@ import { mockData as pliegoMockData } from '@/components/mila/mock-data';
 import { upsMockData } from '@/components/mila/mock-data-ups';
 
 
+const MOCK_FILES_TO_RESULTS: Record<string, any> = {
+    'Pliego de Bases y Condiciones.pdf': pliegoMockData,
+    '3118772 SERV RECAMBIO UPS 96 FJS (1)': upsMockData,
+};
+
+
 export default function LoadingPage() {
   const router = useRouter();
   const { language } = useLanguage();
@@ -103,21 +109,12 @@ export default function LoadingPage() {
         }
         
         // DEMO MODE: Check for hardcoded file names
-        if (documentName === 'Pliego de Bases y Condiciones.pdf' || documentName.includes('Pliego de Bases')) {
+        const mockResult = MOCK_FILES_TO_RESULTS[documentName];
+        if (mockResult) {
             await new Promise(r => setTimeout(r, 1500)); // Simulate loading
             setValidationResults({ 
-                ...(pliegoMockData as any), 
-                documentName: pliegoMockData.documentTitle,
-            });
-            setProgress(100);
-            return;
-        }
-
-        if (documentName === '3118772 SERV RECAMBIO UPS 96 FJS (1)') {
-            await new Promise(r => setTimeout(r, 1500)); // Simulate loading
-            setValidationResults({ 
-                ...(upsMockData as any),
-                documentName: upsMockData.documentTitle,
+                ...(mockResult as any), 
+                documentName: mockResult.documentTitle || documentName,
             });
             setProgress(100);
             return;

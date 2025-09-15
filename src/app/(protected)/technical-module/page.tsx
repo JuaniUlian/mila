@@ -17,27 +17,27 @@ const initialFolders = [
     id: 'tech1',
     name: 'Contratar ingeniero para evaluar puente',
     files: [
-      { id: 'tech1-file1', name: 'Términos de Referencia.pdf', content: 'Contenido de los términos de referencia...', status: 'success' as const },
-      { id: 'tech1-file2', name: 'Estudios Previos.pdf', content: 'Contenido de los estudios previos...', status: 'success' as const },
-      { id: 'tech1-file3', name: 'Certificado de Idoneidad.pdf', content: 'Contenido del certificado de idoneidad...', status: 'success' as const },
+      { id: 'tech1-file1', name: 'Términos de Referencia.pdf', content: 'Contenido simulado de los términos de referencia...', status: 'success' as const },
+      { id: 'tech1-file2', name: 'Estudios Previos.pdf', content: 'Contenido simulado de los estudios previos...', status: 'success' as const },
+      { id: 'tech1-file3', name: 'Certificado de Idoneidad.pdf', content: 'Contenido simulado del certificado de idoneidad...', status: 'success' as const },
     ],
   },
   {
     id: 'tech2',
     name: 'Comprar software para registro civil',
     files: [
-      { id: 'tech2-file1', name: 'Pliego de Especificaciones Técnicas.docx', content: 'Contenido del pliego...', status: 'success' as const },
-      { id: 'tech2-file2', name: 'Análisis de Mercado.pdf', content: 'Contenido del análisis de mercado...', status: 'success' as const },
-      { id: 'tech2-file3', name: 'Matriz de Riesgos.pdf', content: 'Contenido de la matriz de riesgos...', status: 'success' as const },
+      { id: 'tech2-file1', name: 'Pliego de Especificaciones Técnicas.docx', content: 'Contenido simulado del pliego...', status: 'success' as const },
+      { id: 'tech2-file2', name: 'Análisis de Mercado.pdf', content: 'Contenido simulado del análisis de mercado...', status: 'success' as const },
+      { id: 'tech2-file3', name: 'Matriz de Riesgos.pdf', content: 'Contenido simulado de la matriz de riesgos...', status: 'success' as const },
     ],
   },
   {
     id: 'tech3',
     name: 'Comprar equipos para laboratorio de hospital',
     files: [
-      { id: 'tech3-file1', name: 'Requerimientos Técnicos.pdf', content: 'Contenido de los requerimientos técnicos...', status: 'success' as const },
-      { id: 'tech3-file2', name: 'Certificaciones INVIMA.pdf', content: 'Contenido de las certificaciones...', status: 'success' as const },
-      { id: 'tech3-file3', name: 'Cronograma de Entrega.pdf', content: 'Contenido del cronograma...', status: 'success' as const },
+      { id: 'tech3-file1', name: 'Requerimientos Técnicos.pdf', content: 'Contenido simulado de los requerimientos técnicos...', status: 'success' as const },
+      { id: 'tech3-file2', name: 'Certificaciones INVIMA.pdf', content: 'Contenido simulado de las certificaciones...', status: 'success' as const },
+      { id: 'tech3-file3', name: 'Cronograma de Entrega.pdf', content: 'Contenido simulado del cronograma...', status: 'success' as const },
     ],
   },
 ];
