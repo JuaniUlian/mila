@@ -5,23 +5,23 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, Microscope, Landmark, ChevronRight } from 'lucide-react';
+import { ClipboardCheck, FileStack, PieChart, ChevronRight } from 'lucide-react';
 
 const modules = [
   {
-    icon: Briefcase,
+    icon: ClipboardCheck,
     title: 'OPERATIVO',
     description: 'Verifica que esté toda la documentación, las firmas correctas y que se cumplan los requisitos básicos.',
     href: '/operative-module',
   },
   {
-    icon: Microscope,
+    icon: FileStack,
     title: 'TÉCNICO',
     description: 'Revisa que los profesionales estén matriculados, que las propuestas técnicas sean correctas y cumplan las normas.',
     href: '/technical-module',
   },
   {
-    icon: Landmark,
+    icon: PieChart,
     title: 'ESTRATÉGICO',
     description: 'Analiza si hay dinero suficiente, si es viable técnicamente y si cumple con todas las leyes y reglamentos.',
     href: '/strategic-module',
