@@ -8,8 +8,6 @@ import { PieChart } from 'lucide-react';
 const initialRegulations = [
     { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' as const },
     { id: 'reg2', name: 'Ley 1150 de 2007 - Medidas para la eficiencia y transparencia', content: 'Contenido detallado de la Ley 1150...', status: 'success' as const },
-    { id: 'reg3', name: 'Decreto 1082 de 2015 - Decreto Único Reglamentario del Sector Administrativo de Planeación Nacional', content: 'Contenido detallado del Decreto 1082...', status: 'success' as const },
-    { id: 'reg4', name: 'Manual de Contratación Interno v3.1', content: 'Contenido del manual interno...', status: 'success' as const },
     { id: 'reg5', name: 'Ley de Asociaciones Público-Privadas', content: 'Contenido de la ley APP...', status: 'success' as const },
     { id: 'reg6', name: 'Normativa de Crédito Público', content: 'Contenido de la normativa de crédito público...', status: 'success' as const },
 ];
@@ -50,8 +48,9 @@ export default function StrategicModulePage() {
         title="Módulo Estratégico"
         titleIcon={PieChart}
         initialFolders={initialFolders}
-        initialRegulations={initialRegulations}
+        preconfiguredRegulations={initialRegulations}
         storageKeyPrefix="mila-strategic-module"
+        isModuleView={true}
     />
   );
 }

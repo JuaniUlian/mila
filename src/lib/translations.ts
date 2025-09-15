@@ -1,4 +1,5 @@
 
+
 import { useCallback } from 'react';
 
 export type Language = 'es' | 'en';
@@ -99,9 +100,10 @@ export const translations = {
     nextButton: t('Siguiente', 'Next'),
     backButton: t('Volver', 'Back'),
     selectedFilePrompt: t('Seleccionado:', 'Selected:'),
+    selectDocument: t('Selección de Documento', 'Document Selection'),
     noFilesFound: t('No se encontraron archivos que coincidan con su búsqueda.', 'No files were found matching your search.'),
     noFoldersOrFiles: t('No hay carpetas o archivos.', 'No folders or files.'),
-    searchPlaceholder: t('Buscar documento por nombre o palabra clave...', 'Search document by name or keyword...'),
+    searchPlaceholder: t('Buscar documento por nombre...', 'Search document by name...'),
     step1: t('Paso 1: Seleccionar documento a validar', 'Step 1: Select document to validate'),
     step2: t('Paso 2: Seleccionar normativas para el análisis', 'Step 2: Select regulations for analysis'),
     toastError: t('Error', 'Error'),
@@ -111,9 +113,9 @@ export const translations = {
     toastFolderCreated: t('Carpeta Creada', 'Folder Created'),
     toastFolderCreatedDesc: t('La carpeta "{folderName}" ha sido creada exitosamente.', 'The folder "{folderName}" has been created successfully.'),
     toastNoFolders: t('No hay carpetas para agregar el archivo.', 'There are no folders to add the file to.'),
-    uploadFile: t('Subir nuevo archivo', 'Upload new file'),
+    uploadFile: t('Subir archivo', 'Upload file'),
     uploadRegulation: t('Subir nueva normativa', 'Upload new regulation'),
-    validateButton: t('Validar Pliego', 'Validate Document'),
+    validateButton: t('Validar', 'Validate'),
     readyToValidate: t('Listo para Validar', 'Ready to Validate'),
     regulationSelected: t('normativa seleccionada', 'regulation selected'),
     regulationsSelected: t('normativas seleccionadas', 'regulations selected'),
@@ -338,6 +340,6 @@ export const useTranslations = (lang: Language) => {
       if (!result) return key; // Return key if path is invalid
     }
     // Fallback to Spanish if the selected language translation is not available
-    return result?.['es'] || result?.[lang] || key;
+    return result[lang] || result['es'] || key;
   }, [lang]);
 };

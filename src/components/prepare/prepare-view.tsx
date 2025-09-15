@@ -69,12 +69,14 @@ interface PrepareViewProps {
     title: string;
     titleIcon: React.ElementType;
     initialFolders: Omit<FolderData, 'fileCount'>[];
-    initialRegulations: Regulation[];
+    initialRegulations?: Regulation[];
+    preconfiguredRegulations?: Regulation[];
     storageKeyPrefix: string;
+    isModuleView: boolean;
 }
 
 
-export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawInitialFolders, initialRegulations, storageKeyPrefix }: PrepareViewProps) {
+export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawInitialFolders, initialRegulations, preconfiguredRegulations, storageKeyPrefix, isModuleView }: PrepareViewProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { language } = useLanguage();
@@ -87,7 +89,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   
   const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState<FolderData[]>(initialFolders);
-  const [regulations, setRegulations] = useState<Regulation[]>(initialRegulations);
+  const [regulations, setRegulations] = useState<Regulation[]>(initialRegulations || []);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -126,31 +128,38 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   useEffect(() => {
     document.title = `MILA | ${title}`;
-    try {
-        const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
-        if (savedFoldersRaw) {
-            const savedFolders = JSON.parse(savedFoldersRaw);
-            const sanitizedFolders = savedFolders.map((folder: any) => ({
-                ...folder,
-                files: folder.files.map((file: any) => ({ ...file, status: file.status || 'success' }))
-            }));
-            setFolders(sanitizedFolders);
+    if (!isModuleView) {
+        try {
+            const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
+            if (savedFoldersRaw) {
+                const savedFolders = JSON.parse(savedFoldersRaw);
+                const sanitizedFolders = savedFolders.map((folder: any) => ({
+                    ...folder,
+                    files: folder.files.map((file: any) => ({ ...file, status: file.status || 'success' }))
+                }));
+                setFolders(sanitizedFolders);
+            }
+            
+            const savedRegulationsRaw = localStorage.getItem(REGULATIONS_STORAGE_KEY);
+            if (savedRegulationsRaw) {
+                const savedRegulations = JSON.parse(savedRegulationsRaw);
+                const sanitizedRegulations = savedRegulations.map((reg: any) => ({ ...reg, status: reg.status || 'success' }));
+                setRegulations(sanitizedRegulations);
+            }
+        } catch (error) {
+            console.error('Error loading data from localStorage', error);
         }
-        
-        const savedRegulationsRaw = localStorage.getItem(REGULATIONS_STORAGE_KEY);
-        if (savedRegulationsRaw) {
-            const savedRegulations = JSON.parse(savedRegulationsRaw);
-            const sanitizedRegulations = savedRegulations.map((reg: any) => ({ ...reg, status: reg.status || 'success' }));
-            setRegulations(sanitizedRegulations);
+    } else {
+        // For module views, pre-select all pre-configured regulations
+        if (preconfiguredRegulations) {
+            setSelectedRegulationIds(preconfiguredRegulations.map(r => r.id));
         }
-    } catch (error) {
-        console.error('Error loading data from localStorage', error);
     }
     setLoadedFromStorage(true);
-  }, [FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, title]);
+  }, [FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, title, isModuleView, preconfiguredRegulations]);
 
   useEffect(() => {
-    if (loadedFromStorage) {
+    if (loadedFromStorage && !isModuleView) {
         try {
             const foldersToSave = folders.map(folder => ({ ...folder, files: folder.files.filter(file => file.status === 'success') }));
             localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(foldersToSave));
@@ -158,10 +167,10 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
             console.error('Error saving folders to localStorage', error);
         }
     }
-  }, [folders, loadedFromStorage, FOLDERS_STORAGE_KEY]);
+  }, [folders, loadedFromStorage, FOLDERS_STORAGE_KEY, isModuleView]);
 
   useEffect(() => {
-      if (loadedFromStorage) {
+      if (loadedFromStorage && !isModuleView) {
           try {
               const regulationsToSave = regulations.filter(reg => reg.status === 'success');
               localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulationsToSave));
@@ -169,7 +178,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
               console.error('Error saving regulations to localStorage', error);
           }
       }
-  }, [regulations, loadedFromStorage, REGULATIONS_STORAGE_KEY]);
+  }, [regulations, loadedFromStorage, REGULATIONS_STORAGE_KEY, isModuleView]);
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
@@ -186,8 +195,17 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   const handleValidate = () => {
     if (!isValidationReady || !selectedFile) return;
-    const selectedRegulationsData = regulations.filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success').map(r => ({ name: r.name, content: r.content }));
-    localStorage.setItem('selectedRegulations', JSON.stringify(selectedRegulationsData));
+    
+    const finalRegulations = isModuleView ? preconfiguredRegulations : regulations.filter(r => selectedRegulationIds.includes(r.id) && r.status === 'success');
+    
+    if (!finalRegulations || finalRegulations.length === 0) {
+        toast({ title: "Error", description: "No regulations selected for validation.", variant: "destructive" });
+        return;
+    }
+    
+    const regulationsToStore = finalRegulations.map(r => ({ name: r.name, content: r.content }));
+    
+    localStorage.setItem('selectedRegulations', JSON.stringify(regulationsToStore));
     localStorage.setItem('selectedDocumentName', selectedFile.name);
     localStorage.setItem('selectedDocumentContent', selectedFile.content);
     router.push('/loading');
@@ -428,61 +446,85 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     setIsDeleteFolderModalOpen(false);
   };
 
+  const MainContent = () => (
+    <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+        <CardHeader className="bg-background/20 border-b border-white/20 p-6">
+            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                <TitleIcon className="h-8 w-8 text-primary"/>
+                {title}: {isModuleView ? t('preparePage.selectDocument') : t('preparePage.step1')}
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative flex-grow w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-background/70 text-foreground rounded-lg border-input focus:bg-white/80" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                </div>
+                <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
+                    <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
+                </FileUploadButton>
+                <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
+                    <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
+                </Button>
+            </div>
+            <FolderGrid folders={filteredFolders} selectedFileId={selectedFileId} onSelectFile={setSelectedFileId} searchQuery={searchQuery} onFileUploadToFolder={handleFileUpload} onRenameFile={handleOpenRenameModal} onMoveFile={handleOpenMoveModal} onDeleteFile={handleOpenDeleteModal} onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} onRenameFolder={handleOpenRenameFolderModal} onDeleteFolder={handleOpenDeleteFolderModal} onPauseOrResume={handlePauseOrResume} onCancel={handleOpenCancelConfirm} />
+        </CardContent>
+    </Card>
+  );
+
   return (
     <div className="w-full p-4 md:p-8 text-foreground">
-      <div className="max-w-7xl mx-auto space-y-8 relative">
-        {currentStep === 1 && (
-            <div className="animate-in fade-in duration-500">
+      <div className={cn("max-w-7xl mx-auto space-y-8 relative", isModuleView && "grid lg:grid-cols-3 gap-8 items-start")}>
+        
+        <div className={cn("animate-in fade-in duration-500", isModuleView ? "lg:col-span-2" : "w-full")}>
+          {currentStep === 1 && <MainContent />}
+          {currentStep === 2 && !isModuleView && (
+              <div className="animate-in fade-in duration-500">
+                  <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                      <AccordionItem value="item-1" className="border-none">
+                          <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                              <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => e.currentTarget.click()}>
+                                  <div className="p-6 w-full text-left flex items-center justify-between">
+                                      <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
+                                          <BookCheck className="h-8 w-8 text-primary"/>{title}: {t('preparePage.step2')}
+                                      </CardTitle>
+                                  </div>
+                              </AccordionTrigger>
+                              <AccordionContent className="p-0">
+                                  <CardContent className="p-6">
+                                      <RegulationList isModuleView={false} regulations={regulations} selectedIds={selectedRegulationIds} onSelectionChange={setSelectedRegulationIds} onRegulationUpload={handleRegulationUpload} onDismissError={handleDismissRegulationError} onRename={handleOpenRenameRegulationModal} onDelete={handleDeleteRegulation} />
+                                  </CardContent>
+                              </AccordionContent>
+                          </Card>
+                      </AccordionItem>
+                  </Accordion>
+              </div>
+          )}
+        </div>
+
+        {isModuleView && (
+            <div className="lg:col-span-1 sticky top-28">
                 <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
                     <CardHeader className="bg-background/20 border-b border-white/20 p-6">
-                        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                            <TitleIcon className="h-8 w-8 text-primary"/>
-                            {title}: {t('preparePage.step1')}
+                        <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
+                            <BookCheck className="h-7 w-7 text-primary"/>
+                            Normas del Módulo
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6 p-6">
-                        <div className="flex flex-col sm:flex-row items-center gap-4">
-                            <div className="relative flex-grow w-full">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-background/70 text-foreground rounded-lg border-input focus:bg-white/80" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                            </div>
-                            <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
-                                <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
-                            </FileUploadButton>
-                            <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
-                                <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
-                            </Button>
-                        </div>
-                        <FolderGrid folders={filteredFolders} selectedFileId={selectedFileId} onSelectFile={setSelectedFileId} searchQuery={searchQuery} onFileUploadToFolder={handleFileUpload} onRenameFile={handleOpenRenameModal} onMoveFile={handleOpenMoveModal} onDeleteFile={handleOpenDeleteModal} onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} onRenameFolder={handleOpenRenameFolderModal} onDeleteFolder={handleOpenDeleteFolderModal} onPauseOrResume={handlePauseOrResume} onCancel={handleOpenCancelConfirm} />
+                    <CardContent className="p-6">
+                        <RegulationList 
+                            isModuleView={true}
+                            regulations={preconfiguredRegulations || []}
+                            selectedIds={selectedRegulationIds}
+                            onSelectionChange={() => {}} // No-op
+                        />
                     </CardContent>
                 </Card>
             </div>
         )}
 
-        {currentStep === 2 && (
-            <div className="animate-in fade-in duration-500">
-                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-                    <AccordionItem value="item-1" className="border-none">
-                        <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-                            <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => e.currentTarget.click()}>
-                                <div className="p-6 w-full text-left flex items-center justify-between">
-                                    <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                                        <BookCheck className="h-8 w-8 text-primary"/>{title}: {t('preparePage.step2')}
-                                    </CardTitle>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="p-0">
-                                <CardContent className="p-6">
-                                    <RegulationList regulations={regulations} selectedIds={selectedRegulationIds} onSelectionChange={setSelectedRegulationIds} onRegulationUpload={handleRegulationUpload} onDismissError={handleDismissRegulationError} onRename={handleOpenRenameRegulationModal} onDelete={handleOpenDeleteRegulationModal} />
-                                </CardContent>
-                            </AccordionContent>
-                        </Card>
-                    </AccordionItem>
-                </Accordion>
-            </div>
-        )}
-
-        {selectedFile && currentStep === 1 && (
+        {/* --- Floating Action Bar --- */}
+        {selectedFile && currentStep === 1 && !isModuleView && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
                 <div className={cn("bg-background/70 backdrop-blur-lg p-3 mx-4 rounded-2xl flex items-center justify-between gap-4 border border-white/20 shadow-lg")}>
                     <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -499,7 +541,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
             </div>
         )}
 
-        {currentStep === 2 && (
+        {(currentStep === 2 || (isModuleView && selectedFile)) && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
                 <div className={cn("bg-background/70 backdrop-blur-lg p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 border border-white/20 shadow-lg")}>
                     <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -508,12 +550,12 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                             {isValidationReady ? (
                                 <><span className="text-xs text-muted-foreground">{t('preparePage.readyToValidate')}</span><p className="font-semibold text-foreground" title={`${selectedRegulationIds.length} ${t(selectedRegulationIds.length === 1 ? 'preparePage.regulationSelected' : 'preparePage.regulationsSelected')}`}>{`${selectedRegulationIds.length} ${t(selectedRegulationIds.length === 1 ? 'preparePage.regulationSelected' : 'preparePage.regulationsSelected')}`}</p></>
                             ) : (
-                                <><span className="text-xs text-muted-foreground">{t('preparePage.step2')}</span><p className="font-semibold text-foreground">{t('preparePage.selectRegulationsPrompt')}</p></>
+                                <><span className="text-xs text-muted-foreground">{isModuleView ? t('preparePage.selectDocument') : t('preparePage.step2')}</span><p className="font-semibold text-foreground">{isModuleView ? "Seleccione un documento para continuar" : t('preparePage.selectRegulationsPrompt')}</p></>
                             )}
                         </div>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                        <Button variant="ghost" onClick={handlePrevStep} className="py-3 px-4 rounded-xl btn-neu-light"><ChevronLeft className="mr-1 h-5 w-5" />{t('preparePage.backButton')}</Button>
+                        {!isModuleView && <Button variant="ghost" onClick={handlePrevStep} className="py-3 px-4 rounded-xl btn-neu-light"><ChevronLeft className="mr-1 h-5 w-5" />{t('preparePage.backButton')}</Button>}
                         <Button className="py-3 px-4 rounded-xl btn-neu-green" onClick={handleValidate} disabled={!isValidationReady}>{t('preparePage.validateButton')}<ChevronRight className="ml-1 h-5 w-5" /></Button>
                     </div>
                 </div>
@@ -604,5 +646,3 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     </div>
   );
 }
-
-    

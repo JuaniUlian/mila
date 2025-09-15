@@ -4,7 +4,7 @@
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2, AlertTriangle, MoreVertical, PenLine, Trash2 } from 'lucide-react';
+import { Plus, Loader2, AlertTriangle, MoreVertical, PenLine, Trash2, BookCheck } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,12 +30,13 @@ interface RegulationItemProps {
     regulation: Regulation;
     isSelected: boolean;
     onToggleSelection: () => void;
-    onRename: (regulation: Regulation) => void;
-    onDelete: (regulation: Regulation) => void;
-    onDismissError: (regulationId: string) => void;
+    onRename?: (regulation: Regulation) => void;
+    onDelete?: (regulation: Regulation) => void;
+    onDismissError?: (regulationId: string) => void;
+    isModuleView: boolean;
 }
 
-const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError }) => {
+const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected, onToggleSelection, onRename, onDelete, onDismissError, isModuleView }) => {
     const { language } = useLanguage();
     const t = useTranslations(language);
     
@@ -51,7 +52,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
         );
     }
 
-    if (regulation.status === 'error') {
+    if (regulation.status === 'error' && onDismissError) {
         return (
             <div className="bg-destructive/10 rounded-xl border border-destructive/20 shadow-sm p-4 flex items-center gap-4">
                 <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0" />
@@ -64,6 +65,15 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
                 </Button>
             </div>
         );
+    }
+
+    if (isModuleView) {
+        return (
+            <div className="flex items-center gap-3 py-2">
+                <BookCheck className="h-5 w-5 text-primary flex-shrink-0" />
+                <span className="font-medium text-foreground text-sm">{regulation.name}</span>
+            </div>
+        )
     }
     
     return (
@@ -91,7 +101,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
                     </div>
                 </div>
 
-                {regulation.status === 'success' && (
+                {regulation.status === 'success' && onRename && onDelete && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
@@ -130,13 +140,14 @@ interface RegulationListProps {
     regulations: Regulation[];
     selectedIds: string[];
     onSelectionChange: (ids: string[]) => void;
-    onRegulationUpload: (file: File) => void;
-    onDismissError: (regulationId: string) => void;
-    onRename: (regulation: Regulation) => void;
-    onDelete: (regulation: Regulation) => void;
+    onRegulationUpload?: (file: File) => void;
+    onDismissError?: (regulationId: string) => void;
+    onRename?: (regulation: Regulation) => void;
+    onDelete?: (regulation: Regulation) => void;
+    isModuleView: boolean;
 }
 
-export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete }: RegulationListProps) {
+export function RegulationList({ regulations, selectedIds, onSelectionChange, onRegulationUpload, onDismissError, onRename, onDelete, isModuleView }: RegulationListProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
 
@@ -151,16 +162,18 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-end">
-                <FileUploadButton
-                    variant="outline"
-                    className="btn-neu-light w-full sm:w-auto"
-                    onFileSelect={onRegulationUpload}
-                >
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t('preparePage.uploadRegulation')}
-                </FileUploadButton>
-            </div>
+            {!isModuleView && onRegulationUpload && (
+                <div className="flex justify-end">
+                    <FileUploadButton
+                        variant="outline"
+                        className="btn-neu-light w-full sm:w-auto"
+                        onFileSelect={onRegulationUpload}
+                    >
+                        <Plus className="mr-2 h-4 w-4" />
+                        {t('preparePage.uploadRegulation')}
+                    </FileUploadButton>
+                </div>
+            )}
             <div className="w-full space-y-3">
                 {regulations.map(regulation => (
                    <RegulationItem 
@@ -171,6 +184,7 @@ export function RegulationList({ regulations, selectedIds, onSelectionChange, on
                     onRename={onRename}
                     onDelete={onDelete}
                     onDismissError={onDismissError}
+                    isModuleView={isModuleView}
                    />
                 ))}
             </div>
