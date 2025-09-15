@@ -11,19 +11,19 @@ const modules = [
   {
     icon: ClipboardCheck,
     title: 'OPERATIVO',
-    description: 'Verifica que esté toda la documentación, las firmas correctas y que se cumplan los requisitos básicos.',
+    description: 'Trámites del día a día: solicitudes de reserva de espacio, comprar elementos de oficina, contratar limpieza o arreglar un aire acondicionado. Verifica que se cumplan los requisitos básicos.',
     href: '/operative-module',
   },
   {
     icon: FileStack,
     title: 'TÉCNICO',
-    description: 'Revisa que los profesionales estén matriculados, que las propuestas técnicas sean correctas y cumplan las normas.',
+    description: 'Contratos que necesitan conocimiento especializado: abogados, arquitectos, sistemas informáticos o equipos médicos. Revisa que las propuestas técnicas sean correctas y cumplan las normas.',
     href: '/technical-module',
   },
   {
     icon: PieChart,
     title: 'ESTRATÉGICO',
-    description: 'Analiza si hay dinero suficiente, si es viable técnicamente y si cumple con todas las leyes y reglamentos.',
+    description: 'Decisiones importantes: obras grandes, concesiones de servicios públicos o proyectos de infraestructura. Analiza si hay dinero suficiente, si es viable técnicamente y si cumple con todas las leyes y reglamentos.',
     href: '/strategic-module',
   },
 ];
@@ -68,5 +68,3 @@ export default function SelectModulePage() {
     </div>
   );
 }
-
-    
