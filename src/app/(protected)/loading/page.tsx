@@ -25,8 +25,43 @@ import { upsMockData } from '@/components/mila/mock-data-ups';
 
 
 const MOCK_FILES_TO_RESULTS: Record<string, any> = {
+    // Archivo de demo original
     'Pliego de Bases y Condiciones.pdf': pliegoMockData,
+    // Archivo de demo para UPS
     '3118772 SERV RECAMBIO UPS 96 FJS (1)': upsMockData,
+
+    // Archivos de Módulo Operativo
+    'Solicitud de Evento.pdf': pliegoMockData,
+    'Plan de Seguridad.pdf': upsMockData,
+    'Póliza de Seguro.pdf': pliegoMockData,
+    'Requisición de Compra.docx': upsMockData,
+    'Cotización Proveedor A.pdf': pliegoMockData,
+    'Cotización Proveedor B.pdf': upsMockData,
+    'Solicitud de Permiso.pdf': pliegoMockData,
+    'Certificado de Sanidad.pdf': upsMockData,
+    'Mapa de Ubicación.pdf': pliegoMockData,
+
+    // Archivos de Módulo Técnico
+    'Términos de Referencia.pdf': upsMockData,
+    'Estudios Previos.pdf': pliegoMockData,
+    'Certificado de Idoneidad.pdf': upsMockData,
+    'Pliego de Especificaciones Técnicas.docx': pliegoMockData,
+    'Análisis de Mercado.pdf': upsMockData,
+    'Matriz de Riesgos.pdf': pliegoMockData,
+    'Requerimientos Técnicos.pdf': upsMockData,
+    'Certificaciones INVIMA.pdf': pliegoMockData,
+    'Cronograma de Entrega.pdf': upsMockData,
+
+    // Archivos de Módulo Estratégico
+    'Pliego de Licitación Pública.pdf': pliegoMockData,
+    'Estudio de Factibilidad.pdf': upsMockData,
+    'Certificación Presupuestaria.pdf': pliegoMockData,
+    'Borrador de Contrato de Concesión.docx': upsMockData,
+    'Modelo Financiero.xlsx': pliegoMockData,
+    'Análisis de Riesgos de Concesión.pdf': upsMockData,
+    'Memorando de Solicitud.pdf': pliegoMockData,
+    'Plan de Inversiones.pdf': upsMockData,
+    'Marco Legal del Proyecto.pdf': pliegoMockData,
 };
 
 
@@ -108,10 +143,15 @@ export default function LoadingPage() {
           return;
         }
         
-        // DEMO MODE: Check for hardcoded file names
-        const mockResult = MOCK_FILES_TO_RESULTS[documentName];
-        if (mockResult) {
-            await new Promise(r => setTimeout(r, 1500)); // Simulate loading
+        // MODO DEMO: Usar datos simulados si el nombre del archivo coincide con cualquiera de los archivos de los módulos
+        if (Object.keys(MOCK_FILES_TO_RESULTS).includes(documentName)) {
+            const mockResult = MOCK_FILES_TO_RESULTS[documentName];
+            console.log(`Modo simulación activado para: ${documentName}`);
+            
+            // Simular un tiempo de carga para la demo
+            setEstimatedTime(3); 
+            await new Promise(r => setTimeout(r, 3000));
+
             setValidationResults({ 
                 ...(mockResult as any), 
                 documentName: mockResult.documentTitle || documentName,
@@ -120,6 +160,8 @@ export default function LoadingPage() {
             return;
         }
 
+        // --- INICIO DE ANÁLISIS REAL CON IA ---
+        console.log(`Análisis real iniciado para: ${documentName}`);
 
         const regulations = JSON.parse(regulationsRaw) as Array<{ name: string; content: string }>;
 
@@ -409,3 +451,5 @@ export default function LoadingPage() {
     </div>
   );
 }
+
+    
