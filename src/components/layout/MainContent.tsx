@@ -14,7 +14,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   const showHeader = !['/', '/home'].includes(pathname);
 
   // Define module paths that should share the prepare page background
-  const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module'];
+  const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module', '/select-module'];
 
   // Calculate className consistently on both server and client to avoid hydration errors
   const bodyClassName = useMemo(() => {
