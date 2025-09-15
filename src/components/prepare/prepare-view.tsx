@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -452,11 +452,18 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   const MainContent = () => (
     <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-        <CardHeader className="bg-background/20 border-b border-white/20 p-6">
-            <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                <TitleIcon className="h-8 w-8 text-primary"/>
-                {title}: {isModuleView ? t('preparePage.selectDocument') : t('preparePage.step1')}
-            </CardTitle>
+        <CardHeader className="bg-background/20 border-b border-white/20 p-6 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isModuleView && (
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => router.push('/select-module')}>
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              )}
+              <TitleIcon className="h-8 w-8 text-primary"/>
+              <CardTitle className="text-2xl font-bold text-foreground">
+                  {title}: {isModuleView ? t('preparePage.selectDocument') : t('preparePage.step1')}
+              </CardTitle>
+            </div>
         </CardHeader>
         <CardContent className="space-y-6 p-6">
             <div className="flex flex-col sm:flex-row items-center gap-4">

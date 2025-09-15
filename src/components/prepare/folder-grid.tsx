@@ -350,14 +350,7 @@ export function FolderGrid({
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
-                        {folder.files.slice(0, 3).map(file => (
-                             <div key={file.id} className="flex items-center gap-3 p-1 text-sm text-muted-foreground">
-                                <FileText className="h-4 w-4 flex-shrink-0"/>
-                                <span className="truncate">{file.name}</span>
-                            </div>
-                        ))}
-                        {folder.files.length > 3 && <p className="text-xs text-muted-foreground px-1 pt-1">...y {folder.files.length - 3} más</p>}
-                        {folder.files.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">{t('preparePage.folderEmpty')}</p>}
+                        {folder.files.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('preparePage.folderEmpty')}</p>}
                     </CardContent>
                 </Card>
             ))}
