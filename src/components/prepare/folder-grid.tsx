@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, XCircle, Pause, Play, Loader } from 'lucide-react';
+import { Folder, FileText, CheckCircle2, Plus, MoreVertical, PenLine, Move, Trash2, AlertTriangle, XCircle, Pause, Play, Loader, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,8 @@ interface FolderGridProps {
     onDeleteFolder: (folder: FolderData) => void;
     onPauseOrResume: (fileId: string) => void;
     onCancel: (fileId: string, folderId: string) => void;
+    expandedFolderId: string | null;
+    setExpandedFolderId: (id: string | null) => void;
 }
 
 const formatTime = (seconds: number): string => {
@@ -220,12 +222,14 @@ export function FolderGrid({
     onRenameFolder,
     onDeleteFolder,
     onPauseOrResume,
-    onCancel
+    onCancel,
+    expandedFolderId,
+    setExpandedFolderId,
 }: FolderGridProps) {
     const { language } = useLanguage();
     const t = useTranslations(language);
 
-    if (folders.length === 0) {
+    if (folders.length === 0 && !expandedFolderId) {
         return (
             <div className="text-center py-10 bg-background/50 rounded-lg">
                 <p className="text-base text-muted-foreground">
@@ -234,13 +238,68 @@ export function FolderGrid({
             </div>
         );
     }
+    
+    if (expandedFolderId) {
+        const folder = folders.find(f => f.id === expandedFolderId);
+        if (!folder) return null;
+
+        return (
+            <Card className="bg-background/50 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
+                <CardHeader className='pb-3 flex flex-row items-center justify-between'>
+                    <div className='flex-1 flex items-center gap-4'>
+                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setExpandedFolderId(null)}>
+                            <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <div>
+                            <CardTitle className="flex items-center gap-2 text-lg text-foreground">
+                                <Folder className="h-6 w-6 text-primary" />
+                                {folder.name}
+                            </CardTitle>
+                            <CardDescription className="text-muted-foreground">{folder.files.filter(f => f.status === 'success').length} {t('preparePage.files')}</CardDescription>
+                        </div>
+                    </div>
+                    <FileUploadButton
+                        onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
+                        title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
+                    >
+                        <Plus className="h-5 w-5" />
+                    </FileUploadButton>
+                </CardHeader>
+                <CardContent className="flex-1 space-y-1 p-3">
+                    {folder.files.length > 0 ? (
+                        folder.files.map(file => (
+                            <FileItem
+                                key={file.id}
+                                file={file}
+                                folderId={folder.id}
+                                isSelected={selectedFileId === file.id && file.status === 'success'}
+                                onSelect={() => file.status === 'success' && onSelectFile(selectedFileId === file.id ? null : file.id)}
+                                onRename={onRenameFile}
+                                onMove={onMoveFile}
+                                onDelete={onDeleteFile}
+                                onDismissError={onDismissError}
+                                onPauseOrResume={onPauseOrResume}
+                                onCancel={onCancel}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">{t('preparePage.folderEmpty')}</p>
+                    )}
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {folders.map(folder => (
                 <Card 
                     key={folder.id} 
-                    className="bg-background/50 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl"
+                    className="bg-background/50 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl cursor-pointer"
+                    onClick={() => setExpandedFolderId(folder.id)}
                 >
                     <CardHeader className='pb-3 flex flex-row items-start justify-between'>
                         <div className='flex-1'>
@@ -250,7 +309,7 @@ export function FolderGrid({
                             </CardTitle>
                             <CardDescription className="text-muted-foreground">{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center" onClick={e => e.stopPropagation()}>
                             <FileUploadButton
                                 onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
                                 variant="ghost"
@@ -291,25 +350,14 @@ export function FolderGrid({
                         </div>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-1 p-3">
-                        {folder.files.length > 0 ? (
-                            folder.files.map(file => (
-                                <FileItem
-                                    key={file.id}
-                                    file={file}
-                                    folderId={folder.id}
-                                    isSelected={selectedFileId === file.id && file.status === 'success'}
-                                    onSelect={() => file.status === 'success' && onSelectFile(selectedFileId === file.id ? null : file.id)}
-                                    onRename={onRenameFile}
-                                    onMove={onMoveFile}
-                                    onDelete={onDeleteFile}
-                                    onDismissError={onDismissError}
-                                    onPauseOrResume={onPauseOrResume}
-                                    onCancel={onCancel}
-                                />
-                            ))
-                        ) : (
-                             <p className="text-sm text-muted-foreground text-center py-4">{t('preparePage.folderEmpty')}</p>
-                        )}
+                        {folder.files.slice(0, 3).map(file => (
+                             <div key={file.id} className="flex items-center gap-3 p-1 text-sm text-muted-foreground">
+                                <FileText className="h-4 w-4 flex-shrink-0"/>
+                                <span className="truncate">{file.name}</span>
+                            </div>
+                        ))}
+                        {folder.files.length > 3 && <p className="text-xs text-muted-foreground px-1 pt-1">...y {folder.files.length - 3} más</p>}
+                        {folder.files.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">{t('preparePage.folderEmpty')}</p>}
                     </CardContent>
                 </Card>
             ))}

@@ -21,7 +21,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
@@ -87,12 +86,12 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   const initialFolders = useMemo(() => rawInitialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })), [rawInitialFolders]);
   
-  const [currentStep, setCurrentStep] = useState(1);
   const [folders, setFolders] = useState<FolderData[]>(initialFolders);
   const [regulations, setRegulations] = useState<Regulation[]>(initialRegulations || []);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedFolderId, setExpandedFolderId] = useState<string | null>(null);
 
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -150,7 +149,6 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
             console.error('Error loading data from localStorage', error);
         }
     } else {
-        // For module views, pre-select all pre-configured regulations
         if (preconfiguredRegulations) {
             setSelectedRegulationIds(preconfiguredRegulations.map(r => r.id));
         }
@@ -190,8 +188,6 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   }, [selectedFileId, folders]);
 
   const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
-  const handleNextStep = () => setCurrentStep(selectedFileId ? 2 : 1);
-  const handlePrevStep = () => setCurrentStep(1);
 
   const handleValidate = () => {
     if (!isValidationReady || !selectedFile) return;
@@ -371,7 +367,13 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     setIsCreateFolderModalOpen(false);
   };
 
-  const filteredFolders = useMemo(() => searchQuery ? folders.map(folder => ({ ...folder, files: folder.files.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase())) })).filter(folder => folder.files.length > 0) : folders, [searchQuery, folders]);
+  const filteredFolders = useMemo(() => {
+    if (!searchQuery) return folders;
+    return folders
+      .map(folder => ({ ...folder, files: folder.files.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))}))
+      .filter(folder => folder.files.length > 0);
+  }, [searchQuery, folders]);
+  
 
   const handleOpenRenameModal = (file: File, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setNewFileName(file.name); setIsRenameModalOpen(true); };
   const handleRenameFile = () => {
@@ -445,6 +447,8 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     toast({ title: t('preparePage.deleteFolderTitle'), description: `"${folderToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     setIsDeleteFolderModalOpen(false);
   };
+  
+  const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
 
   const MainContent = () => (
     <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
@@ -467,39 +471,33 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                     <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
                 </Button>
             </div>
-            <FolderGrid folders={filteredFolders} selectedFileId={selectedFileId} onSelectFile={setSelectedFileId} searchQuery={searchQuery} onFileUploadToFolder={handleFileUpload} onRenameFile={handleOpenRenameModal} onMoveFile={handleOpenMoveModal} onDeleteFile={handleOpenDeleteModal} onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} onRenameFolder={handleOpenRenameFolderModal} onDeleteFolder={handleOpenDeleteFolderModal} onPauseOrResume={handlePauseOrResume} onCancel={handleOpenCancelConfirm} />
+            <FolderGrid 
+                folders={currentViewFolders} 
+                selectedFileId={selectedFileId} 
+                onSelectFile={setSelectedFileId} 
+                searchQuery={searchQuery} 
+                onFileUploadToFolder={handleFileUpload} 
+                onRenameFile={handleOpenRenameModal} 
+                onMoveFile={handleOpenMoveModal} 
+                onDeleteFile={handleOpenDeleteModal} 
+                onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
+                onRenameFolder={handleOpenRenameFolderModal} 
+                onDeleteFolder={handleOpenDeleteFolderModal} 
+                onPauseOrResume={handlePauseOrResume} 
+                onCancel={handleOpenCancelConfirm}
+                expandedFolderId={expandedFolderId}
+                setExpandedFolderId={setExpandedFolderId}
+            />
         </CardContent>
     </Card>
   );
 
   return (
     <div className="w-full p-4 md:p-8 text-foreground">
-      <div className={cn("max-w-7xl mx-auto space-y-8 relative", isModuleView && "grid lg:grid-cols-3 gap-8 items-start")}>
+      <div className={cn("max-w-7xl mx-auto items-start", isModuleView ? "grid lg:grid-cols-3 gap-8" : "space-y-8")}>
         
         <div className={cn("animate-in fade-in duration-500", isModuleView ? "lg:col-span-2" : "w-full")}>
-          {currentStep === 1 && <MainContent />}
-          {currentStep === 2 && !isModuleView && (
-              <div className="animate-in fade-in duration-500">
-                  <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-                      <AccordionItem value="item-1" className="border-none">
-                          <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-                              <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20" onClick={(e) => e.currentTarget.click()}>
-                                  <div className="p-6 w-full text-left flex items-center justify-between">
-                                      <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                                          <BookCheck className="h-8 w-8 text-primary"/>{title}: {t('preparePage.step2')}
-                                      </CardTitle>
-                                  </div>
-                              </AccordionTrigger>
-                              <AccordionContent className="p-0">
-                                  <CardContent className="p-6">
-                                      <RegulationList isModuleView={false} regulations={regulations} selectedIds={selectedRegulationIds} onSelectionChange={setSelectedRegulationIds} onRegulationUpload={handleRegulationUpload} onDismissError={handleDismissRegulationError} onRename={handleOpenRenameRegulationModal} onDelete={handleDeleteRegulation} />
-                                  </CardContent>
-                              </AccordionContent>
-                          </Card>
-                      </AccordionItem>
-                  </Accordion>
-              </div>
-          )}
+           <MainContent />
         </div>
 
         {isModuleView && (
@@ -516,46 +514,24 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                             isModuleView={true}
                             regulations={preconfiguredRegulations || []}
                             selectedIds={selectedRegulationIds}
-                            onSelectionChange={() => {}} // No-op
+                            onSelectionChange={() => {}}
                         />
                     </CardContent>
                 </Card>
             </div>
         )}
-
-        {/* --- Floating Action Bar --- */}
-        {selectedFile && currentStep === 1 && !isModuleView && (
-            <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-lg animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
-                <div className={cn("bg-background/70 backdrop-blur-lg p-3 mx-4 rounded-2xl flex items-center justify-between gap-4 border border-white/20 shadow-lg")}>
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <FileCheck className="h-7 w-7 text-primary flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                            <span className="text-xs text-muted-foreground">{t('preparePage.selectedFilePrompt')}</span>
-                            <p className="font-semibold text-foreground truncate" title={selectedFile.name}>{selectedFile.name}</p>
-                        </div>
-                    </div>
-                    <Button className="text-base font-semibold px-6 py-5 rounded-xl btn-neu-green flex-shrink-0" onClick={handleNextStep}>
-                        {t('preparePage.nextButton')}<ChevronRight className="ml-2 h-5 w-5" />
-                    </Button>
-                </div>
-            </div>
-        )}
-
-        {(currentStep === 2 || (isModuleView && selectedFile)) && (
+        
+        {isValidationReady && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
                 <div className={cn("bg-background/70 backdrop-blur-lg p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 border border-white/20 shadow-lg")}>
                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                        {isValidationReady ? <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" /> : <BookCheck className="h-7 w-7 text-muted-foreground flex-shrink-0" />}
+                        <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                            {isValidationReady ? (
-                                <><span className="text-xs text-muted-foreground">{t('preparePage.readyToValidate')}</span><p className="font-semibold text-foreground" title={`${selectedRegulationIds.length} ${t(selectedRegulationIds.length === 1 ? 'preparePage.regulationSelected' : 'preparePage.regulationsSelected')}`}>{`${selectedRegulationIds.length} ${t(selectedRegulationIds.length === 1 ? 'preparePage.regulationSelected' : 'preparePage.regulationsSelected')}`}</p></>
-                            ) : (
-                                <><span className="text-xs text-muted-foreground">{isModuleView ? t('preparePage.selectDocument') : t('preparePage.step2')}</span><p className="font-semibold text-foreground">{isModuleView ? "Seleccione un documento para continuar" : t('preparePage.selectRegulationsPrompt')}</p></>
-                            )}
+                             <span className="text-xs text-muted-foreground">{t('preparePage.selectedFilePrompt')}</span>
+                             <p className="font-semibold text-foreground truncate" title={selectedFile?.name}>{selectedFile?.name}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                        {!isModuleView && <Button variant="ghost" onClick={handlePrevStep} className="py-3 px-4 rounded-xl btn-neu-light"><ChevronLeft className="mr-1 h-5 w-5" />{t('preparePage.backButton')}</Button>}
                         <Button className="py-3 px-4 rounded-xl btn-neu-green" onClick={handleValidate} disabled={!isValidationReady}>{t('preparePage.validateButton')}<ChevronRight className="ml-1 h-5 w-5" /></Button>
                     </div>
                 </div>
