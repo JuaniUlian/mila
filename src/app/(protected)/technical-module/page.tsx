@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { PrepareView } from '@/components/prepare/prepare-view';
-import { Microscope } from 'lucide-react';
+import { FileStack } from 'lucide-react';
 
 const initialRegulations = [
     { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' as const },
@@ -48,12 +48,10 @@ export default function TechnicalModulePage() {
   return (
     <PrepareView
         title="Módulo Técnico"
-        titleIcon={Microscope}
+        titleIcon={FileStack}
         initialFolders={initialFolders}
         initialRegulations={initialRegulations}
         storageKeyPrefix="mila-technical-module"
     />
   );
 }
-
-    

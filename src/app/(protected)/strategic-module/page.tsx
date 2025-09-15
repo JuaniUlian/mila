@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { PrepareView } from '@/components/prepare/prepare-view';
-import { Landmark } from 'lucide-react';
+import { PieChart } from 'lucide-react';
 
 const initialRegulations = [
     { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' as const },
@@ -48,12 +48,10 @@ export default function StrategicModulePage() {
   return (
     <PrepareView
         title="Módulo Estratégico"
-        titleIcon={Landmark}
+        titleIcon={PieChart}
         initialFolders={initialFolders}
         initialRegulations={initialRegulations}
         storageKeyPrefix="mila-strategic-module"
     />
   );
 }
-
-    

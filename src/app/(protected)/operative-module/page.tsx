@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { PrepareView } from '@/components/prepare/prepare-view';
-import { Briefcase, FileText } from 'lucide-react';
+import { ClipboardCheck } from 'lucide-react';
 
 const initialRegulations = [
     { id: 'reg1', name: 'Ley 80 de 1993 - Estatuto General de Contratación', content: 'Contenido detallado de la Ley 80...', status: 'success' as const },
@@ -39,7 +39,7 @@ const initialFolders = [
     files: [
       { id: 'op3-file1', name: 'Solicitud de Permiso.pdf', content: 'Contenido de la solicitud de permiso...', status: 'success' as const },
       { id: 'op3-file2', name: 'Certificado de Sanidad.pdf', content: 'Contenido del certificado de sanidad...', status: 'success' as const },
-      { id 'op3-file3', name: 'Mapa de Ubicación.pdf', content: 'Contenido del mapa de ubicación...', status: 'success' as const },
+      { id: 'op3-file3', name: 'Mapa de Ubicación.pdf', content: 'Contenido del mapa de ubicación...', status: 'success' as const },
     ],
   },
 ];
@@ -50,12 +50,10 @@ export default function OperativeModulePage() {
   return (
     <PrepareView
         title="Módulo Operativo"
-        titleIcon={Briefcase}
+        titleIcon={ClipboardCheck}
         initialFolders={initialFolders}
         initialRegulations={initialRegulations}
         storageKeyPrefix="mila-operative-module"
     />
   );
 }
-
-    
