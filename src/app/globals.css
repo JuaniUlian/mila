@@ -133,7 +133,10 @@
     @apply transition-all duration-300;
   }
   .dark .card-hud-hover:hover {
-    @apply bg-white/50 backdrop-blur-lg border-white/30 shadow-2xl scale-105;
+    background-color: hsl(var(--white) / 0.5);
+    backdrop-filter: blur(8px);
+    border-color: hsl(var(--white) / 0.3);
+    @apply shadow-2xl scale-105;
     box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
   }
   .btn-neu-light {
@@ -157,9 +160,11 @@
   }
 
   .card-neumorphism {
-      @apply bg-background/50 rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
+      background-color: hsl(var(--background) / 0.5);
+      @apply rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
       .dark & {
-        @apply bg-slate-800/50 shadow-[5px_5px_10px_#1c2532,-5px_-5px_10px_#2a394c];
+        background-color: hsl(var(--slate-800) / 0.5);
+        @apply shadow-[5px_5px_10px_#1c2532,-5px_-5px_10px_#2a394c];
       }
   }
   .card-neumorphism:hover {
@@ -188,7 +193,9 @@
   .hover-hud-gray:hover { background: linear-gradient(to right, hsl(var(--severity-informative) / 0.1), transparent 80%); }
 
   .glass-accordion-item {
-    @apply bg-background/20 backdrop-blur-md border border-border/30 shadow-lg rounded-xl overflow-hidden;
+    background-color: hsl(var(--background) / 0.2);
+    border-color: hsl(var(--border) / 0.3);
+    @apply backdrop-blur-md border shadow-lg rounded-xl overflow-hidden;
   }
 }
 
