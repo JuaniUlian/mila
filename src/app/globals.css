@@ -72,13 +72,14 @@
 }
 
 @layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-nunito), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  * {
+    border-color: hsl(var(--border));
   }
   details > summary {
     list-style: none;
@@ -123,7 +124,10 @@
     background-attachment: fixed;
   }
   .glass {
-    @apply bg-background/30 backdrop-blur-sm border border-border/20 shadow-md;
+    background-color: hsl(var(--background) / 0.3);
+    backdrop-filter: blur(4px);
+    border-color: hsl(var(--border) / 0.2);
+    @apply border shadow-md;
   }
   .card-hud-hover {
     @apply transition-all duration-300;
@@ -133,7 +137,13 @@
     box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
   }
   .btn-neu-light {
-    @apply bg-foreground/5 dark:bg-foreground/10 text-foreground font-semibold border border-foreground/20 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.05)] hover:shadow-inner active:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] transition-shadow duration-200 ease-in-out;
+    background-color: hsl(var(--foreground) / 0.05);
+    border-color: hsl(var(--foreground) / 0.2);
+    color: hsl(var(--foreground));
+    @apply font-semibold border shadow-[2px_2px_4px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.05)] hover:shadow-inner active:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] transition-shadow duration-200 ease-in-out;
+  }
+  .dark .btn-neu-light {
+    background-color: hsl(var(--foreground) / 0.1);
   }
   .btn-neu-dark {
     @apply bg-slate-800 text-slate-200 font-semibold border-transparent shadow-[5px_5px_10px_#1f2937,-5px_-5px_10px_#475569] hover:bg-slate-800 hover:shadow-[2px_2px_5px_#1f2937,-2px_-2px_5px_#475569] active:shadow-[inset_2px_2px_5px_#1f2937,inset_-2px_-2px_5px_#475569] transition-shadow duration-200 ease-in-out;
