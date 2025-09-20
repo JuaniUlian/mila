@@ -9,7 +9,7 @@ import { useLayout } from '@/context/LayoutContext';
 
 export default function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { score, isInitialPageLoad, theme } = useLayout();
+  const { score, isInitialPageLoad } = useLayout();
   
   const showHeader = !['/', '/home'].includes(pathname);
 
@@ -26,7 +26,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
-          backgroundClasses = 'bg-analysis-validado';
+          backgroundClasses = 'bg-prepare-page'; // Start with prepare background
       } else if (score <= 50) {
           backgroundClasses = 'bg-analysis-grave';
       } else if (score <= 79) {

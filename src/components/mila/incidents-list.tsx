@@ -92,7 +92,7 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-background">
+        <div className="h-full flex flex-col bg-background/95">
             <DialogHeader className="p-4 border-b">
                 <DialogTitle className="text-lg flex items-center gap-2 text-foreground">
                     <MessageSquareWarning size={20} />
@@ -224,8 +224,8 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       )}
 
       <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
-          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
+          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
+          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
       </div>
       
       <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/80 p-3 rounded-md">{finding.consecuencia_estimada}</p></div>
@@ -342,13 +342,13 @@ export function IncidentsList({
                   <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-4 pt-2 bg-background/30">
+              <AccordionContent className="p-4 pt-2 bg-background/30 dark:bg-black/10">
                 <div className="space-y-3">
                   {categoryFindings.map((finding) => (
                     <div 
                       key={finding.id} 
                       className={cn(
-                        "group relative rounded-lg cursor-pointer bg-background/40 card-neumorphism transition-all duration-300 hover:scale-[1.02] border-l-4",
+                        "group relative rounded-lg cursor-pointer card-neumorphism",
                         SEVERITY_GRADIENT[finding.gravedad],
                         SEVERITY_HOVER_HUD[finding.gravedad]
                       )}
@@ -383,28 +383,30 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg bg-background/80 backdrop-blur-xl border-border/30">
+        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-background/95 backdrop-blur-xl border-border/30">
           {selectedFinding && (
             <>
               <DialogHeader className="p-6 bg-muted/30 border-b flex flex-row items-center justify-between">
                 <DialogTitle className="text-xl">{selectedFinding.titulo_incidencia}</DialogTitle>
                 <DialogClose />
               </DialogHeader>
-              <div className="p-6 overflow-y-auto">
-                <IncidentItemContent 
-                  finding={selectedFinding} 
-                  onFindingStatusChange={onFindingStatusChange} 
-                  onDialogClose={() => setSelectedFinding(null)}
-                  onOpenDiscussion={handleOpenDiscussion}
-                />
-              </div>
+              <ScrollArea>
+                <div className="p-6">
+                    <IncidentItemContent 
+                      finding={selectedFinding} 
+                      onFindingStatusChange={onFindingStatusChange} 
+                      onDialogClose={() => setSelectedFinding(null)}
+                      onOpenDiscussion={handleOpenDiscussion}
+                    />
+                </div>
+              </ScrollArea>
             </>
           )}
         </DialogContent>
       </Dialog>
       
       <Dialog open={!!discussionFinding} onOpenChange={(isOpen) => !isOpen && setDiscussionFinding(null)}>
-          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto_1fr_auto] overflow-hidden rounded-lg">
+          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl">
              {discussionFinding && <DiscussionPanel finding={discussionFinding} />}
           </DialogContent>
       </Dialog>
