@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import React, { useState } from 'react';
@@ -24,7 +26,7 @@ export default function LandingPage() {
   };
   
   return (
-    <div className="bg-gradient-to-br from-white via-slate-50 to-slate-200 text-gray-800 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900/60 dark:text-gray-200">
+    <div className="bg-home-page text-gray-800 dark:bg-home-page dark:text-gray-200">
       
 
       <main>
@@ -237,3 +239,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+  

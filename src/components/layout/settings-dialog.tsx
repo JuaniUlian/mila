@@ -42,7 +42,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn("bg-background/80 dark:bg-slate-900/80 backdrop-blur-xl border-border/30 rounded-2xl shadow-lg text-foreground")}>
+      <DialogContent className={cn(
+        "rounded-2xl shadow-lg",
+        theme === 'light' ? 'bg-white/95 text-foreground' : 'bg-slate-900/95 text-foreground',
+        "border" 
+        )}>
         <DialogHeader>
           <DialogTitle>{t('settingsDialog.title')}</DialogTitle>
         </DialogHeader>
@@ -50,7 +54,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           <div className="space-y-2">
             <Label htmlFor="language-select">{t('settingsDialog.languageLabel')}</Label>
             <Select value={language} onValueChange={(value) => setLanguage(value as Language)}>
-              <SelectTrigger id="language-select" className="w-full bg-background/70 dark:bg-slate-800/70 border-border/50">
+              <SelectTrigger id="language-select" className={cn("w-full border-border/50", theme === 'light' ? 'bg-slate-100/80' : 'bg-slate-800/80')}>
                 <SelectValue placeholder={t('settingsDialog.languagePlaceholder')} />
               </SelectTrigger>
               <SelectContent>

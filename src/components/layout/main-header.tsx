@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -31,20 +32,19 @@ export function MainHeader() {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
 
-    const { score, isInitialPageLoad } = useLayout();
+    const { score, isInitialPageLoad, theme } = useLayout();
 
-    // CORRECCIÓN: Isla translúcida blanca en modo claro, sólida oscura en modo oscuro
-    let headerBgClass = 'bg-white/60 backdrop-blur-lg border-white/30 dark:bg-slate-900/95 dark:border-slate-700/50';
+    let headerBgClass = 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-white/30 dark:border-slate-700/50';
     
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-            headerBgClass = 'bg-white/60 backdrop-blur-lg border-white/30 dark:bg-slate-900/95 dark:border-slate-700/50';
+            headerBgClass = 'bg-white/80 backdrop-blur-lg border-white/30 dark:bg-slate-900/80 dark:border-slate-700/50';
         } else if (score <= 50) {
-            headerBgClass = 'bg-red-50/80 backdrop-blur-lg border-red-200/60 dark:bg-red-950/90 dark:border-red-800/60';
+            headerBgClass = 'bg-red-50/80 backdrop-blur-lg border-red-200/60 dark:bg-red-950/80 dark:border-red-800/60';
         } else if (score <= 79) {
-            headerBgClass = 'bg-amber-50/80 backdrop-blur-lg border-amber-200/60 dark:bg-amber-950/90 dark:border-amber-800/60';
+            headerBgClass = 'bg-amber-50/80 backdrop-blur-lg border-amber-200/60 dark:bg-amber-950/80 dark:border-amber-800/60';
         } else {
-            headerBgClass = 'bg-emerald-50/80 backdrop-blur-lg border-emerald-200/60 dark:bg-emerald-950/90 dark:border-emerald-800/60';
+            headerBgClass = 'bg-emerald-50/80 backdrop-blur-lg border-emerald-200/60 dark:bg-emerald-950/80 dark:border-emerald-800/60';
         }
     }
     
@@ -82,6 +82,14 @@ export function MainHeader() {
         },
     ];
 
+    const commonButtonClasses = cn(
+      "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
+      theme === 'light' 
+        ? "bg-white/70 border-white/40 shadow-sm hover:shadow-md hover:bg-white/90 text-gray-700" 
+        : "bg-slate-800/80 border-slate-600/40 shadow-sm hover:shadow-md hover:bg-slate-700/95 text-slate-200",
+      "border"
+    );
+
     return (
         <>
             <TooltipProvider delayDuration={100}>
@@ -92,14 +100,8 @@ export function MainHeader() {
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link href="/home" className={cn(
-                                    "flex items-center justify-center h-12 w-12 rounded-xl p-1.5 transition-all duration-200",
-                                    "bg-white/70 dark:bg-slate-800/80", // CORRECCIÓN: Translúcido blanco en claro
-                                    "border border-white/40 dark:border-slate-600/40",
-                                    "shadow-sm hover:shadow-md",
-                                    "hover:bg-white/90 dark:hover:bg-slate-700/95"
-                                )}>
-                                    <Logo variant="color" className="h-full w-full" />
+                                <Link href="/home" className={commonButtonClasses}>
+                                    <Logo variant="color" className="h-full w-full p-1.5" />
                                 </Link>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -107,48 +109,35 @@ export function MainHeader() {
                             </TooltipContent>
                         </Tooltip>
 
-                        {navActions.map((action) => {
-                             const commonClasses = cn(
-                                "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
-                                "bg-white/70 dark:bg-slate-800/80", // CORRECCIÓN: Consistencia translúcida
-                                "border border-white/40 dark:border-slate-600/40",
-                                "shadow-sm hover:shadow-md",
-                                "hover:bg-white/90 dark:hover:bg-slate-700/95",
-                                "text-gray-700 dark:text-slate-200"
-                             );
-
-                            return (
-                                <Tooltip key={action.name}>
-                                    <TooltipTrigger asChild>
-                                        {action.isLink ? (
-                                            <Link
-                                                href={action.href!}
-                                                onClick={action.onClick}
-                                                target={action.isExternal ? '_blank' : undefined}
-                                                rel={action.isExternal ? 'noopener noreferrer' : undefined}
-                                                className={commonClasses}
-                                                aria-label={action.name}
-                                                suppressHydrationWarning
-                                            >
-                                                <action.icon className="h-6 w-6" />
-                                            </Link>
-                                        ) : (
-                                            <button
-                                                onClick={action.onClick}
-                                                className={commonClasses}
-                                                aria-label={action.name}
-                                                suppressHydrationWarning
-                                            >
-                                                <action.icon className="h-6 w-6" />
-                                            </button>
-                                        )}
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>{action.name}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            )
-                        })}
+                        {navActions.map((action) => (
+                            <Tooltip key={action.name}>
+                                <TooltipTrigger asChild>
+                                    {action.isLink ? (
+                                        <Link
+                                            href={action.href!}
+                                            onClick={action.onClick}
+                                            target={action.isExternal ? '_blank' : undefined}
+                                            rel={action.isExternal ? 'noopener noreferrer' : undefined}
+                                            className={commonButtonClasses}
+                                            aria-label={action.name}
+                                        >
+                                            <action.icon className="h-6 w-6" />
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            onClick={action.onClick}
+                                            className={commonButtonClasses}
+                                            aria-label={action.name}
+                                        >
+                                            <action.icon className="h-6 w-6" />
+                                        </button>
+                                    )}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{action.name}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        ))}
                     </nav>
                 </header>
             </TooltipProvider>

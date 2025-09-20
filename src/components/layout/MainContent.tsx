@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -10,7 +11,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const { score, isInitialPageLoad } = useLayout();
   
-  const showHeader = !['/', '/home'].includes(pathname);
+  const showHeader = !['/home'].includes(pathname) && !pathname.startsWith('/auth');
 
   // Define module paths that should share the prepare page background
   const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module', '/select-module'];
@@ -22,7 +23,6 @@ export default function MainContent({ children }: { children: React.ReactNode })
     if (pathname === '/loading') {
       backgroundClasses = 'bg-loading-page';
     } else if (pathname === '/home') {
-      // CORRECCIÓN: /home usa el degradado blanco-plateado
       backgroundClasses = 'bg-home-page';
     } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
@@ -46,7 +46,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   }, [pathname, score, isInitialPageLoad, showHeader]);
   
   return (
-    <div className={bodyClassName} suppressHydrationWarning={true}>
+    <div className={bodyClassName}>
       {showHeader && <MainHeader />}
       <main className="flex-1 flex flex-col">
         {children}
