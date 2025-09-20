@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -11,8 +10,8 @@ import { useTranslations } from '@/lib/translations';
 import Image from 'next/image';
 
 
-const cardBaseClasses = "glass p-6 shadow rounded-2xl card-hud-hover h-full flex flex-col items-center text-center";
-const detailsBaseClasses = "glass p-4 rounded-2xl shadow card-hud-hover";
+const cardBaseClasses = "bg-background/90 dark:bg-slate-800/90 backdrop-blur-sm border border-border/40 dark:border-slate-600/40 p-6 shadow rounded-2xl hover:shadow-lg transition-all duration-300 h-full flex flex-col items-center text-center";
+const detailsBaseClasses = "bg-background/90 dark:bg-slate-800/90 backdrop-blur-sm border border-border/40 dark:border-slate-600/40 p-4 rounded-2xl shadow hover:shadow-lg transition-all duration-300";
 
 export default function LandingPage() {
   const { language } = useLanguage();
@@ -25,7 +24,7 @@ export default function LandingPage() {
   };
   
   return (
-    <div className="bg-gradient-to-br from-white via-slate-100 to-slate-300 text-gray-800 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900/60 dark:text-gray-200">
+    <div className="bg-gradient-to-br from-white via-slate-50 to-slate-200 text-gray-800 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900/60 dark:text-gray-200">
       
 
       <main>
@@ -42,7 +41,7 @@ export default function LandingPage() {
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight text-gray-900 dark:text-gray-100">{t('hero.title')}</h1>
           <p className="text-lg max-w-2xl mx-auto font-medium text-gray-600 dark:text-gray-300">{t('hero.subtitle')}</p>
            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button onClick={handleDemoClick} size="lg" className="btn-neu-light dark:btn-neu-dark rounded-full animate-subtle-breathing">
+              <Button onClick={handleDemoClick} size="lg" className="bg-background/90 dark:bg-slate-800/90 border border-border/40 dark:border-slate-600/40 text-foreground dark:text-slate-200 hover:bg-background dark:hover:bg-slate-700 shadow-sm hover:shadow-md transition-all duration-300 rounded-full">
                 {t('nav.demo')}
               </Button>
             </div>
@@ -208,10 +207,10 @@ export default function LandingPage() {
         <section className="bg-slate-800 text-white text-center py-16">
           <h2 className="text-3xl font-bold mb-6">{t('cta.title')}</h2>
           <div className="space-x-4">
-            <Button onClick={handleDemoClick} size="lg" className="btn-neu-dark rounded-full animate-subtle-breathing">
+            <Button onClick={handleDemoClick} size="lg" className="bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 shadow-md hover:shadow-lg transition-all duration-300 rounded-full">
                 {t('nav.demo')}
             </Button>
-            <Button asChild size="lg" className="btn-neu-dark rounded-full">
+            <Button asChild size="lg" className="bg-slate-700 hover:bg-slate-600 text-white border border-slate-600 shadow-md hover:shadow-lg transition-all duration-300 rounded-full">
                 <a href="mailto:juan.ulian@pluscompol.com?subject=Solicitud%20de%20reuni%C3%B3n%20por%20MILA&body=Hola%20Juan%2C%0D%0A%0D%0AEstoy%20interesado%2Fa%20en%20coordinar%20una%20reuni%C3%B3n%20para%20conocer%20m%C3%A1s%20sobre%20la%20plataforma%20MILA%20y%20evaluar%20su%20implementaci%C3%B3n%20en%20nuestro%20gobierno.%0D%0AQuedo%20a%20disposici%C3%B3n%20para%20coordinar%20d%C3%ADa%20y%20horario.%0D%0A%0D%0AMuchas%20gracias.%0D%0A%0D%0ASaludos%2C%0D%0A">{t('cta.contact')}</a>
             </Button>
           </div>
@@ -238,7 +237,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
-
-    

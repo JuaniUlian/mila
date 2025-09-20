@@ -34,16 +34,16 @@ export function MainHeader() {
     const { score, isInitialPageLoad } = useLayout();
 
     // MEJORA: Mejor gestión de colores de fondo que respeta el tema
-    let headerBgClass = 'bg-background/80 backdrop-blur-lg dark:bg-slate-900/80';
+    let headerBgClass = 'bg-background/90 backdrop-blur-lg dark:bg-slate-900/90';
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-            headerBgClass = 'bg-background/80 backdrop-blur-lg dark:bg-slate-900/80';
+            headerBgClass = 'bg-background/90 backdrop-blur-lg dark:bg-slate-900/90';
         } else if (score <= 50) {
-            headerBgClass = 'bg-red-50/90 backdrop-blur-lg dark:bg-red-950/80 border-red-200/50 dark:border-red-800/50';
+            headerBgClass = 'bg-red-50/95 backdrop-blur-lg dark:bg-red-950/90 border-red-200/60 dark:border-red-800/60';
         } else if (score <= 79) {
-            headerBgClass = 'bg-amber-50/90 backdrop-blur-lg dark:bg-amber-950/80 border-amber-200/50 dark:border-amber-800/50';
+            headerBgClass = 'bg-amber-50/95 backdrop-blur-lg dark:bg-amber-950/90 border-amber-200/60 dark:border-amber-800/60';
         } else {
-            headerBgClass = 'bg-emerald-50/90 backdrop-blur-lg dark:bg-emerald-950/80 border-emerald-200/50 dark:border-emerald-800/50';
+            headerBgClass = 'bg-emerald-50/95 backdrop-blur-lg dark:bg-emerald-950/90 border-emerald-200/60 dark:border-emerald-800/60';
         }
     }
     
@@ -87,17 +87,17 @@ export function MainHeader() {
                 <header className={cn(
                     "sticky top-4 z-50 w-fit mx-auto rounded-2xl border shadow-lg p-2 transition-all duration-500",
                     headerBgClass,
-                    "border-border/20 dark:border-slate-700/30" // MEJORA: Mejor manejo de bordes
+                    "border-border/30 dark:border-slate-700/40" // MEJORA: Mejor manejo de bordes
                 )}>
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link href="/home" className={cn(
                                     "flex items-center justify-center h-12 w-12 rounded-xl p-1.5 transition-all duration-200",
-                                    "bg-background/70 dark:bg-slate-800/70", // MEJORA: Mejor contraste
-                                    "border border-border/30 dark:border-slate-600/30",
+                                    "bg-background/80 dark:bg-slate-800/80", // MEJORA: Mejor contraste
+                                    "border border-border/40 dark:border-slate-600/40",
                                     "shadow-sm hover:shadow-md",
-                                    "hover:bg-background/90 dark:hover:bg-slate-700/90"
+                                    "hover:bg-background/95 dark:hover:bg-slate-700/95"
                                 )}>
                                     <Logo variant="color" className="h-full w-full" />
                                 </Link>
@@ -110,10 +110,10 @@ export function MainHeader() {
                         {navActions.map((action) => {
                              const commonClasses = cn(
                                 "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
-                                "bg-background/70 dark:bg-slate-800/70", // MEJORA: Consistencia de colores
-                                "border border-border/30 dark:border-slate-600/30",
+                                "bg-background/80 dark:bg-slate-800/80", // MEJORA: Consistencia de colores
+                                "border border-border/40 dark:border-slate-600/40",
                                 "shadow-sm hover:shadow-md",
-                                "hover:bg-background/90 dark:hover:bg-slate-700/90",
+                                "hover:bg-background/95 dark:hover:bg-slate-700/95",
                                 "text-foreground dark:text-slate-200"
                              );
 

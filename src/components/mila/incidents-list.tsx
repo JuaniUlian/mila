@@ -110,52 +110,55 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-background dark:bg-slate-900">
-            <DialogHeader className="p-4 border-b border-border dark:border-slate-700 bg-background/95 dark:bg-slate-900/95">
+        <div className="h-full flex flex-col">
+            <DialogHeader className="p-6 border-b border-border dark:border-slate-700 bg-background dark:bg-slate-900">
                 <DialogTitle className="text-lg flex items-center gap-2 text-foreground dark:text-slate-100">
                     <MessageSquareWarning size={20} />
                     Discutir Incidencia
                 </DialogTitle>
-                 <DialogClose className="absolute right-4 top-4 text-foreground dark:text-slate-200" />
+                <DialogClose className="absolute right-6 top-6 text-foreground dark:text-slate-200" />
             </DialogHeader>
-             <ScrollArea className="flex-1">
-                <div className="p-4 space-y-4">
-                    {history.map((msg, index) => (
-                        <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
-                            {msg.role === 'assistant' && (
-                                <Avatar className="h-8 w-8 bg-background/80 dark:bg-slate-800/80 p-1 border border-border/30 dark:border-slate-600/30">
+            {/* MEJORA: ScrollArea funcional con altura fija */}
+            <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full max-h-[60vh]">
+                    <div className="p-6 space-y-4">
+                        {history.map((msg, index) => (
+                            <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                                {msg.role === 'assistant' && (
+                                    <Avatar className="h-8 w-8 bg-background/90 dark:bg-slate-800/90 p-1 border border-border/50 dark:border-slate-600/50">
+                                        <Logo variant="color"/>
+                                    </Avatar>
+                                )}
+                                <div className={cn(
+                                    "max-w-md p-3 rounded-lg",
+                                    msg.role === 'user' 
+                                        ? 'bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white' 
+                                        : 'bg-muted dark:bg-slate-800 text-foreground dark:text-slate-200 border border-border/50 dark:border-slate-600/50'
+                                )}>
+                                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                </div>
+                                {msg.role === 'user' && (
+                                    <Avatar className="h-8 w-8 bg-primary/20 dark:bg-blue-900/40 border border-primary/30 dark:border-blue-700/60">
+                                        <AvatarFallback className="text-primary dark:text-blue-400 font-semibold text-xs">TÚ</AvatarFallback>
+                                    </Avatar>
+                                )}
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="flex items-start gap-3 justify-start">
+                                <Avatar className="h-8 w-8 bg-background/90 dark:bg-slate-800/90 p-1 border border-border/50 dark:border-slate-600/50">
                                     <Logo variant="color"/>
                                 </Avatar>
-                            )}
-                            <div className={cn(
-                                "max-w-md p-3 rounded-lg",
-                                msg.role === 'user' 
-                                    ? 'bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white' 
-                                    : 'bg-muted dark:bg-slate-800 text-foreground dark:text-slate-200 border border-border/30 dark:border-slate-600/30'
-                            )}>
-                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                <div className="max-w-md p-3 rounded-lg bg-muted dark:bg-slate-800 border border-border/50 dark:border-slate-600/50">
+                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground dark:text-slate-400" />
+                                </div>
                             </div>
-                            {msg.role === 'user' && (
-                                <Avatar className="h-8 w-8 bg-primary/10 dark:bg-blue-900/30 border border-primary/20 dark:border-blue-700/50">
-                                    <AvatarFallback className="text-primary dark:text-blue-400 font-semibold">TÚ</AvatarFallback>
-                                </Avatar>
-                            )}
-                        </div>
-                    ))}
-                    {isLoading && (
-                        <div className="flex items-start gap-3 justify-start">
-                            <Avatar className="h-8 w-8 bg-background/80 dark:bg-slate-800/80 p-1 border border-border/30 dark:border-slate-600/30">
-                                <Logo variant="color"/>
-                            </Avatar>
-                            <div className="max-w-md p-3 rounded-lg bg-muted dark:bg-slate-800 border border-border/30 dark:border-slate-600/30">
-                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground dark:text-slate-400" />
-                            </div>
-                        </div>
-                    )}
-                    <div ref={discussionEndRef} />
-                </div>
-            </ScrollArea>
-            <div className="p-4 border-t border-border dark:border-slate-700 bg-background dark:bg-slate-900">
+                        )}
+                        <div ref={discussionEndRef} />
+                    </div>
+                </ScrollArea>
+            </div>
+            <div className="p-6 border-t border-border dark:border-slate-700 bg-background dark:bg-slate-900">
                 <div className="flex items-center gap-2">
                     <Textarea 
                         placeholder="Escribe tu argumento aquí..."
@@ -279,12 +282,13 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       
       <div><h4 className="font-semibold text-foreground dark:text-slate-100 mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive dark:text-red-400"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground dark:text-red-200 bg-destructive/10 dark:bg-red-900/20 p-3 rounded-md border border-destructive/20 dark:border-red-800/30">{finding.consecuencia_estimada}</p></div>
 
-      <div className="flex gap-2 pt-4 border-t border-border dark:border-slate-700 items-center justify-end">
-          <Button size="sm" variant="outline" className="mr-auto border-border dark:border-slate-600 text-foreground dark:text-slate-200 hover:bg-muted dark:hover:bg-slate-800" onClick={() => onOpenDiscussion(finding)}>
-            <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir con IA
-          </Button>
+      {/* MEJORA: Botón "Discutir" junto a las otras acciones */}
+      <div className="flex gap-2 pt-4 border-t border-border dark:border-slate-700 items-center justify-end flex-wrap">
           {finding.status === 'pending' ? (
             <>
+              <Button size="sm" variant="outline" className="border-border dark:border-slate-600 text-foreground dark:text-slate-200 hover:bg-muted dark:hover:bg-slate-800" onClick={() => onOpenDiscussion(finding)}>
+                <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
+              </Button>
               {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
                   <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
               ) : (
@@ -380,14 +384,14 @@ export function IncidentsList({
         return (
           <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn(
             "w-full rounded-xl overflow-hidden border-l-4 shadow-sm",
-            "bg-background/50 dark:bg-slate-900/50 backdrop-blur-sm",
-            "border border-border/30 dark:border-slate-700/50",
+            "bg-background/95 dark:bg-slate-900/95 backdrop-blur-sm",
+            "border border-border/60 dark:border-slate-700/80",
             severityStyle.gradient
           )}>
             <AccordionItem value="item-1" className="border-b-0">
               <AccordionTrigger className={cn(
                 "p-6 hover:no-underline w-full text-left group transition-all duration-300",
-                "bg-gradient-to-r from-background/80 to-background/40 dark:from-slate-900/80 dark:to-slate-900/40",
+                "bg-gradient-to-r from-background/95 to-background/80 dark:from-slate-900/95 dark:to-slate-900/80",
                 severityStyle.hoverClass
               )}>
                 <div className="flex items-center gap-4 w-full">
@@ -406,7 +410,7 @@ export function IncidentsList({
                   <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground dark:text-slate-400 group-data-[state=open]:rotate-90" />
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-6 pt-2 bg-background/30 dark:bg-slate-900/30">
+              <AccordionContent className="p-6 pt-2 bg-background/80 dark:bg-slate-900/80">
                 <div className="space-y-4">
                   {categoryFindings.map((finding) => {
                     const findingSeverityStyle = SEVERITY_STYLES[finding.gravedad];
@@ -416,8 +420,8 @@ export function IncidentsList({
                         className={cn(
                           "group relative rounded-xl cursor-pointer transition-all duration-300",
                           "border-l-4 shadow-sm hover:shadow-md",
-                          "bg-background/80 dark:bg-slate-800/80 backdrop-blur-sm",
-                          "border border-border/30 dark:border-slate-600/30",
+                          "bg-background/95 dark:bg-slate-800/95 backdrop-blur-sm",
+                          "border border-border/60 dark:border-slate-600/70",
                           findingSeverityStyle.gradient,
                           findingSeverityStyle.hoverClass
                         )}
@@ -432,10 +436,10 @@ export function IncidentsList({
                           </div>
                           <div className='flex items-center gap-3'>
                             <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full border", 
-                              finding.status === 'pending' && 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:border-amber-700',
-                              finding.status === 'applied' && 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700',
-                              finding.status === 'discarded' && 'bg-slate-200 text-slate-600 border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
-                              finding.status === 'modified' && 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700'
+                              finding.status === 'pending' && 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/60 dark:text-amber-200 dark:border-amber-700',
+                              finding.status === 'applied' && 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/60 dark:text-green-200 dark:border-green-700',
+                              finding.status === 'discarded' && 'bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-700/60 dark:text-slate-200 dark:border-slate-600',
+                              finding.status === 'modified' && 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/60 dark:text-blue-200 dark:border-blue-700'
                             )}>
                               {getTranslatedStatus(finding.status)}
                             </span>
@@ -453,10 +457,10 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-background/95 dark:bg-slate-900/95 backdrop-blur-xl border-border/30 dark:border-slate-700/30">
+        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-background dark:bg-slate-900 backdrop-blur-xl border-border/50 dark:border-slate-700/50">
           {selectedFinding && (
             <>
-              <DialogHeader className="p-6 bg-muted/30 dark:bg-slate-800/30 border-b border-border dark:border-slate-700 flex flex-row items-center justify-between">
+              <DialogHeader className="p-6 bg-muted/50 dark:bg-slate-800/50 border-b border-border dark:border-slate-700 flex flex-row items-center justify-between">
                 <DialogTitle className="text-xl text-foreground dark:text-slate-100">{selectedFinding.titulo_incidencia}</DialogTitle>
                 <DialogClose className="text-foreground dark:text-slate-200" />
               </DialogHeader>
@@ -476,7 +480,7 @@ export function IncidentsList({
       </Dialog>
       
       <Dialog open={!!discussionFinding} onOpenChange={(isOpen) => !isOpen && setDiscussionFinding(null)}>
-          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl bg-background/95 dark:bg-slate-900/95 backdrop-blur-xl border-border/30 dark:border-slate-700/30">
+          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl bg-background dark:bg-slate-900 backdrop-blur-xl border-border/50 dark:border-slate-700/50">
              {discussionFinding && <DiscussionPanel finding={discussionFinding} />}
           </DialogContent>
       </Dialog>
