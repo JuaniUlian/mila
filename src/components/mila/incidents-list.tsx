@@ -1,11 +1,11 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2, MessageSquareWarning, Send } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
@@ -13,11 +13,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
+import { discussFinding, type DiscussionMessage } from '@/ai/flows/discuss-finding';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
-interface IncidentsListProps {
-  findings: FindingWithStatus[];
-  onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
-}
 
 const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
   'Legal': { icon: Scale },
@@ -48,6 +46,95 @@ const SEVERITY_ORDER: Record<string, number> = {
     'Media': 2,
     'Baja': 3,
     'Informativa': 4,
+};
+
+const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
+    const [history, setHistory] = useState<DiscussionMessage[]>([]);
+    const [userInput, setUserInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const discussionEndRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const savedHistory = localStorage.getItem(`discussion_${finding.id}`);
+        if (savedHistory) {
+            setHistory(JSON.parse(savedHistory));
+        }
+    }, [finding.id]);
+
+    useEffect(() => {
+        discussionEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [history]);
+
+    const handleSendMessage = async () => {
+        if (!userInput.trim() || isLoading) return;
+
+        const newUserMessage: DiscussionMessage = { role: 'user', content: userInput };
+        const newHistory = [...history, newUserMessage];
+        setHistory(newHistory);
+        setUserInput('');
+        setIsLoading(true);
+
+        try {
+            const response = await discussFinding({ finding, history: newHistory });
+            const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: response.reply };
+            const finalHistory = [...newHistory, newAssistantMessage];
+            setHistory(finalHistory);
+            localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+        } catch (error) {
+            console.error("Error in discussion:", error);
+            const errorMessage: DiscussionMessage = { role: 'assistant', content: "Lo siento, ha ocurrido un error al procesar tu argumento. Por favor, intenta de nuevo." };
+            setHistory([...newHistory, errorMessage]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="h-full flex flex-col bg-slate-100">
+            <DialogHeader className="p-4 bg-slate-200 border-b">
+                <DialogTitle className="text-lg flex items-center gap-2">
+                    <MessageSquareWarning size={20} />
+                    Discutir Incidencia: {finding.titulo_incidencia}
+                </DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {history.map((msg, index) => (
+                    <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                        {msg.role === 'assistant' && <Avatar className="h-8 w-8"><AvatarFallback>IA</AvatarFallback></Avatar>}
+                        <div className={cn("max-w-md p-3 rounded-lg", msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-white')}>
+                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        </div>
+                         {msg.role === 'user' && <Avatar className="h-8 w-8"><AvatarFallback>TÚ</AvatarFallback></Avatar>}
+                    </div>
+                ))}
+                {isLoading && (
+                     <div className="flex items-start gap-3 justify-start">
+                         <Avatar className="h-8 w-8"><AvatarFallback>IA</AvatarFallback></Avatar>
+                         <div className="max-w-md p-3 rounded-lg bg-white">
+                             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                         </div>
+                     </div>
+                )}
+                <div ref={discussionEndRef} />
+            </div>
+            <div className="p-4 border-t bg-slate-200">
+                <div className="flex items-center gap-2">
+                    <Textarea 
+                        placeholder="Escribe tu argumento aquí..."
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                        rows={1}
+                        className="flex-1 resize-none"
+                        disabled={isLoading}
+                    />
+                    <Button onClick={handleSendMessage} disabled={isLoading || !userInput.trim()}>
+                        <Send className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 
@@ -162,10 +249,23 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose }: 
 export function IncidentsList({ 
   findings, 
   onFindingStatusChange, 
-}: IncidentsListProps) {
+}: {
+  findings: FindingWithStatus[];
+  onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
+}) {
   const [selectedFinding, setSelectedFinding] = useState<FindingWithStatus | null>(null);
+  const [discussionFinding, setDiscussionFinding] = useState<FindingWithStatus | null>(null);
   const { language } = useLanguage();
   const t = useTranslations(language);
+
+  const handleOpenDetails = (finding: FindingWithStatus) => {
+    setSelectedFinding(finding);
+  };
+  
+  const handleOpenDiscussion = (e: React.MouseEvent, finding: FindingWithStatus) => {
+    e.stopPropagation();
+    setDiscussionFinding(finding);
+  };
 
   const pendingFindings = useMemo(() => findings.filter(f => f.status === 'pending' && f.tipo !== 'Sin hallazgos relevantes'), [findings]);
 
@@ -243,7 +343,7 @@ export function IncidentsList({
                         SEVERITY_GRADIENT[finding.gravedad],
                         SEVERITY_HOVER_HUD[finding.gravedad]
                       )}
-                      onClick={() => setSelectedFinding(finding)}
+                      onClick={() => handleOpenDetails(finding)}
                     >
                       <div className="flex items-center justify-between py-3 px-4">
                         <div className="flex-1">
@@ -253,6 +353,9 @@ export function IncidentsList({
                           </p>
                         </div>
                         <div className='flex items-center gap-2'>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(e) => handleOpenDiscussion(e, finding)}>
+                            <MessageSquareWarning className="h-5 w-5 text-muted-foreground group-hover:text-primary"/>
+                          </Button>
                           <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-md", 
                             finding.status === 'pending' && 'bg-amber-100 text-amber-800',
                             finding.status === 'applied' && 'bg-green-100 text-green-800',
@@ -277,8 +380,9 @@ export function IncidentsList({
         <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg bg-white/80 backdrop-blur-xl border-white/30">
           {selectedFinding && (
             <>
-              <DialogHeader className="p-6 bg-slate-50 border-b">
+              <DialogHeader className="p-6 bg-slate-50 border-b flex flex-row items-center justify-between">
                 <DialogTitle className="text-xl">{selectedFinding.titulo_incidencia}</DialogTitle>
+                <DialogClose />
               </DialogHeader>
               <div className="p-6 overflow-y-auto">
                 <IncidentItemContent finding={selectedFinding} onFindingStatusChange={onFindingStatusChange} onDialogClose={() => setSelectedFinding(null)} />
@@ -286,6 +390,12 @@ export function IncidentsList({
             </>
           )}
         </DialogContent>
+      </Dialog>
+      
+      <Dialog open={!!discussionFinding} onOpenChange={(isOpen) => !isOpen && setDiscussionFinding(null)}>
+          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
+             {discussionFinding && <DiscussionPanel finding={discussionFinding} />}
+          </DialogContent>
       </Dialog>
     </div>
   );
