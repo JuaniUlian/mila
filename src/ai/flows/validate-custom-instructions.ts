@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to validate user-provided custom instructions for AI analysis.
@@ -11,13 +12,13 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 // Schemas
-export const ValidateCustomInstructionsInputSchema = z.object({
+const ValidateCustomInstructionsInputSchema = z.object({
   customInstructions: z.string().describe("The user-written instructions to guide the AI analysis."),
   modulePurpose: z.string().describe("The general purpose of the module where the instructions will be used (e.g., 'Analyze public procurement documents for legal compliance')."),
 });
 export type ValidateCustomInstructionsInput = z.infer<typeof ValidateCustomInstructionsInputSchema>;
 
-export const ValidateCustomInstructionsOutputSchema = z.object({
+const ValidateCustomInstructionsOutputSchema = z.object({
   isValid: z.boolean().describe("Whether the user's instructions are valid, safe, and aligned with the system's purpose."),
   feedback: z.string().describe("Constructive feedback for the user, explaining why the instructions are invalid or suggesting improvements."),
 });
