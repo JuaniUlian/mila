@@ -92,8 +92,8 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-slate-100 dark:bg-slate-900">
-            <DialogHeader className="p-4 bg-slate-200 dark:bg-slate-800 border-b dark:border-slate-700">
+        <div className="h-full flex flex-col bg-background">
+            <DialogHeader className="p-4 border-b">
                 <DialogTitle className="text-lg flex items-center gap-2 text-foreground">
                     <MessageSquareWarning size={20} />
                     Discutir Incidencia
@@ -104,8 +104,8 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
                 <div className="p-4 space-y-4">
                     {history.map((msg, index) => (
                         <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
-                            {msg.role === 'assistant' && <Avatar className="h-8 w-8 bg-white dark:bg-slate-700 p-1"><Logo variant="color"/></Avatar>}
-                            <div className={cn("max-w-md p-3 rounded-lg", msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-background')}>
+                            {msg.role === 'assistant' && <Avatar className="h-8 w-8 bg-background/80 p-1"><Logo variant="color"/></Avatar>}
+                            <div className={cn("max-w-md p-3 rounded-lg", msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
                                 <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                             </div>
                             {msg.role === 'user' && <Avatar className="h-8 w-8"><AvatarFallback>TÚ</AvatarFallback></Avatar>}
@@ -113,8 +113,8 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
                     ))}
                     {isLoading && (
                         <div className="flex items-start gap-3 justify-start">
-                            <Avatar className="h-8 w-8 bg-white dark:bg-slate-700 p-1"><Logo variant="color"/></Avatar>
-                            <div className="max-w-md p-3 rounded-lg bg-background">
+                            <Avatar className="h-8 w-8 bg-background/80 p-1"><Logo variant="color"/></Avatar>
+                            <div className="max-w-md p-3 rounded-lg bg-muted">
                                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                             </div>
                         </div>
@@ -122,7 +122,7 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
                     <div ref={discussionEndRef} />
                 </div>
             </ScrollArea>
-            <div className="p-4 border-t bg-slate-200 dark:bg-slate-800 dark:border-slate-700">
+            <div className="p-4 border-t bg-background">
                 <div className="flex items-center gap-2">
                     <Textarea 
                         placeholder="Escribe tu argumento aquí..."
@@ -183,8 +183,8 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
     <div className="space-y-6">
       <div>
           <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
-          <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md text-sm">
-              <em className="text-gray-800">"{finding.evidencia}"</em>
+          <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-4 rounded-r-md text-sm">
+              <em className="text-gray-800 dark:text-amber-200">"{finding.evidencia}"</em>
           </div>
       </div>
 
@@ -192,7 +192,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
         <div>
             <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Lightbulb size={16}/> Propuesta de Solución:</h4>
             {isEditing ? (
-              <div className="space-y-4 bg-blue-50/50 p-4 rounded-md border border-blue-200">
+              <div className="space-y-4 bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-200 dark:border-blue-700">
                   {finding.propuesta_redaccion !== undefined && (
                       <div>
                           <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block text-foreground">Propuesta de Redacción:</Label>
@@ -206,17 +206,17 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
                       </div>
                   )}
                   <div className="flex gap-2 justify-end">
-                      <Button size="sm" onClick={handleSave} className="btn-neu-light"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
+                      <Button size="sm" onClick={handleSave} className="btn-neu-light dark:btn-neu-dark"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
                       <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
                   </div>
               </div>
             ) : (
-              <div className="bg-green-50 p-4 rounded text-sm space-y-3 border-l-4 border-green-400">
+              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded text-sm space-y-3 border-l-4 border-green-400 dark:border-green-600">
                 {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
-                  <div><strong className="text-foreground">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
+                  <div><strong className="text-foreground">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700 dark:text-green-200">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
                 )}
                 {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
-                  <div><strong className="text-foreground">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
+                  <div><strong className="text-foreground">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700 dark:text-green-200">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
                 )}
               </div>
             )}
@@ -224,8 +224,8 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       )}
 
       <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
-          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
+          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
+          <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
       </div>
       
       <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/80 p-3 rounded-md">{finding.consecuencia_estimada}</p></div>
@@ -237,14 +237,14 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
           {finding.status === 'pending' ? (
             <>
               {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-                  <Button size="sm" className="btn-neu-green" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+                  <Button size="sm" className="btn-neu-green dark:bg-green-600 dark:text-white" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
               ) : (
                   <>
-                      <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                      <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                      <Button size="sm" className="btn-neu-green dark:bg-green-600 dark:text-white" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                      <Button size="sm" className="btn-neu-light dark:btn-neu-dark" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
                   </>
               )}
-              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
             </>
           ) : (
              <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
@@ -304,7 +304,7 @@ export function IncidentsList({
 
   if (pendingFindings.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-green-50/50 border border-green-200 shadow-sm text-center p-8 rounded-xl">
+      <div className="h-full flex flex-col items-center justify-center bg-green-50/50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 shadow-sm text-center p-8 rounded-xl">
         <Check className="w-16 h-16 text-green-400 mb-4" />
         <h3 className="text-xl font-semibold text-foreground">{t('analysisPage.excellent')}</h3>
         <p className="text-muted-foreground">{t('analysisPage.noPendingIncidents')}</p>
@@ -335,20 +335,20 @@ export function IncidentsList({
                   {React.createElement(categoryIcon, { className: "h-6 w-6 text-primary" })}
                   <h3 className="text-lg font-semibold text-foreground flex-1">{category}</h3>
                   {pendingCount > 0 && (
-                    <span className="text-xs font-medium text-muted-foreground bg-slate-200/60 px-2 py-1 rounded-md">
+                    <span className="text-xs font-medium text-muted-foreground bg-slate-200/60 dark:bg-slate-700/60 px-2 py-1 rounded-md">
                       {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
                     </span>
                   )}
                   <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-4 pt-2 bg-white/30">
+              <AccordionContent className="p-4 pt-2 bg-background/30">
                 <div className="space-y-3">
                   {categoryFindings.map((finding) => (
                     <div 
                       key={finding.id} 
                       className={cn(
-                        "group relative rounded-lg cursor-pointer bg-white/40 card-neumorphism transition-all duration-300 hover:scale-[1.02] border-l-4",
+                        "group relative rounded-lg cursor-pointer bg-background/40 card-neumorphism transition-all duration-300 hover:scale-[1.02] border-l-4",
                         SEVERITY_GRADIENT[finding.gravedad],
                         SEVERITY_HOVER_HUD[finding.gravedad]
                       )}
@@ -363,10 +363,10 @@ export function IncidentsList({
                         </div>
                         <div className='flex items-center gap-2'>
                           <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-md", 
-                            finding.status === 'pending' && 'bg-amber-100 text-amber-800',
-                            finding.status === 'applied' && 'bg-green-100 text-green-800',
-                            finding.status === 'discarded' && 'bg-slate-200 text-slate-600',
-                            finding.status === 'modified' && 'bg-blue-100 text-blue-800'
+                            finding.status === 'pending' && 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+                            finding.status === 'applied' && 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+                            finding.status === 'discarded' && 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+                            finding.status === 'modified' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300'
                           )}>
                             {getTranslatedStatus(finding.status)}
                           </span>
@@ -383,10 +383,10 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg bg-white/80 backdrop-blur-xl border-white/30">
+        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg bg-background/80 backdrop-blur-xl border-border/30">
           {selectedFinding && (
             <>
-              <DialogHeader className="p-6 bg-slate-50 border-b flex flex-row items-center justify-between">
+              <DialogHeader className="p-6 bg-muted/30 border-b flex flex-row items-center justify-between">
                 <DialogTitle className="text-xl">{selectedFinding.titulo_incidencia}</DialogTitle>
                 <DialogClose />
               </DialogHeader>
@@ -404,7 +404,7 @@ export function IncidentsList({
       </Dialog>
       
       <Dialog open={!!discussionFinding} onOpenChange={(isOpen) => !isOpen && setDiscussionFinding(null)}>
-          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto,minmax(0,1fr),auto] overflow-hidden rounded-lg">
+          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto_1fr_auto] overflow-hidden rounded-lg">
              {discussionFinding && <DiscussionPanel finding={discussionFinding} />}
           </DialogContent>
       </Dialog>

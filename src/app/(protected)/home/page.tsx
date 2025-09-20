@@ -25,7 +25,7 @@ export default function LandingPage() {
   };
   
   return (
-    <div className="bg-gradient-to-br from-white via-slate-300 to-sky-900/40 text-gray-800 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900/60 dark:text-gray-200">
+    <div className="bg-gradient-to-br from-white via-slate-100 to-slate-300 text-gray-800 dark:from-slate-900 dark:via-slate-800 dark:to-sky-900/60 dark:text-gray-200">
       
 
       <main>

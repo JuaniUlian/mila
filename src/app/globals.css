@@ -124,24 +124,27 @@
     background-attachment: fixed;
   }
   .glass {
-    background-color: hsl(var(--background) / 0.3);
+    background-color: hsl(var(--background) / 0.8);
     backdrop-filter: blur(4px);
-    border-color: hsl(var(--border) / 0.2);
+    border-color: hsl(var(--border) / 0.4);
     @apply border shadow-md;
+  }
+  .dark .glass {
+    background-color: hsl(var(--background) / 0.6);
   }
   .card-hud-hover {
     @apply transition-all duration-300;
   }
   .dark .card-hud-hover:hover {
-    background-color: hsl(var(--white) / 0.5);
+    background-color: hsl(var(--accent) / 0.5);
     backdrop-filter: blur(8px);
-    border-color: hsl(var(--white) / 0.3);
+    border-color: hsl(var(--border) / 0.3);
     @apply shadow-2xl scale-105;
     box-shadow: 0 0 25px rgba(0, 128, 255, 0.2), 0 0 8px rgba(255, 255, 255, 0.5) inset;
   }
   .btn-neu-light {
     background-color: hsl(var(--foreground) / 0.05);
-    border-color: hsl(var(--foreground) / 0.2);
+    border-color: hsl(var(--border));
     color: hsl(var(--foreground));
     @apply font-semibold border shadow-[2px_2px_4px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.05)] hover:shadow-inner active:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.05)] transition-shadow duration-200 ease-in-out;
   }
@@ -160,10 +163,10 @@
   }
 
   .card-neumorphism {
-      background-color: hsl(var(--background) / 0.5);
+      background-color: hsl(var(--background) / 0.85);
       @apply rounded-lg shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff] transition-all duration-300;
       .dark & {
-        background-color: hsl(var(--slate-800) / 0.5);
+        background-color: hsl(222 33% 15% / 0.85);
         @apply shadow-[5px_5px_10px_#1c2532,-5px_-5px_10px_#2a394c];
       }
   }
@@ -193,7 +196,7 @@
   .hover-hud-gray:hover { background: linear-gradient(to right, hsl(var(--severity-informative) / 0.1), transparent 80%); }
 
   .glass-accordion-item {
-    background-color: hsl(var(--background) / 0.2);
+    background-color: hsl(var(--background) / 0.7);
     border-color: hsl(var(--border) / 0.3);
     @apply backdrop-blur-md border shadow-lg rounded-xl overflow-hidden;
   }
