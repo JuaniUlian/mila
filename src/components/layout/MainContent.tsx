@@ -21,10 +21,12 @@ export default function MainContent({ children }: { children: React.ReactNode })
 
     if (pathname === '/loading') {
       backgroundClasses = 'bg-loading-page';
+    } else if (pathname === '/home') {
+      // CORRECCIÓN: /home usa el degradado blanco-plateado
+      backgroundClasses = 'bg-home-page';
     } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
-      // MEJORA: Siempre empezar con el fondo de prepare, luego transicionar
       if (isInitialPageLoad || score === null) {
           backgroundClasses = 'bg-prepare-page'; // Start with prepare background
       } else if (score <= 50) {
@@ -37,7 +39,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     }
 
     return cn(
-      "flex flex-col min-h-screen transition-all duration-1000 ease-in-out", // Transición más suave
+      "flex flex-col min-h-screen transition-all duration-1000 ease-in-out",
       backgroundClasses, 
       showHeader ? "pt-4" : ""
     );

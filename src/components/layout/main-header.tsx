@@ -33,17 +33,18 @@ export function MainHeader() {
 
     const { score, isInitialPageLoad } = useLayout();
 
-    // MEJORA: Mejor gestión de colores de fondo que respeta el tema
-    let headerBgClass = 'bg-background/90 backdrop-blur-lg dark:bg-slate-900/90';
+    // CORRECCIÓN: Isla translúcida blanca en modo claro, sólida oscura en modo oscuro
+    let headerBgClass = 'bg-white/60 backdrop-blur-lg border-white/30 dark:bg-slate-900/95 dark:border-slate-700/50';
+    
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-            headerBgClass = 'bg-background/90 backdrop-blur-lg dark:bg-slate-900/90';
+            headerBgClass = 'bg-white/60 backdrop-blur-lg border-white/30 dark:bg-slate-900/95 dark:border-slate-700/50';
         } else if (score <= 50) {
-            headerBgClass = 'bg-red-50/95 backdrop-blur-lg dark:bg-red-950/90 border-red-200/60 dark:border-red-800/60';
+            headerBgClass = 'bg-red-50/80 backdrop-blur-lg border-red-200/60 dark:bg-red-950/90 dark:border-red-800/60';
         } else if (score <= 79) {
-            headerBgClass = 'bg-amber-50/95 backdrop-blur-lg dark:bg-amber-950/90 border-amber-200/60 dark:border-amber-800/60';
+            headerBgClass = 'bg-amber-50/80 backdrop-blur-lg border-amber-200/60 dark:bg-amber-950/90 dark:border-amber-800/60';
         } else {
-            headerBgClass = 'bg-emerald-50/95 backdrop-blur-lg dark:bg-emerald-950/90 border-emerald-200/60 dark:border-emerald-800/60';
+            headerBgClass = 'bg-emerald-50/80 backdrop-blur-lg border-emerald-200/60 dark:bg-emerald-950/90 dark:border-emerald-800/60';
         }
     }
     
@@ -86,18 +87,17 @@ export function MainHeader() {
             <TooltipProvider delayDuration={100}>
                 <header className={cn(
                     "sticky top-4 z-50 w-fit mx-auto rounded-2xl border shadow-lg p-2 transition-all duration-500",
-                    headerBgClass,
-                    "border-border/30 dark:border-slate-700/40" // MEJORA: Mejor manejo de bordes
+                    headerBgClass
                 )}>
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Link href="/home" className={cn(
                                     "flex items-center justify-center h-12 w-12 rounded-xl p-1.5 transition-all duration-200",
-                                    "bg-background/80 dark:bg-slate-800/80", // MEJORA: Mejor contraste
-                                    "border border-border/40 dark:border-slate-600/40",
+                                    "bg-white/70 dark:bg-slate-800/80", // CORRECCIÓN: Translúcido blanco en claro
+                                    "border border-white/40 dark:border-slate-600/40",
                                     "shadow-sm hover:shadow-md",
-                                    "hover:bg-background/95 dark:hover:bg-slate-700/95"
+                                    "hover:bg-white/90 dark:hover:bg-slate-700/95"
                                 )}>
                                     <Logo variant="color" className="h-full w-full" />
                                 </Link>
@@ -110,11 +110,11 @@ export function MainHeader() {
                         {navActions.map((action) => {
                              const commonClasses = cn(
                                 "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
-                                "bg-background/80 dark:bg-slate-800/80", // MEJORA: Consistencia de colores
-                                "border border-border/40 dark:border-slate-600/40",
+                                "bg-white/70 dark:bg-slate-800/80", // CORRECCIÓN: Consistencia translúcida
+                                "border border-white/40 dark:border-slate-600/40",
                                 "shadow-sm hover:shadow-md",
-                                "hover:bg-background/95 dark:hover:bg-slate-700/95",
-                                "text-foreground dark:text-slate-200"
+                                "hover:bg-white/90 dark:hover:bg-slate-700/95",
+                                "text-gray-700 dark:text-slate-200"
                              );
 
                             return (
@@ -154,20 +154,20 @@ export function MainHeader() {
             </TooltipProvider>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
             <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-                <AlertDialogContent className="bg-background dark:bg-slate-900 border-border dark:border-slate-700">
+                <AlertDialogContent className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700">
                     <AlertDialogHeader>
-                    <AlertDialogTitle className="text-foreground dark:text-slate-100">{t('confirmDialog.title')}</AlertDialogTitle>
-                    <AlertDialogDescription className="text-muted-foreground dark:text-slate-400">
+                    <AlertDialogTitle className="text-gray-900 dark:text-slate-100">{t('confirmDialog.title')}</AlertDialogTitle>
+                    <AlertDialogDescription className="text-gray-600 dark:text-slate-400">
                         {t('confirmDialog.description')}
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-background dark:bg-slate-800 text-foreground dark:text-slate-200 border-border dark:border-slate-600 hover:bg-muted dark:hover:bg-slate-700">
+                    <AlertDialogCancel className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-200 border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700">
                         {t('confirmDialog.cancel')}
                     </AlertDialogCancel>
                     <AlertDialogAction 
                         onClick={handleConfirmNavigation}
-                        className="bg-primary dark:bg-blue-600 text-primary-foreground dark:text-white hover:bg-primary/90 dark:hover:bg-blue-700"
+                        className="bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700"
                     >
                         {t('confirmDialog.continue')}
                     </AlertDialogAction>
