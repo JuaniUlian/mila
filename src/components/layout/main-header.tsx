@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React from 'react';
@@ -35,16 +33,17 @@ export function MainHeader() {
 
     const { score, isInitialPageLoad } = useLayout();
 
-    let headerBgClass = 'bg-background/80 dark:bg-slate-900/80';
+    // MEJORA: Mejor gestión de colores de fondo que respeta el tema
+    let headerBgClass = 'bg-background/80 backdrop-blur-lg dark:bg-slate-900/80';
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-            headerBgClass = 'bg-background/80 dark:bg-slate-900/80';
+            headerBgClass = 'bg-background/80 backdrop-blur-lg dark:bg-slate-900/80';
         } else if (score <= 50) {
-            headerBgClass = 'bg-red-200/60 dark:bg-red-900/60';
+            headerBgClass = 'bg-red-50/90 backdrop-blur-lg dark:bg-red-950/80 border-red-200/50 dark:border-red-800/50';
         } else if (score <= 79) {
-            headerBgClass = 'bg-amber-200/60 dark:bg-amber-900/60';
+            headerBgClass = 'bg-amber-50/90 backdrop-blur-lg dark:bg-amber-950/80 border-amber-200/50 dark:border-amber-800/50';
         } else {
-            headerBgClass = 'bg-sky-200/60 dark:bg-sky-900/60';
+            headerBgClass = 'bg-emerald-50/90 backdrop-blur-lg dark:bg-emerald-950/80 border-emerald-200/50 dark:border-emerald-800/50';
         }
     }
     
@@ -86,13 +85,20 @@ export function MainHeader() {
         <>
             <TooltipProvider delayDuration={100}>
                 <header className={cn(
-                    "backdrop-blur-lg sticky top-4 z-50 w-fit mx-auto rounded-full border border-border/30 shadow-lg p-2 transition-colors duration-500",
-                    headerBgClass
+                    "sticky top-4 z-50 w-fit mx-auto rounded-2xl border shadow-lg p-2 transition-all duration-500",
+                    headerBgClass,
+                    "border-border/20 dark:border-slate-700/30" // MEJORA: Mejor manejo de bordes
                 )}>
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Link href="/home" className="flex items-center justify-center h-12 w-12 rounded-full p-1.5 bg-background/50 dark:bg-slate-800/50 backdrop-blur-md border border-border/20 shadow-inner hover:bg-background/70 dark:hover:bg-slate-700/50 transition-all duration-200">
+                                <Link href="/home" className={cn(
+                                    "flex items-center justify-center h-12 w-12 rounded-xl p-1.5 transition-all duration-200",
+                                    "bg-background/70 dark:bg-slate-800/70", // MEJORA: Mejor contraste
+                                    "border border-border/30 dark:border-slate-600/30",
+                                    "shadow-sm hover:shadow-md",
+                                    "hover:bg-background/90 dark:hover:bg-slate-700/90"
+                                )}>
                                     <Logo variant="color" className="h-full w-full" />
                                 </Link>
                             </TooltipTrigger>
@@ -102,7 +108,14 @@ export function MainHeader() {
                         </Tooltip>
 
                         {navActions.map((action) => {
-                             const commonClasses = "flex items-center justify-center rounded-full h-12 w-12 bg-background/50 dark:bg-slate-800/50 backdrop-blur-md border border-border/20 shadow-inner hover:bg-background/70 dark:hover:bg-slate-700/50 text-foreground dark:text-slate-200 transition-all duration-200";
+                             const commonClasses = cn(
+                                "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
+                                "bg-background/70 dark:bg-slate-800/70", // MEJORA: Consistencia de colores
+                                "border border-border/30 dark:border-slate-600/30",
+                                "shadow-sm hover:shadow-md",
+                                "hover:bg-background/90 dark:hover:bg-slate-700/90",
+                                "text-foreground dark:text-slate-200"
+                             );
 
                             return (
                                 <Tooltip key={action.name}>
@@ -141,16 +154,21 @@ export function MainHeader() {
             </TooltipProvider>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
             <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent className="bg-background dark:bg-slate-900 border-border dark:border-slate-700">
                     <AlertDialogHeader>
-                    <AlertDialogTitle>{t('confirmDialog.title')}</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogTitle className="text-foreground dark:text-slate-100">{t('confirmDialog.title')}</AlertDialogTitle>
+                    <AlertDialogDescription className="text-muted-foreground dark:text-slate-400">
                         {t('confirmDialog.description')}
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                    <AlertDialogCancel>{t('confirmDialog.cancel')}</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleConfirmNavigation}>
+                    <AlertDialogCancel className="bg-background dark:bg-slate-800 text-foreground dark:text-slate-200 border-border dark:border-slate-600 hover:bg-muted dark:hover:bg-slate-700">
+                        {t('confirmDialog.cancel')}
+                    </AlertDialogCancel>
+                    <AlertDialogAction 
+                        onClick={handleConfirmNavigation}
+                        className="bg-primary dark:bg-blue-600 text-primary-foreground dark:text-white hover:bg-primary/90 dark:hover:bg-blue-700"
+                    >
                         {t('confirmDialog.continue')}
                     </AlertDialogAction>
                     </AlertDialogFooter>

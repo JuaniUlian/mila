@@ -1,4 +1,3 @@
-
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -25,6 +24,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
+      // MEJORA: Siempre empezar con el fondo de prepare, luego transicionar
       if (isInitialPageLoad || score === null) {
           backgroundClasses = 'bg-prepare-page'; // Start with prepare background
       } else if (score <= 50) {
@@ -37,7 +37,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     }
 
     return cn(
-      "flex flex-col min-h-screen transition-all duration-500", 
+      "flex flex-col min-h-screen transition-all duration-1000 ease-in-out", // Transición más suave
       backgroundClasses, 
       showHeader ? "pt-4" : ""
     );
@@ -52,5 +52,3 @@ export default function MainContent({ children }: { children: React.ReactNode })
     </div>
   );
 }
-
-    
