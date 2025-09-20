@@ -73,7 +73,7 @@ const validateCustomInstructionsFlow = ai.defineFlow(
       // Return a safe default in case of an unexpected flow error
       return {
         isValid: false,
-        feedback: 'An unexpected error occurred while validating the instructions. Please try again.',
+        feedback: 'que paso?',
       };
     }
   }

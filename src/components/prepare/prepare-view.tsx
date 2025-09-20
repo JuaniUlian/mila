@@ -264,7 +264,7 @@ const handleValidateInstructions = async () => {
         setCustomInstructions(defaultInstructions || '');
         toast({
             title: "Error de Validación",
-            description: "No se pudieron validar las instrucciones. Se han restaurado las originales. Por favor, intente de nuevo.",
+            description: "que paso?",
             variant: "destructive",
         });
         console.error("Error validating custom instructions:", error);
@@ -311,7 +311,7 @@ const handleValidateInstructions = async () => {
     isPausedRef.current.set(tempId, false);
     abortControllerRef.current.set(tempId, new AbortController());
 
-    const updateFileState = (update: Partial<File>) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : file));
+    const updateFileState = (update: Partial<File>) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
     
     setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'uploading' }] } : f));
 
@@ -420,7 +420,7 @@ const handleValidateInstructions = async () => {
             toast({ title: t('preparePage.zipErrorTitle'), description: t('preparePage.zipErrorDesc'), variant: 'destructive' });
         }
     } else {
-        await processSingleRegulation(rawFile);
+        await processSingleRegulation(file);
     }
   };
 
@@ -579,24 +579,31 @@ const handleValidateInstructions = async () => {
         </div>
 
         <div className={cn("lg:col-span-1 sticky top-28 flex flex-col gap-8", isModuleView ? "flex" : "hidden")}>
-            <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-                <CardHeader className="bg-background/20 border-b border-white/20 p-6">
-                    <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
-                        <BookCheck className="h-7 w-7 text-primary"/>
-                        Normas del Módulo
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                    <RegulationList 
-                        isModuleView={true}
-                        regulations={preconfiguredRegulations || []}
-                        selectedIds={selectedRegulationIds}
-                        onSelectionChange={() => {}}
-                    />
-                </CardContent>
-            </Card>
-
             <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+              <AccordionItem value="item-1" className="border-none">
+                 <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                    <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                      <div className="p-6 w-full text-left flex items-center justify-between">
+                         <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
+                              <BookCheck className="h-7 w-7 text-primary"/>
+                              Normas del Módulo
+                          </CardTitle>
+                          <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="p-6 pt-0">
+                        <RegulationList 
+                            isModuleView={true}
+                            regulations={preconfiguredRegulations || []}
+                            selectedIds={selectedRegulationIds}
+                            onSelectionChange={() => {}}
+                        />
+                    </AccordionContent>
+                </Card>
+              </AccordionItem>
+            </Accordion>
+
+            <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1" className="border-none">
                 <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
                   <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
