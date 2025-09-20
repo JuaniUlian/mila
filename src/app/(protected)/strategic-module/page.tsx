@@ -42,6 +42,15 @@ const initialFolders = [
   },
 ];
 
+const strategicModulePurpose = "El Módulo Estratégico está diseñado para proyectos de gran escala y alto impacto, como obras públicas, concesiones o financiamientos. Su finalidad es analizar la viabilidad legal, económica y financiera, asegurando que la estructura del proyecto sea sólida y esté alineada con las políticas públicas y los marcos normativos complejos.";
+
+const strategicDefaultInstructions = `Analizar el documento en busca de "red flags" estratégicas, financieras y de gobernanza. Prestar especial atención a:
+1.  **Sustento y Viabilidad:** Verificar la existencia y solidez de estudios de factibilidad, análisis de costo-beneficio y planes de inversión que justifiquen la magnitud del proyecto.
+2.  **Estructura Financiera y Presupuestaria:** Comprobar la claridad en las fuentes de financiamiento, la existencia de certificaciones presupuestarias completas y la coherencia del modelo financiero. Detectar cláusulas de ajuste de precios o de riesgo cambiario que puedan ser desfavorables para el Estado.
+3.  **Asignación de Riesgos:** Evaluar si la matriz de riesgos es completa y si la asignación de riesgos entre el sector público y el privado es equitativa y está bien fundamentada, especialmente en contratos de concesión o APP.
+4.  **Marco Legal y Gobernanza:** Asegurar que el proyecto se enmarque en las leyes de crédito público, asociaciones público-privadas y normativas sectoriales. Verificar que los mecanismos de supervisión, control y resolución de controversias sean robustos.
+5.  **Impacto a Largo Plazo:** Identificar posibles consecuencias no deseadas a largo plazo, como la creación de monopolios, impacto ambiental no mitigado, u obligaciones contingentes significativas para el Estado.`;
+
 export default function StrategicModulePage() {
   return (
     <PrepareView
@@ -51,6 +60,8 @@ export default function StrategicModulePage() {
         preconfiguredRegulations={initialRegulations}
         storageKeyPrefix="mila-strategic-module"
         isModuleView={true}
+        modulePurpose={strategicModulePurpose}
+        defaultInstructions={strategicDefaultInstructions}
     />
   );
 }

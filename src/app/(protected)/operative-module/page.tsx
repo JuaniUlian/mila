@@ -42,6 +42,15 @@ const initialFolders = [
   },
 ];
 
+const operativeModulePurpose = "El Módulo Operativo analiza trámites de bajo riesgo y alta frecuencia, como compras menores, autorizaciones simples y logística diaria. El objetivo es asegurar el cumplimiento de los requisitos formales y procedimentales básicos de manera rápida y eficiente.";
+
+const operativeDefaultInstructions = `Analizar el documento en busca de "red flags" operativas. Prestar especial atención a:
+1.  **Formalidades Básicas:** Verificar la presencia de fechas, firmas, sellos y la correcta identificación de las partes o solicitantes.
+2.  **Coherencia Documental:** Comprobar que los anexos mencionados estén presentes (o simulados) y que no haya contradicciones obvias entre documentos (ej. una solicitud y su cotización).
+3.  **Autorizaciones Simples:** Asegurar que si se requiere una aprobación o visto bueno de un área, esté explícitamente mencionado.
+4.  **Plazos y Tiempos:** Detectar si los plazos mencionados son razonables y están claramente definidos.
+5.  **Requisitos Mínimos:** Validar que se cumplan los requisitos básicos exigidos por la normativa interna para este tipo de trámite (ej. adjuntar certificado de sanidad, presentar un plan simple).`;
+
 
 export default function OperativeModulePage() {
 
@@ -53,6 +62,8 @@ export default function OperativeModulePage() {
         preconfiguredRegulations={initialRegulations}
         storageKeyPrefix="mila-operative-module"
         isModuleView={true}
+        modulePurpose={operativeModulePurpose}
+        defaultInstructions={operativeDefaultInstructions}
     />
   );
 }

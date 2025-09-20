@@ -42,6 +42,16 @@ const initialFolders = [
   },
 ];
 
+const technicalModulePurpose = "El Módulo Técnico se especializa en contrataciones que requieren un alto grado de conocimiento específico (ingeniería, TI, salud, etc.). Su objetivo es verificar que las especificaciones, requisitos de idoneidad y criterios de evaluación sean claros, objetivos y no restrictivos de la competencia.";
+
+const technicalDefaultInstructions = `Analizar el documento en busca de "red flags" técnicas y de competencia. Prestar especial atención a:
+1.  **Especificaciones Técnicas:** Identificar si los requisitos técnicos son excesivamente específicos o parecen estar diseñados para un solo proveedor ("hechos a medida"). Buscar el uso de marcas o modelos específicos sin la debida justificación de "o equivalente".
+2.  **Criterios de Habilitación:** Evaluar si la experiencia, certificaciones o capacidades técnicas exigidas son proporcionales y razonables para el objeto del contrato. Detectar requisitos que podrían restringir indebidamente la participación de oferentes calificados.
+3.  **Criterios de Evaluación:** Verificar que los criterios de puntuación sean objetivos, medibles y no den lugar a subjetividad. Revisar si la ponderación entre precio, calidad y experiencia es equilibrada.
+4.  **Análisis de Mercado y Riesgos:** Comprobar si se hace referencia a estudios de mercado que justifiquen el presupuesto y si se ha elaborado una matriz de riesgos técnicos asociados al proyecto.
+5.  **Ambigüedad Técnica:** Detectar lenguaje vago, contradictorio o incompleto en las descripciones técnicas que pueda generar confusión o disputas durante la ejecución del contrato.`;
+
+
 export default function TechnicalModulePage() {
   return (
     <PrepareView
@@ -51,6 +61,8 @@ export default function TechnicalModulePage() {
         preconfiguredRegulations={initialRegulations}
         storageKeyPrefix="mila-technical-module"
         isModuleView={true}
+        modulePurpose={technicalModulePurpose}
+        defaultInstructions={technicalDefaultInstructions}
     />
   );
 }

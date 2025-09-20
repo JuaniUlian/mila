@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
+import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -227,7 +227,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     router.push('/loading');
   };
 
-  const handleValidateInstructions = async () => {
+const handleValidateInstructions = async () => {
     if (!customInstructions.trim() || customInstructions.trim() === defaultInstructions) {
         setIsInstructionsValidated(true);
         toast({ title: "Instrucciones por Defecto", description: "Se usarán las instrucciones estándar para el análisis." });
@@ -250,18 +250,21 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
             });
         } else {
             setIsInstructionsValidated(false);
+            // Revert to original instructions on failed validation
+            setCustomInstructions(defaultInstructions || '');
             toast({
                 title: "Instrucciones Inválidas",
-                description: result.feedback,
+                description: `${result.feedback} Se han restaurado las instrucciones originales.`,
                 variant: "destructive",
                 duration: 8000,
             });
         }
     } catch (error) {
         setIsInstructionsValidated(false);
+        setCustomInstructions(defaultInstructions || '');
         toast({
             title: "Error de Validación",
-            description: "No se pudieron validar las instrucciones. Por favor, intente de nuevo.",
+            description: "No se pudieron validar las instrucciones. Se han restaurado las originales. Por favor, intente de nuevo.",
             variant: "destructive",
         });
         console.error("Error validating custom instructions:", error);
@@ -515,7 +518,6 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
 
   const MainContent = () => (
-    <div className="space-y-8">
       <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
           <CardHeader className="bg-background/20 border-b border-white/20 p-6 flex flex-row items-center justify-between">
               <div className="flex items-center gap-3">
@@ -526,7 +528,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                 )}
                 <TitleIcon className="h-8 w-8 text-primary"/>
                 <CardTitle className="text-2xl font-bold text-foreground">
-                    {title}: {isModuleView ? t('preparePage.selectDocument') : t('preparePage.step1')}
+                    {title}: {t('preparePage.selectDocument')}
                 </CardTitle>
               </div>
           </CardHeader>
@@ -536,12 +538,16 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                       <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-background/70 text-foreground rounded-lg border-input focus:bg-white/80" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                   </div>
-                  <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
-                      <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
-                  </FileUploadButton>
-                  <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
-                      <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
-                  </Button>
+                  {!isModuleView && (
+                    <>
+                      <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
+                          <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
+                      </FileUploadButton>
+                      <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
+                          <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
+                      </Button>
+                    </>
+                  )}
               </div>
               <FolderGrid 
                   folders={currentViewFolders} 
@@ -562,47 +568,6 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
               />
           </CardContent>
       </Card>
-
-      <Accordion type="single" collapsible className="w-full" defaultValue={isModuleView ? undefined : "item-1"}>
-        <AccordionItem value="item-1" className="border-none">
-          <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-            <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
-              <div className="p-6 w-full text-left flex items-center justify-between">
-                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
-                    <Wand2 className="h-7 w-7 text-primary"/>
-                    Instrucciones Avanzadas (Opcional)
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                    {isInstructionsValidated && customInstructions && customInstructions !== defaultInstructions && <ShieldCheck className="h-6 w-6 text-green-500" />}
-                    <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
-                </div>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="p-6 pt-0">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Puede proporcionar instrucciones específicas para guiar el análisis de la IA. La IA validará que sus instrucciones no sean contradictorias o intenten eludir las reglas del sistema.
-                </p>
-                <Textarea
-                  value={customInstructions}
-                  onChange={e => {
-                      setCustomInstructions(e.target.value);
-                      setIsInstructionsValidated(false);
-                  }}
-                  placeholder="Ej: 'Prestar especial atención a los plazos de entrega y las multas por incumplimiento...'"
-                  rows={4}
-                  className="bg-background/70"
-                />
-                <div className="mt-4 flex justify-end">
-                    <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading} className="btn-neu-light">
-                        {isInstructionValidationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                        Validar Instrucciones
-                    </Button>
-                </div>
-            </AccordionContent>
-          </Card>
-        </AccordionItem>
-      </Accordion>
-    </div>
   );
 
   return (
@@ -613,7 +578,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
            <MainContent />
         </div>
 
-        <div className={cn("lg:col-span-1 sticky top-28", isModuleView ? "block" : "hidden")}>
+        <div className={cn("lg:col-span-1 sticky top-28 flex flex-col gap-8", isModuleView ? "flex" : "hidden")}>
             <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
                 <CardHeader className="bg-background/20 border-b border-white/20 p-6">
                     <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
@@ -630,6 +595,46 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                     />
                 </CardContent>
             </Card>
+
+            <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+              <AccordionItem value="item-1" className="border-none">
+                <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                  <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                    <div className="p-6 w-full text-left flex items-center justify-between">
+                      <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
+                          <Wand2 className="h-7 w-7 text-primary"/>
+                          Instrucciones del Módulo
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                          {isInstructionsValidated ? <ShieldCheck className="h-6 w-6 text-green-500" /> : <ShieldAlert className="h-6 w-6 text-destructive" />}
+                          <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="p-6 pt-0">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Estas son las directivas predefinidas para el análisis. Puede editarlas para enfocar la búsqueda, pero sus cambios serán validados por la IA para asegurar la integridad del proceso.
+                      </p>
+                      <Textarea
+                        value={customInstructions}
+                        onChange={e => {
+                            setCustomInstructions(e.target.value);
+                            setIsInstructionsValidated(false);
+                        }}
+                        placeholder="Ej: 'Prestar especial atención a los plazos de entrega y las multas por incumplimiento...'"
+                        rows={6}
+                        className="bg-background/70"
+                      />
+                      <div className="mt-4 flex justify-end">
+                          <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading || isInstructionsValidated} className="btn-neu-light">
+                              {isInstructionValidationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                              Validar Edición
+                          </Button>
+                      </div>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
+            </Accordion>
         </div>
 
          <div className={cn(isModuleView ? "hidden" : "block", "w-full")}>
