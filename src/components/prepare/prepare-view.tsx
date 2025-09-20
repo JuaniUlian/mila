@@ -250,11 +250,10 @@ const handleValidateInstructions = async () => {
             });
         } else {
             setIsInstructionsValidated(false);
-            // Revert to original instructions on failed validation
             setCustomInstructions(defaultInstructions || '');
             toast({
                 title: "Instrucciones Inválidas",
-                description: `${result.feedback} Se han restaurado las instrucciones originales.`,
+                description: result.feedback,
                 variant: "destructive",
                 duration: 8000,
             });
@@ -262,9 +261,10 @@ const handleValidateInstructions = async () => {
     } catch (error) {
         setIsInstructionsValidated(false);
         setCustomInstructions(defaultInstructions || '');
+        const errorMessage = error instanceof Error ? error.message : "Ocurrió un error inesperado al validar.";
         toast({
             title: "Error de Validación",
-            description: "que paso?",
+            description: errorMessage,
             variant: "destructive",
         });
         console.error("Error validating custom instructions:", error);
