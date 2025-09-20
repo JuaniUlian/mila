@@ -113,50 +113,50 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
     return (
         <div className="h-full flex flex-col">
-            <div className="p-6 border-b border-border dark:border-slate-700 bg-background dark:bg-slate-900 flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground dark:text-slate-100">
+            <div className="p-6 border-b flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
                     <MessageSquareWarning size={20} />
                     Discutir Incidencia
                 </h3>
                 {onClose && (
-                    <Button variant="ghost" size="icon" onClick={onClose} className="text-foreground dark:text-slate-200 h-8 w-8">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
                        <XCircle className="h-5 w-5" />
                     </Button>
                 )}
             </div>
             {/* MEJORA: ScrollArea funcional con altura fija */}
-            <div className="flex-1 overflow-hidden bg-muted/20 dark:bg-slate-800/20">
+            <div className="flex-1 overflow-hidden bg-muted/20">
                 <ScrollArea className="h-full">
                     <div className="p-6 space-y-4">
                         {history.map((msg, index) => (
                             <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
                                 {msg.role === 'assistant' && (
-                                    <Avatar className="h-8 w-8 bg-background/90 dark:bg-slate-800/90 p-1 border border-border/50 dark:border-slate-600/50">
+                                    <Avatar className="h-8 w-8 p-1">
                                         <Logo variant="color"/>
                                     </Avatar>
                                 )}
                                 <div className={cn(
                                     "max-w-md p-3 rounded-lg",
                                     msg.role === 'user' 
-                                        ? 'bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white' 
-                                        : 'bg-background dark:bg-slate-800 text-foreground dark:text-slate-200 border border-border/50 dark:border-slate-700/50'
+                                        ? 'bg-primary text-primary-foreground' 
+                                        : 'bg-background border'
                                 )}>
                                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                                 </div>
                                 {msg.role === 'user' && (
-                                    <Avatar className="h-8 w-8 bg-primary/20 dark:bg-blue-900/40 border border-primary/30 dark:border-blue-700/60">
-                                        <AvatarFallback className="text-primary dark:text-blue-400 font-semibold text-xs">TÚ</AvatarFallback>
+                                    <Avatar className="h-8 w-8 bg-primary/20">
+                                        <AvatarFallback className="text-primary font-semibold text-xs">TÚ</AvatarFallback>
                                     </Avatar>
                                 )}
                             </div>
                         ))}
                         {isLoading && (
                             <div className="flex items-start gap-3 justify-start">
-                                <Avatar className="h-8 w-8 bg-background/90 dark:bg-slate-800/90 p-1 border border-border/50 dark:border-slate-600/50">
+                                <Avatar className="h-8 w-8 p-1">
                                     <Logo variant="color"/>
                                 </Avatar>
-                                <div className="max-w-md p-3 rounded-lg bg-muted dark:bg-slate-800 border border-border/50 dark:border-slate-600/50">
-                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground dark:text-slate-400" />
+                                <div className="max-w-md p-3 rounded-lg bg-muted border">
+                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                                 </div>
                             </div>
                         )}
@@ -164,7 +164,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </div>
                 </ScrollArea>
             </div>
-            <div className="p-6 border-t border-border dark:border-slate-700 bg-background dark:bg-slate-900">
+            <div className="p-6 border-t">
                 <div className="flex items-center gap-2">
                     <Textarea 
                         placeholder="Escribe tu argumento aquí..."
@@ -172,13 +172,12 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
                         rows={1}
-                        className="flex-1 resize-none bg-background dark:bg-slate-800 border-border dark:border-slate-600 text-foreground dark:text-slate-200"
+                        className="flex-1 resize-none"
                         disabled={isLoading}
                     />
                     <Button 
                         onClick={handleSendMessage} 
                         disabled={isLoading || !userInput.trim()}
-                        className="bg-primary dark:bg-blue-600 hover:bg-primary/90 dark:hover:bg-blue-700"
                     >
                         <Send className="h-4 w-4" />
                     </Button>
@@ -228,7 +227,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
   return (
     <div className="space-y-6">
       <div>
-          <h4 className="font-semibold text-foreground dark:text-slate-100 mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
+          <h4 className="font-semibold mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
           <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-600 p-4 rounded-r-md text-sm">
               <em className="text-gray-800 dark:text-amber-200">"{finding.evidencia}"</em>
           </div>
@@ -236,45 +235,45 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
 
       {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
         <div>
-            <h4 className="font-semibold text-foreground dark:text-slate-100 mb-2 flex items-center gap-2"><Lightbulb size={16}/> Propuesta de Solución:</h4>
+            <h4 className="font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16}/> Propuesta de Solución:</h4>
             {isEditing ? (
               <div className="space-y-4 bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-200 dark:border-blue-700">
                   {finding.propuesta_redaccion !== undefined && (
                       <div>
-                          <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block text-foreground dark:text-slate-200">Propuesta de Redacción:</Label>
+                          <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block">Propuesta de Redacción:</Label>
                           <Textarea 
                             id="edit-redaccion" 
                             value={editForm.propuesta_redaccion} 
                             onChange={e => setEditForm({...editForm, propuesta_redaccion: e.target.value})} 
                             rows={4}
-                            className="bg-background dark:bg-slate-800 border-border dark:border-slate-600 text-foreground dark:text-slate-200"
+                            className="bg-background"
                           />
                       </div>
                   )}
                   {finding.propuesta_procedimiento !== undefined && (
                      <div>
-                          <Label htmlFor="edit-procedimiento" className="text-sm font-medium mb-1 block text-foreground dark:text-slate-200">Propuesta de Procedimiento:</Label>
+                          <Label htmlFor="edit-procedimiento" className="text-sm font-medium mb-1 block">Propuesta de Procedimiento:</Label>
                           <Textarea 
                             id="edit-procedimiento" 
                             value={editForm.propuesta_procedimiento} 
                             onChange={e => setEditForm({...editForm, propuesta_procedimiento: e.target.value})} 
                             rows={2}
-                            className="bg-background dark:bg-slate-800 border-border dark:border-slate-600 text-foreground dark:text-slate-200"
+                            className="bg-background"
                           />
                       </div>
                   )}
                   <div className="flex gap-2 justify-end">
-                      <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700 text-white"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
-                      <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)} className="text-foreground dark:text-slate-200"><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
+                      <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
                   </div>
               </div>
             ) : (
               <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded text-sm space-y-3 border-l-4 border-green-400 dark:border-green-600">
                 {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
-                  <div><strong className="text-foreground dark:text-slate-100">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700 dark:text-green-200">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
+                  <div><strong className="text-gray-900 dark:text-slate-100">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700 dark:text-green-200">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
                 )}
                 {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
-                  <div><strong className="text-foreground dark:text-slate-100">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700 dark:text-green-200">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
+                  <div><strong className="text-gray-900 dark:text-slate-100">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700 dark:text-green-200">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
                 )}
               </div>
             )}
@@ -282,31 +281,31 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       )}
 
       <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div><h4 className="font-semibold text-foreground dark:text-slate-100 mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground dark:text-slate-300 bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border border-border dark:border-slate-600">{finding.justificacion_legal}</p></div>
-          <div><h4 className="font-semibold text-foreground dark:text-slate-100 mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground dark:text-slate-300 bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border border-border dark:border-slate-600">{finding.justificacion_tecnica}</p></div>
+          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
+          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
       </div>
       
-      <div><h4 className="font-semibold text-foreground dark:text-slate-100 mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive dark:text-red-400"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground dark:text-red-200 bg-destructive/10 dark:bg-red-900/20 p-3 rounded-md border border-destructive/20 dark:border-red-800/30">{finding.consecuencia_estimada}</p></div>
+      <div><h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/10 dark:bg-red-900/20 p-3 rounded-md border border-destructive/20 dark:border-red-800/30">{finding.consecuencia_estimada}</p></div>
 
       {/* MEJORA: Botón "Discutir" junto a las otras acciones */}
-      <div className="flex gap-2 pt-4 border-t border-border dark:border-slate-700 items-center justify-end flex-wrap">
+      <div className="flex gap-2 pt-4 border-t items-center justify-end flex-wrap">
           {finding.status === 'pending' ? (
             <>
-              <Button size="sm" variant="outline" className="border-border dark:border-slate-600 text-foreground dark:text-slate-200 hover:bg-muted dark:hover:bg-slate-800" onClick={() => onOpenDiscussion(finding)}>
+              <Button size="sm" variant="outline" onClick={() => onOpenDiscussion(finding)}>
                 <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
               </Button>
               {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
               ) : (
                   <>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                      <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                      <Button size="sm" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
                   </>
               )}
               <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
             </>
           ) : (
-             <Button size="sm" variant="outline" className="border-border dark:border-slate-600 text-foreground dark:text-slate-200 hover:bg-muted dark:hover:bg-slate-800" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
+             <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
           )}
       </div>
     </div>
@@ -365,8 +364,8 @@ export function IncidentsList({
     return (
       <div className="h-full flex flex-col items-center justify-center bg-green-50/50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 shadow-sm text-center p-8 rounded-xl">
         <Check className="w-16 h-16 text-green-400 mb-4" />
-        <h3 className="text-xl font-semibold text-foreground dark:text-slate-100">{t('analysisPage.excellent')}</h3>
-        <p className="text-muted-foreground dark:text-slate-300">{t('analysisPage.noPendingIncidents')}</p>
+        <h3 className="text-xl font-semibold">{t('analysisPage.excellent')}</h3>
+        <p className="text-muted-foreground">{t('analysisPage.noPendingIncidents')}</p>
       </div>
     );
   }
@@ -389,22 +388,19 @@ export function IncidentsList({
 
         return (
           <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn(
-            "w-full rounded-xl overflow-hidden border-l-4 shadow-sm",
-            "bg-background/95 dark:bg-slate-900/95 backdrop-blur-sm",
-            "border border-border/60 dark:border-slate-700/80",
+            "w-full rounded-xl overflow-hidden border-l-4 shadow-sm card-neumorphism",
             severityStyle.gradient
           )}>
             <AccordionItem value="item-1" className="border-b-0">
               <AccordionTrigger className={cn(
                 "p-6 hover:no-underline w-full text-left group transition-all duration-300",
-                "bg-gradient-to-r from-background/95 to-background/80 dark:from-slate-900/95 dark:to-slate-900/80",
                 severityStyle.hoverClass
               )}>
                 <div className="flex items-center gap-4 w-full">
                   {React.createElement(categoryIcon, { 
                     className: cn("h-7 w-7", severityStyle.iconColor)
                   })}
-                  <h3 className="text-lg font-semibold text-foreground dark:text-slate-100 flex-1">{category}</h3>
+                  <h3 className="text-lg font-semibold flex-1">{category}</h3>
                   {pendingCount > 0 && (
                     <span className={cn(
                       "text-xs font-medium px-3 py-1.5 rounded-full border",
@@ -413,10 +409,10 @@ export function IncidentsList({
                       {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
                     </span>
                   )}
-                  <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground dark:text-slate-400 group-data-[state=open]:rotate-90" />
+                  <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-6 pt-2 bg-background/80 dark:bg-slate-900/80">
+              <AccordionContent className="p-6 pt-2">
                 <div className="space-y-4">
                   {categoryFindings.map((finding) => {
                     const findingSeverityStyle = SEVERITY_STYLES[finding.gravedad];
@@ -424,10 +420,8 @@ export function IncidentsList({
                       <div 
                         key={finding.id} 
                         className={cn(
-                          "group relative rounded-xl cursor-pointer transition-all duration-300",
+                          "group relative rounded-xl cursor-pointer transition-all duration-300 card-neumorphism",
                           "border-l-4 shadow-sm hover:shadow-md",
-                          "bg-background/95 dark:bg-slate-800/95 backdrop-blur-sm",
-                          "border border-border/60 dark:border-slate-600/70",
                           findingSeverityStyle.gradient,
                           findingSeverityStyle.hoverClass
                         )}
@@ -435,8 +429,8 @@ export function IncidentsList({
                       >
                         <div className="flex items-center justify-between py-4 px-5">
                           <div className="flex-1">
-                            <p className="font-semibold text-foreground dark:text-slate-100 mb-1">{finding.titulo_incidencia}</p>
-                            <p className="text-xs text-muted-foreground dark:text-slate-400">
+                            <p className="font-semibold mb-1">{finding.titulo_incidencia}</p>
+                            <p className="text-xs text-muted-foreground">
                               Normativa: {finding.nombre_archivo_normativa} - Art: {finding.articulo_o_seccion}
                             </p>
                           </div>
@@ -449,7 +443,7 @@ export function IncidentsList({
                             )}>
                               {getTranslatedStatus(finding.status)}
                             </span>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground dark:text-slate-400 transition-transform group-hover:translate-x-1" />
+                            <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                           </div>
                         </div>
                       </div>
@@ -463,12 +457,12 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-background dark:bg-slate-900 backdrop-blur-xl border-border/50 dark:border-slate-700/50">
+        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl">
           {selectedFinding && (
             <>
-              <DialogHeader className="p-6 bg-muted/50 dark:bg-slate-800/50 border-b border-border dark:border-slate-700 flex flex-row items-center justify-between">
-                <DialogTitle className="text-xl text-foreground dark:text-slate-100">{selectedFinding.titulo_incidencia}</DialogTitle>
-                <DialogClose className="text-foreground dark:text-slate-200" />
+              <DialogHeader className="p-6 bg-muted/50 border-b flex flex-row items-center justify-between">
+                <DialogTitle className="text-xl">{selectedFinding.titulo_incidencia}</DialogTitle>
+                <DialogClose />
               </DialogHeader>
               <ScrollArea>
                 <div className="p-6">

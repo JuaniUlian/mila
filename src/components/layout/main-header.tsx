@@ -56,7 +56,7 @@ export function MainHeader() {
     };
     
     const handleConfirmNavigation = () => {
-        router.push('/prepare');
+        router.push('/select-module');
     };
 
     const navActions = [
@@ -154,20 +154,19 @@ export function MainHeader() {
             </TooltipProvider>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
             <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-                <AlertDialogContent className="bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700">
+                <AlertDialogContent>
                     <AlertDialogHeader>
-                    <AlertDialogTitle className="text-gray-900 dark:text-slate-100">{t('confirmDialog.title')}</AlertDialogTitle>
-                    <AlertDialogDescription className="text-gray-600 dark:text-slate-400">
+                    <AlertDialogTitle>{t('confirmDialog.title')}</AlertDialogTitle>
+                    <AlertDialogDescription>
                         {t('confirmDialog.description')}
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-200 border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700">
+                    <AlertDialogCancel>
                         {t('confirmDialog.cancel')}
                     </AlertDialogCancel>
                     <AlertDialogAction 
                         onClick={handleConfirmNavigation}
-                        className="bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-700"
                     >
                         {t('confirmDialog.continue')}
                     </AlertDialogAction>
