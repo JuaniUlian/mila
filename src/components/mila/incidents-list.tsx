@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -16,6 +17,7 @@ import { discussFinding, type DiscussionMessage } from '@/ai/flows/discuss-findi
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../layout/logo';
+import { DiscussionModal } from './discussion-modal';
 
 
 const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
@@ -68,7 +70,7 @@ const SEVERITY_ORDER: Record<string, number> = {
     'Informativa': 4,
 };
 
-const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
+export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStatus; onClose?: () => void; }) => {
     const [history, setHistory] = useState<DiscussionMessage[]>([]);
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -111,16 +113,20 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
 
     return (
         <div className="h-full flex flex-col">
-            <DialogHeader className="p-6 border-b border-border dark:border-slate-700 bg-background dark:bg-slate-900">
-                <DialogTitle className="text-lg flex items-center gap-2 text-foreground dark:text-slate-100">
+            <div className="p-6 border-b border-border dark:border-slate-700 bg-background dark:bg-slate-900 flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground dark:text-slate-100">
                     <MessageSquareWarning size={20} />
                     Discutir Incidencia
-                </DialogTitle>
-                <DialogClose className="absolute right-6 top-6 text-foreground dark:text-slate-200" />
-            </DialogHeader>
+                </h3>
+                {onClose && (
+                    <Button variant="ghost" size="icon" onClick={onClose} className="text-foreground dark:text-slate-200 h-8 w-8">
+                       <XCircle className="h-5 w-5" />
+                    </Button>
+                )}
+            </div>
             {/* MEJORA: ScrollArea funcional con altura fija */}
-            <div className="flex-1 overflow-hidden">
-                <ScrollArea className="h-full max-h-[60vh]">
+            <div className="flex-1 overflow-hidden bg-muted/20 dark:bg-slate-800/20">
+                <ScrollArea className="h-full">
                     <div className="p-6 space-y-4">
                         {history.map((msg, index) => (
                             <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
@@ -133,7 +139,7 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
                                     "max-w-md p-3 rounded-lg",
                                     msg.role === 'user' 
                                         ? 'bg-primary text-primary-foreground dark:bg-blue-600 dark:text-white' 
-                                        : 'bg-muted dark:bg-slate-800 text-foreground dark:text-slate-200 border border-border/50 dark:border-slate-600/50'
+                                        : 'bg-background dark:bg-slate-800 text-foreground dark:text-slate-200 border border-border/50 dark:border-slate-700/50'
                                 )}>
                                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                                 </div>
@@ -479,11 +485,11 @@ export function IncidentsList({
         </DialogContent>
       </Dialog>
       
-      <Dialog open={!!discussionFinding} onOpenChange={(isOpen) => !isOpen && setDiscussionFinding(null)}>
-          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto_1fr_auto] overflow-hidden rounded-2xl bg-background dark:bg-slate-900 backdrop-blur-xl border-border/50 dark:border-slate-700/50">
-             {discussionFinding && <DiscussionPanel finding={discussionFinding} />}
-          </DialogContent>
-      </Dialog>
+      <DiscussionModal 
+        isOpen={!!discussionFinding} 
+        onClose={() => setDiscussionFinding(null)} 
+        finding={discussionFinding} 
+      />
     </div>
   );
 }
