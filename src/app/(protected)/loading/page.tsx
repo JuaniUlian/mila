@@ -132,6 +132,7 @@ export default function LoadingPage() {
         const documentName = localStorage.getItem('selectedDocumentName');
         const documentContent = localStorage.getItem('selectedDocumentContent');
         const regulationsRaw = localStorage.getItem('selectedRegulations');
+        const customInstructions = localStorage.getItem('customInstructions'); // Get custom instructions
 
         if (!documentName || !documentContent || !regulationsRaw) {
           toast({
@@ -194,6 +195,7 @@ export default function LoadingPage() {
           documentName,
           documentContent,
           regulations,
+          customInstructions: customInstructions ?? undefined,
         });
 
         if (!aiResult.isRelevantDocument) {
@@ -264,6 +266,10 @@ export default function LoadingPage() {
               timestamp: new Date().toISOString(),
             })
           );
+
+          // Clean up custom instructions from localStorage after use
+          localStorage.removeItem('customInstructions');
+
 
           setTimeout(() => {
             router.push('/analysis');

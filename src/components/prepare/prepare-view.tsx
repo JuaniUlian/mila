@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck } from 'lucide-react';
 import { FileUploadButton } from '@/components/prepare/file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -27,6 +27,10 @@ import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import JSZip from 'jszip';
 import { PDFDocument } from 'pdf-lib';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { Textarea } from '../ui/textarea';
+import { validateCustomInstructions } from '@/ai/flows/validate-custom-instructions';
+
 
 type File = {
   id: string;
@@ -72,10 +76,12 @@ interface PrepareViewProps {
     preconfiguredRegulations?: Regulation[];
     storageKeyPrefix: string;
     isModuleView: boolean;
+    modulePurpose?: string;
+    defaultInstructions?: string;
 }
 
 
-export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawInitialFolders, initialRegulations, preconfiguredRegulations, storageKeyPrefix, isModuleView }: PrepareViewProps) {
+export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawInitialFolders, initialRegulations, preconfiguredRegulations, storageKeyPrefix, isModuleView, modulePurpose, defaultInstructions }: PrepareViewProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { language } = useLanguage();
@@ -83,6 +89,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   const FOLDERS_STORAGE_KEY = `${storageKeyPrefix}-folders`;
   const REGULATIONS_STORAGE_KEY = `${storageKeyPrefix}-regulations`;
+  const INSTRUCTIONS_STORAGE_KEY = `${storageKeyPrefix}-instructions`;
 
   const initialFolders = useMemo(() => rawInitialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })), [rawInitialFolders]);
   
@@ -92,6 +99,10 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   const [selectedRegulationIds, setSelectedRegulationIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFolderId, setExpandedFolderId] = useState<string | null>(null);
+
+  const [customInstructions, setCustomInstructions] = useState(defaultInstructions || '');
+  const [isInstructionsValidated, setIsInstructionsValidated] = useState(true);
+  const [isInstructionValidationLoading, setIsInstructionValidationLoading] = useState(false);
 
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -127,56 +138,60 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   useEffect(() => {
     document.title = `MILA | ${title}`;
-    if (!isModuleView) {
-        try {
-            const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
-            if (savedFoldersRaw) {
-                const savedFolders = JSON.parse(savedFoldersRaw);
-                const sanitizedFolders = savedFolders.map((folder: any) => ({
-                    ...folder,
-                    files: folder.files.map((file: any) => ({ ...file, status: file.status || 'success' }))
-                }));
-                setFolders(sanitizedFolders);
-            }
-            
-            const savedRegulationsRaw = localStorage.getItem(REGULATIONS_STORAGE_KEY);
-            if (savedRegulationsRaw) {
-                const savedRegulations = JSON.parse(savedRegulationsRaw);
-                const sanitizedRegulations = savedRegulations.map((reg: any) => ({ ...reg, status: reg.status || 'success' }));
-                setRegulations(sanitizedRegulations);
-            }
-        } catch (error) {
-            console.error('Error loading data from localStorage', error);
+    try {
+      if (!isModuleView) {
+        const savedFoldersRaw = localStorage.getItem(FOLDERS_STORAGE_KEY);
+        if (savedFoldersRaw) {
+          const savedFolders = JSON.parse(savedFoldersRaw);
+          const sanitizedFolders = savedFolders.map((folder: any) => ({
+            ...folder,
+            files: folder.files.map((file: any) => ({ ...file, status: file.status || 'success' }))
+          }));
+          setFolders(sanitizedFolders);
         }
-    } else {
-        if (preconfiguredRegulations) {
-            setSelectedRegulationIds(preconfiguredRegulations.map(r => r.id));
+        
+        const savedRegulationsRaw = localStorage.getItem(REGULATIONS_STORAGE_KEY);
+        if (savedRegulationsRaw) {
+          const savedRegulations = JSON.parse(savedRegulationsRaw);
+          const sanitizedRegulations = savedRegulations.map((reg: any) => ({ ...reg, status: reg.status || 'success' }));
+          setRegulations(sanitizedRegulations);
         }
+      }
+
+      const savedInstructions = localStorage.getItem(INSTRUCTIONS_STORAGE_KEY);
+      if (savedInstructions) {
+        setCustomInstructions(savedInstructions);
+      } else {
+        setCustomInstructions(defaultInstructions || '');
+      }
+
+      if (preconfiguredRegulations) {
+        setSelectedRegulationIds(preconfiguredRegulations.map(r => r.id));
+      }
+    } catch (error) {
+      console.error('Error loading data from localStorage', error);
     }
     setLoadedFromStorage(true);
-  }, [FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, title, isModuleView, preconfiguredRegulations]);
+  }, [FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, INSTRUCTIONS_STORAGE_KEY, title, isModuleView, preconfiguredRegulations, defaultInstructions]);
+
 
   useEffect(() => {
-    if (loadedFromStorage && !isModuleView) {
+    if (loadedFromStorage) {
         try {
-            const foldersToSave = folders.map(folder => ({ ...folder, files: folder.files.filter(file => file.status === 'success') }));
-            localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(foldersToSave));
+            if (!isModuleView) {
+                const foldersToSave = folders.map(folder => ({ ...folder, files: folder.files.filter(file => file.status === 'success') }));
+                localStorage.setItem(FOLDERS_STORAGE_KEY, JSON.stringify(foldersToSave));
+                
+                const regulationsToSave = regulations.filter(reg => reg.status === 'success');
+                localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulationsToSave));
+            }
+            localStorage.setItem(INSTRUCTIONS_STORAGE_KEY, customInstructions);
         } catch (error) {
-            console.error('Error saving folders to localStorage', error);
+            console.error('Error saving data to localStorage', error);
         }
     }
-  }, [folders, loadedFromStorage, FOLDERS_STORAGE_KEY, isModuleView]);
+  }, [folders, regulations, customInstructions, loadedFromStorage, FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, INSTRUCTIONS_STORAGE_KEY, isModuleView]);
 
-  useEffect(() => {
-      if (loadedFromStorage && !isModuleView) {
-          try {
-              const regulationsToSave = regulations.filter(reg => reg.status === 'success');
-              localStorage.setItem(REGULATIONS_STORAGE_KEY, JSON.stringify(regulationsToSave));
-          } catch (error) {
-              console.error('Error saving regulations to localStorage', error);
-          }
-      }
-  }, [regulations, loadedFromStorage, REGULATIONS_STORAGE_KEY, isModuleView]);
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
@@ -187,7 +202,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     return null;
   }, [selectedFileId, folders]);
 
-  const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0;
+  const isValidationReady = selectedFileId !== null && selectedRegulationIds.length > 0 && isInstructionsValidated;
 
   const handleValidate = () => {
     if (!isValidationReady || !selectedFile) return;
@@ -204,8 +219,57 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     localStorage.setItem('selectedRegulations', JSON.stringify(regulationsToStore));
     localStorage.setItem('selectedDocumentName', selectedFile.name);
     localStorage.setItem('selectedDocumentContent', selectedFile.content);
+    if(customInstructions && customInstructions !== defaultInstructions) {
+      localStorage.setItem('customInstructions', customInstructions);
+    } else {
+      localStorage.removeItem('customInstructions');
+    }
     router.push('/loading');
   };
+
+  const handleValidateInstructions = async () => {
+    if (!customInstructions.trim() || customInstructions.trim() === defaultInstructions) {
+        setIsInstructionsValidated(true);
+        toast({ title: "Instrucciones por Defecto", description: "Se usarán las instrucciones estándar para el análisis." });
+        return;
+    }
+
+    setIsInstructionValidationLoading(true);
+    try {
+        const result = await validateCustomInstructions({
+            customInstructions: customInstructions,
+            modulePurpose: modulePurpose || "Analizar documentos para cumplimiento normativo."
+        });
+
+        if (result.isValid) {
+            setIsInstructionsValidated(true);
+            toast({
+                title: "Validación Exitosa",
+                description: result.feedback,
+                variant: "default",
+            });
+        } else {
+            setIsInstructionsValidated(false);
+            toast({
+                title: "Instrucciones Inválidas",
+                description: result.feedback,
+                variant: "destructive",
+                duration: 8000,
+            });
+        }
+    } catch (error) {
+        setIsInstructionsValidated(false);
+        toast({
+            title: "Error de Validación",
+            description: "No se pudieron validar las instrucciones. Por favor, intente de nuevo.",
+            variant: "destructive",
+        });
+        console.error("Error validating custom instructions:", error);
+    } finally {
+        setIsInstructionValidationLoading(false);
+    }
+};
+
 
   const cleanupProcess = (fileId: string) => {
     isPausedRef.current.delete(fileId);
@@ -244,7 +308,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     isPausedRef.current.set(tempId, false);
     abortControllerRef.current.set(tempId, new AbortController());
 
-    const updateFileState = (update: Partial<File>) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
+    const updateFileState = (update: Partial<File>) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : file));
     
     setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'uploading' }] } : f));
 
@@ -451,52 +515,94 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
 
   const MainContent = () => (
-    <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-        <CardHeader className="bg-background/20 border-b border-white/20 p-6 flex flex-row items-center justify-between">
-            <div className="flex items-center gap-3">
-              {isModuleView && (
-                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => router.push('/select-module')}>
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              )}
-              <TitleIcon className="h-8 w-8 text-primary"/>
-              <CardTitle className="text-2xl font-bold text-foreground">
-                  {title}: {isModuleView ? t('preparePage.selectDocument') : t('preparePage.step1')}
-              </CardTitle>
-            </div>
-        </CardHeader>
-        <CardContent className="space-y-6 p-6">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="relative flex-grow w-full">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-background/70 text-foreground rounded-lg border-input focus:bg-white/80" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+    <div className="space-y-8">
+      <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+          <CardHeader className="bg-background/20 border-b border-white/20 p-6 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                {isModuleView && (
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => router.push('/select-module')}>
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                )}
+                <TitleIcon className="h-8 w-8 text-primary"/>
+                <CardTitle className="text-2xl font-bold text-foreground">
+                    {title}: {isModuleView ? t('preparePage.selectDocument') : t('preparePage.step1')}
+                </CardTitle>
+              </div>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="relative flex-grow w-full">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-background/70 text-foreground rounded-lg border-input focus:bg-white/80" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  </div>
+                  <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
+                      <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
+                  </FileUploadButton>
+                  <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
+                      <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
+                  </Button>
+              </div>
+              <FolderGrid 
+                  folders={currentViewFolders} 
+                  selectedFileId={selectedFileId} 
+                  onSelectFile={setSelectedFileId} 
+                  searchQuery={searchQuery} 
+                  onFileUploadToFolder={handleFileUpload} 
+                  onRenameFile={handleOpenRenameModal} 
+                  onMoveFile={handleOpenMoveModal} 
+                  onDeleteFile={handleOpenDeleteModal} 
+                  onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
+                  onRenameFolder={handleOpenRenameFolderModal} 
+                  onDeleteFolder={handleOpenDeleteFolderModal} 
+                  onPauseOrResume={handlePauseOrResume} 
+                  onCancel={handleOpenCancelConfirm}
+                  expandedFolderId={expandedFolderId}
+                  setExpandedFolderId={setExpandedFolderId}
+              />
+          </CardContent>
+      </Card>
+
+      <Accordion type="single" collapsible className="w-full" defaultValue={isModuleView ? undefined : "item-1"}>
+        <AccordionItem value="item-1" className="border-none">
+          <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+            <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+              <div className="p-6 w-full text-left flex items-center justify-between">
+                <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
+                    <Wand2 className="h-7 w-7 text-primary"/>
+                    Instrucciones Avanzadas (Opcional)
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                    {isInstructionsValidated && customInstructions && customInstructions !== defaultInstructions && <ShieldCheck className="h-6 w-6 text-green-500" />}
+                    <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                 </div>
-                <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
-                    <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
-                </FileUploadButton>
-                <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
-                    <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
-                </Button>
-            </div>
-            <FolderGrid 
-                folders={currentViewFolders} 
-                selectedFileId={selectedFileId} 
-                onSelectFile={setSelectedFileId} 
-                searchQuery={searchQuery} 
-                onFileUploadToFolder={handleFileUpload} 
-                onRenameFile={handleOpenRenameModal} 
-                onMoveFile={handleOpenMoveModal} 
-                onDeleteFile={handleOpenDeleteModal} 
-                onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
-                onRenameFolder={handleOpenRenameFolderModal} 
-                onDeleteFolder={handleOpenDeleteFolderModal} 
-                onPauseOrResume={handlePauseOrResume} 
-                onCancel={handleOpenCancelConfirm}
-                expandedFolderId={expandedFolderId}
-                setExpandedFolderId={setExpandedFolderId}
-            />
-        </CardContent>
-    </Card>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="p-6 pt-0">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Puede proporcionar instrucciones específicas para guiar el análisis de la IA. La IA validará que sus instrucciones no sean contradictorias o intenten eludir las reglas del sistema.
+                </p>
+                <Textarea
+                  value={customInstructions}
+                  onChange={e => {
+                      setCustomInstructions(e.target.value);
+                      setIsInstructionsValidated(false);
+                  }}
+                  placeholder="Ej: 'Prestar especial atención a los plazos de entrega y las multas por incumplimiento...'"
+                  rows={4}
+                  className="bg-background/70"
+                />
+                <div className="mt-4 flex justify-end">
+                    <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading} className="btn-neu-light">
+                        {isInstructionValidationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                        Validar Instrucciones
+                    </Button>
+                </div>
+            </AccordionContent>
+          </Card>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
 
   return (
@@ -507,26 +613,47 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
            <MainContent />
         </div>
 
-        {isModuleView && (
-            <div className="lg:col-span-1 sticky top-28">
-                <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
-                    <CardHeader className="bg-background/20 border-b border-white/20 p-6">
-                        <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
-                            <BookCheck className="h-7 w-7 text-primary"/>
-                            Normas del Módulo
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        <RegulationList 
-                            isModuleView={true}
-                            regulations={preconfiguredRegulations || []}
-                            selectedIds={selectedRegulationIds}
-                            onSelectionChange={() => {}}
-                        />
-                    </CardContent>
-                </Card>
-            </div>
-        )}
+        <div className={cn("lg:col-span-1 sticky top-28", isModuleView ? "block" : "hidden")}>
+            <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                <CardHeader className="bg-background/20 border-b border-white/20 p-6">
+                    <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
+                        <BookCheck className="h-7 w-7 text-primary"/>
+                        Normas del Módulo
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <RegulationList 
+                        isModuleView={true}
+                        regulations={preconfiguredRegulations || []}
+                        selectedIds={selectedRegulationIds}
+                        onSelectionChange={() => {}}
+                    />
+                </CardContent>
+            </Card>
+        </div>
+
+         <div className={cn(isModuleView ? "hidden" : "block", "w-full")}>
+            <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                <CardHeader className="bg-background/20 border-b border-white/20 p-6">
+                    <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
+                        <BookCheck className="h-7 w-7 text-primary"/>
+                        {t('preparePage.step2')}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                    <RegulationList
+                        isModuleView={false}
+                        regulations={regulations}
+                        selectedIds={selectedRegulationIds}
+                        onSelectionChange={setSelectedRegulationIds}
+                        onRegulationUpload={handleRegulationUpload}
+                        onDismissError={handleDismissRegulationError}
+                        onRename={handleOpenRenameRegulationModal}
+                        onDelete={handleOpenDeleteRegulationModal}
+                    />
+                </CardContent>
+            </Card>
+        </div>
         
         {isValidationReady && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">

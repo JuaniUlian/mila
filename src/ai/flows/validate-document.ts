@@ -26,6 +26,7 @@ const ValidateDocumentInputSchema = z.object({
   documentName: z.string().describe('The name of the administrative document file being analyzed.'),
   documentContent: z.string().describe('The full text content of the administrative document.'),
   regulations: z.array(RegulationSchema).describe('An array of normative documents to validate against.'),
+  customInstructions: z.string().optional().describe('Optional user-provided instructions to guide the analysis.'),
 });
 
 export type ValidateDocumentInput = z.infer<typeof ValidateDocumentInputSchema>;
@@ -154,6 +155,11 @@ const prompt = ai.definePrompt({
     }),
   },
   prompt: `Eres un auditor experto en administración pública. Analiza el documento y devuelve hallazgos **sin** calcular puntajes.
+
+{{#if customInstructions}}
+INSTRUCCIONES ADICIONALES DEL USUARIO (aplican con alta prioridad):
+{{{customInstructions}}}
+{{/if}}
 
 Paso 1 (relevancia):
 - Si NO es un documento administrativo/gubernamental, responde isRelevantDocument=false, explica en relevancyReasoning y devuelve findings=[].

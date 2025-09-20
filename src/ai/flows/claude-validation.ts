@@ -242,12 +242,21 @@ function buildUserPrompt(input: {
   documentName: string;
   documentContent: string;
   regulations: Regulation[];
+  customInstructions?: string;
 }): string {
   const regulationContent = input.regulations
     .map(r => `Normativa: ${r.name}\nContenido: ${r.content}`)
     .join('\n\n');
 
+  const customInstructionsPrompt = input.customInstructions
+    ? `INSTRUCCIONES ADICIONALES DEL USUARIO (aplican con alta prioridad):
+${input.customInstructions}
+`
+    : '';
+
   return `Analiza el siguiente documento y sus anexos (si los hubiera). Si se trata de un ZIP en origen, asume que el contenido a continuación es la extracción agregada de texto de todos los archivos y aplica las REGLAS ZIP del sistema.
+
+${customInstructionsPrompt}
 
 DOCUMENTO: ${input.documentName}
 CONTENIDO:
@@ -298,6 +307,7 @@ export async function validateWithClaude(input: {
   documentName: string;
   documentContent: string;
   regulations: Array<{ name: string; content: string }>;
+  customInstructions?: string;
 }) {
   console.log('Validando con Mila...');
 
