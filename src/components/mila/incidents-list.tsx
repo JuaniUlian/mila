@@ -15,6 +15,8 @@ import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
 import { discussFinding, type DiscussionMessage } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '../ui/avatar';
+import { ScrollArea } from '../ui/scroll-area';
+import { Logo } from '../layout/logo';
 
 
 const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
@@ -90,34 +92,37 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
     };
 
     return (
-        <div className="h-full flex flex-col bg-slate-100">
-            <DialogHeader className="p-4 bg-slate-200 border-b">
-                <DialogTitle className="text-lg flex items-center gap-2">
+        <div className="h-full flex flex-col bg-slate-100 dark:bg-slate-900">
+            <DialogHeader className="p-4 bg-slate-200 dark:bg-slate-800 border-b dark:border-slate-700">
+                <DialogTitle className="text-lg flex items-center gap-2 text-foreground">
                     <MessageSquareWarning size={20} />
-                    Discutir Incidencia: {finding.titulo_incidencia}
+                    Discutir Incidencia
                 </DialogTitle>
+                 <DialogClose className="absolute right-4 top-4" />
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {history.map((msg, index) => (
-                    <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
-                        {msg.role === 'assistant' && <Avatar className="h-8 w-8"><AvatarFallback>IA</AvatarFallback></Avatar>}
-                        <div className={cn("max-w-md p-3 rounded-lg", msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-white')}>
-                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+             <ScrollArea className="flex-1">
+                <div className="p-4 space-y-4">
+                    {history.map((msg, index) => (
+                        <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                            {msg.role === 'assistant' && <Avatar className="h-8 w-8 bg-white dark:bg-slate-700 p-1"><Logo variant="color"/></Avatar>}
+                            <div className={cn("max-w-md p-3 rounded-lg", msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-background')}>
+                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                            {msg.role === 'user' && <Avatar className="h-8 w-8"><AvatarFallback>TÚ</AvatarFallback></Avatar>}
                         </div>
-                         {msg.role === 'user' && <Avatar className="h-8 w-8"><AvatarFallback>TÚ</AvatarFallback></Avatar>}
-                    </div>
-                ))}
-                {isLoading && (
-                     <div className="flex items-start gap-3 justify-start">
-                         <Avatar className="h-8 w-8"><AvatarFallback>IA</AvatarFallback></Avatar>
-                         <div className="max-w-md p-3 rounded-lg bg-white">
-                             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                         </div>
-                     </div>
-                )}
-                <div ref={discussionEndRef} />
-            </div>
-            <div className="p-4 border-t bg-slate-200">
+                    ))}
+                    {isLoading && (
+                        <div className="flex items-start gap-3 justify-start">
+                            <Avatar className="h-8 w-8 bg-white dark:bg-slate-700 p-1"><Logo variant="color"/></Avatar>
+                            <div className="max-w-md p-3 rounded-lg bg-background">
+                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                            </div>
+                        </div>
+                    )}
+                    <div ref={discussionEndRef} />
+                </div>
+            </ScrollArea>
+            <div className="p-4 border-t bg-slate-200 dark:bg-slate-800 dark:border-slate-700">
                 <div className="flex items-center gap-2">
                     <Textarea 
                         placeholder="Escribe tu argumento aquí..."
@@ -125,7 +130,7 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
                         rows={1}
-                        className="flex-1 resize-none"
+                        className="flex-1 resize-none bg-background"
                         disabled={isLoading}
                     />
                     <Button onClick={handleSendMessage} disabled={isLoading || !userInput.trim()}>
@@ -138,10 +143,11 @@ const DiscussionPanel = ({ finding }: { finding: FindingWithStatus }) => {
 };
 
 
-const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose }: {
+const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion }: {
   finding: FindingWithStatus;
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
   onDialogClose: () => void;
+  onOpenDiscussion: (finding: FindingWithStatus) => void;
 }) => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -225,6 +231,9 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose }: 
       <div><h4 className="font-semibold text-foreground mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/80 p-3 rounded-md">{finding.consecuencia_estimada}</p></div>
 
       <div className="flex gap-2 pt-4 border-t items-center justify-end">
+          <Button size="sm" variant="outline" className="mr-auto" onClick={() => onOpenDiscussion(finding)}>
+            <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir con IA
+          </Button>
           {finding.status === 'pending' ? (
             <>
               {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
@@ -262,9 +271,9 @@ export function IncidentsList({
     setSelectedFinding(finding);
   };
   
-  const handleOpenDiscussion = (e: React.MouseEvent, finding: FindingWithStatus) => {
-    e.stopPropagation();
+  const handleOpenDiscussion = (finding: FindingWithStatus) => {
     setDiscussionFinding(finding);
+    setSelectedFinding(null); // Close details dialog if open
   };
 
   const pendingFindings = useMemo(() => findings.filter(f => f.status === 'pending' && f.tipo !== 'Sin hallazgos relevantes'), [findings]);
@@ -353,9 +362,6 @@ export function IncidentsList({
                           </p>
                         </div>
                         <div className='flex items-center gap-2'>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(e) => handleOpenDiscussion(e, finding)}>
-                            <MessageSquareWarning className="h-5 w-5 text-muted-foreground group-hover:text-primary"/>
-                          </Button>
                           <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-md", 
                             finding.status === 'pending' && 'bg-amber-100 text-amber-800',
                             finding.status === 'applied' && 'bg-green-100 text-green-800',
@@ -385,7 +391,12 @@ export function IncidentsList({
                 <DialogClose />
               </DialogHeader>
               <div className="p-6 overflow-y-auto">
-                <IncidentItemContent finding={selectedFinding} onFindingStatusChange={onFindingStatusChange} onDialogClose={() => setSelectedFinding(null)} />
+                <IncidentItemContent 
+                  finding={selectedFinding} 
+                  onFindingStatusChange={onFindingStatusChange} 
+                  onDialogClose={() => setSelectedFinding(null)}
+                  onOpenDiscussion={handleOpenDiscussion}
+                />
               </div>
             </>
           )}
@@ -393,7 +404,7 @@ export function IncidentsList({
       </Dialog>
       
       <Dialog open={!!discussionFinding} onOpenChange={(isOpen) => !isOpen && setDiscussionFinding(null)}>
-          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-lg">
+          <DialogContent className="max-w-2xl w-full h-[80vh] p-0 border-0 grid grid-rows-[auto,minmax(0,1fr),auto] overflow-hidden rounded-lg">
              {discussionFinding && <DiscussionPanel finding={discussionFinding} />}
           </DialogContent>
       </Dialog>
