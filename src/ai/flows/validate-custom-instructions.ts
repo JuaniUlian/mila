@@ -27,6 +27,7 @@ export type ValidateCustomInstructionsOutput = z.infer<typeof ValidateCustomInst
 // Prompt
 const prompt = ai.definePrompt({
   name: 'validateCustomInstructionsPrompt',
+  model: 'googleai/gemini-1.5-pro',
   input: { schema: ValidateCustomInstructionsInputSchema },
   output: { schema: ValidateCustomInstructionsOutputSchema },
   prompt: `Eres un supervisor de seguridad de IA. Tu tarea es validar las instrucciones personalizadas de un usuario para asegurar que no comprometan la integridad del sistema de auditoría.
