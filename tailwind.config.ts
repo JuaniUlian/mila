@@ -173,11 +173,13 @@ export default {
         },
         '.btn-neu-primary': {
             backgroundColor: 'hsl(var(--primary) / 0.9)',
-            border: '1px solid hsl(var(--primary) / 0.5)',
+            borderRadius: '0.75rem',
             color: 'hsl(var(--primary-foreground))',
             transition: 'all 0.2s ease-in-out',
+            boxShadow: '5px 5px 10px #a7a7a7, -5px -5px 10px #ffffff',
+            border: 'none',
              '&:hover': {
-                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                boxShadow: '2px 2px 5px #a7a7a7, -2px -2px 5px #ffffff',
                 backgroundColor: 'hsl(var(--primary))',
             }
         },
@@ -192,10 +194,9 @@ export default {
             }
         },
         '.card-neumorphism': {
-            backgroundColor: 'hsl(var(--background) / 0.75)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid hsl(var(--border) / 0.25)',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)',
+            backgroundColor: 'rgb(241 245 249)', // slate-100
+            borderRadius: '1rem',
+            boxShadow: '8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff',
         },
       })
     })
