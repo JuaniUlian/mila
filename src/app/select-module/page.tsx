@@ -12,19 +12,19 @@ const modules = [
   {
     icon: ClipboardCheck,
     title: 'OPERATIVO',
-    description: 'Trámites del día a día: solicitudes de reserva de espacio, comprar elementos de oficina, contratar limpieza o arreglar un aire acondicionado. Verifica que se cumplan los requisitos básicos.',
+    description: '<strong>Trámites del día a día:</strong> solicitudes de reserva de espacio, comprar elementos de oficina, contratar limpieza o arreglar un aire acondicionado. Verifica que se cumplan los <strong>requisitos básicos.</strong>',
     href: '/operative-module',
   },
   {
     icon: FileStack,
     title: 'TÉCNICO',
-    description: 'Contratos que necesitan conocimiento especializado: abogados, arquitectos, sistemas informáticos o equipos médicos. Revisa que las propuestas técnicas sean correctas y cumplan las normas.',
+    description: '<strong>Contratos que necesitan conocimiento especializado:</strong> abogados, arquitectos, sistemas informáticos o equipos médicos. Revisa que las <strong>propuestas técnicas sean correctas</strong> y cumplan las normas.',
     href: '/technical-module',
   },
   {
     icon: PieChart,
     title: 'ESTRATÉGICO',
-    description: 'Decisiones importantes: obras grandes, concesiones de servicios públicos o proyectos de infraestructura. Analiza si hay dinero suficiente, si es viable técnicamente y si cumple con todas las leyes y reglamentos.',
+    description: '<strong>Decisiones importantes:</strong> obras grandes, concesiones de servicios públicos o proyectos de infraestructura. Analiza si hay <strong>dinero suficiente</strong>, si es <strong>viable técnicamente</strong> y si cumple con todas las <strong>leyes y reglamentos.</strong>',
     href: '/strategic-module',
   },
 ];
@@ -54,7 +54,7 @@ export default function SelectModulePage() {
                   <h2 className="text-2xl font-bold text-slate-800">{module.title}</h2>
                 </div>
                 <div className="flex-1 flex flex-col text-center">
-                  <p className="text-slate-600 mb-6 flex-1">{module.description}</p>
+                  <p className="text-slate-600 mb-6 flex-1" dangerouslySetInnerHTML={{ __html: module.description }}></p>
                   <Button className="w-full btn-neu-light mt-auto">
                     Seleccionar
                   </Button>
