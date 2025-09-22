@@ -238,19 +238,19 @@ const handleValidateInstructions = async () => {
         return;
     }
 
-    const defaultDirectives = currentDefault.match(/^\d+\./gm) || [];
-    const customDirectives = currentCustom.match(/^\d+\./gm) || [];
+    const defaultDirectives = currentDefault.match(/(\d\.|-)\s/g) || [];
+    const customDirectives = currentCustom.match(/(\d\.|-)\s/g) || [];
 
     if (customDirectives.length < defaultDirectives.length) {
         setCustomInstructions(currentDefault);
         setIsInstructionsValidated(false); 
         toast({
             title: "Instrucciones Inválidas",
-            description: "No se pueden eliminar las directivas predefinidas, ya que son indispensables para un análisis correcto. Se han restaurado las instrucciones originales.",
+            description: "No se pueden eliminar las directivas predefinidas. Se han restaurado las instrucciones originales.",
             variant: "destructive",
             duration: 8000,
         });
-        setTimeout(() => setIsInstructionsValidated(false), 100);
+        setTimeout(() => setIsInstructionsValidated(true), 100); 
         return;
     }
 
@@ -600,17 +600,18 @@ const handleValidateInstructions = async () => {
 
         <div className={cn("lg:col-span-1 sticky top-28 flex flex-col gap-8", isModuleView ? "flex" : "hidden")}>
             <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
-                <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+                <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="item-1" className="border-none">
-                     <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
-                       <div className="p-6 w-full text-left flex items-center justify-between group">
-                          <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                               <BookCheck className="h-7 w-7 text-primary"/>
+                     <AccordionTrigger className="w-full p-4 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
+                       <div className="w-full text-left flex items-center justify-between group">
+                          <h2 className="text-lg font-bold text-foreground flex items-center gap-3">
+                               <BookCheck className="h-6 w-6 text-primary"/>
                                Normas del Módulo
                            </h2>
+                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                        </div>
                      </AccordionTrigger>
-                     <AccordionContent className="p-6 pt-0">
+                     <AccordionContent className="p-4 pt-0">
                          <RegulationList 
                              isModuleView={true}
                              regulations={preconfiguredRegulations || []}
@@ -623,17 +624,18 @@ const handleValidateInstructions = async () => {
                </div>
 
             <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
-                <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+                <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="item-1" className="border-none">
-                    <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
-                      <div className="p-6 w-full text-left flex items-center justify-between group">
-                        <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                            <TerminalSquare className="h-7 w-7 text-primary"/>
+                    <AccordionTrigger className="w-full p-4 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
+                      <div className="w-full text-left flex items-center justify-between group">
+                        <h2 className="text-lg font-bold text-foreground flex items-center gap-3">
+                            <TerminalSquare className="h-6 w-6 text-primary"/>
                             Instrucciones del Módulo
                         </h2>
+                         <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="p-6 pt-0">
+                    <AccordionContent className="p-4 pt-0">
                         <p className="text-sm text-slate-600 mb-4">
                           Estas son las directivas predefinidas para el análisis. Puede editarlas para enfocar la búsqueda, pero sus cambios serán revisados por Mila para asegurar la integridad del proceso.
                         </p>
