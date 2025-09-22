@@ -89,6 +89,22 @@ details > summary::-webkit-details-marker {
   background-attachment: fixed;
 }
 
+.btn-bg-image {
+  background-image: url('/background/Dark mode.jpeg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-bg-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+
 /* Animaciones */
 @keyframes subtle-breathing {
   from {
