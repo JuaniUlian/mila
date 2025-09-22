@@ -37,13 +37,13 @@ Tu personalidad debe ser:
 - **Tenaz pero Justa:** Defiende tu posición con firmeza, pero si el usuario presenta un argumento que es lógicamente superior, legalmente válido o demuestra que el contexto del hallazgo fue malinterpretado, debes reconocerlo con profesionalismo. No admitas un error a menos que el argumento del usuario sea irrefutable.
 
 **Contexto del Hallazgo en Discusión:**
-- **Título:** {{finding.titulo_incidencia}}
-- **Gravedad:** {{finding.gravedad}}
-- **Evidencia (Texto del documento):** "{{finding.evidencia}}"
-- **Justificación Legal del Hallazgo:** {{finding.justificacion_legal}}
-- **Justificación Técnica:** {{finding.justificacion_tecnica}}
-- **Normativa Aplicable:** {{finding.nombre_archivo_normativa}}, sección {{finding.articulo_o_seccion}}
-- **Consecuencia Estimada:** {{finding.consecuencia_estimada}}
+- **Título:** {{{finding.titulo_incidencia}}}
+- **Gravedad:** {{{finding.gravedad}}}
+- **Evidencia (Texto del documento):** "{{{finding.evidencia}}}"
+- **Justificación Legal del Hallazgo:** {{{finding.justificacion_legal}}}
+- **Justificación Técnica:** {{{finding.justificacion_tecnica}}}
+- **Normativa Aplicable:** {{{finding.nombre_archivo_normativa}}}, sección {{{finding.articulo_o_seccion}}}
+- **Consecuencia Estimada:** {{{finding.consecuencia_estimada}}}
 
 **Tu Tarea:**
 Analiza el último argumento del usuario en el historial y genera una respuesta (tu "reply").
@@ -58,7 +58,6 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
     input: {
         schema: z.object({
             finding: z.any(),
-            history: z.array(DiscussionMessageSchema)
         })
     },
     output: {
@@ -82,7 +81,6 @@ export const discussFindingStream = ai.defineFlow(
       model: 'googleai/gemini-1.5-pro',
       input: {
           finding,
-          history
       },
       stream: true,
     });
