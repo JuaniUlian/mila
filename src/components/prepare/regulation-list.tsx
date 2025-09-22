@@ -42,7 +42,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
     
     if (regulation.status === 'processing') {
         return (
-            <div className="bg-background/30 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm p-4 flex items-center gap-4">
+            <div className="bg-slate-50/50 backdrop-blur-sm rounded-xl border border-slate-200/80 shadow-sm p-4 flex items-center gap-4">
                 <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
                 <div className="flex-1">
                     <p className="font-medium text-foreground">{regulation.name}</p>
@@ -79,7 +79,7 @@ const RegulationItem: React.FC<RegulationItemProps> = ({ regulation, isSelected,
     return (
         <div
           className={cn(
-              "group/regitem bg-background/50 backdrop-blur-sm rounded-xl border border-white/20 shadow-sm transition-all hover:shadow-md",
+              "group/regitem bg-slate-50/50 backdrop-blur-sm rounded-xl border border-slate-200/80 shadow-sm transition-all hover:shadow-md",
               isSelected && "bg-primary/20 border-primary/50",
               regulation.status === 'success' && "cursor-pointer"
           )}

@@ -65,7 +65,7 @@ export function RisksPanel({
   );
 
   return (
-    <div className="bg-white/60 backdrop-blur-xl border-white/50 shadow-xl rounded-2xl p-6 flex flex-col h-full">
+    <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow p-6 flex flex-col h-full rounded-2xl">
       <h2 className="text-xl font-semibold text-gray-900 mb-1">
         {t('analysisPage.partialResults')}
       </h2>

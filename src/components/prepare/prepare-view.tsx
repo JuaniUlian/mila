@@ -518,65 +518,55 @@ const handleValidateInstructions = async () => {
   const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
 
   const MainContent = () => (
-    <div 
-      className="relative overflow-hidden rounded-lg shadow-lg border border-white/30 backdrop-blur-sm"
-      style={{
-        backgroundImage: 'url(/background/home.jpeg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
-    >
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative z-10">
-            <div className="p-6 flex flex-row items-center justify-between border-b border-white/20">
-                <div className="flex items-center gap-3">
-                  {isModuleView && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-white hover:bg-white/10" onClick={() => router.push('/select-module')}>
-                      <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                  )}
-                  <TitleIcon className="h-8 w-8 text-primary"/>
-                  <h1 className="text-2xl font-bold text-white">
-                      {title}: {t('preparePage.selectDocument')}
-                  </h1>
-                </div>
-            </div>
-            <div className="space-y-6 p-6">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="relative flex-grow w-full">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                        <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-white/10 text-white placeholder:text-slate-300 rounded-lg border-white/30 focus:bg-white/20 focus:border-white" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                    </div>
-                    {!isModuleView && (
-                      <>
-                        <FileUploadButton variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
-                            <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
-                        </FileUploadButton>
-                        <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
-                            <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
-                        </Button>
-                      </>
-                    )}
-                </div>
-                <FolderGrid 
-                    folders={currentViewFolders} 
-                    selectedFileId={selectedFileId} 
-                    onSelectFile={setSelectedFileId} 
-                    searchQuery={searchQuery} 
-                    onFileUploadToFolder={handleFileUpload} 
-                    onRenameFile={handleOpenRenameModal} 
-                    onMoveFile={handleOpenMoveModal} 
-                    onDeleteFile={handleOpenDeleteModal} 
-                    onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
-                    onRenameFolder={handleOpenRenameFolderModal} 
-                    onDeleteFolder={handleOpenDeleteFolderModal} 
-                    onPauseOrResume={handlePauseOrResume} 
-                    onCancel={handleOpenCancelConfirm}
-                    expandedFolderId={expandedFolderId}
-                    setExpandedFolderId={setExpandedFolderId}
-                />
-            </div>
+    <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
+      <CardHeader className='p-6 flex flex-row items-center justify-between border-b border-slate-200/80'>
+        <div className="flex items-center gap-3">
+          {isModuleView && (
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-foreground hover:bg-black/5" onClick={() => router.push('/select-module')}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          )}
+          <TitleIcon className="h-8 w-8 text-primary"/>
+          <h1 className="text-2xl font-bold text-foreground">
+              {title}: {t('preparePage.selectDocument')}
+          </h1>
         </div>
+      </CardHeader>
+      <div className="space-y-6 p-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative flex-grow w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-white/70 text-foreground placeholder:text-slate-500 rounded-lg border-slate-300 focus:bg-white" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          </div>
+          {!isModuleView && (
+            <>
+              <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
+                <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
+              </FileUploadButton>
+              <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
+                <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
+              </Button>
+            </>
+          )}
+        </div>
+        <FolderGrid 
+            folders={currentViewFolders} 
+            selectedFileId={selectedFileId} 
+            onSelectFile={setSelectedFileId} 
+            searchQuery={searchQuery} 
+            onFileUploadToFolder={handleFileUpload} 
+            onRenameFile={handleOpenRenameModal} 
+            onMoveFile={handleOpenMoveModal} 
+            onDeleteFile={handleOpenDeleteModal} 
+            onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
+            onRenameFolder={handleOpenRenameFolderModal} 
+            onDeleteFolder={handleOpenDeleteFolderModal} 
+            onPauseOrResume={handlePauseOrResume} 
+            onCancel={handleOpenCancelConfirm}
+            expandedFolderId={expandedFolderId}
+            setExpandedFolderId={setExpandedFolderId}
+        />
+      </div>
     </div>
   );
 
@@ -589,25 +579,16 @@ const handleValidateInstructions = async () => {
         </div>
 
         <div className={cn("lg:col-span-1 sticky top-28 flex flex-col gap-8", isModuleView ? "flex" : "hidden")}>
-            <div 
-              className="relative overflow-hidden rounded-lg shadow-lg border border-white/30 backdrop-blur-sm"
-              style={{
-                backgroundImage: 'url(/background/home.jpeg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className="absolute inset-0 bg-black/40"></div>
-              <div className="relative z-10">
+            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
                 <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                   <AccordionItem value="item-1" className="border-none">
-                     <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/10 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                     <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
                        <div className="p-6 w-full text-left flex items-center justify-between">
-                          <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                          <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                                <BookCheck className="h-7 w-7 text-primary"/>
                                Normas del Módulo
                            </h2>
-                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-slate-300 group-data-[state=open]:rotate-90" />
+                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-slate-500 group-data-[state=open]:rotate-90" />
                        </div>
                      </AccordionTrigger>
                      <AccordionContent className="p-6 pt-0">
@@ -621,34 +602,24 @@ const handleValidateInstructions = async () => {
                    </AccordionItem>
                  </Accordion>
                </div>
-            </div>
 
-             <div 
-              className="relative overflow-hidden rounded-lg shadow-lg border border-white/30 backdrop-blur-sm"
-              style={{
-                backgroundImage: 'url(/background/home.jpeg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className="absolute inset-0 bg-black/40"></div>
-              <div className="relative z-10">
+            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
                 <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                   <AccordionItem value="item-1" className="border-none">
-                    <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-white/10 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
+                    <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
                       <div className="p-6 w-full text-left flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                             <Wand2 className="h-7 w-7 text-primary"/>
                             Instrucciones del Módulo
                         </h2>
                         <div className="flex items-center gap-2">
-                            {isInstructionsValidated ? <ShieldCheck className="h-6 w-6 text-green-400" /> : <ShieldAlert className="h-6 w-6 text-yellow-400" />}
-                            <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-slate-300 group-data-[state=open]:rotate-90" />
+                            {isInstructionsValidated ? <ShieldCheck className="h-6 w-6 text-green-500" /> : <ShieldAlert className="h-6 w-6 text-yellow-500" />}
+                            <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-slate-500 group-data-[state=open]:rotate-90" />
                         </div>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-6 pt-0">
-                        <p className="text-sm text-slate-300 mb-4">
+                        <p className="text-sm text-slate-600 mb-4">
                           Estas son las directivas predefinidas para el análisis. Puede editarlas para enfocar la búsqueda, pero sus cambios serán validados por la IA para asegurar la integridad del proceso.
                         </p>
                         <Textarea
@@ -659,10 +630,10 @@ const handleValidateInstructions = async () => {
                           }}
                           placeholder="Ej: 'Prestar especial atención a los plazos de entrega y las multas por incumplimiento...'"
                           rows={6}
-                          className="bg-white/10 text-white placeholder-slate-300 border-white/30 focus:bg-white/20"
+                          className="bg-white/70 placeholder-slate-500 border-slate-300 focus:bg-white"
                         />
                         <div className="mt-4 flex justify-end">
-                            <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading || isInstructionsValidated} className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                            <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading || isInstructionsValidated} className="btn-neu-light">
                                 {isInstructionValidationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
                                 Validar Edición
                             </Button>
@@ -671,22 +642,12 @@ const handleValidateInstructions = async () => {
                   </AccordionItem>
                 </Accordion>
                </div>
-            </div>
         </div>
 
          <div className={cn(isModuleView ? "hidden" : "block", "w-full")}>
-            <div 
-              className="relative overflow-hidden rounded-lg shadow-lg border border-white/30 backdrop-blur-sm"
-              style={{
-                backgroundImage: 'url(/background/home.jpeg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className="absolute inset-0 bg-black/40"></div>
-              <div className="relative z-10">
-                <div className="p-6 border-b border-white/20">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
+                <div className="p-6 border-b border-slate-200/80">
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                         <BookCheck className="h-7 w-7 text-primary"/>
                         {t('preparePage.step2')}
                     </h2>
@@ -704,12 +665,11 @@ const handleValidateInstructions = async () => {
                     />
                 </div>
               </div>
-            </div>
         </div>
         
         {isValidationReady && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
-                <div className={cn("bg-background/85 backdrop-blur-lg p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 border border-white/20 shadow-lg")}>
+                <div className={cn("glass p-4 mx-4 rounded-2xl flex items-center justify-between gap-6")}>
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                         <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">

@@ -244,7 +244,7 @@ export function FolderGrid({
         if (!folder) return null;
 
         return (
-            <Card className="bg-background/50 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
+            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
                 <CardHeader className='pb-3 flex flex-row items-center justify-between'>
                     <div className='flex-1 flex items-center gap-4'>
                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setExpandedFolderId(null)}>
@@ -289,16 +289,16 @@ export function FolderGrid({
                         <p className="text-sm text-muted-foreground text-center py-4">{t('preparePage.folderEmpty')}</p>
                     )}
                 </CardContent>
-            </Card>
+            </div>
         )
     }
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {folders.map(folder => (
-                <Card 
+                <div 
                     key={folder.id} 
-                    className="bg-background/50 backdrop-blur-sm border-white/20 shadow-md hover:shadow-lg transition-shadow flex flex-col rounded-2xl cursor-pointer"
+                    className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl cursor-pointer"
                     onClick={() => setExpandedFolderId(folder.id)}
                 >
                     <CardHeader className='pb-3 flex flex-row items-start justify-between'>
@@ -352,7 +352,7 @@ export function FolderGrid({
                     <CardContent className="flex-1 space-y-1 p-3">
                         {folder.files.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('preparePage.folderEmpty')}</p>}
                     </CardContent>
-                </Card>
+                </div>
             ))}
         </div>
     );

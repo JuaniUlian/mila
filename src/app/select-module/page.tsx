@@ -33,10 +33,10 @@ export default function SelectModulePage() {
   const router = useRouter();
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 text-white">
+    <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-100 text-gray-800">
       <div className="w-full max-w-5xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-4 text-white">Selección de Módulo</h1>
-        <p className="text-lg text-slate-200 text-center mb-10">
+        <h1 className="text-4xl font-bold text-center mb-4 text-gray-900">Selección de Módulo</h1>
+        <p className="text-lg text-slate-600 text-center mb-10">
           Elige un módulo para ver los trámites preconfigurados o ve al modo manual para un análisis personalizado.
         </p>
 

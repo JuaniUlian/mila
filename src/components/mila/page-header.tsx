@@ -47,7 +47,7 @@ export function PageHeader({ documentTitle, overallComplianceScore, appliedSugge
 
     return (
         <header className="w-full transition-all duration-300">
-            <div className="glass rounded-2xl">
+            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm rounded-2xl">
                 <div className="p-4 md:p-6 w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     {/* Title */}
                     <div className="flex-1">

@@ -13,7 +13,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   
   const showHeader = !['/home'].includes(pathname) && !pathname.startsWith('/auth');
 
-  const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module', '/select-module'];
+  const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module'];
 
   const bodyClassName = useMemo(() => {
     let backgroundClasses = 'bg-background'; 
@@ -24,6 +24,8 @@ export default function MainContent({ children }: { children: React.ReactNode })
       backgroundClasses = 'bg-loading-page';
     } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
+    } else if (pathname === '/select-module') {
+      backgroundClasses = 'bg-slate-100';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
           backgroundClasses = 'bg-prepare-page';
