@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -76,30 +75,35 @@ const TypingStream = ({
   stream,
   onFinished,
 }: {
-  stream: AsyncIterable<string>;
+  stream: ReadableStream<Uint8Array>;
   onFinished: (fullText: string) => void;
 }) => {
   const [text, setText] = useState('');
   const fullTextRef = useRef('');
+  const decoder = new TextDecoder();
 
   useEffect(() => {
     let isMounted = true;
     async function processStream() {
-      for await (const chunk of stream) {
-        if (isMounted) {
-          fullTextRef.current += chunk;
-          setText(fullTextRef.current);
+        const reader = stream.getReader();
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            if (isMounted) {
+                const chunk = decoder.decode(value);
+                fullTextRef.current += chunk;
+                setText(fullTextRef.current);
+            }
         }
-      }
-      if (isMounted) {
-        onFinished(fullTextRef.current);
-      }
+        if (isMounted) {
+            onFinished(fullTextRef.current);
+        }
     }
     processStream();
     return () => {
       isMounted = false;
     };
-  }, [stream, onFinished]);
+  }, [stream, onFinished, decoder]);
 
   return <p className="text-sm whitespace-pre-wrap">{text}</p>;
 };
@@ -108,7 +112,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     const [history, setHistory] = useState<DiscussionMessage[]>([]);
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [stream, setStream] = useState<AsyncIterable<string> | null>(null);
+    const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(null);
     const discussionEndRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -139,7 +143,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setStream(null);
 
         try {
-            const responseStream = discussFindingStream(updatedHistory, finding);
+            const responseStream = await discussFindingStream(updatedHistory, finding);
             setStream(responseStream);
 
         } catch (error) {
@@ -564,12 +568,7 @@ export function IncidentsList({
               <>
                 <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
                     <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
-                     <DialogClose asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-slate-500 hover:bg-slate-200">
-                            <X className="h-4 w-4" />
-                            <span className="sr-only">Cerrar</span>
-                        </Button>
-                    </DialogClose>
+                     
                 </DialogHeader>
                 <IncidentItemContent 
                   finding={selectedFinding} 

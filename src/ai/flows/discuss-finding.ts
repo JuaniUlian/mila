@@ -73,9 +73,9 @@ export const discussFindingStream = ai.defineFlow(
   {
     name: 'discussFindingStream',
     inputSchema: z.tuple([z.array(DiscussionMessageSchema), z.any()]),
-    outputSchema: z.string(),
+    outputSchema: z.any(),
   },
-  async function* ([history, finding]) {
+  async ([history, finding]) => {
     const { stream } = await ai.generate({
       prompt: discussFindingPrompt,
       history: history,
@@ -86,10 +86,21 @@ export const discussFindingStream = ai.defineFlow(
       },
       stream: true,
     });
+    
+    // Convert text stream to a Uint8Array stream
+    const textStream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        for await (const chunk of stream) {
+          if (chunk.text) {
+            controller.enqueue(encoder.encode(chunk.text));
+          }
+        }
+        controller.close();
+      },
+    });
 
-    for await (const chunk of stream) {
-      yield chunk.text ?? '';
-    }
+    return textStream;
   }
 );
 
