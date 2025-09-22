@@ -126,14 +126,14 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         if (!userInput.trim() || isLoading) return;
 
         const newUserMessage: DiscussionMessage = { role: 'user', content: userInput };
-        const newHistory = [...history, newUserMessage];
-        setHistory(newHistory);
+        const updatedHistory = [...history, newUserMessage];
+        setHistory(updatedHistory);
         setUserInput('');
         setIsLoading(true);
         setStream(null);
 
         try {
-            const responseStream = await discussFindingStream(newHistory, finding);
+            const responseStream = await discussFindingStream(updatedHistory, finding);
             
             const textStream = (async function* () {
                 for await (const chunk of responseStream) {
@@ -146,16 +146,18 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         } catch (error) {
             console.error("Error in discussion stream:", error);
             const errorMessage: DiscussionMessage = { role: 'assistant', content: "Lo siento, ha ocurrido un error al procesar tu argumento. Por favor, intenta de nuevo." };
-            setHistory([...newHistory, errorMessage]);
+            setHistory([...updatedHistory, errorMessage]);
             setIsLoading(false);
         }
     };
 
     const handleStreamFinished = (fullText: string) => {
         const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullText };
-        const finalHistory = [...history.slice(0, -1), newAssistantMessage];
-        setHistory(finalHistory);
-        localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+        setHistory(prevHistory => {
+            const finalHistory = [...prevHistory, newAssistantMessage];
+            localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+            return finalHistory;
+        });
         setIsLoading(false);
         setStream(null);
     };
@@ -205,7 +207,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                             )}
                         </div>
                     ))}
-                     {(isLoading && !stream) && (
+                     {isLoading && !stream && (
                         <div className="flex items-start gap-3 justify-start">
                              <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
                              <div className="max-w-md p-3 rounded-lg bg-muted border">

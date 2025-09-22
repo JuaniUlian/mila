@@ -73,9 +73,9 @@ export const discussFindingStream = ai.defineFlow(
   {
     name: 'discussFindingStream',
     inputSchema: z.tuple([z.array(DiscussionMessageSchema), z.any()]),
-    outputSchema: z.string().stream(),
+    outputSchema: z.string(),
   },
-  async ([history, finding]) => {
+  async function* ([history, finding]) {
     const { stream } = await ai.generate({
       prompt: 'discussFindingPrompt',
       history: history,
@@ -86,13 +86,9 @@ export const discussFindingStream = ai.defineFlow(
       stream: true,
     });
 
-    const textStream = (async function* () {
-      for await (const chunk of stream) {
-        yield chunk.text ?? '';
-      }
-    })();
-
-    return textStream;
+    for await (const chunk of stream) {
+      yield chunk.text ?? '';
+    }
   }
 );
 
