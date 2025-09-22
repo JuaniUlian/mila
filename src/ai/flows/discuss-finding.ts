@@ -77,11 +77,12 @@ export const discussFindingStream = ai.defineFlow(
   },
   async function* ([history, finding]) {
     const { stream } = await ai.generate({
-      prompt: 'discussFindingPrompt',
+      prompt: discussFindingPrompt,
       history: history,
       model: 'googleai/gemini-1.5-pro',
-      context: {
+      input: {
           finding,
+          history
       },
       stream: true,
     });

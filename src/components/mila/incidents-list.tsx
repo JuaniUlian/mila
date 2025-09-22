@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2, MessageSquareWarning, Send, X } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
-import { discussFinding, discussFindingStream, type DiscussionMessage, type DiscussFindingInput } from '@/ai/flows/discuss-finding';
+import { discussFinding, discussFindingStream, type DiscussionMessage } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../layout/logo';
@@ -140,14 +140,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
         try {
             const responseStream = discussFindingStream(updatedHistory, finding);
-            
-            const textStream = (async function* () {
-                for await (const chunk of responseStream) {
-                    yield chunk;
-                }
-            })();
-
-            setStream(textStream);
+            setStream(responseStream);
 
         } catch (error) {
             console.error("Error in discussion stream:", error);
@@ -169,18 +162,24 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     };
 
     return (
-        <>
-            <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+        <div className="flex flex-col h-full bg-slate-50">
+            <DialogHeader className="bg-slate-100 px-6 py-4 border-b border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between">
                     <DialogTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                         <MessageSquareWarning size={20} />
                         Discutir Incidencia
                     </DialogTitle>
+                    {onClose && (
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:bg-slate-200">
+                            <X className="h-4 w-4" />
+                            <span className="sr-only">Cerrar</span>
+                        </Button>
+                    )}
                 </div>
-                 <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm space-y-2">
+                 <div className="mt-4 bg-slate-200/70 border border-slate-300/80 rounded-lg p-3 text-sm space-y-2">
                     <div>
                         <p className="font-semibold text-slate-800">{finding.titulo_incidencia}</p>
-                        <blockquote className="mt-1 text-slate-600 border-l-2 border-slate-300 pl-2 italic">
+                        <blockquote className="mt-1 text-slate-600 border-l-2 border-slate-400 pl-2 italic">
                             "{finding.evidencia}"
                         </blockquote>
                     </div>
@@ -251,7 +250,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </Button>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
@@ -565,6 +564,12 @@ export function IncidentsList({
               <>
                 <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
                     <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
+                     <DialogClose asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-slate-500 hover:bg-slate-200">
+                            <X className="h-4 w-4" />
+                            <span className="sr-only">Cerrar</span>
+                        </Button>
+                    </DialogClose>
                 </DialogHeader>
                 <IncidentItemContent 
                   finding={selectedFinding} 
