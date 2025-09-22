@@ -32,25 +32,25 @@ export default function SelectModulePage() {
   const router = useRouter();
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4">
+    <div className="flex-1 flex flex-col items-center justify-center p-4 text-white">
       <div className="w-full max-w-5xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-4 text-gray-800">Selección de Módulo</h1>
-        <p className="text-lg text-gray-600 text-center mb-10">
+        <h1 className="text-4xl font-bold text-center mb-4 text-white">Selección de Módulo</h1>
+        <p className="text-lg text-slate-200 text-center mb-10">
           Elige un módulo para ver los trámites preconfigurados o ve al modo manual para un análisis personalizado.
         </p>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {modules.map((module) => (
-            <Card key={module.title} className="card-neumorphism flex flex-col transition-all duration-300 hover:shadow-lg">
+            <Card key={module.title} className="card-neumorphism flex flex-col transition-all duration-300 hover:shadow-lg text-white">
               <CardHeader className="items-center text-center">
-                <div className="p-4 bg-slate-100 rounded-full mb-4 shadow-[inset_4px_4px_8px_#cbced1,inset_-4px_-4px_8px_#ffffff]">
-                  <module.icon className="h-10 w-10 text-primary" />
+                <div className="p-4 bg-slate-500/10 rounded-full mb-4 shadow-[inset_4px_4px_8px_rgba(255,255,255,0.05),inset_-4px_-4px_8px_rgba(0,0,0,0.2)]">
+                  <module.icon className="h-10 w-10 text-slate-100" />
                 </div>
-                <CardTitle className="text-2xl font-bold text-gray-800">{module.title}</CardTitle>
+                <CardTitle className="text-2xl font-bold text-white">{module.title}</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col text-center">
-                <p className="text-gray-600 mb-6 flex-1">{module.description}</p>
-                <Button onClick={() => router.push(module.href)} className="w-full btn-neu-primary">
+                <p className="text-slate-300 mb-6 flex-1">{module.description}</p>
+                <Button onClick={() => router.push(module.href)} className="w-full btn-bg-image">
                   Seleccionar
                 </Button>
               </CardContent>

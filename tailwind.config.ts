@@ -194,9 +194,11 @@ export default {
             }
         },
         '.card-neumorphism': {
-            backgroundColor: 'rgb(241 245 249)', // slate-100
+            backgroundColor: 'rgb(228 228 231 / 0.1)',
+            backdropFilter: 'blur(10px)',
             borderRadius: '1rem',
-            boxShadow: '8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff',
+            border: '1px solid rgb(255 255 255 / 0.1)',
+            boxShadow: '5px 5px 10px rgba(0,0,0,0.2), -5px -5px 10px rgba(255,255,255,0.05)',
         },
       })
     })
