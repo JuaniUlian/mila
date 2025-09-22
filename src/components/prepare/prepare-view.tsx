@@ -246,7 +246,7 @@ const handleValidateInstructions = async () => {
         setIsInstructionsValidated(false); 
         toast({
             title: "Instrucciones Inválidas",
-            description: "No se pueden eliminar las directivas predefinidas. Se han restaurado las instrucciones originales.",
+            description: "No se pueden eliminar las directivas predefinidas, ya que son indispensables para un análisis correcto. Se han restaurado las instrucciones originales.",
             variant: "destructive",
             duration: 8000,
         });
@@ -608,8 +608,7 @@ const handleValidateInstructions = async () => {
                                <BookCheck className="h-6 w-6 text-primary"/>
                                Normas del Módulo
                            </h2>
-                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
-                       </div>
+                         </div>
                      </AccordionTrigger>
                      <AccordionContent className="p-4 pt-0">
                          <RegulationList 
@@ -632,7 +631,6 @@ const handleValidateInstructions = async () => {
                             <TerminalSquare className="h-6 w-6 text-primary"/>
                             Instrucciones del Módulo
                         </h2>
-                         <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-4 pt-0">
