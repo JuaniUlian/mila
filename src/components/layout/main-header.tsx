@@ -33,20 +33,6 @@ export function MainHeader() {
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
 
     const { score, isInitialPageLoad } = useLayout();
-
-    let headerBgClass = 'bg-white/80 backdrop-blur-lg border-slate-200';
-    
-    if (pathname === '/analysis') {
-        if (isInitialPageLoad || score === null) {
-             headerBgClass = 'bg-white/80 backdrop-blur-lg border-slate-200';
-        } else if (score <= 50) {
-            headerBgClass = 'bg-red-50/90 backdrop-blur-lg border-red-200/60';
-        } else if (score <= 79) {
-            headerBgClass = 'bg-amber-50/90 backdrop-blur-lg border-amber-200/60';
-        } else {
-            headerBgClass = 'bg-emerald-50/90 backdrop-blur-lg border-emerald-200/60';
-        }
-    }
     
     const handlePrepareClick = (e: React.MouseEvent) => {
         if (pathname === '/analysis') {
