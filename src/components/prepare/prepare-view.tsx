@@ -537,77 +537,74 @@ const handleValidateInstructions = async () => {
   
   const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
 
-  const MainContent = () => (
-    <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
-      <CardHeader className='p-6 flex flex-row items-center justify-between border-b border-slate-200/80'>
-        <div className="flex items-center gap-3">
-          {isModuleView && (
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-foreground hover:bg-black/5" onClick={() => router.push('/select-module')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          )}
-          <TitleIcon className="h-8 w-8 text-primary"/>
-          <h1 className="text-2xl font-bold text-foreground">
-              {title}: {t('preparePage.selectDocument')}
-          </h1>
-        </div>
-      </CardHeader>
-      <div className="space-y-6 p-6">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <div className="relative flex-grow w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-            <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-white/70 text-foreground placeholder:text-slate-500 rounded-lg border-slate-300 focus:bg-white" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          </div>
-          {!isModuleView && (
-            <>
-              <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
-                <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
-              </FileUploadButton>
-              <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
-                <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
-              </Button>
-            </>
-          )}
-        </div>
-        <FolderGrid 
-            folders={currentViewFolders} 
-            selectedFileId={selectedFileId} 
-            onSelectFile={setSelectedFileId} 
-            searchQuery={searchQuery} 
-            onFileUploadToFolder={handleFileUpload} 
-            onRenameFile={handleOpenRenameModal} 
-            onMoveFile={handleOpenMoveModal} 
-            onDeleteFile={handleOpenDeleteModal} 
-            onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
-            onRenameFolder={handleOpenRenameFolderModal} 
-            onDeleteFolder={handleOpenDeleteFolderModal} 
-            onPauseOrResume={handlePauseOrResume} 
-            onCancel={handleOpenCancelConfirm}
-            expandedFolderId={expandedFolderId}
-            setExpandedFolderId={setExpandedFolderId}
-        />
-      </div>
-    </div>
-  );
-
   return (
     <div className="w-full p-4 md:p-8 text-foreground">
       <div className={cn("max-w-7xl mx-auto items-start", isModuleView ? "grid lg:grid-cols-3 gap-8" : "space-y-8")}>
         
         <div className={cn("animate-in fade-in duration-500", isModuleView ? "lg:col-span-2" : "w-full")}>
-           <MainContent />
+           <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
+              <CardHeader className='p-6 flex flex-row items-center justify-between border-b border-slate-200/80'>
+                <div className="flex items-center gap-3">
+                  {isModuleView && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-foreground hover:bg-black/5" onClick={() => router.push('/select-module')}>
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                  )}
+                  <TitleIcon className="h-8 w-8 text-primary"/>
+                  <h1 className="text-2xl font-bold text-foreground">
+                      {title}: {t('preparePage.selectDocument')}
+                  </h1>
+                </div>
+              </CardHeader>
+              <div className="space-y-6 p-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="relative flex-grow w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                    <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-white/70 text-foreground placeholder:text-slate-500 rounded-lg border-slate-300 focus:bg-white" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  </div>
+                  {!isModuleView && (
+                    <>
+                      <FileUploadButton variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onFileSelect={handleFileUploadedToRoot}>
+                        <Upload className="mr-2 h-4 w-4" />{t('preparePage.uploadFile')}
+                      </FileUploadButton>
+                      <Button variant="outline" className="btn-neu-light rounded-xl py-3 px-5 w-full sm:w-auto flex-shrink-0" onClick={() => setIsCreateFolderModalOpen(true)}>
+                        <FolderPlus className="mr-2 h-4 w-4" />{t('preparePage.newFolder')}
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <FolderGrid 
+                    folders={currentViewFolders} 
+                    selectedFileId={selectedFileId} 
+                    onSelectFile={setSelectedFileId} 
+                    searchQuery={searchQuery} 
+                    onFileUploadToFolder={handleFileUpload} 
+                    onRenameFile={handleOpenRenameModal} 
+                    onMoveFile={handleOpenMoveModal} 
+                    onDeleteFile={handleOpenDeleteModal} 
+                    onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
+                    onRenameFolder={handleOpenRenameFolderModal} 
+                    onDeleteFolder={handleOpenDeleteFolderModal} 
+                    onPauseOrResume={handlePauseOrResume} 
+                    onCancel={handleOpenCancelConfirm}
+                    expandedFolderId={expandedFolderId}
+                    setExpandedFolderId={setExpandedFolderId}
+                />
+              </div>
+            </div>
         </div>
 
         <div className={cn("lg:col-span-1 sticky top-28 flex flex-col gap-8", isModuleView ? "flex" : "hidden")}>
             <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="item-1" className="border-none">
-                     <AccordionTrigger className="w-full p-4 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
+                     <AccordionTrigger className="p-4 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
                        <div className="w-full text-left flex items-center justify-between group">
                           <h2 className="text-lg font-bold text-foreground flex items-center gap-3">
                                <BookCheck className="h-6 w-6 text-primary"/>
                                Normas del Módulo
                            </h2>
+                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                          </div>
                      </AccordionTrigger>
                      <AccordionContent className="p-4 pt-0">
@@ -625,12 +622,13 @@ const handleValidateInstructions = async () => {
             <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="item-1" className="border-none">
-                    <AccordionTrigger className="w-full p-4 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
+                    <AccordionTrigger className="p-4 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
                       <div className="w-full text-left flex items-center justify-between group">
                         <h2 className="text-lg font-bold text-foreground flex items-center gap-3">
                             <TerminalSquare className="h-6 w-6 text-primary"/>
                             Instrucciones del Módulo
                         </h2>
+                        <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-4 pt-0">
