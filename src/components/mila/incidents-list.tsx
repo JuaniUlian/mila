@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from '@/components/ui/dialog';
@@ -13,11 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
-import { discussFinding, type DiscussionMessage } from '@/ai/flows/discuss-finding';
+import { discussFinding, type DiscussionMessage, type DiscussFindingInput } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../layout/logo';
 import { DiscussionModal } from './discussion-modal';
+import { ai } from '@/ai/genkit';
+import { z } from 'zod';
 
 
 const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
@@ -70,10 +72,44 @@ const SEVERITY_ORDER: Record<string, number> = {
     'Informativa': 4,
 };
 
+
+const TypingStream = ({
+  stream,
+  onFinished,
+}: {
+  stream: AsyncIterable<string>;
+  onFinished: (fullText: string) => void;
+}) => {
+  const [text, setText] = useState('');
+  const fullTextRef = useRef('');
+
+  useEffect(() => {
+    let isMounted = true;
+    async function processStream() {
+      for await (const chunk of stream) {
+        if (isMounted) {
+          fullTextRef.current += chunk;
+          setText(fullTextRef.current);
+        }
+      }
+      if (isMounted) {
+        onFinished(fullTextRef.current);
+      }
+    }
+    processStream();
+    return () => {
+      isMounted = false;
+    };
+  }, [stream, onFinished]);
+
+  return <p className="text-sm whitespace-pre-wrap">{text}</p>;
+};
+
 export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStatus; onClose?: () => void; }) => {
     const [history, setHistory] = useState<DiscussionMessage[]>([]);
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [stream, setStream] = useState<AsyncIterable<string> | null>(null);
     const discussionEndRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -85,7 +121,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
     useEffect(() => {
         discussionEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [history]);
+    }, [history, stream]);
 
     const handleSendMessage = async () => {
         if (!userInput.trim() || isLoading) return;
@@ -95,20 +131,45 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setHistory(newHistory);
         setUserInput('');
         setIsLoading(true);
+        setStream(null);
 
         try {
-            const response = await discussFinding({ finding, history: newHistory });
-            const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: response.reply };
-            const finalHistory = [...newHistory, newAssistantMessage];
-            setHistory(finalHistory);
-            localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+            const { stream, response } = ai.generateStream({
+                prompt: {
+                    role: 'user',
+                    content: userInput,
+                },
+                history: newHistory.slice(0, -1),
+                model: 'googleai/gemini-1.5-pro',
+                context: {
+                    finding,
+                }
+            });
+
+            const textStream = (async function* () {
+                for await (const chunk of stream) {
+                    yield chunk.text ?? '';
+                }
+            })();
+
+            setStream(textStream);
+            await response; 
+
         } catch (error) {
-            console.error("Error in discussion:", error);
+            console.error("Error in discussion stream:", error);
             const errorMessage: DiscussionMessage = { role: 'assistant', content: "Lo siento, ha ocurrido un error al procesar tu argumento. Por favor, intenta de nuevo." };
             setHistory([...newHistory, errorMessage]);
-        } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleStreamFinished = (fullText: string) => {
+        const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullText };
+        const finalHistory = [...history, newAssistantMessage];
+        setHistory(finalHistory);
+        localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+        setIsLoading(false);
+        setStream(null);
     };
 
     return (
@@ -119,11 +180,6 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         <MessageSquareWarning size={20} />
                         Discutir Incidencia
                     </h3>
-                     {onClose && (
-                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:bg-slate-200">
-                            <X className="h-5 w-5" />
-                        </Button>
-                    )}
                 </div>
                  <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm space-y-2">
                     <div>
@@ -137,44 +193,48 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </p>
                 </div>
             </div>
-            <div className="flex-1 min-h-0">
-                <ScrollArea className="h-full">
-                    <div className="p-6 space-y-4">
-                        {history.map((msg, index) => (
-                            <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
-                                {msg.role === 'assistant' && (
-                                    <Avatar className="h-8 w-8 p-1">
-                                        <Logo variant="color"/>
-                                    </Avatar>
-                                )}
-                                <div className={cn(
-                                    "max-w-md p-3 rounded-lg",
-                                    msg.role === 'user' 
-                                        ? 'bg-primary text-primary-foreground' 
-                                        : 'bg-muted'
-                                )}>
-                                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                                </div>
-                                {msg.role === 'user' && (
-                                    <Avatar className="h-8 w-8 bg-primary/20">
-                                        <AvatarFallback className="text-primary font-semibold text-xs">TÚ</AvatarFallback>
-                                    </Avatar>
-                                )}
-                            </div>
-                        ))}
-                        {isLoading && (
-                            <div className="flex items-start gap-3 justify-start">
+            <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="p-6 space-y-4">
+                    {history.map((msg, index) => (
+                        <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
+                            {msg.role === 'assistant' && (
                                 <Avatar className="h-8 w-8 p-1">
                                     <Logo variant="color"/>
                                 </Avatar>
-                                <div className="max-w-md p-3 rounded-lg bg-muted border">
-                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                                </div>
+                            )}
+                            <div className={cn(
+                                "max-w-md p-3 rounded-lg",
+                                msg.role === 'user' 
+                                    ? 'bg-primary text-primary-foreground' 
+                                    : 'bg-muted'
+                            )}>
+                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                             </div>
-                        )}
-                        <div ref={discussionEndRef} />
-                    </div>
-                </ScrollArea>
+                            {msg.role === 'user' && (
+                                <Avatar className="h-8 w-8 bg-primary/20">
+                                    <AvatarFallback className="text-primary font-semibold text-xs">TÚ</AvatarFallback>
+                                </Avatar>
+                            )}
+                        </div>
+                    ))}
+                     {(isLoading && !stream) && (
+                        <div className="flex items-start gap-3 justify-start">
+                             <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
+                             <div className="max-w-md p-3 rounded-lg bg-muted border">
+                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                             </div>
+                        </div>
+                    )}
+                    {stream && (
+                        <div className="flex items-start gap-3 justify-start">
+                            <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
+                            <div className="max-w-md p-3 rounded-lg bg-muted">
+                                <TypingStream stream={stream} onFinished={handleStreamFinished} />
+                            </div>
+                        </div>
+                    )}
+                    <div ref={discussionEndRef} />
+                </div>
             </div>
             <div className="p-6 border-t border-slate-200">
                 <div className="flex items-center gap-2">
@@ -509,10 +569,6 @@ export function IncidentsList({
               <>
                 <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
                     <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
-                     <DialogClose className="relative right-0 top-0 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Close</span>
-                    </DialogClose>
                 </DialogHeader>
                 <IncidentItemContent 
                   finding={selectedFinding} 
@@ -533,13 +589,3 @@ export function IncidentsList({
     </div>
   );
 }
-
-    
-
-    
-
-    
-
-    
-
-    

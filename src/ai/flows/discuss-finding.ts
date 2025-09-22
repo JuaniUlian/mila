@@ -4,6 +4,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { type Finding } from './validate-document';
+import { definePrompt, type PromptOptions } from 'genkit';
 
 // Schemas
 const DiscussionMessageSchema = z.object({
@@ -23,13 +24,11 @@ const DiscussFindingOutputSchema = z.object({
 });
 export type DiscussFindingOutput = z.infer<typeof DiscussFindingOutputSchema>;
 
-// Prompt
-const prompt = ai.definePrompt({
-  name: 'discussFindingPrompt',
-  model: 'googleai/gemini-1.5-pro',
-  input: { schema: DiscussFindingInputSchema },
-  output: { schema: DiscussFindingOutputSchema },
-  prompt: `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
+// Prompt definition
+const discussFindingPrompt: PromptOptions = {
+    name: 'discussFindingPrompt',
+    model: 'googleai/gemini-1.5-pro',
+    system: `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
 
 Tu personalidad debe ser:
 - **Profesional y Respetuosa:** Siempre mantén un tono cortés.
@@ -37,18 +36,13 @@ Tu personalidad debe ser:
 - **Tenaz pero Justa:** Defiende tu posición con firmeza, pero si el usuario presenta un argumento que es lógicamente superior, legalmente válido o demuestra que el contexto del hallazgo fue malinterpretado, debes reconocerlo con profesionalismo. No admitas un error a menos que el argumento del usuario sea irrefutable.
 
 **Contexto del Hallazgo en Discusión:**
-- **Título:** {{{finding.titulo_incidencia}}}
-- **Gravedad:** {{{finding.gravedad}}}
-- **Evidencia (Texto del documento):** "{{{finding.evidencia}}}"
-- **Justificación Legal del Hallazgo:** {{{finding.justificacion_legal}}}
-- **Justificación Técnica:** {{{finding.justificacion_tecnica}}}
-- **Normativa Aplicable:** {{{finding.nombre_archivo_normativa}}}, sección {{{finding.articulo_o_seccion}}}
-- **Consecuencia Estimada:** {{{finding.consecuencia_estimada}}}
-
-**Historial de la Discusión hasta ahora:**
-{{#each history}}
-- **{{role}}:** {{content}}
-{{/each}}
+- **Título:** {{finding.titulo_incidencia}}
+- **Gravedad:** {{finding.gravedad}}
+- **Evidencia (Texto del documento):** "{{finding.evidencia}}"
+- **Justificación Legal del Hallazgo:** {{finding.justificacion_legal}}
+- **Justificación Técnica:** {{finding.justificacion_tecnica}}
+- **Normativa Aplicable:** {{finding.nombre_archivo_normativa}}, sección {{finding.articulo_o_seccion}}
+- **Consecuencia Estimada:** {{finding.consecuencia_estimada}}
 
 **Tu Tarea:**
 Analiza el último argumento del usuario en el historial y genera una respuesta (tu "reply").
@@ -59,12 +53,13 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 3.  **Considera el contexto:** Si el usuario aporta un nuevo contexto que no estaba presente en el texto original, analízalo críticamente. ¿Ese nuevo contexto invalida el riesgo identificado?
 4.  **No te disculpes innecesariamente:** Evita frases como "Pido disculpas". En su lugar, usa un lenguaje como "Comprendo su punto" o "Es una interpretación válida, sin embargo...".
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
+`
+};
+// Register the prompt with Genkit AI
+definePrompt(discussFindingPrompt);
 
-Responde únicamente en el formato JSON especificado.
-`,
-});
 
-// Flow
+// Flow for streaming response
 const discussFindingFlow = ai.defineFlow(
   {
     name: 'discussFindingFlow',
@@ -73,11 +68,19 @@ const discussFindingFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const { output } = await prompt(input);
+      const { output } = await ai.generate({
+        prompt: discussFindingPrompt,
+        history: input.history,
+        context: {
+            finding: input.finding,
+        },
+      });
+
       if (!output) {
         throw new Error('El modelo de IA no devolvió una respuesta válida.');
       }
-      return output;
+      return { reply: output as string };
+
     } catch (error) {
       console.error('Error en discussFindingFlow:', error);
       return {
@@ -87,7 +90,8 @@ const discussFindingFlow = ai.defineFlow(
   }
 );
 
-// Exported function
+
+// Exported function for full response
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   return discussFindingFlow(input);
 }
