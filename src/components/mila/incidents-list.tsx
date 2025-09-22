@@ -225,87 +225,88 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
 
   return (
     <div className="space-y-6">
+      {/* Evidencia */}
       <div>
-          <h4 className="font-semibold mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
-          <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md text-sm">
-              <em className="text-slate-800">"{finding.evidencia}"</em>
-          </div>
+        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><FileText size={18}/> Evidencia</h4>
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md text-sm text-gray-700">
+          <em className="leading-relaxed">"{finding.evidencia}"</em>
+        </div>
       </div>
 
+      {/* Propuesta de Solución */}
       {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
         <div>
-            <h4 className="font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16}/> Propuesta de Solución:</h4>
-            {isEditing ? (
-              <div className="space-y-4 bg-blue-50/50 p-4 rounded-md border border-blue-200">
-                  {finding.propuesta_redaccion !== undefined && (
-                      <div>
-                          <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block">Propuesta de Redacción:</Label>
-                          <Textarea 
-                            id="edit-redaccion" 
-                            value={editForm.propuesta_redaccion} 
-                            onChange={e => setEditForm({...editForm, propuesta_redaccion: e.target.value})} 
-                            rows={4}
-                            className="bg-background"
-                          />
-                      </div>
-                  )}
-                  {finding.propuesta_procedimiento !== undefined && (
-                     <div>
-                          <Label htmlFor="edit-procedimiento" className="text-sm font-medium mb-1 block">Propuesta de Procedimiento:</Label>
-                          <Textarea 
-                            id="edit-procedimiento" 
-                            value={editForm.propuesta_procedimiento} 
-                            onChange={e => setEditForm({...editForm, propuesta_procedimiento: e.target.value})} 
-                            rows={2}
-                            className="bg-background"
-                          />
-                      </div>
-                  )}
-                  <div className="flex gap-2 justify-end">
-                      <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
-                      <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
-                  </div>
+          <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Lightbulb size={18}/> Propuesta de Solución</h4>
+          {isEditing ? (
+            <div className="space-y-4 bg-blue-50 p-4 rounded-md border border-blue-200">
+              {finding.propuesta_redaccion !== undefined && (
+                <div>
+                  <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block text-gray-700">Propuesta de Redacción:</Label>
+                  <Textarea id="edit-redaccion" value={editForm.propuesta_redaccion} onChange={e => setEditForm({...editForm, propuesta_redaccion: e.target.value})} rows={4} className="bg-white" />
+                </div>
+              )}
+              {finding.propuesta_procedimiento !== undefined && (
+                <div>
+                  <Label htmlFor="edit-procedimiento" className="text-sm font-medium mb-1 block text-gray-700">Propuesta de Procedimiento:</Label>
+                  <Textarea id="edit-procedimiento" value={editForm.propuesta_procedimiento} onChange={e => setEditForm({...editForm, propuesta_procedimiento: e.target.value})} rows={2} className="bg-white" />
+                </div>
+              )}
+              <div className="flex gap-2 justify-end">
+                <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
+                <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
               </div>
-            ) : (
-              <div className="bg-green-50 p-4 rounded text-sm space-y-3 border-l-4 border-green-400">
-                {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
-                  <div><strong className="text-slate-900">Redacción sugerida:</strong><p className="mt-1 italic text-slate-700">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
-                )}
-                {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
-                  <div><strong className="text-slate-900">Procedimiento sugerido:</strong><p className="mt-1 text-slate-700">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
-                )}
-              </div>
-            )}
+            </div>
+          ) : (
+            <div className="bg-green-50 p-4 rounded text-sm space-y-3 border-l-4 border-green-400">
+              {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
+                <div><strong className="text-slate-900 block mb-1">Redacción sugerida:</strong><p className="italic text-slate-700 leading-relaxed">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
+              )}
+              {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
+                <div><strong className="text-slate-900 block mb-1">Procedimiento sugerido:</strong><p className="text-slate-700 leading-relaxed">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
-          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
+      {/* Justificaciones */}
+      <div className="space-y-4">
+        <div>
+            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Scale size={18}/> Justificación Legal</h4>
+            <p className="text-sm text-gray-600 bg-slate-50 p-4 rounded-md border border-slate-200 leading-relaxed">{finding.justificacion_legal}</p>
+        </div>
+        <div>
+            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><ClipboardList size={18}/> Justificación Técnica</h4>
+            <p className="text-sm text-gray-600 bg-slate-50 p-4 rounded-md border border-slate-200 leading-relaxed">{finding.justificacion_tecnica}</p>
+        </div>
       </div>
       
-      <div><h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/10 p-3 rounded-md border border-destructive/20">{finding.consecuencia_estimada}</p></div>
+      {/* Consecuencias */}
+      <div>
+        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><AlertTriangle size={18} className="text-red-600"/> Consecuencias Estimadas</h4>
+        <p className="text-sm text-red-800 bg-red-50 p-4 rounded-md border border-red-200 leading-relaxed">{finding.consecuencia_estimada}</p>
+      </div>
 
-      {/* MEJORA: Botón "Discutir" junto a las otras acciones */}
-      <div className="flex gap-2 pt-4 border-t items-center justify-end flex-wrap">
-          {finding.status === 'pending' ? (
-            <>
-              <Button size="sm" variant="outline" onClick={() => onOpenDiscussion(finding)}>
-                <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
-              </Button>
-              {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
-              ) : (
-                  <>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                      <Button size="sm" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
-                  </>
-              )}
-              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
-            </>
-          ) : (
-             <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
-          )}
+      {/* Acciones */}
+      <div className="flex gap-2 pt-6 border-t border-slate-200 items-center justify-end flex-wrap">
+        {finding.status === 'pending' ? (
+          <>
+            <Button size="sm" variant="outline" onClick={() => onOpenDiscussion(finding)}>
+              <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
+            </Button>
+            {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
+              <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+            ) : (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+              </>
+            )}
+            <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+          </>
+        ) : (
+          <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
+        )}
       </div>
     </div>
   )
@@ -413,13 +414,10 @@ export function IncidentsList({
               <AccordionContent className="p-6 pt-2">
                 <div className="space-y-4">
                   {categoryFindings.map((finding) => {
-                    const findingSeverityStyle = SEVERITY_STYLES[finding.gravedad];
                     return (
                       <div 
                         key={finding.id} 
-                        className={cn(
-                          "group relative overflow-hidden rounded-lg shadow-sm border border-slate-200/80 cursor-pointer bg-slate-50/50 text-slate-800 hover:shadow-lg hover:border-slate-300/80 transition-all duration-300"
-                        )}
+                        className="group relative overflow-hidden rounded-lg shadow-sm border border-slate-200/80 cursor-pointer bg-slate-50/50 text-slate-800 hover:shadow-lg hover:border-slate-300/80 transition-all duration-300"
                         onClick={() => handleOpenDetails(finding)}
                       >
                         <div className="flex items-center justify-between py-4 px-5">
@@ -452,17 +450,17 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-white">
           {selectedFinding && (
             <>
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg flex items-center justify-between">
+              <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg flex-row items-center justify-between">
                   <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
                   <DialogClose asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-slate-200">
                       <XCircle className="h-5 w-5" />
                     </Button>
                   </DialogClose>
-              </div>
+              </DialogHeader>
               <ScrollArea className="bg-white">
                 <div className="p-6 text-slate-900">
                     <IncidentItemContent 
@@ -486,5 +484,3 @@ export function IncidentsList({
     </div>
   );
 }
-
-    
