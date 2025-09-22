@@ -669,7 +669,7 @@ const handleValidateInstructions = async () => {
         
         {isValidationReady && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
-                <div className={cn("glass p-4 mx-4 rounded-2xl flex items-center justify-between gap-6")}>
+                <div className="bg-slate-100/80 backdrop-blur-lg border border-slate-200/60 p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 shadow-lg">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                         <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">
