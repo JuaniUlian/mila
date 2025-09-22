@@ -33,14 +33,13 @@ export default function SelectModulePage() {
   const router = useRouter();
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 bg-slate-100 text-gray-800">
-      <div className="w-full max-w-5xl mx-auto">
+    <div className="flex-1 flex flex-col items-center justify-center p-4 text-gray-800">
         <h1 className="text-4xl font-bold text-center mb-4 text-gray-900">Selección de Módulo</h1>
-        <p className="text-lg text-slate-600 text-center mb-10">
+        <p className="text-lg text-slate-600 text-center mb-10 max-w-3xl mx-auto">
           Elige un módulo para ver los trámites preconfigurados o ve al modo manual para un análisis personalizado.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-3 gap-8 mb-12 max-w-5xl w-full">
           {modules.map((module) => (
              <div 
               key={module.title}
@@ -71,7 +70,6 @@ export default function SelectModulePage() {
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
-      </div>
     </div>
   );
 }
