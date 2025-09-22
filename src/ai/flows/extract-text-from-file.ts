@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to extract text from various file formats with fallback.
@@ -17,8 +18,6 @@ const ExtractTextFromFileInputSchema = z.object({
     .describe(
       "The file content as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
     ),
-  fileType: z.string().describe('The MIME type of the file.'),
-  fileName: z.string().describe('The name of the file.'),
 });
 export type ExtractTextFromFileInput = z.infer<typeof ExtractTextFromFileInputSchema>;
 
@@ -28,9 +27,13 @@ const ExtractTextFromFileOutputSchema = z.object({
 export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
 
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const { fileDataUri, fileType, fileName } = input;
+  const { fileDataUri } = input;
   const startTime = Date.now();
   let extractedText = '';
+
+  const fileTypeMatch = fileDataUri.match(/^data:(.*?);/);
+  const fileType = fileTypeMatch ? fileTypeMatch[1] : 'application/octet-stream';
+  const fileName = `file_${Date.now()}`;
 
   try {
     // DOCX processing using mammoth for speed and efficiency
@@ -51,18 +54,12 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
     } else if (fileType.includes('pdf') || fileType.startsWith('image/')) {
       console.log(`Attempting extraction with Gemini-Flash for ${fileName}`);
       try {
-        // Using the correct AI generate format
         const genkitResponse = await ai.generate({
-          messages: [
+          prompt: [
             {
-              role: 'user',
-              content: [
-                {
-                  text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
-                },
-                { media: { url: fileDataUri } },
-              ],
+              text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
             },
+            { media: { url: fileDataUri } },
           ],
           model: 'googleai/gemini-1.5-flash',
           config: {
@@ -72,7 +69,6 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
         
         extractedText = genkitResponse.text ?? '';
         
-        // Fixed logSuccess call - using correct parameter types
         logSuccess(
           'gemini' as const,
           Buffer.from(fileDataUri.split(',')[1], 'base64').length,
@@ -82,7 +78,6 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
       } catch (geminiError) {
         console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro.`, geminiError);
         
-        // Fixed logError call - using correct parameter types
         logError(
           'gemini' as const,
           Buffer.from(fileDataUri.split(',')[1], 'base64').length,
@@ -94,16 +89,11 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
         // Fallback 1: Gemini Pro
         try {
           const genkitResponse = await ai.generate({
-            messages: [
+            prompt: [
               {
-                role: 'user',
-                content: [
-                  {
-                    text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
-                  },
-                  { media: { url: fileDataUri } },
-                ],
+                text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
               },
+              { media: { url: fileDataUri } },
             ],
             model: 'googleai/gemini-1.5-pro',
             config: {
@@ -143,7 +133,6 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
       throw new Error('The document chunk is too complex to process within the time limit.');
     }
     
-    // Fixed logError call with proper error handling
     logError(
       'gemini_pro_fallback' as const,
       Buffer.from(fileDataUri.split(',')[1], 'base64').length,
