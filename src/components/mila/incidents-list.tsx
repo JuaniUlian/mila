@@ -187,15 +187,14 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 };
 
 
-const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion, setIsEditing, isEditing }: {
+const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion }: {
   finding: FindingWithStatus;
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
   onDialogClose: () => void;
   onOpenDiscussion: (finding: FindingWithStatus) => void;
-  setIsEditing: (isEditing: boolean) => void;
-  isEditing: boolean;
 }) => {
   const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
 
   const [editForm, setEditForm] = useState({
     propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
@@ -208,7 +207,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
     onDialogClose();
     toast({ title: "Sugerencia Modificada", description: "La propuesta de solución ha sido actualizada." });
   };
-
+  
   const handleApply = () => {
     onFindingStatusChange(finding.id, 'applied');
     onDialogClose();
@@ -227,7 +226,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
   return (
     <>
     <ScrollArea className="bg-slate-50/50">
-        <div className="p-6 text-slate-900 space-y-4">
+        <div className="p-6 text-slate-900 space-y-6">
       {/* Evidencia */}
       <div>
         <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><FileText size={16}/> Evidencia</h4>
@@ -292,24 +291,24 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
 
     </div>
     </ScrollArea>
-    <DialogFooter className="bg-white/80 backdrop-blur-md p-4 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
+    <DialogFooter className="bg-slate-100/80 backdrop-blur-md p-3 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
         {finding.status === 'pending' ? (
         <>
-            <Button size="sm" className="btn-neu-light" onClick={() => onOpenDiscussion(finding)}>
+            <Button size="sm" variant="ghost" className="text-foreground hover:bg-black/5" onClick={() => onOpenDiscussion(finding)}>
             <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
             </Button>
             {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-            <Button size="sm" className="btn-neu-green" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+            <Button size="sm" variant="ghost" className="text-green-600 hover:bg-green-50 hover:text-green-700" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
             ) : (
             <>
-                <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                <Button size="sm" variant="ghost" className="text-green-600 hover:bg-green-50 hover:text-green-700" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                <Button size="sm" variant="ghost" className="text-foreground hover:bg-black/5" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
             </>
             )}
             <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
         </>
         ) : (
-        <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
+        <Button size="sm" variant="ghost" className="text-foreground hover:bg-black/5" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
         )}
     </DialogFooter>
     </>
@@ -326,13 +325,11 @@ export function IncidentsList({
 }) {
   const [selectedFinding, setSelectedFinding] = useState<FindingWithStatus | null>(null);
   const [discussionFinding, setDiscussionFinding] = useState<FindingWithStatus | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const { language } = useLanguage();
   const t = useTranslations(language);
 
   const handleOpenDetails = (finding: FindingWithStatus) => {
     setSelectedFinding(finding);
-    setIsEditing(false); 
   };
   
   const handleOpenDiscussion = (finding: FindingWithStatus) => {
@@ -456,10 +453,10 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="glass max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl">
           {selectedFinding && (
             <>
-              <DialogHeader className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-200/50 flex-row items-center justify-between">
+              <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
                   <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
                   <DialogClose asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-black/10">
@@ -472,8 +469,6 @@ export function IncidentsList({
                 onFindingStatusChange={onFindingStatusChange} 
                 onDialogClose={() => setSelectedFinding(null)}
                 onOpenDiscussion={handleOpenDiscussion}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
               />
             </>
           )}
@@ -489,5 +484,7 @@ export function IncidentsList({
   );
 }
 
+
+    
 
     
