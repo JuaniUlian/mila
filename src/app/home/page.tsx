@@ -26,7 +26,7 @@ export default function LandingPage() {
   };
   
   return (
-    <div className="bg-home-page text-gray-800 dark:bg-home-page dark:text-gray-200">
+    <div className="bg-home-page text-gray-800 dark:text-gray-200">
       
 
       <main>
@@ -239,5 +239,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-  

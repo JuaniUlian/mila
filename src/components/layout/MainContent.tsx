@@ -13,27 +13,25 @@ export default function MainContent({ children }: { children: React.ReactNode })
   
   const showHeader = !['/home'].includes(pathname) && !pathname.startsWith('/auth');
 
-  // Define module paths that should share the prepare page background
   const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module', '/select-module'];
 
-  // Calculate className consistently on both server and client to avoid hydration errors
   const bodyClassName = useMemo(() => {
-    let backgroundClasses = 'bg-background dark:bg-slate-900'; // Default background
+    let backgroundClasses = 'bg-background dark:bg-slate-900'; 
 
-    if (pathname === '/loading') {
-      backgroundClasses = 'bg-loading-page';
-    } else if (pathname === '/home') {
+    if (pathname === '/home') {
       backgroundClasses = 'bg-home-page';
+    } else if (pathname === '/loading') {
+      backgroundClasses = 'bg-loading-page';
     } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
-          backgroundClasses = 'bg-prepare-page'; // Start with prepare background
+          backgroundClasses = 'bg-prepare-page';
       } else if (score <= 50) {
           backgroundClasses = 'bg-analysis-grave';
       } else if (score <= 79) {
           backgroundClasses = 'bg-analysis-alerta';
-      } else { // score >= 80
+      } else { 
           backgroundClasses = 'bg-analysis-validado';
       }
     }

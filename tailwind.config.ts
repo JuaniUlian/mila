@@ -1,5 +1,5 @@
-
 import type { Config } from "tailwindcss";
+import plugin from 'tailwindcss/plugin';
 
 export default {
     darkMode: ["class"],
@@ -9,7 +9,7 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: { // keyframes, animation, and borderRadius are now inside extend
+    extend: {
       fontFamily: {
         sans: ["var(--font-nunito)", "ui-sans-serif", "system-ui"],
       },
@@ -89,13 +89,13 @@ export default {
           DEFAULT: 'hsl(var(--custom-severity-high-bg))',
           foreground: 'hsl(var(--custom-severity-high-fg))',
         },
-  		}, // End of colors
-      borderRadius: { // Moved inside extend
+  		},
+      borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)'
       },
-      keyframes: { // Moved inside extend
+      keyframes: {
         'accordion-down': {
           from: {
             height: '0'
@@ -139,7 +139,7 @@ export default {
           }
         },
       },
-      animation: { // Moved inside extend
+      animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'gradient-bg': 'gradient-bg 10s ease infinite',
@@ -149,7 +149,65 @@ export default {
       backgroundSize: {
         '200%': '200% 200%',
       }
-    } // End of extend
+    }
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(function({ addComponents, theme }) {
+      addComponents({
+        '.glass': {
+          backgroundColor: 'hsla(var(--background) / 0.9)',
+          backdropFilter: 'blur(0.375rem)', // blur-sm
+          borderWidth: '1px',
+          borderColor: 'hsla(var(--border) / 0.4)',
+        },
+        '.dark .glass': {
+          backgroundColor: 'hsla(var(--slate-900) / 0.8)', // Assuming slate-900 is defined or use HSL
+          borderColor: 'hsla(var(--slate-700) / 0.5)',
+        },
+        '.btn-neu-light': {
+            backgroundColor: 'hsla(0, 0%, 100%, 0.95)',
+            border: '1px solid hsla(var(--border) / 0.8)',
+            color: 'hsl(var(--foreground))',
+            boxShadow: 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)',
+            transition: 'all 0.3s',
+            '&:hover': {
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                backgroundColor: 'white',
+            }
+        },
+        '.dark .btn-neu-light': {
+            backgroundColor: 'hsl(222 47% 11% / 0.8)', // slate-800
+            borderColor: 'hsl(215 28% 17% / 0.7)', // slate-600
+            color: 'hsl(210 40% 98%)', // slate-100
+            '&:hover': {
+                backgroundColor: 'hsl(222 47% 11% / 0.95)', // slate-700
+            }
+        },
+        '.btn-neu-green': {
+            backgroundColor: 'hsla(142, 71%, 45%, 0.9)', // green-500
+            border: '1px solid hsla(142, 71%, 35%, 0.5)', // green-600
+            color: 'white',
+            transition: 'all 0.3s',
+             '&:hover': {
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                backgroundColor: 'hsl(142, 71%, 45%)',
+            }
+        },
+        '.dark .btn-neu-green': {
+            backgroundColor: 'hsla(142, 63%, 40%, 0.9)', // green-600
+            borderColor: 'hsla(142, 71%, 45%, 0.5)', // green-500
+        },
+        '.card-neumorphism': {
+            backgroundColor: 'hsla(var(--background) / 0.95)',
+            border: '1px solid hsla(var(--border) / 0.3)',
+            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        },
+        '.dark .card-neumorphism': {
+            backgroundColor: 'hsl(222 47% 11% / 0.8)', // slate-900
+            borderColor: 'hsl(215 28% 17% / 0.5)', // slate-700
+        },
+      })
+    })
+  ],
 } satisfies Config;

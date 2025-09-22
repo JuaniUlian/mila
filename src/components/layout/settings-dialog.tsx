@@ -43,9 +43,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
-        "rounded-2xl shadow-lg",
-        theme === 'light' ? 'bg-white/95 text-foreground' : 'bg-slate-900/95 text-foreground',
-        "border" 
+        "rounded-2xl shadow-lg border",
+        theme === 'light' ? 'bg-white/95 text-foreground border-slate-200' : 'bg-slate-900/95 text-foreground border-slate-700',
         )}>
         <DialogHeader>
           <DialogTitle>{t('settingsDialog.title')}</DialogTitle>

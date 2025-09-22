@@ -34,17 +34,17 @@ export function MainHeader() {
 
     const { score, isInitialPageLoad, theme } = useLayout();
 
-    let headerBgClass = 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-white/30 dark:border-slate-700/50';
+    let headerBgClass = 'bg-white/90 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700/50';
     
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-            headerBgClass = 'bg-white/80 backdrop-blur-lg border-white/30 dark:bg-slate-900/80 dark:border-slate-700/50';
+            headerBgClass = 'bg-white/90 backdrop-blur-lg border-slate-200 dark:bg-slate-900/80 dark:border-slate-700/50';
         } else if (score <= 50) {
-            headerBgClass = 'bg-red-50/80 backdrop-blur-lg border-red-200/60 dark:bg-red-950/80 dark:border-red-800/60';
+            headerBgClass = 'bg-red-50/90 backdrop-blur-lg border-red-200/60 dark:bg-red-950/80 dark:border-red-800/60';
         } else if (score <= 79) {
-            headerBgClass = 'bg-amber-50/80 backdrop-blur-lg border-amber-200/60 dark:bg-amber-950/80 dark:border-amber-800/60';
+            headerBgClass = 'bg-amber-50/90 backdrop-blur-lg border-amber-200/60 dark:bg-amber-950/80 dark:border-amber-800/60';
         } else {
-            headerBgClass = 'bg-emerald-50/80 backdrop-blur-lg border-emerald-200/60 dark:bg-emerald-950/80 dark:border-emerald-800/60';
+            headerBgClass = 'bg-emerald-50/90 backdrop-blur-lg border-emerald-200/60 dark:bg-emerald-950/80 dark:border-emerald-800/60';
         }
     }
     
@@ -85,7 +85,7 @@ export function MainHeader() {
     const commonButtonClasses = cn(
       "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
       theme === 'light' 
-        ? "bg-white/70 border-white/40 shadow-sm hover:shadow-md hover:bg-white/90 text-gray-700" 
+        ? "bg-white/80 border-slate-200/80 shadow-sm hover:shadow-md hover:bg-white text-gray-700" 
         : "bg-slate-800/80 border-slate-600/40 shadow-sm hover:shadow-md hover:bg-slate-700/95 text-slate-200",
       "border"
     );
