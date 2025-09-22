@@ -583,7 +583,7 @@ const handleValidateInstructions = async () => {
                 <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                   <AccordionItem value="item-1" className="border-none">
                      <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
-                       <div className="p-6 w-full text-left flex items-center justify-between">
+                       <div className="p-6 w-full text-left flex items-center justify-between group">
                           <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                                <BookCheck className="h-7 w-7 text-primary"/>
                                Normas del Módulo
@@ -607,7 +607,7 @@ const handleValidateInstructions = async () => {
                 <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                   <AccordionItem value="item-1" className="border-none">
                     <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
-                      <div className="p-6 w-full text-left flex items-center justify-between">
+                      <div className="p-6 w-full text-left flex items-center justify-between group">
                         <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
                             <Wand2 className="h-7 w-7 text-primary"/>
                             Instrucciones del Módulo
