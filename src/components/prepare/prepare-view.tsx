@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck, ShieldAlert, TerminalSquare } from 'lucide-react';
+import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Loader2, Sparkles, ShieldCheck, ShieldAlert, TerminalSquare } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -588,7 +588,7 @@ const handleValidateInstructions = async () => {
                                <BookCheck className="h-7 w-7 text-primary"/>
                                Normas del Módulo
                            </h2>
-                           
+                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                        </div>
                      </AccordionTrigger>
                      <AccordionContent className="p-6 pt-0">
@@ -614,7 +614,6 @@ const handleValidateInstructions = async () => {
                         </h2>
                         <div className="flex items-center gap-2">
                             {isInstructionsValidated ? <ShieldCheck className="h-6 w-6 text-green-500" /> : <ShieldAlert className="h-6 w-6 text-yellow-500" />}
-                            
                         </div>
                       </div>
                     </AccordionTrigger>
@@ -768,5 +767,7 @@ const handleValidateInstructions = async () => {
     </div>
   );
 }
+
+    
 
     
