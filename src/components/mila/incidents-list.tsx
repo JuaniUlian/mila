@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from '@/components/ui/dialog';
-import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2, MessageSquareWarning, Send } from 'lucide-react';
+import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2, MessageSquareWarning, Send, X } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
@@ -119,6 +119,11 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         <MessageSquareWarning size={20} />
                         Discutir Incidencia
                     </h3>
+                     {onClose && (
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:bg-slate-200">
+                            <X className="h-5 w-5" />
+                        </Button>
+                    )}
                 </div>
                  <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm space-y-2">
                     <div>
@@ -524,6 +529,8 @@ export function IncidentsList({
     </div>
   );
 }
+
+    
 
     
 
