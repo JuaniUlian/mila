@@ -13,12 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
-import { discussFinding, type DiscussionMessage, type DiscussFindingInput } from '@/ai/flows/discuss-finding';
+import { discussFinding, discussFindingStream, type DiscussionMessage, type DiscussFindingInput } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../layout/logo';
 import { DiscussionModal } from './discussion-modal';
-import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 
@@ -134,26 +133,15 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setStream(null);
 
         try {
-            const { stream, response } = ai.generateStream({
-                prompt: {
-                    role: 'user',
-                    content: userInput,
-                },
-                history: newHistory.slice(0, -1),
-                model: 'googleai/gemini-1.5-pro',
-                context: {
-                    finding,
-                }
-            });
-
+            const responseStream = await discussFindingStream(newHistory, finding);
+            
             const textStream = (async function* () {
-                for await (const chunk of stream) {
-                    yield chunk.text ?? '';
+                for await (const chunk of responseStream) {
+                    yield chunk;
                 }
             })();
 
             setStream(textStream);
-            await response; 
 
         } catch (error) {
             console.error("Error in discussion stream:", error);
@@ -165,7 +153,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
     const handleStreamFinished = (fullText: string) => {
         const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullText };
-        const finalHistory = [...history, newAssistantMessage];
+        const finalHistory = [...history.slice(0, -1), newAssistantMessage];
         setHistory(finalHistory);
         localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
         setIsLoading(false);
@@ -174,12 +162,12 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
     return (
         <div className="h-full flex flex-col bg-white">
-            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg">
+            <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <DialogTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                         <MessageSquareWarning size={20} />
                         Discutir Incidencia
-                    </h3>
+                    </DialogTitle>
                 </div>
                  <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm space-y-2">
                     <div>
@@ -192,7 +180,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         <span className="font-semibold">Normativa:</span> {finding.nombre_archivo_normativa} (Art. {finding.articulo_o_seccion})
                     </p>
                 </div>
-            </div>
+            </DialogHeader>
             <div className="flex-1 min-h-0 overflow-y-auto">
                 <div className="p-6 space-y-4">
                     {history.map((msg, index) => (
@@ -357,7 +345,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
 
   return (
     <>
-    <ScrollArea className="bg-slate-50/50">
+    <div className="flex-1 overflow-y-auto bg-slate-50/50">
         <div className="p-6 text-slate-900 space-y-6">
       {/* Evidencia */}
       <div>
@@ -401,7 +389,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       </div>
 
     </div>
-    </ScrollArea>
+    </div>
     <DialogFooter className="bg-slate-100/80 backdrop-blur-md p-3 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
         {finding.status === 'pending' ? (
         <>
@@ -564,7 +552,7 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl">
+        <DialogContent className="max-w-4xl w-full h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl">
           {selectedFinding && (
               <>
                 <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">

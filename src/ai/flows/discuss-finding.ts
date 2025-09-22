@@ -5,6 +5,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { type Finding } from './validate-document';
 import { definePrompt, type PromptOptions } from 'genkit';
+import { type FindingWithStatus } from './compliance-scoring';
 
 // Schemas
 const DiscussionMessageSchema = z.object({
@@ -25,7 +26,7 @@ const DiscussFindingOutputSchema = z.object({
 export type DiscussFindingOutput = z.infer<typeof DiscussFindingOutputSchema>;
 
 // Prompt definition
-const discussFindingPrompt: PromptOptions = {
+const discussFindingPromptOptions: PromptOptions = {
     name: 'discussFindingPrompt',
     model: 'googleai/gemini-1.5-pro',
     system: `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
@@ -53,27 +54,55 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 3.  **Considera el contexto:** Si el usuario aporta un nuevo contexto que no estaba presente en el texto original, analízalo críticamente. ¿Ese nuevo contexto invalida el riesgo identificado?
 4.  **No te disculpes innecesariamente:** Evita frases como "Pido disculpas". En su lugar, usa un lenguaje como "Comprendo su punto" o "Es una interpretación válida, sin embargo...".
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
-`
+`,
+    input: {
+        schema: z.object({
+            finding: z.any(),
+            history: z.array(DiscussionMessageSchema)
+        })
+    },
+    output: {
+        format: 'text'
+    }
 };
-// Register the prompt with Genkit AI
-definePrompt(discussFindingPrompt);
 
+const discussFindingPrompt = ai.definePrompt(discussFindingPromptOptions);
 
 // Flow for streaming response
-const discussFindingFlow = ai.defineFlow(
+export const discussFindingStream = ai.defineFlow(
   {
-    name: 'discussFindingFlow',
-    inputSchema: DiscussFindingInputSchema,
-    outputSchema: DiscussFindingOutputSchema,
+    name: 'discussFindingStream',
+    inputSchema: z.tuple([z.array(DiscussionMessageSchema), z.any()]),
+    outputSchema: z.string().stream(),
   },
-  async (input) => {
-    try {
-      const { output } = await ai.generate({
-        prompt: discussFindingPrompt,
+  async ([history, finding]) => {
+    const { stream } = await ai.generate({
+      prompt: 'discussFindingPrompt',
+      history: history,
+      model: 'googleai/gemini-1.5-pro',
+      context: {
+          finding,
+      },
+      stream: true,
+    });
+
+    const textStream = (async function* () {
+      for await (const chunk of stream) {
+        yield chunk.text ?? '';
+      }
+    })();
+
+    return textStream;
+  }
+);
+
+
+// Exported function for full response - can be kept for non-streaming scenarios
+export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
+  try {
+      const { output } = await discussFindingPrompt({
+        finding: input.finding,
         history: input.history,
-        context: {
-            finding: input.finding,
-        },
       });
 
       if (!output) {
@@ -82,16 +111,9 @@ const discussFindingFlow = ai.defineFlow(
       return { reply: output as string };
 
     } catch (error) {
-      console.error('Error en discussFindingFlow:', error);
+      console.error('Error in discussFindingFlow:', error);
       return {
         reply: 'Ha ocurrido un error inesperado al procesar la discusión. Por favor, intente de nuevo.',
       };
     }
-  }
-);
-
-
-// Exported function for full response
-export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
-  return discussFindingFlow(input);
 }
