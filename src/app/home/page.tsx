@@ -112,18 +112,6 @@ export default function LandingPage() {
                 <h4 className="text-5xl font-extrabold text-purple-600">+82%</h4>
                 <p className="mt-2 font-medium">{t('results.stat3')}</p>
               </div>
-              <div className={cardBaseClasses}>
-                <h4 className="text-5xl font-extrabold text-yellow-500">76%</h4>
-                <p className="mt-2 font-medium">{t('results.stat4')}</p>
-              </div>
-               <div className={cardBaseClasses}>
-                <h4 className="text-5xl font-extrabold text-indigo-500">+15</h4>
-                <p className="mt-2 font-medium">{t('results.stat5')}</p>
-              </div>
-              <div className={cardBaseClasses}>
-                <h4 className="text-5xl font-extrabold text-pink-600">100%</h4>
-                <p className="mt-2 font-medium">{t('results.stat6')}</p>
-              </div>
             </div>
           </div>
         </section>
