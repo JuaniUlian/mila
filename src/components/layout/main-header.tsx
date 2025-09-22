@@ -34,11 +34,15 @@ export function MainHeader() {
 
     const { score, isInitialPageLoad, theme } = useLayout();
 
-    let headerBgClass = 'bg-white/90 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700/50';
+    let headerBgClass = theme === 'light' 
+        ? 'bg-white/80 backdrop-blur-lg border-slate-200' 
+        : 'bg-slate-900/80 backdrop-blur-lg border-slate-700/50';
     
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-            headerBgClass = 'bg-white/90 backdrop-blur-lg border-slate-200 dark:bg-slate-900/80 dark:border-slate-700/50';
+             headerBgClass = theme === 'light' 
+                ? 'bg-white/80 backdrop-blur-lg border-slate-200' 
+                : 'bg-slate-900/80 backdrop-blur-lg border-slate-700/50';
         } else if (score <= 50) {
             headerBgClass = 'bg-red-50/90 backdrop-blur-lg border-red-200/60 dark:bg-red-950/80 dark:border-red-800/60';
         } else if (score <= 79) {

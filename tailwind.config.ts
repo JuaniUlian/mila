@@ -156,56 +156,58 @@ export default {
     plugin(function({ addComponents, theme }) {
       addComponents({
         '.glass': {
-          backgroundColor: 'hsla(var(--background) / 0.9)',
-          backdropFilter: 'blur(0.375rem)', // blur-sm
+          backgroundColor: 'hsl(var(--background) / 0.6)',
+          backdropFilter: 'blur(12px)',
           borderWidth: '1px',
-          borderColor: 'hsla(var(--border) / 0.4)',
+          borderColor: 'hsl(var(--border) / 0.2)',
         },
         '.dark .glass': {
-          backgroundColor: 'hsla(var(--slate-900) / 0.8)', // Assuming slate-900 is defined or use HSL
-          borderColor: 'hsla(var(--slate-700) / 0.5)',
+          backgroundColor: 'hsl(222 47% 11% / 0.6)',
+          borderColor: 'hsl(215 28% 17% / 0.5)',
         },
         '.btn-neu-light': {
-            backgroundColor: 'hsla(0, 0%, 100%, 0.95)',
-            border: '1px solid hsla(var(--border) / 0.8)',
+            backgroundColor: 'hsl(var(--background) / 0.8)',
+            border: '1px solid hsl(var(--border) / 0.5)',
             color: 'hsl(var(--foreground))',
-            boxShadow: 'var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)',
-            transition: 'all 0.3s',
+            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            transition: 'all 0.2s ease-in-out',
             '&:hover': {
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                backgroundColor: 'white',
+                backgroundColor: 'hsl(var(--background))',
             }
         },
         '.dark .btn-neu-light': {
-            backgroundColor: 'hsl(222 47% 11% / 0.8)', // slate-800
-            borderColor: 'hsl(215 28% 17% / 0.7)', // slate-600
-            color: 'hsl(210 40% 98%)', // slate-100
+            backgroundColor: 'hsl(222 47% 11% / 0.8)', // slate-800-like
+            borderColor: 'hsl(215 28% 17% / 0.7)', // slate-700-like
+            color: 'hsl(210 40% 98%)', // slate-50
             '&:hover': {
-                backgroundColor: 'hsl(222 47% 11% / 0.95)', // slate-700
+                backgroundColor: 'hsl(222 47% 11% / 0.95)', // slate-800 hover
+                borderColor: 'hsl(215 28% 17% / 0.9)',
             }
         },
         '.btn-neu-green': {
-            backgroundColor: 'hsla(142, 71%, 45%, 0.9)', // green-500
-            border: '1px solid hsla(142, 71%, 35%, 0.5)', // green-600
+            backgroundColor: 'hsl(142 71% 45% / 0.9)', // green-500
+            border: '1px solid hsl(142 71% 35% / 0.5)', // green-600
             color: 'white',
-            transition: 'all 0.3s',
+            transition: 'all 0.2s ease-in-out',
              '&:hover': {
                 boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                backgroundColor: 'hsl(142, 71%, 45%)',
+                backgroundColor: 'hsl(142 71% 45%)',
             }
         },
         '.dark .btn-neu-green': {
-            backgroundColor: 'hsla(142, 63%, 40%, 0.9)', // green-600
-            borderColor: 'hsla(142, 71%, 45%, 0.5)', // green-500
+            backgroundColor: 'hsl(142 63% 40% / 0.9)', // green-600 like
+            borderColor: 'hsl(142 71% 45% / 0.5)', // green-500
         },
         '.card-neumorphism': {
-            backgroundColor: 'hsla(var(--background) / 0.95)',
-            border: '1px solid hsla(var(--border) / 0.3)',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+            backgroundColor: 'hsl(var(--background) / 0.6)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid hsl(var(--border) / 0.2)',
+            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)',
         },
         '.dark .card-neumorphism': {
-            backgroundColor: 'hsl(222 47% 11% / 0.8)', // slate-900
-            borderColor: 'hsl(215 28% 17% / 0.5)', // slate-700
+            backgroundColor: 'hsl(222 47% 11% / 0.6)',
+            borderColor: 'hsl(215 28% 17% / 0.5)',
         },
       })
     })
