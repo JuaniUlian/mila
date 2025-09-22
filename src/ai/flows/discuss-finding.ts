@@ -25,11 +25,8 @@ const DiscussFindingOutputSchema = z.object({
 });
 export type DiscussFindingOutput = z.infer<typeof DiscussFindingOutputSchema>;
 
-// Prompt definition
-const discussFindingPromptOptions: PromptOptions = {
-    name: 'discussFindingPrompt',
-    model: 'googleai/gemini-1.5-pro',
-    system: `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
+// System prompt text
+const systemPrompt = `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
 
 Tu personalidad debe ser:
 - **Profesional y Respetuosa:** Siempre mantén un tono cortés.
@@ -54,13 +51,7 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 3.  **Considera el contexto:** Si el usuario aporta un nuevo contexto que no estaba presente en el texto original, analízalo críticamente. ¿Ese nuevo contexto invalida el riesgo identificado?
 4.  **No te disculpes innecesariamente:** Evita frases como "Pido disculpas". En su lugar, usa un lenguaje como "Comprendo su punto" o "Es una interpretación válida, sin embargo...".
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
-`,
-    output: {
-        format: 'text'
-    }
-};
-
-const discussFindingPrompt = ai.definePrompt(discussFindingPromptOptions);
+`;
 
 // Flow for streaming response
 export const discussFindingStream = ai.defineFlow(
@@ -71,7 +62,7 @@ export const discussFindingStream = ai.defineFlow(
   },
   async ([history, finding]) => {
     const { stream } = await ai.generate({
-      prompt: discussFindingPrompt,
+      system: systemPrompt,
       history: history,
       model: 'googleai/gemini-1.5-pro',
       input: {
@@ -101,10 +92,16 @@ export const discussFindingStream = ai.defineFlow(
 // Exported function for full response - can be kept for non-streaming scenarios
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
-      const { output } = await discussFindingPrompt({
-        // @ts-ignore - a prompt without an input schema receives the whole object
+      const { output } = await ai.generate({
+        system: systemPrompt,
         history: input.history,
-        finding: input.finding,
+        model: 'googleai/gemini-1.5-pro',
+        input: {
+          finding: input.finding,
+        },
+        output: {
+          format: 'text',
+        }
       });
 
       if (!output) {
