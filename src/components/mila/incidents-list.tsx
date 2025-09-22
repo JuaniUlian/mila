@@ -113,16 +113,19 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
     return (
         <div className="h-full flex flex-col bg-white">
-            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                    <MessageSquareWarning size={20} />
-                    Discutir Incidencia
-                </h3>
-                {onClose && (
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:bg-slate-200">
-                       <XCircle className="h-5 w-5" />
-                    </Button>
-                )}
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                        <MessageSquareWarning size={20} />
+                        Discutir Incidencia
+                    </h3>
+                </div>
+                 <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm">
+                    <p className="font-semibold text-slate-800">{finding.titulo_incidencia}</p>
+                    <blockquote className="mt-1 text-slate-600 border-l-2 border-slate-300 pl-2 italic">
+                        "{finding.evidencia}"
+                    </blockquote>
+                </div>
             </div>
             <div className="flex-1 overflow-hidden bg-white">
                 <ScrollArea className="h-full">
@@ -516,5 +519,7 @@ export function IncidentsList({
     </div>
   );
 }
+
+    
 
     
