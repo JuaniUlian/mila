@@ -45,24 +45,18 @@ export default function SelectModulePage() {
              <div 
               key={module.title}
               onClick={() => router.push(module.href)}
-              className="relative overflow-hidden rounded-lg shadow-lg border border-white/30 backdrop-blur-sm cursor-pointer group"
-              style={{
-                backgroundImage: 'url(/background/home.jpeg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
+              className="relative overflow-hidden rounded-lg shadow-lg border border-slate-300 cursor-pointer group bg-gradient-to-br from-white to-slate-200 text-slate-800 hover:shadow-2xl transition-all duration-300"
             >
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300"></div>
-              <div className="relative z-10 p-6 flex flex-col text-white h-full">
+              <div className="relative z-10 p-6 flex flex-col h-full">
                 <div className="items-center text-center mb-4">
-                  <div className="p-4 bg-white/10 rounded-full mb-4 shadow-inner inline-block">
-                    <module.icon className="h-10 w-10 text-slate-100" />
+                  <div className="p-4 bg-slate-200/70 rounded-full mb-4 shadow-inner inline-block">
+                    <module.icon className="h-10 w-10 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">{module.title}</h2>
+                  <h2 className="text-2xl font-bold text-slate-800">{module.title}</h2>
                 </div>
                 <div className="flex-1 flex flex-col text-center">
-                  <p className="text-slate-300 mb-6 flex-1">{module.description}</p>
-                  <Button className="w-full btn-bg-image mt-auto">
+                  <p className="text-slate-600 mb-6 flex-1">{module.description}</p>
+                  <Button className="w-full btn-neu-light mt-auto">
                     Seleccionar
                   </Button>
                 </div>
