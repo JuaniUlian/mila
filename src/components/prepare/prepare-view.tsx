@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Loader2, Sparkles, ShieldCheck, ShieldAlert, TerminalSquare } from 'lucide-react';
+import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Loader2, Sparkles, TerminalSquare } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -238,21 +238,18 @@ const handleValidateInstructions = async () => {
         return;
     }
 
-    // Heurística simple para detectar si se borraron las directivas originales.
-    // Asume que las directivas están numeradas (1., 2., etc.)
     const defaultDirectives = currentDefault.match(/^\d+\./gm) || [];
     const customDirectives = currentCustom.match(/^\d+\./gm) || [];
 
     if (customDirectives.length < defaultDirectives.length) {
         setCustomInstructions(currentDefault);
-        setIsInstructionsValidated(false); // Marcar como no validado para que el usuario sepa que algo se revirtió
+        setIsInstructionsValidated(false); 
         toast({
             title: "Instrucciones Inválidas",
             description: "No se pueden eliminar las directivas predefinidas, ya que son indispensables para un análisis correcto. Se han restaurado las instrucciones originales.",
             variant: "destructive",
             duration: 8000,
         });
-        // Forzar al botón a deshabilitarse
         setTimeout(() => setIsInstructionsValidated(false), 100);
         return;
     }
@@ -269,7 +266,7 @@ const handleValidateInstructions = async () => {
             toast({
                 title: "Validación Exitosa",
                 description: result.feedback,
-                variant: "default",
+                variant: "success",
             });
         } else {
             setIsInstructionsValidated(false);
@@ -790,4 +787,5 @@ const handleValidateInstructions = async () => {
     
 
     
+
 
