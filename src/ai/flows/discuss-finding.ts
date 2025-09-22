@@ -69,21 +69,7 @@ export const discussFindingStream = ai.defineFlow(
       },
       stream: true,
     });
-    
-    // Convert text stream to a Uint8Array stream
-    const textStream = new ReadableStream({
-      async start(controller) {
-        const encoder = new TextEncoder();
-        for await (const chunk of stream) {
-          if (chunk.text) {
-            controller.enqueue(encoder.encode(chunk.text));
-          }
-        }
-        controller.close();
-      },
-    });
-
-    return textStream;
+    return stream;
   }
 );
 
