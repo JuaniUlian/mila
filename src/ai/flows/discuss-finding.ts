@@ -59,11 +59,11 @@ export const discussFindingStream = ai.defineFlow(
     outputSchema: z.any(),
   },
   async ([history, finding]) => {
-    // Validate that history is an array and filter for valid messages
-    const filteredHistory = Array.isArray(history)
+    // Validar que history sea un array y filtrar mensajes válidos
+    const filteredHistory = Array.isArray(history) 
       ? history.filter(m => m && m.content && m.content.trim() !== '')
       : [];
-
+  
     try {
       const { stream } = await ai.generate({
         system: systemPrompt,
