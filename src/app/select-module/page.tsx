@@ -59,7 +59,7 @@ export default function SelectModulePage() {
         </div>
 
         <div className="text-center">
-          <Button variant="outline" size="lg" onClick={() => router.push('/prepare')} className="btn-neu-light">
+          <Button size="lg" onClick={() => router.push('/prepare')} className="btn-bg-image">
             Ir a Modo Manual
             <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
