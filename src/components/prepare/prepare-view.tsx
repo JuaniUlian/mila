@@ -650,7 +650,7 @@ const handleValidateInstructions = async () => {
                         <div className="mt-4 flex justify-end">
                             <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading || isInstructionsValidated} className="btn-bg-image">
                                 {isInstructionValidationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
-                                Validar Edición
+                                Validar
                             </Button>
                         </div>
                     </AccordionContent>
@@ -783,9 +783,3 @@ const handleValidateInstructions = async () => {
     </div>
   );
 }
-
-    
-
-    
-
-
