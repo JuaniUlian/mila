@@ -59,17 +59,27 @@ export const discussFindingStream = ai.defineFlow(
     outputSchema: z.any(),
   },
   async ([history, finding]) => {
-    const filteredHistory = history.filter(m => m.content); // Filter out empty messages
-    const { stream } = await ai.generate({
-      system: systemPrompt,
-      history: filteredHistory,
-      model: 'googleai/gemini-1.5-pro',
-      input: {
-          finding,
-      },
-      stream: true,
-    });
-    return stream;
+    // Validate that history is an array and filter for valid messages
+    const filteredHistory = Array.isArray(history)
+      ? history.filter(m => m && m.content && m.content.trim() !== '')
+      : [];
+
+    try {
+      const { stream } = await ai.generate({
+        system: systemPrompt,
+        history: filteredHistory,
+        model: 'googleai/gemini-1.5-pro',
+        input: {
+            finding,
+        },
+        stream: true,
+      });
+      
+      return stream;
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+      throw error; // Re-throw the error to be handled by the client
+    }
   }
 );
 
