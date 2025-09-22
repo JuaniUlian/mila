@@ -678,7 +678,7 @@ const handleValidateInstructions = async () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                        <Button className="py-3 px-4 rounded-xl btn-neu-green" onClick={handleValidate} disabled={!isValidationReady}>{t('preparePage.validateButton')}<ChevronRight className="ml-1 h-5 w-5" /></Button>
+                        <Button className="btn-bg-image py-3 px-4 rounded-xl" onClick={handleValidate} disabled={!isValidationReady}>{t('preparePage.validateButton')}<ChevronRight className="ml-1 h-5 w-5" /></Button>
                     </div>
                 </div>
             </div>
