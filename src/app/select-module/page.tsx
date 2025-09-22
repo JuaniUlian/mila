@@ -50,7 +50,7 @@ export default function SelectModulePage() {
               </CardHeader>
               <CardContent className="flex-1 flex flex-col text-center">
                 <p className="text-muted-foreground mb-6 flex-1">{module.description}</p>
-                <Button onClick={() => router.push(module.href)} className="w-full">
+                <Button variant="ghost" onClick={() => router.push(module.href)} className="w-full text-primary">
                   Seleccionar
                 </Button>
               </CardContent>

@@ -66,6 +66,7 @@ export function MainHeader() {
             name: t('sidebar.prepare'),
             icon: FilePlus2,
             isLink: true,
+            href: '/select-module',
             onClick: handlePrepareClick,
         },
         {
