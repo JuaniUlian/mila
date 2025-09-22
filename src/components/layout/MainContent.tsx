@@ -25,7 +25,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
     } else if (PREPARE_PATHS.includes(pathname)) {
       backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/select-module') {
-      backgroundClasses = 'bg-slate-100';
+      backgroundClasses = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
       if (isInitialPageLoad || score === null) {
           backgroundClasses = 'bg-prepare-page';
