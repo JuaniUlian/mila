@@ -51,52 +51,38 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
 `;
 
-// Flow for streaming response
-export const discussFindingStream = ai.defineFlow(
-  {
-    name: 'discussFindingStream',
-    inputSchema: z.tuple([z.array(DiscussionMessageSchema), z.any()]),
-    outputSchema: z.any(),
-  },
-  async ([history, finding]) => {
-    // Limpiar completamente el historial
-    const cleanHistory = Array.isArray(history) ? history
-      .filter(m => m && typeof m === 'object')
-      .map(m => ({
-        role: m.role || 'user',
-        content: String(m.content || '').trim()
-      }))
-      .filter(m => m.content.length > 0) : [];
+export async function discussFindingAction(history: DiscussionMessage[], finding: FindingWithStatus): Promise<Response> {
+  try {
+    const cleanHistory = Array.isArray(history)
+      ? history.filter(m => m?.content).map(m => ({
+          role: m.role || 'user',
+          content: String(m.content)
+        }))
+      : [];
 
-    try {
-      const { stream } = await ai.generate({
-        system: systemPrompt || "You are a helpful assistant.",
-        history: cleanHistory, 
-        model: 'googleai/gemini-1.5-pro',
-        input: { finding },
-        stream: true,
-      });
-      return stream;
-    } catch (error) {
-      console.error('Error with messages:', error);
-      // Fallback: intentar sin historial
-      try {
-        const { stream } = await ai.generate({
-          system: systemPrompt || "You are a helpful assistant.",
-          history: [], // Array vacío como fallback
-          model: 'googleai/gemini-1.5-pro',
-          input: { finding },
-          stream: true,
-        });
-        return stream;
-      } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError);
-        throw fallbackError;
-      }
-    }
+    const { stream } = await ai.generate({
+      system: systemPrompt,
+      history: cleanHistory,
+      input: { finding },
+      model: 'googleai/gemini-1.5-pro',
+      stream: true,
+    });
+
+    // Convertir el stream de Genkit a una Response estándar para Server Actions
+    return new Response(stream as any, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+    });
+
+  } catch (error: any) {
+    console.error('Error in discussFindingAction:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-);
-
+}
 
 // Exported function for full response - can be kept for non-streaming scenarios
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {

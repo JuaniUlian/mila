@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
-import { discussFinding, discussFindingStream, type DiscussionMessage } from '@/ai/flows/discuss-finding';
+import { discussFinding, type DiscussionMessage, discussFindingAction } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../layout/logo';
@@ -149,8 +149,18 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setStream(null);
 
         try {
-            const responseStream = await discussFindingStream([updatedHistory, finding]);
-            setStream(responseStream);
+          const response = await fetch('/api/discuss-finding', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ history: updatedHistory, finding }),
+          });
+
+          if (!response.ok || !response.body) {
+            const errorData = await response.json().catch(() => ({ error: 'Streaming failed' }));
+            throw new Error(errorData.error);
+          }
+          
+          setStream(response.body);
 
         } catch (error) {
             console.error("Error in discussion stream:", error);
