@@ -171,6 +171,16 @@ export default {
                 backgroundColor: 'hsl(var(--background))',
             }
         },
+        '.btn-neu-primary': {
+            backgroundColor: 'hsl(var(--primary) / 0.9)',
+            border: '1px solid hsl(var(--primary) / 0.5)',
+            color: 'hsl(var(--primary-foreground))',
+            transition: 'all 0.2s ease-in-out',
+             '&:hover': {
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                backgroundColor: 'hsl(var(--primary))',
+            }
+        },
         '.btn-neu-green': {
             backgroundColor: 'hsl(142 71% 45% / 0.9)', // green-500
             border: '1px solid hsl(142 71% 35% / 0.5)', // green-600
