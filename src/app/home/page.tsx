@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState } from 'react';
@@ -11,7 +10,7 @@ import { useTranslations } from '@/lib/translations';
 import Image from 'next/image';
 
 
-const cardBaseClasses = "bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow h-full flex flex-col items-center text-center";
+const cardBaseClasses = "group relative bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full flex flex-col items-center text-center";
 const detailsBaseClasses = "bg-background/90 backdrop-blur-sm border border-border/40 p-4 rounded-2xl shadow hover:shadow-lg transition-all duration-300";
 
 export default function LandingPage() {
@@ -100,15 +99,15 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4">{t('results.title')}</h2>
             <p className="mb-10 italic text-sm text-gray-600">{t('results.disclaimer')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <h4 className="text-5xl font-extrabold text-green-600">+67%</h4>
                 <p className="mt-2 font-medium text-slate-600">{t('results.stat1')}</p>
               </div>
-              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <h4 className="text-3xl font-extrabold text-blue-600 leading-tight">3 min vs 80<br/>días</h4>
                 <p className="mt-2 font-medium text-slate-600">{t('results.stat2')}</p>
               </div>
-              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <h4 className="text-5xl font-extrabold text-purple-600">+82%</h4>
                 <p className="mt-2 font-medium text-slate-600">{t('results.stat3')}</p>
               </div>
@@ -120,7 +119,7 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-12 text-center">{t('differentiators.title')}</h2>
           <div className="grid md:grid-cols-2 gap-8">
             
-            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
+            <div className="group relative rounded-2xl bg-slate-50/80 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
                 <div className="bg-blue-100 rounded-lg p-3">
                   <Network className="h-7 w-7 text-blue-600"/>
@@ -130,7 +129,7 @@ export default function LandingPage() {
               <p className="text-slate-600">{t('differentiators.trainingText')}</p>
             </div>
             
-            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
+            <div className="group relative rounded-2xl bg-slate-50/80 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
                 <div className="bg-green-100 rounded-lg p-3">
                   <FileStack className="h-7 w-7 text-green-600"/>
@@ -140,7 +139,7 @@ export default function LandingPage() {
               <p className="text-slate-600">{t('differentiators.docsText')}</p>
             </div>
             
-            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
+            <div className="group relative rounded-2xl bg-slate-50/80 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
                 <div className="bg-amber-100 rounded-lg p-3">
                   <ShieldAlert className="h-7 w-7 text-amber-600"/>
@@ -150,7 +149,7 @@ export default function LandingPage() {
               <p className="text-slate-600">{t('differentiators.risksText')}</p>
             </div>
             
-            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
+            <div className="group relative rounded-2xl bg-slate-50/80 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
                 <div className="bg-purple-100 rounded-lg p-3">
                   <Landmark className="h-7 w-7 text-purple-600"/>
@@ -239,4 +238,5 @@ export default function LandingPage() {
   );
 }
 
+    
     
