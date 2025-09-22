@@ -35,7 +35,7 @@ export const translations = {
     exportText: t('Generá una versión corregida del documento para compartir fácilmente.', 'Generate a corrected version of the document to share easily.'),
   },
   results: {
-    title: t('Resultados Reales', 'Real Results'),
+    title: t('Resultados Probados', 'Proven Results'),
     disclaimer: t('*Basado en promedios de uso en gobiernos de distintas escalas', '*Based on usage averages in governments of different scales'),
     stat1: t('Errores detectados vs revisión humana', 'Errors detected vs human review'),
     stat2: t('Tiempo de revisión MILA vs circuito tradicional', 'MILA review time vs traditional circuit'),
