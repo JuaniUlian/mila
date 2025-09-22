@@ -11,7 +11,7 @@ import { useTranslations } from '@/lib/translations';
 import Image from 'next/image';
 
 
-const cardBaseClasses = "bg-background/90 backdrop-blur-sm border border-border/40 p-6 shadow rounded-2xl hover:shadow-lg transition-all duration-300 h-full flex flex-col items-center text-center";
+const cardBaseClasses = "bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow h-full flex flex-col items-center text-center";
 const detailsBaseClasses = "bg-background/90 backdrop-blur-sm border border-border/40 p-4 rounded-2xl shadow hover:shadow-lg transition-all duration-300";
 
 export default function LandingPage() {
@@ -51,46 +51,46 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold text-center mb-12">{t('whatIsMila.title')}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
+              <div className="bg-blue-100 rounded-full p-4 mb-5">
                 <Search className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.analysisTitle')}</h3>
-              <p>{t('whatIsMila.analysisText')}</p>
+              <p className="text-slate-600">{t('whatIsMila.analysisText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <AlertTriangle className="h-8 w-8 text-blue-600" />
+              <div className="bg-amber-100 rounded-full p-4 mb-5">
+                <AlertTriangle className="h-8 w-8 text-amber-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.alertsTitle')}</h3>
-              <p>{t('whatIsMila.alertsText')}</p>
+              <p className="text-slate-600">{t('whatIsMila.alertsText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Edit className="h-8 w-8 text-blue-600" />
+              <div className="bg-green-100 rounded-full p-4 mb-5">
+                <Edit className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.editingTitle')}</h3>
-              <p>{t('whatIsMila.editingText')}</p>
+              <p className="text-slate-600">{t('whatIsMila.editingText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <TrendingUp className="h-8 w-8 text-blue-600" />
+              <div className="bg-indigo-100 rounded-full p-4 mb-5">
+                <TrendingUp className="h-8 w-8 text-indigo-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.scoreTitle')}</h3>
-              <p>{t('whatIsMila.scoreText')}</p>
+              <p className="text-slate-600">{t('whatIsMila.scoreText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <BookCheck className="h-8 w-8 text-blue-600" />
+              <div className="bg-purple-100 rounded-full p-4 mb-5">
+                <BookCheck className="h-8 w-8 text-purple-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.normsTitle')}</h3>
-              <p>{t('whatIsMila.normsText')}</p>
+              <p className="text-slate-600">{t('whatIsMila.normsText')}</p>
             </div>
             <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Share2 className="h-8 w-8 text-blue-600" />
+              <div className="bg-cyan-100 rounded-full p-4 mb-5">
+                <Share2 className="h-8 w-8 text-cyan-600" />
               </div>
               <h3 className="text-2xl font-semibold mb-3">{t('whatIsMila.exportTitle')}</h3>
-              <p>{t('whatIsMila.exportText')}</p>
+              <p className="text-slate-600">{t('whatIsMila.exportText')}</p>
             </div>
           </div>
         </section>
