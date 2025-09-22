@@ -100,17 +100,17 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4">{t('results.title')}</h2>
             <p className="mb-10 italic text-sm text-gray-600">{t('results.disclaimer')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-              <div className={cardBaseClasses}>
+              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
                 <h4 className="text-5xl font-extrabold text-green-600">+67%</h4>
-                <p className="mt-2 font-medium">{t('results.stat1')}</p>
+                <p className="mt-2 font-medium text-slate-600">{t('results.stat1')}</p>
               </div>
-              <div className={cardBaseClasses}>
-                <h4 className="text-3xl font-extrabold text-blue-600">3 min vs 80 días</h4>
-                <p className="mt-2 font-medium">{t('results.stat2')}</p>
+              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
+                <h4 className="text-3xl font-extrabold text-blue-600 leading-tight">3 min vs 80<br/>días</h4>
+                <p className="mt-2 font-medium text-slate-600">{t('results.stat2')}</p>
               </div>
-              <div className={cardBaseClasses}>
+              <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
                 <h4 className="text-5xl font-extrabold text-purple-600">+82%</h4>
-                <p className="mt-2 font-medium">{t('results.stat3')}</p>
+                <p className="mt-2 font-medium text-slate-600">{t('results.stat3')}</p>
               </div>
             </div>
           </div>
