@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClipboardCheck, FileStack, PieChart, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const modules = [
   {
@@ -41,20 +42,32 @@ export default function SelectModulePage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {modules.map((module) => (
-            <Card key={module.title} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/20 transition-all duration-300 flex flex-col text-white">
-              <CardHeader className="items-center text-center p-6">
-                <div className="p-4 bg-white/10 rounded-full mb-4 shadow-inner">
-                  <module.icon className="h-10 w-10 text-slate-100" />
+             <div 
+              key={module.title}
+              onClick={() => router.push(module.href)}
+              className="relative overflow-hidden rounded-lg shadow-lg border border-white/30 backdrop-blur-sm cursor-pointer group"
+              style={{
+                backgroundImage: 'url(/background/home.jpeg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300"></div>
+              <div className="relative z-10 p-6 flex flex-col text-white h-full">
+                <div className="items-center text-center mb-4">
+                  <div className="p-4 bg-white/10 rounded-full mb-4 shadow-inner inline-block">
+                    <module.icon className="h-10 w-10 text-slate-100" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">{module.title}</h2>
                 </div>
-                <CardTitle className="text-2xl font-bold text-white">{module.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col text-center p-6 pt-0">
-                <p className="text-slate-300 mb-6 flex-1">{module.description}</p>
-                <Button onClick={() => router.push(module.href)} className="w-full btn-bg-image">
-                  Seleccionar
-                </Button>
-              </CardContent>
-            </Card>
+                <div className="flex-1 flex flex-col text-center">
+                  <p className="text-slate-300 mb-6 flex-1">{module.description}</p>
+                  <Button className="w-full btn-bg-image mt-auto">
+                    Seleccionar
+                  </Button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 

@@ -4,7 +4,6 @@
 import React from 'react';
 import type { FindingWithStatus } from '@/ai/flows/compliance-scoring';
 import { DiscussionPanel } from './incidents-list';
-import { cn } from '@/lib/utils';
 
 interface DiscussionModalProps {
   isOpen: boolean;
@@ -16,18 +15,9 @@ export const DiscussionModal: React.FC<DiscussionModalProps> = ({ isOpen, onClos
   if (!isOpen || !finding) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center animate-in fade-in-0">
-      {/* Overlay */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-in fade-in-0">
       {/* Modal content */}
-      <div className={cn(
-          "relative z-10 w-full max-w-2xl mx-4 h-[80vh] max-h-[700px] rounded-2xl overflow-hidden shadow-2xl border",
-          'bg-white border-gray-200'
-        )}>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         <DiscussionPanel finding={finding} onClose={onClose} />
       </div>
     </div>

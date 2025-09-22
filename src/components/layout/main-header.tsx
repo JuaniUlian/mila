@@ -85,17 +85,15 @@ export function MainHeader() {
     ];
 
     const commonButtonClasses = cn(
-      "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
-      "bg-white/80 border-slate-200/80 shadow-sm hover:shadow-md hover:bg-white text-gray-700",
-      "border"
+      "w-10 h-10 rounded-full bg-gray-100/80 hover:bg-gray-200/80 border border-gray-300/50 flex items-center justify-center transition-all duration-200"
     );
 
     return (
         <>
             <TooltipProvider delayDuration={100}>
                 <header className={cn(
-                    "sticky top-4 z-50 w-fit mx-auto rounded-2xl border shadow-lg p-2 transition-all duration-500",
-                    headerBgClass
+                    "sticky top-4 z-50 w-fit mx-auto shadow-lg",
+                    "bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-full px-4 py-2"
                 )}>
                     <nav className="flex items-center justify-center gap-2">
                         <Tooltip>
@@ -105,7 +103,9 @@ export function MainHeader() {
                                 </Link>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Inicio</p>
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
+                                    Inicio
+                                </span>
                             </TooltipContent>
                         </Tooltip>
 
@@ -134,7 +134,9 @@ export function MainHeader() {
                                     )}
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>{action.name}</p>
+                                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
+                                      {action.name}
+                                    </span>
                                 </TooltipContent>
                             </Tooltip>
                         ))}
