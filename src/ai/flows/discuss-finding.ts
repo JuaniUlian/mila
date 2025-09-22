@@ -53,11 +53,15 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 
 export async function discussFindingAction(history: DiscussionMessage[], finding: FindingWithStatus): Promise<Response> {
   try {
-    const cleanHistory = Array.isArray(history)
-      ? history.filter(m => m?.content).map(m => ({
-          role: m.role || 'user',
-          content: String(m.content)
+    // Clean and validate history robustly
+    const cleanHistory = Array.isArray(history) 
+      ? history
+        .filter(m => m && typeof m === 'object' && 'content' in m) // Ensure message is an object with content
+        .map(m => ({
+          role: m.role || 'user', // Default role if missing
+          content: String(m.content || '').trim() // Convert content to string and trim
         }))
+        .filter(m => m.content) // Filter out messages with empty content
       : [];
 
     const { stream } = await ai.generate({
@@ -68,7 +72,7 @@ export async function discussFindingAction(history: DiscussionMessage[], finding
       stream: true,
     });
 
-    // Convertir el stream de Genkit a una Response estándar para Server Actions
+    // Convert the Genkit stream to a standard Response for Server Actions
     return new Response(stream as any, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
