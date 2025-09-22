@@ -119,33 +119,41 @@ export default function LandingPage() {
         <section id="differentiators" className="py-20 px-6 max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold mb-10 text-center">{t('differentiators.title')}</h2>
           <div className="grid md:grid-cols-2 gap-8">
-            <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Network className="h-8 w-8 text-blue-600"/>
+            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="bg-blue-100/70 rounded-lg p-3">
+                  <Network className="h-6 w-6 text-blue-600"/>
+                </div>
+                <h3 className="text-xl font-semibold">{t('differentiators.trainingTitle')}</h3>
               </div>
-              <h3 className="text-2xl font-semibold mb-2">{t('differentiators.trainingTitle')}</h3>
-              <p>{t('differentiators.trainingText')}</p>
+              <p className="text-slate-600">{t('differentiators.trainingText')}</p>
             </div>
-            <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <FileStack className="h-8 w-8 text-blue-600"/>
+            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="bg-blue-100/70 rounded-lg p-3">
+                  <FileStack className="h-6 w-6 text-blue-600"/>
+                </div>
+                <h3 className="text-xl font-semibold">{t('differentiators.docsTitle')}</h3>
               </div>
-              <h3 className="text-2xl font-semibold mb-2">{t('differentiators.docsTitle')}</h3>
-              <p>{t('differentiators.docsText')}</p>
+              <p className="text-slate-600">{t('differentiators.docsText')}</p>
             </div>
-            <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <ShieldAlert className="h-8 w-8 text-blue-600"/>
+            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="bg-blue-100/70 rounded-lg p-3">
+                  <ShieldAlert className="h-6 w-6 text-blue-600"/>
+                </div>
+                <h3 className="text-xl font-semibold">{t('differentiators.risksTitle')}</h3>
               </div>
-              <h3 className="text-2xl font-semibold mb-2">{t('differentiators.risksTitle')}</h3>
-              <p>{t('differentiators.risksText')}</p>
+              <p className="text-slate-600">{t('differentiators.risksText')}</p>
             </div>
-            <div className={cardBaseClasses}>
-              <div className="bg-blue-100/70 rounded-full p-3 mb-4">
-                <Landmark className="h-8 w-8 text-blue-600"/>
+            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="bg-blue-100/70 rounded-lg p-3">
+                  <Landmark className="h-6 w-6 text-blue-600"/>
+                </div>
+                <h3 className="text-xl font-semibold">{t('differentiators.govTitle')}</h3>
               </div>
-              <h3 className="text-2xl font-semibold mb-2">{t('differentiators.govTitle')}</h3>
-              <p>{t('differentiators.govText')}</p>
+              <p className="text-slate-600">{t('differentiators.govText')}</p>
             </div>
           </div>
         </section>
