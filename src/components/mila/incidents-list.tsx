@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2, MessageSquareWarning, Send, X } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -114,7 +114,13 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     useEffect(() => {
         const savedHistory = localStorage.getItem(`discussion_${finding.id}`);
         if (savedHistory) {
-            setHistory(JSON.parse(savedHistory));
+            try {
+                setHistory(JSON.parse(savedHistory));
+            } catch {
+                localStorage.removeItem(`discussion_${finding.id}`);
+            }
+        } else {
+            setHistory([]);
         }
     }, [finding.id]);
 
@@ -133,7 +139,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setStream(null);
 
         try {
-            const responseStream = await discussFindingStream(updatedHistory, finding);
+            const responseStream = discussFindingStream(updatedHistory, finding);
             
             const textStream = (async function* () {
                 for await (const chunk of responseStream) {
@@ -163,8 +169,8 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     };
 
     return (
-        <div className="h-full flex flex-col bg-white">
-            <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg">
+        <>
+            <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <div className="flex items-center justify-between">
                     <DialogTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                         <MessageSquareWarning size={20} />
@@ -245,7 +251,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </Button>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
