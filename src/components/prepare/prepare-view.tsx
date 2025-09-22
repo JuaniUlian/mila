@@ -588,7 +588,6 @@ const handleValidateInstructions = async () => {
                                <BookCheck className="h-7 w-7 text-primary"/>
                                Normas del Módulo
                            </h2>
-                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-muted-foreground group-data-[state=open]:rotate-90" />
                        </div>
                      </AccordionTrigger>
                      <AccordionContent className="p-6 pt-0">
@@ -612,9 +611,6 @@ const handleValidateInstructions = async () => {
                             <TerminalSquare className="h-7 w-7 text-primary"/>
                             Instrucciones del Módulo
                         </h2>
-                        <div className="flex items-center gap-2">
-                            {isInstructionsValidated ? <ShieldCheck className="h-6 w-6 text-green-500" /> : <ShieldAlert className="h-6 w-6 text-yellow-500" />}
-                        </div>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-6 pt-0">
