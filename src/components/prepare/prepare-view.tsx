@@ -635,7 +635,7 @@ const handleValidateInstructions = async () => {
                     </AccordionTrigger>
                     <AccordionContent className="p-6 pt-0">
                         <p className="text-sm text-slate-600 mb-4">
-                          Estas son las directivas predefinidas para el análisis. Puede editarlas para enfocar la búsqueda, pero sus cambios serán validados por la IA para asegurar la integridad del proceso.
+                          Estas son las directivas predefinidas para el análisis. Puede editarlas para enfocar la búsqueda, pero sus cambios serán revisados por Mila para asegurar la integridad del proceso.
                         </p>
                         <Textarea
                           value={customInstructions}
