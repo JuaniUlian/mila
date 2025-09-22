@@ -496,11 +496,6 @@ export function IncidentsList({
               <>
                 <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
                     <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
-                     <DialogClose asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-slate-200">
-                           <XCircle className="h-5 w-5" />
-                        </Button>
-                    </DialogClose>
                 </DialogHeader>
                 <IncidentItemContent 
                   finding={selectedFinding} 
@@ -521,12 +516,5 @@ export function IncidentsList({
     </div>
   );
 }
-
-
-    
-
-    
-
-    
 
     
