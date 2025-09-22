@@ -228,9 +228,32 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   };
 
 const handleValidateInstructions = async () => {
-    if (!customInstructions.trim() || customInstructions.trim() === defaultInstructions) {
+    const currentDefault = defaultInstructions || '';
+    const currentCustom = customInstructions.trim();
+
+    if (!currentCustom || currentCustom === currentDefault) {
         setIsInstructionsValidated(true);
+        setCustomInstructions(currentDefault);
         toast({ title: "Instrucciones por Defecto", description: "Se usarán las instrucciones estándar para el análisis." });
+        return;
+    }
+
+    // Heurística simple para detectar si se borraron las directivas originales.
+    // Asume que las directivas están numeradas (1., 2., etc.)
+    const defaultDirectives = currentDefault.match(/^\d+\./gm) || [];
+    const customDirectives = currentCustom.match(/^\d+\./gm) || [];
+
+    if (customDirectives.length < defaultDirectives.length) {
+        setCustomInstructions(currentDefault);
+        setIsInstructionsValidated(false); // Marcar como no validado para que el usuario sepa que algo se revirtió
+        toast({
+            title: "Instrucciones Inválidas",
+            description: "No se pueden eliminar las directivas predefinidas, ya que son indispensables para un análisis correcto. Se han restaurado las instrucciones originales.",
+            variant: "destructive",
+            duration: 8000,
+        });
+        // Forzar al botón a deshabilitarse
+        setTimeout(() => setIsInstructionsValidated(false), 100);
         return;
     }
 
@@ -628,7 +651,7 @@ const handleValidateInstructions = async () => {
                           className="bg-white/70 placeholder-slate-500 border-slate-300 focus:bg-white"
                         />
                         <div className="mt-4 flex justify-end">
-                            <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading || isInstructionsValidated} className="btn-neu-light">
+                            <Button onClick={handleValidateInstructions} disabled={isInstructionValidationLoading || isInstructionsValidated} className="btn-bg-image">
                                 {isInstructionValidationLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
                                 Validar Edición
                             </Button>
@@ -767,3 +790,4 @@ const handleValidateInstructions = async () => {
     
 
     
+
