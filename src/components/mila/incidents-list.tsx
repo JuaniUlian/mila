@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, 'useState', useMemo, useEffect } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from '@/components/ui/dialog';
@@ -187,15 +187,15 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 };
 
 
-const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion }: {
+const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion, setIsEditing }: {
   finding: FindingWithStatus;
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
   onDialogClose: () => void;
   onOpenDiscussion: (finding: FindingWithStatus) => void;
+  setIsEditing: (isEditing: boolean) => void;
 }) => {
   const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
-
+  
   const [editForm, setEditForm] = useState({
     propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
     propuesta_procedimiento: finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento || '',
@@ -239,26 +239,6 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
         <div>
           <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Lightbulb size={16}/> Propuesta de Solución</h4>
-          {isEditing ? (
-            <div className="space-y-4 bg-blue-50 p-4 rounded-md border border-blue-200">
-              {finding.propuesta_redaccion !== undefined && (
-                <div>
-                  <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block text-gray-700">Propuesta de Redacción:</Label>
-                  <Textarea id="edit-redaccion" value={editForm.propuesta_redaccion} onChange={e => setEditForm({...editForm, propuesta_redaccion: e.target.value})} rows={4} className="bg-white" />
-                </div>
-              )}
-              {finding.propuesta_procedimiento !== undefined && (
-                <div>
-                  <Label htmlFor="edit-procedimiento" className="text-sm font-medium mb-1 block text-gray-700">Propuesta de Procedimiento:</Label>
-                  <Textarea id="edit-procedimiento" value={editForm.propuesta_procedimiento} onChange={e => setEditForm({...editForm, propuesta_procedimiento: e.target.value})} rows={2} className="bg-white" />
-                </div>
-              )}
-              <div className="flex gap-2 justify-end">
-                <Button size="sm" onClick={handleSave} className="btn-neu-green"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
-                <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
-              </div>
-            </div>
-          ) : (
             <div className="bg-green-50 p-4 rounded text-sm space-y-3 border-l-4 border-green-400">
               {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
                 <div><strong className="text-slate-900 block mb-1">Redacción sugerida:</strong><p className="italic text-slate-700 leading-relaxed">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
@@ -267,7 +247,6 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
                 <div><strong className="text-slate-900 block mb-1">Procedimiento sugerido:</strong><p className="text-slate-700 leading-relaxed">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
               )}
             </div>
-          )}
         </div>
       )}
 
@@ -301,8 +280,8 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
             <Button size="sm" variant="ghost" className="text-green-600 hover:bg-green-50 hover:text-green-700" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
             ) : (
             <>
-                <Button size="sm" variant="ghost" className="text-green-600 hover:bg-green-50 hover:text-green-700" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                <Button size="sm" variant="ghost" className="text-foreground hover:bg-black/5" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
             </>
             )}
             <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
@@ -325,11 +304,13 @@ export function IncidentsList({
 }) {
   const [selectedFinding, setSelectedFinding] = useState<FindingWithStatus | null>(null);
   const [discussionFinding, setDiscussionFinding] = useState<FindingWithStatus | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const { language } = useLanguage();
   const t = useTranslations(language);
 
   const handleOpenDetails = (finding: FindingWithStatus) => {
     setSelectedFinding(finding);
+    setIsEditing(false); // Reset editing state when opening a new dialog
   };
   
   const handleOpenDiscussion = (finding: FindingWithStatus) => {
@@ -379,6 +360,51 @@ export function IncidentsList({
     const translated = t(statusKey);
     return translated === statusKey ? status : translated;
   };
+
+  const EditDialogContent = ({ finding, onFindingStatusChange, onDialogClose }: {
+    finding: FindingWithStatus;
+    onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
+    onDialogClose: () => void;
+  }) => {
+      const [editForm, setEditForm] = useState({
+        propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
+        propuesta_procedimiento: finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento || '',
+      });
+
+      const handleSave = () => {
+        onFindingStatusChange(finding.id, 'modified', editForm);
+        onDialogClose();
+        toast({ title: "Sugerencia Modificada", description: "La propuesta de solución ha sido actualizada." });
+      };
+
+      return (
+        <>
+          <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+            <DialogTitle className="text-xl text-slate-900">Editar Propuesta de Solución</DialogTitle>
+          </DialogHeader>
+          <ScrollArea>
+              <div className="p-6 space-y-4">
+                  {finding.propuesta_redaccion !== undefined && (
+                    <div>
+                      <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block text-gray-700">Propuesta de Redacción:</Label>
+                      <Textarea id="edit-redaccion" value={editForm.propuesta_redaccion} onChange={e => setEditForm({...editForm, propuesta_redaccion: e.target.value})} rows={6} className="bg-white" />
+                    </div>
+                  )}
+                  {finding.propuesta_procedimiento !== undefined && (
+                    <div>
+                      <Label htmlFor="edit-procedimiento" className="text-sm font-medium mb-1 block text-gray-700">Propuesta de Procedimiento:</Label>
+                      <Textarea id="edit-procedimiento" value={editForm.propuesta_procedimiento} onChange={e => setEditForm({...editForm, propuesta_procedimiento: e.target.value})} rows={3} className="bg-white" />
+                    </div>
+                  )}
+              </div>
+          </ScrollArea>
+          <DialogFooter className="bg-slate-100/80 p-3 border-t">
+              <Button size="sm" variant="ghost" onClick={onDialogClose}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
+              <Button size="sm" onClick={handleSave} className="btn-neu-green"><Check className="mr-1 h-4 w-4"/> Guardar Cambios</Button>
+          </DialogFooter>
+        </>
+      )
+  }
 
   return (
     <div className="space-y-6">
@@ -455,22 +481,29 @@ export function IncidentsList({
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
         <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl bg-white/80 backdrop-blur-xl shadow-2xl">
           {selectedFinding && (
-            <>
-              <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
-                  <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
-                  <DialogClose asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-black/10">
-                      <XCircle className="h-5 w-5" />
-                    </Button>
-                  </DialogClose>
-              </DialogHeader>
-              <IncidentItemContent 
-                finding={selectedFinding} 
-                onFindingStatusChange={onFindingStatusChange} 
-                onDialogClose={() => setSelectedFinding(null)}
-                onOpenDiscussion={handleOpenDiscussion}
-              />
-            </>
+            isEditing ? (
+               <EditDialogContent
+                 finding={selectedFinding}
+                 onFindingStatusChange={onFindingStatusChange}
+                 onDialogClose={() => {
+                   setSelectedFinding(null);
+                   setIsEditing(false);
+                 }}
+               />
+            ) : (
+              <>
+                <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex-row items-center justify-between">
+                    <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
+                </DialogHeader>
+                <IncidentItemContent 
+                  finding={selectedFinding} 
+                  onFindingStatusChange={onFindingStatusChange} 
+                  onDialogClose={() => setSelectedFinding(null)}
+                  onOpenDiscussion={handleOpenDiscussion}
+                  setIsEditing={setIsEditing}
+                />
+              </>
+            )
           )}
         </DialogContent>
       </Dialog>
@@ -484,6 +517,8 @@ export function IncidentsList({
   );
 }
 
+
+    
 
     
 
