@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
-import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck, ShieldAlert, TerminalSquare } from 'lucide-react';
 import { FileUploadButton } from './file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -588,7 +588,7 @@ const handleValidateInstructions = async () => {
                                <BookCheck className="h-7 w-7 text-primary"/>
                                Normas del Módulo
                            </h2>
-                           <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-slate-500 group-data-[state=open]:rotate-90" />
+                           
                        </div>
                      </AccordionTrigger>
                      <AccordionContent className="p-6 pt-0">
@@ -609,12 +609,12 @@ const handleValidateInstructions = async () => {
                     <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-black/5 [&[data-state=open]]:border-b [&[data-state=open]]:border-slate-200/80">
                       <div className="p-6 w-full text-left flex items-center justify-between group">
                         <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
-                            <Wand2 className="h-7 w-7 text-primary"/>
+                            <TerminalSquare className="h-7 w-7 text-primary"/>
                             Instrucciones del Módulo
                         </h2>
                         <div className="flex items-center gap-2">
                             {isInstructionsValidated ? <ShieldCheck className="h-6 w-6 text-green-500" /> : <ShieldAlert className="h-6 w-6 text-yellow-500" />}
-                            <ChevronRight className="h-5 w-5 shrink-0 transition-transform duration-200 text-slate-500 group-data-[state=open]:rotate-90" />
+                            
                         </div>
                       </div>
                     </AccordionTrigger>
@@ -768,3 +768,5 @@ const handleValidateInstructions = async () => {
     </div>
   );
 }
+
+    
