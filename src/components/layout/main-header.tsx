@@ -82,49 +82,53 @@ export function MainHeader() {
                     "bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-full px-4 py-2"
                 )}>
                     <nav className="flex items-center justify-center gap-2">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Link href="/home" className={commonButtonClasses}>
-                                    <Logo variant="color" className="h-full w-full p-1.5" />
-                                </Link>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
-                                    Inicio
-                                </span>
-                            </TooltipContent>
-                        </Tooltip>
-
-                        {navActions.map((action) => (
-                            <Tooltip key={action.name}>
+                        <div>
+                            <Tooltip>
                                 <TooltipTrigger asChild>
-                                    {action.href ? (
-                                         <Link
-                                            href={action.href}
-                                            onClick={action.onClick}
-                                            target={action.isExternal ? '_blank' : undefined}
-                                            rel={action.isExternal ? 'noopener noreferrer' : undefined}
-                                            className={commonButtonClasses}
-                                            aria-label={action.name}
-                                        >
-                                            <action.icon className="h-6 w-6" />
-                                        </Link>
-                                    ) : (
-                                        <button
-                                            onClick={action.onClick}
-                                            className={commonButtonClasses}
-                                            aria-label={action.name}
-                                        >
-                                            <action.icon className="h-6 w-6" />
-                                        </button>
-                                    )}
+                                    <Link href="/home" className={commonButtonClasses}>
+                                        <Logo variant="color" className="h-full w-full p-1.5" />
+                                    </Link>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
-                                      {action.name}
+                                        Inicio
                                     </span>
                                 </TooltipContent>
                             </Tooltip>
+                        </div>
+
+                        {navActions.map((action) => (
+                            <div key={action.name}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        {action.href ? (
+                                             <Link
+                                                href={action.href}
+                                                onClick={action.onClick}
+                                                target={action.isExternal ? '_blank' : undefined}
+                                                rel={action.isExternal ? 'noopener noreferrer' : undefined}
+                                                className={commonButtonClasses}
+                                                aria-label={action.name}
+                                            >
+                                                <action.icon className="h-6 w-6" />
+                                            </Link>
+                                        ) : (
+                                            <button
+                                                onClick={action.onClick}
+                                                className={commonButtonClasses}
+                                                aria-label={action.name}
+                                            >
+                                                <action.icon className="h-6 w-6" />
+                                            </button>
+                                        )}
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
+                                          {action.name}
+                                        </span>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
                         ))}
                     </nav>
                 </header>
