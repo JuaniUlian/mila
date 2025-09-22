@@ -59,26 +59,40 @@ export const discussFindingStream = ai.defineFlow(
     outputSchema: z.any(),
   },
   async ([history, finding]) => {
-    // Validar que history sea un array y filtrar mensajes válidos
-    const filteredHistory = Array.isArray(history) 
-      ? history.filter(m => m && m.content && m.content.trim() !== '')
-      : [];
-  
+    // Limpiar completamente el historial
+    const cleanHistory = Array.isArray(history) ? history
+      .filter(m => m && typeof m === 'object')
+      .map(m => ({
+        role: m.role || 'user',
+        content: String(m.content || '').trim()
+      }))
+      .filter(m => m.content.length > 0) : [];
+
     try {
       const { stream } = await ai.generate({
-        system: systemPrompt,
-        history: filteredHistory,
+        system: systemPrompt || "You are a helpful assistant.",
+        history: cleanHistory, 
         model: 'googleai/gemini-1.5-pro',
-        input: {
-            finding,
-        },
+        input: { finding },
         stream: true,
       });
-      
       return stream;
     } catch (error) {
-      console.error('Error generating AI response:', error);
-      throw error; // Re-throw the error to be handled by the client
+      console.error('Error with messages:', error);
+      // Fallback: intentar sin historial
+      try {
+        const { stream } = await ai.generate({
+          system: systemPrompt || "You are a helpful assistant.",
+          history: [], // Array vacío como fallback
+          model: 'googleai/gemini-1.5-pro',
+          input: { finding },
+          stream: true,
+        });
+        return stream;
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+        throw fallbackError;
+      }
     }
   }
 );
@@ -87,7 +101,7 @@ export const discussFindingStream = ai.defineFlow(
 // Exported function for full response - can be kept for non-streaming scenarios
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
-      const filteredHistory = input.history.filter(m => m.content); // Filter out empty messages
+      const filteredHistory = input.history.filter(m => m.content && m.content.trim() !== ''); // Filter out empty messages
       const { output } = await ai.generate({
         system: systemPrompt,
         history: filteredHistory,
