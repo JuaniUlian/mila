@@ -120,44 +120,44 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-12 text-center">{t('differentiators.title')}</h2>
           <div className="grid md:grid-cols-2 gap-8">
             
-            <div className="group relative rounded-2xl bg-slate-800 p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-t-4 border-blue-500">
+            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <Network className="h-7 w-7 text-blue-400"/>
+                <div className="bg-blue-100 rounded-lg p-3">
+                  <Network className="h-7 w-7 text-blue-600"/>
                 </div>
-                <h3 className="text-xl font-semibold text-slate-100">{t('differentiators.trainingTitle')}</h3>
+                <h3 className="text-xl font-semibold text-slate-800">{t('differentiators.trainingTitle')}</h3>
               </div>
-              <p className="text-slate-300">{t('differentiators.trainingText')}</p>
+              <p className="text-slate-600">{t('differentiators.trainingText')}</p>
             </div>
             
-            <div className="group relative rounded-2xl bg-slate-800 p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-t-4 border-green-500">
+            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <FileStack className="h-7 w-7 text-green-400"/>
+                <div className="bg-green-100 rounded-lg p-3">
+                  <FileStack className="h-7 w-7 text-green-600"/>
                 </div>
-                <h3 className="text-xl font-semibold text-slate-100">{t('differentiators.docsTitle')}</h3>
+                <h3 className="text-xl font-semibold text-slate-800">{t('differentiators.docsTitle')}</h3>
               </div>
-              <p className="text-slate-300">{t('differentiators.docsText')}</p>
+              <p className="text-slate-600">{t('differentiators.docsText')}</p>
             </div>
             
-            <div className="group relative rounded-2xl bg-slate-800 p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-t-4 border-amber-500">
+            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <ShieldAlert className="h-7 w-7 text-amber-400"/>
+                <div className="bg-amber-100 rounded-lg p-3">
+                  <ShieldAlert className="h-7 w-7 text-amber-600"/>
                 </div>
-                <h3 className="text-xl font-semibold text-slate-100">{t('differentiators.risksTitle')}</h3>
+                <h3 className="text-xl font-semibold text-slate-800">{t('differentiators.risksTitle')}</h3>
               </div>
-              <p className="text-slate-300">{t('differentiators.risksText')}</p>
+              <p className="text-slate-600">{t('differentiators.risksText')}</p>
             </div>
             
-            <div className="group relative rounded-2xl bg-slate-800 p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-t-4 border-purple-500">
+            <div className="group relative rounded-2xl bg-slate-50/50 border border-slate-200/80 p-6 shadow-sm hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-slate-700/50 rounded-lg p-3">
-                  <Landmark className="h-7 w-7 text-purple-400"/>
+                <div className="bg-purple-100 rounded-lg p-3">
+                  <Landmark className="h-7 w-7 text-purple-600"/>
                 </div>
-                <h3 className="text-xl font-semibold text-slate-100">{t('differentiators.govTitle')}</h3>
+                <h3 className="text-xl font-semibold text-slate-800">{t('differentiators.govTitle')}</h3>
               </div>
-              <p className="text-slate-300">{t('differentiators.govText')}</p>
+              <p className="text-slate-600">{t('differentiators.govText')}</p>
             </div>
 
           </div>
