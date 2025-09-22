@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Check, Edit3, Trash2, XCircle, FileText, Lightbulb, Scale, ChevronRight, BookCheck, ClipboardList, FilePen, AlertTriangle, Briefcase, DraftingCompass, Loader2, MessageSquareWarning, Send } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -224,10 +224,10 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Evidencia */}
       <div>
-        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><FileText size={18}/> Evidencia</h4>
+        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><FileText size={16}/> Evidencia</h4>
         <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md text-sm text-gray-700">
           <em className="leading-relaxed">"{finding.evidencia}"</em>
         </div>
@@ -236,7 +236,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       {/* Propuesta de Solución */}
       {(finding.propuesta_redaccion || finding.propuesta_procedimiento) && (
         <div>
-          <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Lightbulb size={18}/> Propuesta de Solución</h4>
+          <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Lightbulb size={16}/> Propuesta de Solución</h4>
           {isEditing ? (
             <div className="space-y-4 bg-blue-50 p-4 rounded-md border border-blue-200">
               {finding.propuesta_redaccion !== undefined && (
@@ -252,7 +252,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
                 </div>
               )}
               <div className="flex gap-2 justify-end">
-                <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
+                <Button size="sm" onClick={handleSave} className="btn-neu-green"><Check className="mr-1 h-4 w-4"/> Guardar</Button>
                 <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><XCircle className="mr-1 h-4 w-4"/> Cancelar</Button>
               </div>
             </div>
@@ -272,42 +272,21 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       {/* Justificaciones */}
       <div className="space-y-4">
         <div>
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Scale size={18}/> Justificación Legal</h4>
-            <p className="text-sm text-gray-600 bg-slate-50 p-4 rounded-md border border-slate-200 leading-relaxed">{finding.justificacion_legal}</p>
+            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><Scale size={16}/> Justificación Legal</h4>
+            <p className="text-sm text-gray-600 bg-slate-100 p-4 rounded-md border border-slate-200 leading-relaxed">{finding.justificacion_legal}</p>
         </div>
         <div>
-            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><ClipboardList size={18}/> Justificación Técnica</h4>
-            <p className="text-sm text-gray-600 bg-slate-50 p-4 rounded-md border border-slate-200 leading-relaxed">{finding.justificacion_tecnica}</p>
+            <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><ClipboardList size={16}/> Justificación Técnica</h4>
+            <p className="text-sm text-gray-600 bg-slate-100 p-4 rounded-md border border-slate-200 leading-relaxed">{finding.justificacion_tecnica}</p>
         </div>
       </div>
       
       {/* Consecuencias */}
       <div>
-        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><AlertTriangle size={18} className="text-red-600"/> Consecuencias Estimadas</h4>
+        <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><AlertTriangle size={16} className="text-red-600"/> Consecuencias Estimadas</h4>
         <p className="text-sm text-red-800 bg-red-50 p-4 rounded-md border border-red-200 leading-relaxed">{finding.consecuencia_estimada}</p>
       </div>
 
-      {/* Acciones */}
-      <div className="flex gap-2 pt-6 border-t border-slate-200 items-center justify-end flex-wrap">
-        {finding.status === 'pending' ? (
-          <>
-            <Button size="sm" variant="outline" onClick={() => onOpenDiscussion(finding)}>
-              <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
-            </Button>
-            {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
-              <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
-            ) : (
-              <>
-                <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                <Button size="sm" variant="outline" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
-              </>
-            )}
-            <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
-          </>
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
-        )}
-      </div>
     </div>
   )
 }
@@ -450,18 +429,18 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl bg-white">
+        <DialogContent className="glass max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl">
           {selectedFinding && (
             <>
-              <DialogHeader className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg flex-row items-center justify-between">
+              <DialogHeader className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-200/50 flex-row items-center justify-between">
                   <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
                   <DialogClose asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-slate-200">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-black/10">
                       <XCircle className="h-5 w-5" />
                     </Button>
                   </DialogClose>
               </DialogHeader>
-              <ScrollArea className="bg-white">
+              <ScrollArea className="bg-slate-50/50">
                 <div className="p-6 text-slate-900">
                     <IncidentItemContent 
                       finding={selectedFinding} 
@@ -471,6 +450,26 @@ export function IncidentsList({
                     />
                 </div>
               </ScrollArea>
+               <DialogFooter className="bg-white/80 backdrop-blur-md p-4 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
+                 {selectedFinding.status === 'pending' ? (
+                   <>
+                     <Button size="sm" className="btn-neu-light" onClick={() => onOpenDiscussion(selectedFinding)}>
+                       <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
+                     </Button>
+                     {selectedFinding.propuesta_procedimiento && !selectedFinding.propuesta_redaccion ? (
+                       <Button size="sm" className="btn-neu-green" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+                     ) : (
+                       <>
+                         <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                         <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+                       </>
+                     )}
+                     <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+                   </>
+                 ) : (
+                   <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(selectedFinding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
+                 )}
+               </DialogFooter>
             </>
           )}
         </DialogContent>
