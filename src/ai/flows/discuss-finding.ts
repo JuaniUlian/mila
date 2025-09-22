@@ -55,11 +55,6 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 4.  **No te disculpes innecesariamente:** Evita frases como "Pido disculpas". En su lugar, usa un lenguaje como "Comprendo su punto" o "Es una interpretación válida, sin embargo...".
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
 `,
-    input: {
-        schema: z.object({
-            finding: z.any(),
-        })
-    },
     output: {
         format: 'text'
     }
@@ -107,8 +102,9 @@ export const discussFindingStream = ai.defineFlow(
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
       const { output } = await discussFindingPrompt({
-        finding: input.finding,
+        // @ts-ignore - a prompt without an input schema receives the whole object
         history: input.history,
+        finding: input.finding,
       });
 
       if (!output) {

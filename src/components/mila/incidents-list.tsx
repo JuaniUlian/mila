@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -85,19 +86,24 @@ const TypingStream = ({
   useEffect(() => {
     let isMounted = true;
     async function processStream() {
-        const reader = stream.getReader();
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            if (isMounted) {
-                const chunk = decoder.decode(value);
-                fullTextRef.current += chunk;
-                setText(fullTextRef.current);
-            }
+      const reader = stream.getReader();
+      while (true) {
+        try {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (isMounted) {
+            const chunk = decoder.decode(value, { stream: true });
+            fullTextRef.current += chunk;
+            setText(fullTextRef.current);
+          }
+        } catch (error) {
+            console.error("Stream reading error:", error);
+            break;
         }
-        if (isMounted) {
-            onFinished(fullTextRef.current);
-        }
+      }
+      if (isMounted) {
+        onFinished(fullTextRef.current);
+      }
     }
     processStream();
     return () => {
@@ -143,7 +149,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setStream(null);
 
         try {
-            const responseStream = await discussFindingStream(updatedHistory, finding);
+            const responseStream = await discussFindingStream([updatedHistory, finding]);
             setStream(responseStream);
 
         } catch (error) {
@@ -166,7 +172,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50">
+        <>
             <DialogHeader className="bg-slate-100 px-6 py-4 border-b border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between">
                     <DialogTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
@@ -254,7 +260,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </Button>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
