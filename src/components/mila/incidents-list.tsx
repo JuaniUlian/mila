@@ -120,11 +120,16 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         Discutir Incidencia
                     </h3>
                 </div>
-                 <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm">
-                    <p className="font-semibold text-slate-800">{finding.titulo_incidencia}</p>
-                    <blockquote className="mt-1 text-slate-600 border-l-2 border-slate-300 pl-2 italic">
-                        "{finding.evidencia}"
-                    </blockquote>
+                 <div className="mt-4 bg-slate-100 border border-slate-200 rounded-lg p-3 text-sm space-y-2">
+                    <div>
+                        <p className="font-semibold text-slate-800">{finding.titulo_incidencia}</p>
+                        <blockquote className="mt-1 text-slate-600 border-l-2 border-slate-300 pl-2 italic">
+                            "{finding.evidencia}"
+                        </blockquote>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                        <span className="font-semibold">Normativa:</span> {finding.nombre_archivo_normativa} (Art. {finding.articulo_o_seccion})
+                    </p>
                 </div>
             </div>
             <div className="flex-1 overflow-hidden bg-white">
@@ -519,6 +524,8 @@ export function IncidentsList({
     </div>
   );
 }
+
+    
 
     
 
