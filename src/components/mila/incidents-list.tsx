@@ -112,19 +112,19 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     };
 
     return (
-        <div className="h-full flex flex-col bg-white dark:bg-gray-800">
-            <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-lg flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <div className="h-full flex flex-col bg-white">
+            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                     <MessageSquareWarning size={20} />
                     Discutir Incidencia
                 </h3>
                 {onClose && (
-                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-500 hover:bg-slate-200">
                        <XCircle className="h-5 w-5" />
                     </Button>
                 )}
             </div>
-            <div className="flex-1 overflow-hidden bg-white dark:bg-gray-800">
+            <div className="flex-1 overflow-hidden bg-white">
                 <ScrollArea className="h-full">
                     <div className="p-6 space-y-4">
                         {history.map((msg, index) => (
@@ -138,7 +138,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                                     "max-w-md p-3 rounded-lg",
                                     msg.role === 'user' 
                                         ? 'bg-primary text-primary-foreground' 
-                                        : 'bg-muted dark:bg-gray-700'
+                                        : 'bg-muted'
                                 )}>
                                     <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                                 </div>
@@ -163,7 +163,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </div>
                 </ScrollArea>
             </div>
-            <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-6 border-t border-slate-200">
                 <div className="flex items-center gap-2">
                     <Textarea 
                         placeholder="Escribe tu argumento aquí..."
@@ -171,7 +171,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
                         rows={1}
-                        className="flex-1 resize-none bg-gray-100 dark:bg-gray-700"
+                        className="flex-1 resize-none bg-slate-100"
                         disabled={isLoading}
                     />
                     <Button 
@@ -228,7 +228,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       <div>
           <h4 className="font-semibold mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
           <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md text-sm">
-              <em className="text-gray-800">"{finding.evidencia}"</em>
+              <em className="text-slate-800">"{finding.evidencia}"</em>
           </div>
       </div>
 
@@ -269,10 +269,10 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
             ) : (
               <div className="bg-green-50 p-4 rounded text-sm space-y-3 border-l-4 border-green-400">
                 {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
-                  <div><strong className="text-gray-900">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
+                  <div><strong className="text-slate-900">Redacción sugerida:</strong><p className="mt-1 italic text-slate-700">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
                 )}
                 {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
-                  <div><strong className="text-gray-900">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
+                  <div><strong className="text-slate-900">Procedimiento sugerido:</strong><p className="mt-1 text-slate-700">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
                 )}
               </div>
             )}
@@ -387,19 +387,18 @@ export function IncidentsList({
 
         return (
           <Accordion type="single" collapsible key={category} defaultValue="item-1" className={cn(
-            "w-full rounded-xl overflow-hidden border-l-4 shadow-sm card-neumorphism",
-            severityStyle.gradient
+            "w-full rounded-xl overflow-hidden border border-slate-200/80 shadow-sm bg-slate-50/50"
           )}>
             <AccordionItem value="item-1" className="border-b-0">
               <AccordionTrigger className={cn(
                 "p-6 hover:no-underline w-full text-left group transition-all duration-300",
-                severityStyle.hoverClass
+                "hover:bg-slate-100/50"
               )}>
                 <div className="flex items-center gap-4 w-full">
                   {React.createElement(categoryIcon, { 
                     className: cn("h-7 w-7", severityStyle.iconColor)
                   })}
-                  <h3 className="text-lg font-semibold flex-1">{category}</h3>
+                  <h3 className="text-lg font-semibold flex-1 text-slate-800">{category}</h3>
                   {pendingCount > 0 && (
                     <span className={cn(
                       "text-xs font-medium px-3 py-1.5 rounded-full border",
@@ -419,10 +418,7 @@ export function IncidentsList({
                       <div 
                         key={finding.id} 
                         className={cn(
-                          "group relative rounded-xl cursor-pointer transition-all duration-300 card-neumorphism",
-                          "border-l-4 shadow-sm hover:shadow-md",
-                          findingSeverityStyle.gradient,
-                          findingSeverityStyle.hoverClass
+                          "group relative overflow-hidden rounded-lg shadow-sm border border-slate-200/80 cursor-pointer bg-slate-50/50 text-slate-800 hover:shadow-lg hover:border-slate-300/80 transition-all duration-300"
                         )}
                         onClick={() => handleOpenDetails(finding)}
                       >
@@ -459,16 +455,16 @@ export function IncidentsList({
         <DialogContent className="max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl">
           {selectedFinding && (
             <>
-              <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-lg flex items-center justify-between">
-                  <DialogTitle className="text-xl text-gray-900 dark:text-gray-100">{selectedFinding.titulo_incidencia}</DialogTitle>
+              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 rounded-t-lg flex items-center justify-between">
+                  <DialogTitle className="text-xl text-slate-900">{selectedFinding.titulo_incidencia}</DialogTitle>
                   <DialogClose asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:bg-slate-200">
                       <XCircle className="h-5 w-5" />
                     </Button>
                   </DialogClose>
               </div>
-              <ScrollArea className="bg-white dark:bg-gray-800">
-                <div className="p-6 text-gray-900 dark:text-gray-100">
+              <ScrollArea className="bg-white">
+                <div className="p-6 text-slate-900">
                     <IncidentItemContent 
                       finding={selectedFinding} 
                       onFindingStatusChange={onFindingStatusChange} 
@@ -490,3 +486,5 @@ export function IncidentsList({
     </div>
   );
 }
+
+    
