@@ -3,8 +3,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { type Finding } from './validate-document';
-import { definePrompt, type PromptOptions } from 'genkit';
 import { type FindingWithStatus } from './compliance-scoring';
 
 // Schemas
@@ -61,9 +59,10 @@ export const discussFindingStream = ai.defineFlow(
     outputSchema: z.any(),
   },
   async ([history, finding]) => {
+    const filteredHistory = history.filter(m => m.content); // Filter out empty messages
     const { stream } = await ai.generate({
       system: systemPrompt,
-      history: history,
+      history: filteredHistory,
       model: 'googleai/gemini-1.5-pro',
       input: {
           finding,
@@ -92,9 +91,10 @@ export const discussFindingStream = ai.defineFlow(
 // Exported function for full response - can be kept for non-streaming scenarios
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
+      const filteredHistory = input.history.filter(m => m.content); // Filter out empty messages
       const { output } = await ai.generate({
         system: systemPrompt,
-        history: input.history,
+        history: filteredHistory,
         model: 'googleai/gemini-1.5-pro',
         input: {
           finding: input.finding,
