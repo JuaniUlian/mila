@@ -41,14 +41,14 @@ export default function SelectModulePage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {modules.map((module) => (
-            <Card key={module.title} className="card-neumorphism flex flex-col transition-all duration-300 hover:shadow-lg text-white">
-              <CardHeader className="items-center text-center">
-                <div className="p-4 bg-slate-500/10 rounded-full mb-4 shadow-[inset_4px_4px_8px_rgba(255,255,255,0.05),inset_-4px_-4px_8px_rgba(0,0,0,0.2)]">
+            <Card key={module.title} className="bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/20 transition-all duration-300 flex flex-col text-white">
+              <CardHeader className="items-center text-center p-6">
+                <div className="p-4 bg-white/10 rounded-full mb-4 shadow-inner">
                   <module.icon className="h-10 w-10 text-slate-100" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-white">{module.title}</CardTitle>
               </CardHeader>
-              <CardContent className="flex-1 flex flex-col text-center">
+              <CardContent className="flex-1 flex flex-col text-center p-6 pt-0">
                 <p className="text-slate-300 mb-6 flex-1">{module.description}</p>
                 <Button onClick={() => router.push(module.href)} className="w-full btn-bg-image">
                   Seleccionar
