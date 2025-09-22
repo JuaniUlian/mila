@@ -45,7 +45,7 @@ export default function SelectModulePage() {
              <div 
               key={module.title}
               onClick={() => router.push(module.href)}
-              className="relative overflow-hidden rounded-lg shadow-lg border border-slate-300 cursor-pointer group bg-gradient-to-br from-white to-slate-200 text-slate-800 hover:shadow-2xl transition-all duration-300"
+              className="relative overflow-hidden rounded-lg shadow-sm border border-slate-200/80 cursor-pointer group bg-slate-50/50 text-slate-800 hover:shadow-2xl transition-all duration-300"
             >
               <div className="relative z-10 p-6 flex flex-col h-full">
                 <div className="items-center text-center mb-4">
