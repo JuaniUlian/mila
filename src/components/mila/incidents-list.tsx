@@ -187,14 +187,15 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 };
 
 
-const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion }: {
+const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion, setIsEditing, isEditing }: {
   finding: FindingWithStatus;
   onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
   onDialogClose: () => void;
   onOpenDiscussion: (finding: FindingWithStatus) => void;
+  setIsEditing: (isEditing: boolean) => void;
+  isEditing: boolean;
 }) => {
   const { toast } = useToast();
-  const [isEditing, setIsEditing] = useState(false);
 
   const [editForm, setEditForm] = useState({
     propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
@@ -224,7 +225,9 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
   }
 
   return (
-    <div className="space-y-4">
+    <>
+    <ScrollArea className="bg-slate-50/50">
+        <div className="p-6 text-slate-900 space-y-4">
       {/* Evidencia */}
       <div>
         <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-base"><FileText size={16}/> Evidencia</h4>
@@ -288,6 +291,28 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       </div>
 
     </div>
+    </ScrollArea>
+    <DialogFooter className="bg-white/80 backdrop-blur-md p-4 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
+        {finding.status === 'pending' ? (
+        <>
+            <Button size="sm" className="btn-neu-light" onClick={() => onOpenDiscussion(finding)}>
+            <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
+            </Button>
+            {finding.propuesta_procedimiento && !finding.propuesta_redaccion ? (
+            <Button size="sm" className="btn-neu-green" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
+            ) : (
+            <>
+                <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
+                <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
+            </>
+            )}
+            <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+        </>
+        ) : (
+        <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
+        )}
+    </DialogFooter>
+    </>
   )
 }
 
@@ -301,11 +326,13 @@ export function IncidentsList({
 }) {
   const [selectedFinding, setSelectedFinding] = useState<FindingWithStatus | null>(null);
   const [discussionFinding, setDiscussionFinding] = useState<FindingWithStatus | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const { language } = useLanguage();
   const t = useTranslations(language);
 
   const handleOpenDetails = (finding: FindingWithStatus) => {
     setSelectedFinding(finding);
+    setIsEditing(false); 
   };
   
   const handleOpenDiscussion = (finding: FindingWithStatus) => {
@@ -429,7 +456,7 @@ export function IncidentsList({
       })}
 
       <Dialog open={!!selectedFinding} onOpenChange={(isOpen) => !isOpen && setSelectedFinding(null)}>
-        <DialogContent className="glass max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr] overflow-hidden rounded-2xl">
+        <DialogContent className="glass max-w-4xl w-full h-auto max-h-[90vh] p-0 border-0 grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl">
           {selectedFinding && (
             <>
               <DialogHeader className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-200/50 flex-row items-center justify-between">
@@ -440,36 +467,14 @@ export function IncidentsList({
                     </Button>
                   </DialogClose>
               </DialogHeader>
-              <ScrollArea className="bg-slate-50/50">
-                <div className="p-6 text-slate-900">
-                    <IncidentItemContent 
-                      finding={selectedFinding} 
-                      onFindingStatusChange={onFindingStatusChange} 
-                      onDialogClose={() => setSelectedFinding(null)}
-                      onOpenDiscussion={handleOpenDiscussion}
-                    />
-                </div>
-              </ScrollArea>
-               <DialogFooter className="bg-white/80 backdrop-blur-md p-4 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
-                 {selectedFinding.status === 'pending' ? (
-                   <>
-                     <Button size="sm" className="btn-neu-light" onClick={() => onOpenDiscussion(selectedFinding)}>
-                       <MessageSquareWarning className="mr-2 h-4 w-4"/> Discutir
-                     </Button>
-                     {selectedFinding.propuesta_procedimiento && !selectedFinding.propuesta_redaccion ? (
-                       <Button size="sm" className="btn-neu-green" onClick={handleMarkAsHandled}><Check className="mr-2 h-4 w-4"/> Marcar como Atendido</Button>
-                     ) : (
-                       <>
-                         <Button size="sm" className="btn-neu-green" onClick={handleApply}><Check className="mr-2 h-4 w-4"/> Aplicar</Button>
-                         <Button size="sm" className="btn-neu-light" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
-                       </>
-                     )}
-                     <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
-                   </>
-                 ) : (
-                   <Button size="sm" className="btn-neu-light" onClick={() => onFindingStatusChange(selectedFinding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
-                 )}
-               </DialogFooter>
+              <IncidentItemContent 
+                finding={selectedFinding} 
+                onFindingStatusChange={onFindingStatusChange} 
+                onDialogClose={() => setSelectedFinding(null)}
+                onOpenDiscussion={handleOpenDiscussion}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+              />
             </>
           )}
         </DialogContent>
@@ -483,3 +488,6 @@ export function IncidentsList({
     </div>
   );
 }
+
+
+    
