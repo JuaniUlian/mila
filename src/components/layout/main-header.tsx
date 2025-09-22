@@ -32,23 +32,19 @@ export function MainHeader() {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = React.useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
 
-    const { score, isInitialPageLoad, theme } = useLayout();
+    const { score, isInitialPageLoad } = useLayout();
 
-    let headerBgClass = theme === 'light' 
-        ? 'bg-white/80 backdrop-blur-lg border-slate-200' 
-        : 'bg-slate-900/80 backdrop-blur-lg border-slate-700/50';
+    let headerBgClass = 'bg-white/80 backdrop-blur-lg border-slate-200';
     
     if (pathname === '/analysis') {
         if (isInitialPageLoad || score === null) {
-             headerBgClass = theme === 'light' 
-                ? 'bg-white/80 backdrop-blur-lg border-slate-200' 
-                : 'bg-slate-900/80 backdrop-blur-lg border-slate-700/50';
+             headerBgClass = 'bg-white/80 backdrop-blur-lg border-slate-200';
         } else if (score <= 50) {
-            headerBgClass = 'bg-red-50/90 backdrop-blur-lg border-red-200/60 dark:bg-red-950/80 dark:border-red-800/60';
+            headerBgClass = 'bg-red-50/90 backdrop-blur-lg border-red-200/60';
         } else if (score <= 79) {
-            headerBgClass = 'bg-amber-50/90 backdrop-blur-lg border-amber-200/60 dark:bg-amber-950/80 dark:border-amber-800/60';
+            headerBgClass = 'bg-amber-50/90 backdrop-blur-lg border-amber-200/60';
         } else {
-            headerBgClass = 'bg-emerald-50/90 backdrop-blur-lg border-emerald-200/60 dark:bg-emerald-950/80 dark:border-emerald-800/60';
+            headerBgClass = 'bg-emerald-50/90 backdrop-blur-lg border-emerald-200/60';
         }
     }
     
@@ -88,9 +84,7 @@ export function MainHeader() {
 
     const commonButtonClasses = cn(
       "flex items-center justify-center rounded-xl h-12 w-12 transition-all duration-200",
-      theme === 'light' 
-        ? "bg-white/80 border-slate-200/80 shadow-sm hover:shadow-md hover:bg-white text-gray-700" 
-        : "bg-slate-800/80 border-slate-600/40 shadow-sm hover:shadow-md hover:bg-slate-700/95 text-slate-200",
+      "bg-white/80 border-slate-200/80 shadow-sm hover:shadow-md hover:bg-white text-gray-700",
       "border"
     );
 

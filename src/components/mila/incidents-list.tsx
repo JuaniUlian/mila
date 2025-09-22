@@ -38,28 +38,28 @@ const SEVERITY_STYLES: Record<string, {
   iconColor: string;
 }> = {
   'Alta': { 
-    gradient: 'border-l-red-500 bg-gradient-to-r from-red-50/80 to-transparent dark:from-red-950/40 dark:to-transparent',
-    hoverClass: 'hover:from-red-100/90 hover:to-red-50/30 dark:hover:from-red-900/60 dark:hover:to-red-950/20',
-    badgeClass: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800',
-    iconColor: 'text-red-600 dark:text-red-400'
+    gradient: 'border-l-red-500 bg-gradient-to-r from-red-50/80 to-transparent',
+    hoverClass: 'hover:from-red-100/90 hover:to-red-50/30',
+    badgeClass: 'bg-red-100 text-red-800 border-red-200',
+    iconColor: 'text-red-600'
   },
   'Media': { 
-    gradient: 'border-l-amber-500 bg-gradient-to-r from-amber-50/80 to-transparent dark:from-amber-950/40 dark:to-transparent',
-    hoverClass: 'hover:from-amber-100/90 hover:to-amber-50/30 dark:hover:from-amber-900/60 dark:hover:to-amber-950/20',
-    badgeClass: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/50 dark:text-amber-200 dark:border-amber-800',
-    iconColor: 'text-amber-600 dark:text-amber-400'
+    gradient: 'border-l-amber-500 bg-gradient-to-r from-amber-50/80 to-transparent',
+    hoverClass: 'hover:from-amber-100/90 hover:to-amber-50/30',
+    badgeClass: 'bg-amber-100 text-amber-800 border-amber-200',
+    iconColor: 'text-amber-600'
   },
   'Baja': { 
-    gradient: 'border-l-blue-500 bg-gradient-to-r from-blue-50/80 to-transparent dark:from-blue-950/40 dark:to-transparent',
-    hoverClass: 'hover:from-blue-100/90 hover:to-blue-50/30 dark:hover:from-blue-900/60 dark:hover:to-blue-950/20',
-    badgeClass: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800',
-    iconColor: 'text-blue-600 dark:text-blue-400'
+    gradient: 'border-l-blue-500 bg-gradient-to-r from-blue-50/80 to-transparent',
+    hoverClass: 'hover:from-blue-100/90 hover:to-blue-50/30',
+    badgeClass: 'bg-blue-100 text-blue-800 border-blue-200',
+    iconColor: 'text-blue-600'
   },
   'Informativa': { 
-    gradient: 'border-l-slate-500 bg-gradient-to-r from-slate-50/80 to-transparent dark:from-slate-800/40 dark:to-transparent',
-    hoverClass: 'hover:from-slate-100/90 hover:to-slate-50/30 dark:hover:from-slate-700/60 dark:hover:to-slate-800/20',
-    badgeClass: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-700/50 dark:text-slate-200 dark:border-slate-600',
-    iconColor: 'text-slate-600 dark:text-slate-400'
+    gradient: 'border-l-slate-500 bg-gradient-to-r from-slate-50/80 to-transparent',
+    hoverClass: 'hover:from-slate-100/90 hover:to-slate-50/30',
+    badgeClass: 'bg-slate-100 text-slate-800 border-slate-200',
+    iconColor: 'text-slate-600'
   }
 };
 
@@ -228,8 +228,8 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
     <div className="space-y-6">
       <div>
           <h4 className="font-semibold mb-2 flex items-center gap-2"><FileText size={16}/> Evidencia:</h4>
-          <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-600 p-4 rounded-r-md text-sm">
-              <em className="text-gray-800 dark:text-amber-200">"{finding.evidencia}"</em>
+          <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md text-sm">
+              <em className="text-gray-800">"{finding.evidencia}"</em>
           </div>
       </div>
 
@@ -237,7 +237,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
         <div>
             <h4 className="font-semibold mb-2 flex items-center gap-2"><Lightbulb size={16}/> Propuesta de Solución:</h4>
             {isEditing ? (
-              <div className="space-y-4 bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-200 dark:border-blue-700">
+              <div className="space-y-4 bg-blue-50/50 p-4 rounded-md border border-blue-200">
                   {finding.propuesta_redaccion !== undefined && (
                       <div>
                           <Label htmlFor="edit-redaccion" className="text-sm font-medium mb-1 block">Propuesta de Redacción:</Label>
@@ -268,12 +268,12 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
                   </div>
               </div>
             ) : (
-              <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded text-sm space-y-3 border-l-4 border-green-400 dark:border-green-600">
+              <div className="bg-green-50 p-4 rounded text-sm space-y-3 border-l-4 border-green-400">
                 {(finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion) && (
-                  <div><strong className="text-gray-900 dark:text-slate-100">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700 dark:text-green-200">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
+                  <div><strong className="text-gray-900">Redacción sugerida:</strong><p className="mt-1 italic text-gray-700">"{finding.userModifications?.propuesta_redaccion ?? finding.propuesta_redaccion}"</p></div>
                 )}
                 {(finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento) && (
-                  <div><strong className="text-gray-900 dark:text-slate-100">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700 dark:text-green-200">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
+                  <div><strong className="text-gray-900">Procedimiento sugerido:</strong><p className="mt-1 text-gray-700">{finding.userModifications?.propuesta_procedimiento ?? finding.propuesta_procedimiento}</p></div>
                 )}
               </div>
             )}
@@ -281,11 +281,11 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
       )}
 
       <div className="grid md:grid-cols-2 gap-4 text-sm">
-          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
-          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 dark:bg-slate-800/60 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
+          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><Scale size={16}/> Justificación Legal:</h4><p className="text-muted-foreground bg-slate-100 p-3 rounded-md border">{finding.justificacion_legal}</p></div>
+          <div><h4 className="font-semibold mb-2 flex items-center gap-2"><ClipboardList size={16}/> Justificación Técnica:</h4><p className="text-muted-foreground bg-slate-100 p-3 rounded-md border">{finding.justificacion_tecnica}</p></div>
       </div>
       
-      <div><h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/10 dark:bg-red-900/20 p-3 rounded-md border border-destructive/20 dark:border-red-800/30">{finding.consecuencia_estimada}</p></div>
+      <div><h4 className="font-semibold mb-2 flex items-center gap-2"><AlertTriangle size={16} className="text-destructive"/> Consecuencias Estimadas:</h4><p className="text-sm text-destructive-foreground bg-destructive/10 p-3 rounded-md border border-destructive/20">{finding.consecuencia_estimada}</p></div>
 
       {/* MEJORA: Botón "Discutir" junto a las otras acciones */}
       <div className="flex gap-2 pt-4 border-t items-center justify-end flex-wrap">
@@ -302,7 +302,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
                       <Button size="sm" onClick={() => setIsEditing(true)}><Edit3 className="mr-2 h-4 w-4"/> Editar</Button>
                   </>
               )}
-              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/50 dark:hover:text-red-300" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
+              <Button size="sm" variant="ghost" className="text-red-600 hover:bg-red-50 hover:text-red-700" onClick={handleDiscard}><Trash2 className="mr-2 h-4 w-4"/> Descartar</Button>
             </>
           ) : (
              <Button size="sm" variant="outline" onClick={() => onFindingStatusChange(finding.id, 'pending')}>↩️ Revertir a Pendiente</Button>
@@ -362,7 +362,7 @@ export function IncidentsList({
 
   if (pendingFindings.length === 0) {
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-green-50/50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 shadow-sm text-center p-8 rounded-xl">
+      <div className="h-full flex flex-col items-center justify-center bg-green-50/50 border border-green-200 shadow-sm text-center p-8 rounded-xl">
         <Check className="w-16 h-16 text-green-400 mb-4" />
         <h3 className="text-xl font-semibold">{t('analysisPage.excellent')}</h3>
         <p className="text-muted-foreground">{t('analysisPage.noPendingIncidents')}</p>
@@ -436,10 +436,10 @@ export function IncidentsList({
                           </div>
                           <div className='flex items-center gap-3'>
                             <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full border", 
-                              finding.status === 'pending' && 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/60 dark:text-amber-200 dark:border-amber-700',
-                              finding.status === 'applied' && 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/60 dark:text-green-200 dark:border-green-700',
-                              finding.status === 'discarded' && 'bg-slate-200 text-slate-700 border-slate-300 dark:bg-slate-700/60 dark:text-slate-200 dark:border-slate-600',
-                              finding.status === 'modified' && 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/60 dark:text-blue-200 dark:border-blue-700'
+                              finding.status === 'pending' && 'bg-amber-100 text-amber-800 border-amber-200',
+                              finding.status === 'applied' && 'bg-green-100 text-green-800 border-green-200',
+                              finding.status === 'discarded' && 'bg-slate-200 text-slate-700 border-slate-300',
+                              finding.status === 'modified' && 'bg-blue-100 text-blue-800 border-blue-200'
                             )}>
                               {getTranslatedStatus(finding.status)}
                             </span>

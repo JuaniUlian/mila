@@ -16,7 +16,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module', '/select-module'];
 
   const bodyClassName = useMemo(() => {
-    let backgroundClasses = 'bg-background dark:bg-slate-900'; 
+    let backgroundClasses = 'bg-background'; 
 
     if (pathname === '/home') {
       backgroundClasses = 'bg-home-page';

@@ -41,7 +41,7 @@ export default function SelectModulePage() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {modules.map((module) => (
-            <Card key={module.title} className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg hover:shadow-2xl transition-shadow rounded-2xl flex flex-col">
+            <Card key={module.title} className="bg-background/80 backdrop-blur-md border-white/20 shadow-lg hover:shadow-2xl transition-shadow rounded-2xl flex flex-col">
               <CardHeader className="items-center text-center">
                 <div className="p-4 bg-primary/10 rounded-full mb-4">
                   <module.icon className="h-10 w-10 text-primary" />

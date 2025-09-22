@@ -2,7 +2,6 @@ import type { Config } from "tailwindcss";
 import plugin from 'tailwindcss/plugin';
 
 export default {
-    darkMode: ["class"],
     content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -156,14 +155,10 @@ export default {
     plugin(function({ addComponents, theme }) {
       addComponents({
         '.glass': {
-          backgroundColor: 'hsl(var(--background) / 0.6)',
+          backgroundColor: 'hsl(var(--background) / 0.8)',
           backdropFilter: 'blur(12px)',
           borderWidth: '1px',
-          borderColor: 'hsl(var(--border) / 0.2)',
-        },
-        '.dark .glass': {
-          backgroundColor: 'hsl(222 47% 11% / 0.6)',
-          borderColor: 'hsl(215 28% 17% / 0.5)',
+          borderColor: 'hsl(var(--border) / 0.3)',
         },
         '.btn-neu-light': {
             backgroundColor: 'hsl(var(--background) / 0.8)',
@@ -176,15 +171,6 @@ export default {
                 backgroundColor: 'hsl(var(--background))',
             }
         },
-        '.dark .btn-neu-light': {
-            backgroundColor: 'hsl(222 47% 11% / 0.8)', // slate-800-like
-            borderColor: 'hsl(215 28% 17% / 0.7)', // slate-700-like
-            color: 'hsl(210 40% 98%)', // slate-50
-            '&:hover': {
-                backgroundColor: 'hsl(222 47% 11% / 0.95)', // slate-800 hover
-                borderColor: 'hsl(215 28% 17% / 0.9)',
-            }
-        },
         '.btn-neu-green': {
             backgroundColor: 'hsl(142 71% 45% / 0.9)', // green-500
             border: '1px solid hsl(142 71% 35% / 0.5)', // green-600
@@ -195,19 +181,11 @@ export default {
                 backgroundColor: 'hsl(142 71% 45%)',
             }
         },
-        '.dark .btn-neu-green': {
-            backgroundColor: 'hsl(142 63% 40% / 0.9)', // green-600 like
-            borderColor: 'hsl(142 71% 45% / 0.5)', // green-500
-        },
         '.card-neumorphism': {
-            backgroundColor: 'hsl(var(--background) / 0.6)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid hsl(var(--border) / 0.2)',
+            backgroundColor: 'hsl(var(--background) / 0.75)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid hsl(var(--border) / 0.25)',
             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05)',
-        },
-        '.dark .card-neumorphism': {
-            backgroundColor: 'hsl(222 47% 11% / 0.6)',
-            borderColor: 'hsl(215 28% 17% / 0.5)',
         },
       })
     })

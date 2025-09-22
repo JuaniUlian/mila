@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderGrid } from '@/components/prepare/folder-grid';
 import { Search, Upload, BookCheck, FolderPlus, ChevronRight, FileCheck, ChevronLeft, CheckCircle2, ArrowLeft, Wand2, Loader2, Sparkles, ShieldCheck, ShieldAlert } from 'lucide-react';
-import { FileUploadButton } from '@/components/prepare/file-upload-button';
+import { FileUploadButton } from './file-upload-button';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -518,7 +518,7 @@ const handleValidateInstructions = async () => {
   const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
 
   const MainContent = () => (
-      <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+      <Card className="bg-background/80 backdrop-blur-md border-white/30 shadow-lg rounded-2xl overflow-hidden">
           <CardHeader className="bg-background/20 border-b border-white/20 p-6 flex flex-row items-center justify-between">
               <div className="flex items-center gap-3">
                 {isModuleView && (
@@ -581,7 +581,7 @@ const handleValidateInstructions = async () => {
         <div className={cn("lg:col-span-1 sticky top-28 flex flex-col gap-8", isModuleView ? "flex" : "hidden")}>
             <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
               <AccordionItem value="item-1" className="border-none">
-                 <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                 <Card className="bg-background/80 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
                     <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
                       <div className="p-6 w-full text-left flex items-center justify-between">
                          <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
@@ -605,7 +605,7 @@ const handleValidateInstructions = async () => {
 
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1" className="border-none">
-                <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+                <Card className="bg-background/80 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
                   <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]]:bg-background/20 [&[data-state=open]]:border-b [&[data-state=open]]:border-white/20">
                     <div className="p-6 w-full text-left flex items-center justify-between">
                       <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
@@ -645,7 +645,7 @@ const handleValidateInstructions = async () => {
         </div>
 
          <div className={cn(isModuleView ? "hidden" : "block", "w-full")}>
-            <Card className="bg-background/60 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
+            <Card className="bg-background/80 backdrop-blur-md border-white/20 shadow-lg rounded-2xl overflow-hidden">
                 <CardHeader className="bg-background/20 border-b border-white/20 p-6">
                     <CardTitle className="text-xl font-bold text-foreground flex items-center gap-3">
                         <BookCheck className="h-7 w-7 text-primary"/>
@@ -669,7 +669,7 @@ const handleValidateInstructions = async () => {
         
         {isValidationReady && (
             <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-full max-w-2xl animate-in slide-in-from-bottom-full fade-in duration-700 ease-out z-20">
-                <div className={cn("bg-background/70 backdrop-blur-lg p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 border border-white/20 shadow-lg")}>
+                <div className={cn("bg-background/85 backdrop-blur-lg p-4 mx-4 rounded-2xl flex items-center justify-between gap-6 border border-white/20 shadow-lg")}>
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                         <CheckCircle2 className="h-7 w-7 text-primary flex-shrink-0" />
                         <div className="flex-1 min-w-0">

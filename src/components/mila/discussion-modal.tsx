@@ -5,7 +5,6 @@ import React from 'react';
 import type { FindingWithStatus } from '@/ai/flows/compliance-scoring';
 import { DiscussionPanel } from './incidents-list';
 import { cn } from '@/lib/utils';
-import { useLayout } from '@/context/LayoutContext';
 
 interface DiscussionModalProps {
   isOpen: boolean;
@@ -14,7 +13,6 @@ interface DiscussionModalProps {
 }
 
 export const DiscussionModal: React.FC<DiscussionModalProps> = ({ isOpen, onClose, finding }) => {
-  const { theme } = useLayout();
   if (!isOpen || !finding) return null;
 
   return (
@@ -28,7 +26,7 @@ export const DiscussionModal: React.FC<DiscussionModalProps> = ({ isOpen, onClos
       {/* Modal content */}
       <div className={cn(
           "relative z-10 w-full max-w-2xl mx-4 h-[80vh] max-h-[700px] rounded-2xl overflow-hidden shadow-2xl border",
-          theme === 'light' ? 'bg-white border-gray-200' : 'bg-slate-900 border-slate-700'
+          'bg-white border-gray-200'
         )}>
         <DiscussionPanel finding={finding} onClose={onClose} />
       </div>

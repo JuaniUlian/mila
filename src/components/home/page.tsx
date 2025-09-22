@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { LanguageSwitcher } from '@/components/layout/language-switcher';
 import { Button } from '@/components/ui/button';
 import { Scale, Search, AlertTriangle, BookCheck, Edit, TrendingUp, Share2, Network, FileStack, ShieldAlert, Landmark, Globe, MapPin } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -20,6 +21,7 @@ export default function LandingPage() {
   const router = useRouter();
 
   const handleDemoClick = () => {
+    // Redirect directly to prepare page
     router.push('/select-module');
   };
   
