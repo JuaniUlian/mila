@@ -52,6 +52,8 @@ export function MainHeader() {
         if (pathname === '/analysis') {
             e.preventDefault();
             setIsConfirmDialogOpen(true);
+        } else {
+            router.push('/select-module');
         }
     };
     
@@ -62,7 +64,6 @@ export function MainHeader() {
     const navActions = [
         {
             name: t('sidebar.prepare'),
-            href: '/select-module',
             icon: FilePlus2,
             isLink: true,
             onClick: handlePrepareClick,
@@ -110,9 +111,9 @@ export function MainHeader() {
                         {navActions.map((action) => (
                             <Tooltip key={action.name}>
                                 <TooltipTrigger asChild>
-                                    {action.isLink ? (
-                                        <Link
-                                            href={action.href!}
+                                    {action.href ? (
+                                         <Link
+                                            href={action.href}
                                             onClick={action.onClick}
                                             target={action.isExternal ? '_blank' : undefined}
                                             rel={action.isExternal ? 'noopener noreferrer' : undefined}
