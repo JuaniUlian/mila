@@ -85,12 +85,12 @@ const TypingStream = ({
 
   useEffect(() => {
     let isMounted = true;
-    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
     
     async function processStream() {
+      let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
       try {
         reader = stream.getReader();
-        while (true) {
+        while (isMounted) {
           const { done, value } = await reader.read();
           if (done) break;
           if (isMounted) {
@@ -104,7 +104,6 @@ const TypingStream = ({
         }
       } catch (error) {
         if (isMounted) {
-          // Check if the error is due to cancellation, which is expected on unmount
           if (!error || (error as Error).name !== 'AbortError') {
              console.error("Stream reading error:", error);
           }
@@ -120,9 +119,8 @@ const TypingStream = ({
 
     return () => {
       isMounted = false;
-      // Attempt to cancel the stream on component unmount
       if (stream.cancel) {
-        stream.cancel().catch(e => console.warn("Stream cancellation failed:", e));
+        stream.cancel().catch(() => {}); // Prevent unhandled promise rejection
       }
     };
   }, [stream, onFinished, decoder]);
@@ -621,3 +619,4 @@ export function IncidentsList({
     </div>
   );
 }
+
