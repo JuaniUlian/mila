@@ -68,74 +68,35 @@ const SEVERITY_ORDER: Record<string, number> = {
     'Informativa': 4,
 };
 
-const TypingStream = ({
-  stream,
-  onFinished,
-}: {
-  stream: ReadableStream<Uint8Array>;
-  onFinished: (fullText: string) => void;
-}) => {
-  const [text, setText] = useState('');
+// Componente simplificado que evita los problemas de stream locking
+const TypingDisplay = ({ text }: { text: string }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    let isMounted = true;
-    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-    
-    async function process() {
-      if (!stream) return;
-      
-      try {
-        reader = stream.getReader();
-        const decoder = new TextDecoder();
-        let fullText = '';
+    setDisplayText('');
+    setCurrentIndex(0);
+  }, [text]);
 
-        while (isMounted) {
-          const { done, value } = await reader.read();
-          if (done) {
-            if (isMounted) onFinished(fullText);
-            break;
-          }
-          const chunk = decoder.decode(value, { stream: true });
-          fullText += chunk;
-          if (isMounted) setText(fullText);
-        }
-      } catch (error) {
-        console.error("Stream reading error:", error);
-        if (isMounted) onFinished('Lo siento, ha ocurrido un error al procesar tu mensaje.');
-      } finally {
-        if (reader) {
-          try {
-            reader.releaseLock();
-          } catch (e) {
-            console.warn('Error releasing reader lock:', e);
-          }
-        }
-      }
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timer = setTimeout(() => {
+        setDisplayText(text.slice(0, currentIndex + 1));
+        setCurrentIndex(currentIndex + 1);
+      }, 50); // 50ms por carácter
+
+      return () => clearTimeout(timer);
     }
+  }, [text, currentIndex]);
 
-    process();
-
-    return () => {
-      isMounted = false;
-      if (reader) {
-        try {
-          reader.releaseLock();
-        } catch (e) {
-          console.warn('Error releasing reader lock in cleanup:', e);
-        }
-      }
-    };
-  }, [stream, onFinished]);
-
-  return <p className="text-sm whitespace-pre-wrap">{text}</p>;
+  return <p className="text-sm whitespace-pre-wrap">{displayText}</p>;
 };
 
 export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStatus; onClose?: () => void; }) => {
     const [history, setHistory] = useState<DiscussionMessage[]>([]);
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [currentResponse, setCurrentResponse] = useState('');
     const discussionEndRef = React.useRef<HTMLDivElement>(null);
     const { toast } = useToast();
 
@@ -159,7 +120,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         if (discussionEndRef.current) {
             discussionEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [history, stream]);
+    }, [history, currentResponse]);
 
     const handleSendMessage = async () => {
         if (!userInput.trim() || isLoading) return;
@@ -170,20 +131,15 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         setHistory(updatedHistory);
         setUserInput('');
         setIsLoading(true);
-        setError(null);
-        setStream(null);
+        setCurrentResponse('');
 
         try {
-          console.log('Sending discussion request with:', { 
-            historyLength: updatedHistory.length, 
-            findingId: finding.id 
-          });
+          console.log('Sending discussion request');
 
           const response = await fetch('/api/discuss-finding', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
-              'Accept': 'text/plain'
             },
             body: JSON.stringify({ 
               history: updatedHistory, 
@@ -192,7 +148,6 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
           });
 
           console.log('Response status:', response.status);
-          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
           if (!response.ok) {
             let errorMessage = 'Error en la respuesta del servidor';
@@ -209,11 +164,45 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
             throw new Error('No se recibió respuesta del servidor');
           }
           
-          setStream(response.body);
+          // Leer el stream completo primero
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let fullResponse = '';
+
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value, { stream: true });
+              fullResponse += chunk;
+            }
+          } finally {
+            reader.releaseLock();
+          }
+
+          // Una vez que tenemos la respuesta completa, simular typing
+          setCurrentResponse(fullResponse);
+          
+          // Después de mostrar la respuesta, agregar al historial
+          setTimeout(() => {
+            const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullResponse };
+            const finalHistory = [...updatedHistory, newAssistantMessage];
+            setHistory(finalHistory);
+            
+            // Guardar en localStorage
+            try {
+              localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+            } catch (e) {
+              console.warn('Could not save discussion to localStorage:', e);
+            }
+            
+            setCurrentResponse('');
+            setIsLoading(false);
+          }, fullResponse.length * 50 + 500); // Dar tiempo para que termine el typing
 
         } catch (error) {
-            console.error("Error in discussion stream:", error);
-            setError(error instanceof Error ? error.message : 'Error desconocido');
+            console.error("Error in discussion:", error);
             
             const errorMessage: DiscussionMessage = { 
               role: 'assistant', 
@@ -223,7 +212,6 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
             const finalHistory = [...updatedHistory, errorMessage];
             setHistory(finalHistory);
             
-            // Save history even with error
             try {
               localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
             } catch (e) {
@@ -237,25 +225,6 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
               variant: "destructive"
             });
         }
-    };
-
-    const handleStreamFinished = (fullText: string) => {
-        const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullText };
-        setHistory(prevHistory => {
-            const finalHistory = [...prevHistory, newAssistantMessage];
-            
-            // Save to localStorage with error handling
-            try {
-              localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
-            } catch (error) {
-              console.warn('Could not save discussion to localStorage:', error);
-            }
-            
-            return finalHistory;
-        });
-        setIsLoading(false);
-        setStream(null);
-        setError(null);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -295,7 +264,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
             
             <div className="flex-1 min-h-0 overflow-y-auto">
                 <div className="p-6 space-y-4">
-                    {history.length === 0 && (
+                    {history.length === 0 && !currentResponse && (
                         <div className="text-center text-slate-500 py-8">
                             <MessageSquareWarning className="h-12 w-12 mx-auto mb-3 text-slate-400" />
                             <p>Inicia la discusión escribiendo tu argumento sobre esta incidencia.</p>
@@ -325,7 +294,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         </div>
                     ))}
                     
-                    {isLoading && !stream && (
+                    {isLoading && !currentResponse && (
                         <div className="flex items-start gap-3 justify-start">
                              <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
                              <div className="max-w-md p-3 rounded-lg bg-muted border">
@@ -335,20 +304,11 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         </div>
                     )}
                     
-                    {stream && (
+                    {currentResponse && (
                         <div className="flex items-start gap-3 justify-start">
                             <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
                             <div className="max-w-md p-3 rounded-lg bg-muted">
-                                <TypingStream stream={stream} onFinished={handleStreamFinished} />
-                            </div>
-                        </div>
-                    )}
-                    
-                    {error && (
-                        <div className="flex items-start gap-3 justify-start">
-                            <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
-                            <div className="max-w-md p-3 rounded-lg bg-red-50 border border-red-200">
-                                <p className="text-sm text-red-700">Error: {error}</p>
+                                <TypingDisplay text={currentResponse} />
                             </div>
                         </div>
                     )}
