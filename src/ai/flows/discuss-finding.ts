@@ -32,13 +32,13 @@ Tu personalidad debe ser:
 - **Tenaz pero Justa:** Defiende tu posición con firmeza, pero si el usuario presenta un argumento que es lógicamente superior, legalmente válido o demuestra que el contexto del hallazgo fue malinterpretado, debes reconocerlo con profesionalismo. No admitas un error a menos que el argumento del usuario sea irrefutable.
 
 **Contexto del Hallazgo en Discusión:**
-- **Título:** {{finding.titulo_incidencia}}
-- **Gravedad:** {{finding.gravedad}}
-- **Evidencia (Texto del documento):** "{{finding.evidencia}}"
-- **Justificación Legal del Hallazgo:** {{finding.justificacion_legal}}
-- **Justificación Técnica:** {{finding.justificacion_tecnica}}
-- **Normativa Aplicable:** {{finding.nombre_archivo_normativa}}, sección {{finding.articulo_o_seccion}}
-- **Consecuencia Estimada:** {{finding.consecuencia_estimada}}
+- **Título:** {{{finding.titulo_incidencia}}}
+- **Gravedad:** {{{finding.gravedad}}}
+- **Evidencia (Texto del documento):** "{{{finding.evidencia}}}"
+- **Justificación Legal del Hallazgo:** {{{finding.justificacion_legal}}}
+- **Justificación Técnica:** {{{finding.justificacion_tecnica}}}
+- **Normativa Aplicable:** {{{finding.nombre_archivo_normativa}}}, sección {{{finding.articulo_o_seccion}}}
+- **Consecuencia Estimada:** {{{finding.consecuencia_estimada}}}
 
 **Tu Tarea:**
 Analiza el último argumento del usuario en el historial y genera una respuesta (tu "reply").
@@ -51,48 +51,39 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
 `;
 
-function renderSystemPrompt(finding: FindingWithStatus): string {
-    return systemPromptTemplate
-        .replace(/{{finding.titulo_incidencia}}/g, finding.titulo_incidencia)
-        .replace(/{{finding.gravedad}}/g, finding.gravedad)
-        .replace(/{{finding.evidencia}}/g, finding.evidencia)
-        .replace(/{{finding.justificacion_legal}}/g, finding.justificacion_legal)
-        .replace(/{{finding.justificacion_tecnica}}/g, finding.justificacion_tecnica)
-        .replace(/{{finding.nombre_archivo_normativa}}/g, finding.nombre_archivo_normativa)
-        .replace(/{{finding.articulo_o_seccion}}/g, finding.articulo_o_seccion)
-        .replace(/{{finding.consecuencia_estimada}}/g, finding.consecuencia_estimada);
-}
+const discussFindingPrompt = ai.definePrompt(
+  {
+    name: 'discussFindingPrompt',
+    model: 'googleai/gemini-1.5-pro',
+    input: { schema: DiscussFindingInputSchema },
+    output: { schema: DiscussFindingOutputSchema },
+    prompt: systemPromptTemplate,
+  }
+);
+
+
+const discussFindingStream = ai.defineFlow(
+  {
+    name: 'discussFindingStream',
+    inputSchema: z.tuple([z.array(DiscussionMessageSchema), z.any()]),
+    outputSchema: z.any(),
+  },
+  async ([history, finding]) => {
+    const { stream } = await discussFindingPrompt({
+      history,
+      input: { finding },
+      stream: true,
+    });
+    return stream;
+  }
+);
 
 export async function discussFindingAction(history: DiscussionMessage[], finding: FindingWithStatus): Promise<Response> {
   try {
-    const cleanHistory = Array.isArray(history) 
-      ? history
-        .filter(m => m && typeof m === 'object' && m.content)
-        .map(m => ({
-          role: m.role || 'user',
-          content: String(m.content).trim()
-        }))
-        .filter(m => m.content)
-      : [];
-
-    const systemMessage = renderSystemPrompt(finding);
-    
-    // Combine system prompt and history into a single text prompt
-    const promptText = [
-        systemMessage,
-        ...cleanHistory.map(m => `${m.role}: ${m.content}`)
-    ].join('\n');
-
-    const { stream } = await ai.generate({
-      prompt: promptText,
-      model: 'googleai/gemini-1.5-pro',
-      stream: true,
-    });
-
+    const stream = await discussFindingStream([history, finding]);
     return new Response(stream as any, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
-
   } catch (error: any) {
     console.error('Error in discussFindingAction:', error);
     return new Response(JSON.stringify({ error: error.message }), {
@@ -104,33 +95,15 @@ export async function discussFindingAction(history: DiscussionMessage[], finding
 
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
-      const cleanHistory = Array.isArray(input.history)
-      ? input.history
-        .filter(m => m && typeof m === 'object' && m.content)
-        .map(m => ({
-          role: m.role || 'user',
-          content: String(m.content).trim()
-        }))
-        .filter(m => m.content)
-      : [];
-      
-      const systemMessage = renderSystemPrompt(input.finding);
-      
-      const promptText = [
-        systemMessage,
-        ...cleanHistory.map(m => `${m.role}: ${m.content}`)
-      ].join('\n');
-
-      const { output } = await ai.generate({
-        prompt: promptText,
-        model: 'googleai/gemini-1.5-pro',
-        output: { format: 'text' }
+      const { output } = await discussFindingPrompt({
+        history: input.history,
+        input: { finding: input.finding },
       });
 
       if (!output) {
         throw new Error('El modelo de IA no devolvió una respuesta válida.');
       }
-      return { reply: output as string };
+      return output;
 
     } catch (error) {
       console.error('Error in discussFindingFlow:', error);
