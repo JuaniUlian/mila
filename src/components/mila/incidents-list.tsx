@@ -81,16 +81,16 @@ const TypingStream = ({
 }) => {
   const [text, setText] = useState('');
   const fullTextRef = useRef('');
-  const isProcessingRef = useRef(false);
   const decoder = new TextDecoder();
 
   useEffect(() => {
     let isMounted = true;
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
     
     async function processStream() {
-      const reader = stream.getReader();
-      while (isMounted) {
-        try {
+      try {
+        reader = stream.getReader();
+        while (isMounted) {
           const { done, value } = await reader.read();
           if (done) break;
           if (isMounted) {
@@ -98,26 +98,24 @@ const TypingStream = ({
             fullTextRef.current += chunk;
             setText(fullTextRef.current);
           }
-        } catch (error) {
-           if (isMounted && (!error || (error as Error).name !== 'AbortError')) {
-             console.error("Stream reading error:", error);
-           }
-           break;
         }
+        if (isMounted) {
+          onFinished(fullTextRef.current);
+        }
+      } catch (error) {
+         if (isMounted && (!error || (error as Error).name !== 'AbortError')) {
+           console.error("Stream reading error:", error);
+         }
       }
-      if (isMounted) {
-        onFinished(fullTextRef.current);
-      }
-      reader.releaseLock();
     }
     
-    if (stream && !isProcessingRef.current) {
-        isProcessingRef.current = true;
-        processStream();
-    }
+    processStream();
 
     return () => {
       isMounted = false;
+      if (reader) {
+        reader.releaseLock();
+      }
       if (stream.cancel) {
         stream.cancel().catch(() => {});
       }
