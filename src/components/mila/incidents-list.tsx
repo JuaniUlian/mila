@@ -85,10 +85,12 @@ const TypingStream = ({
 
   useEffect(() => {
     let isMounted = true;
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+    
     async function processStream() {
-      const reader = stream.getReader();
-      while (true) {
-        try {
+      try {
+        reader = stream.getReader();
+        while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           if (isMounted) {
@@ -96,18 +98,32 @@ const TypingStream = ({
             fullTextRef.current += chunk;
             setText(fullTextRef.current);
           }
-        } catch (error) {
-            console.error("Stream reading error:", error);
-            break;
+        }
+        if (isMounted) {
+          onFinished(fullTextRef.current);
+        }
+      } catch (error) {
+        if (isMounted) {
+          // Check if the error is due to cancellation, which is expected on unmount
+          if (!error || (error as Error).name !== 'AbortError') {
+             console.error("Stream reading error:", error);
+          }
+        }
+      } finally {
+        if (reader) {
+          reader.releaseLock();
         }
       }
-      if (isMounted) {
-        onFinished(fullTextRef.current);
-      }
     }
+    
     processStream();
+
     return () => {
       isMounted = false;
+      // Attempt to cancel the stream on component unmount
+      if (stream.cancel) {
+        stream.cancel().catch(e => console.warn("Stream cancellation failed:", e));
+      }
     };
   }, [stream, onFinished, decoder]);
 
