@@ -83,7 +83,7 @@ const TypingDisplay = ({ text }: { text: string }) => {
       const timer = setTimeout(() => {
         setDisplayText(text.slice(0, currentIndex + 1));
         setCurrentIndex(currentIndex + 1);
-      }, 50); // 50ms por carácter
+      }, 15); // 15ms por carácter - mucho más rápido
 
       return () => clearTimeout(timer);
     }
@@ -199,7 +199,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
             
             setCurrentResponse('');
             setIsLoading(false);
-          }, fullResponse.length * 50 + 500); // Dar tiempo para que termine el typing
+          }, fullResponse.length * 15 + 300); // Ajustado para la nueva velocidad
 
         } catch (error) {
             console.error("Error in discussion:", error);
