@@ -24,7 +24,7 @@ const DiscussFindingOutputSchema = z.object({
 export type DiscussFindingOutput = z.infer<typeof DiscussFindingOutputSchema>;
 
 // System prompt text
-const systemPrompt = `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
+const systemPromptTemplate = `Eres un auditor legal senior y un experto en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" para un usuario que está cuestionando un hallazgo que tú (la IA) has identificado.
 
 Tu personalidad debe ser:
 - **Profesional y Respetuosa:** Siempre mantén un tono cortés.
@@ -32,13 +32,13 @@ Tu personalidad debe ser:
 - **Tenaz pero Justa:** Defiende tu posición con firmeza, pero si el usuario presenta un argumento que es lógicamente superior, legalmente válido o demuestra que el contexto del hallazgo fue malinterpretado, debes reconocerlo con profesionalismo. No admitas un error a menos que el argumento del usuario sea irrefutable.
 
 **Contexto del Hallazgo en Discusión:**
-- **Título:** {{{finding.titulo_incidencia}}}
-- **Gravedad:** {{{finding.gravedad}}}
-- **Evidencia (Texto del documento):** "{{{finding.evidencia}}}"
-- **Justificación Legal del Hallazgo:** {{{finding.justificacion_legal}}}
-- **Justificación Técnica:** {{{finding.justificacion_tecnica}}}
-- **Normativa Aplicable:** {{{finding.nombre_archivo_normativa}}}, sección {{{finding.articulo_o_seccion}}}
-- **Consecuencia Estimada:** {{{finding.consecuencia_estimada}}}
+- **Título:** {{finding.titulo_incidencia}}
+- **Gravedad:** {{finding.gravedad}}
+- **Evidencia (Texto del documento):** "{{finding.evidencia}}"
+- **Justificación Legal del Hallazgo:** {{finding.justificacion_legal}}
+- **Justificación Técnica:** {{finding.justificacion_tecnica}}
+- **Normativa Aplicable:** {{finding.nombre_archivo_normativa}}, sección {{finding.articulo_o_seccion}}
+- **Consecuencia Estimada:** {{finding.consecuencia_estimada}}
 
 **Tu Tarea:**
 Analiza el último argumento del usuario en el historial y genera una respuesta (tu "reply").
@@ -51,32 +51,45 @@ Analiza el último argumento del usuario en el historial y genera una respuesta 
 5.  **Cede con profesionalismo (solo si es necesario):** Si el argumento del usuario es convincente y demuestra que el hallazgo es incorrecto, reconócelo. Ejemplo: "Excelente punto. A la luz del contexto que proporciona y re-evaluando el artículo X, su interpretación es correcta. Procederé a reconsiderar este hallazgo. Gracias por la aclaración."
 `;
 
+function renderSystemPrompt(finding: FindingWithStatus): string {
+    return systemPromptTemplate
+        .replace(/{{finding.titulo_incidencia}}/g, finding.titulo_incidencia)
+        .replace(/{{finding.gravedad}}/g, finding.gravedad)
+        .replace(/{{finding.evidencia}}/g, finding.evidencia)
+        .replace(/{{finding.justificacion_legal}}/g, finding.justificacion_legal)
+        .replace(/{{finding.justificacion_tecnica}}/g, finding.justificacion_tecnica)
+        .replace(/{{finding.nombre_archivo_normativa}}/g, finding.nombre_archivo_normativa)
+        .replace(/{{finding.articulo_o_seccion}}/g, finding.articulo_o_seccion)
+        .replace(/{{finding.consecuencia_estimada}}/g, finding.consecuencia_estimada);
+}
+
 export async function discussFindingAction(history: DiscussionMessage[], finding: FindingWithStatus): Promise<Response> {
   try {
-    // Clean and validate history robustly
     const cleanHistory = Array.isArray(history) 
       ? history
-        .filter(m => m && typeof m === 'object' && 'content' in m) // Ensure message is an object with content
+        .filter(m => m && typeof m === 'object' && m.content)
         .map(m => ({
-          role: m.role || 'user', // Default role if missing
-          content: String(m.content || '').trim() // Convert content to string and trim
+          role: m.role || 'user',
+          content: String(m.content).trim()
         }))
-        .filter(m => m.content) // Filter out messages with empty content
+        .filter(m => m.content)
       : [];
 
+    const systemMessage = renderSystemPrompt(finding);
+    
+    const messages = [
+        { role: 'system' as const, content: systemMessage },
+        ...cleanHistory
+    ];
+
     const { stream } = await ai.generate({
-      system: systemPrompt,
-      history: cleanHistory,
-      input: { finding },
+      messages: messages,
       model: 'googleai/gemini-1.5-pro',
       stream: true,
     });
 
-    // Convert the Genkit stream to a standard Response for Server Actions
     return new Response(stream as any, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-      },
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     });
 
   } catch (error: any) {
@@ -88,20 +101,29 @@ export async function discussFindingAction(history: DiscussionMessage[], finding
   }
 }
 
-// Exported function for full response - can be kept for non-streaming scenarios
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
-      const filteredHistory = input.history.filter(m => m.content && m.content.trim() !== ''); // Filter out empty messages
+      const cleanHistory = Array.isArray(input.history)
+      ? input.history
+        .filter(m => m && typeof m === 'object' && m.content)
+        .map(m => ({
+          role: m.role || 'user',
+          content: String(m.content).trim()
+        }))
+        .filter(m => m.content)
+      : [];
+      
+      const systemMessage = renderSystemPrompt(input.finding);
+      
+      const messages = [
+          { role: 'system' as const, content: systemMessage },
+          ...cleanHistory
+      ];
+
       const { output } = await ai.generate({
-        system: systemPrompt,
-        history: filteredHistory,
+        messages: messages,
         model: 'googleai/gemini-1.5-pro',
-        input: {
-          finding: input.finding,
-        },
-        output: {
-          format: 'text',
-        }
+        output: { format: 'text' }
       });
 
       if (!output) {
