@@ -1,3 +1,4 @@
+console.error('🔥🔥🔥 DISCUSS-FINDING EJECUTÁNDOSE 🔥🔥🔥');
 'use server';
 
 import { z } from 'zod';

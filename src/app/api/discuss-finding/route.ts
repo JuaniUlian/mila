@@ -1,3 +1,4 @@
+console.error('🚨🚨🚨 ROUTE API LLAMADO 🚨🚨🚨');
 import { NextRequest, NextResponse } from 'next/server';
 import { discussFindingAction } from '@/ai/flows/discuss-finding';
 
