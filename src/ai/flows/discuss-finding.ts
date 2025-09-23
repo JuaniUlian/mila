@@ -1,6 +1,5 @@
-console.error('🔥🔥🔥 DISCUSS-FINDING EJECUTÁNDOSE 🔥🔥🔥');
 'use server';
-
+console.error('🔥🔥🔥 DISCUSS-FINDING EJECUTÁNDOSE 🔥🔥🔥');
 import { z } from 'zod';
 import { type FindingWithStatus } from './compliance-scoring';
 
