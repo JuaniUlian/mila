@@ -83,15 +83,17 @@ const TypingStream = ({
 
   useEffect(() => {
     let isMounted = true;
-    const process = async () => {
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+    
+    async function process() {
       if (!stream) return;
       
-      const reader = stream.getReader();
+      reader = stream.getReader();
       const decoder = new TextDecoder();
       let fullText = '';
 
       try {
-        while (true) {
+        while (isMounted) {
           const { done, value } = await reader.read();
           if (done) {
             if (isMounted) onFinished(fullText);
@@ -103,15 +105,16 @@ const TypingStream = ({
         }
       } catch (error) {
         console.error("Stream reading error:", error);
-      } finally {
-        reader.releaseLock();
       }
-    };
-    
+    }
+
     process();
 
     return () => {
       isMounted = false;
+      if (reader) {
+        reader.releaseLock();
+      }
     };
   }, [stream, onFinished]);
 
