@@ -77,13 +77,14 @@ export async function discussFindingAction(history: DiscussionMessage[], finding
 
     const systemMessage = renderSystemPrompt(finding);
     
-    const messages = [
-        { role: 'system' as const, content: systemMessage },
-        ...cleanHistory
-    ];
+    // Combine system prompt and history into a single text prompt
+    const promptText = [
+        systemMessage,
+        ...cleanHistory.map(m => `${m.role}: ${m.content}`)
+    ].join('\n');
 
     const { stream } = await ai.generate({
-      messages: messages,
+      prompt: promptText,
       model: 'googleai/gemini-1.5-pro',
       stream: true,
     });
@@ -115,13 +116,13 @@ export async function discussFinding(input: DiscussFindingInput): Promise<Discus
       
       const systemMessage = renderSystemPrompt(input.finding);
       
-      const messages = [
-          { role: 'system' as const, content: systemMessage },
-          ...cleanHistory
-      ];
+      const promptText = [
+        systemMessage,
+        ...cleanHistory.map(m => `${m.role}: ${m.content}`)
+      ].join('\n');
 
       const { output } = await ai.generate({
-        messages: messages,
+        prompt: promptText,
         model: 'googleai/gemini-1.5-pro',
         output: { format: 'text' }
       });
