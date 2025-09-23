@@ -80,47 +80,40 @@ const TypingStream = ({
   onFinished: (fullText: string) => void;
 }) => {
   const [text, setText] = useState('');
-  const fullTextRef = useRef('');
-  const decoder = new TextDecoder();
 
   useEffect(() => {
     let isMounted = true;
-    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-    
-    async function processStream() {
+    const process = async () => {
+      if (!stream) return;
+      
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
       try {
-        reader = stream.getReader();
-        while (isMounted) {
+        while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
-          if (isMounted) {
-            const chunk = decoder.decode(value, { stream: true });
-            fullTextRef.current += chunk;
-            setText(fullTextRef.current);
+          if (done) {
+            if (isMounted) onFinished(fullText);
+            break;
           }
-        }
-        if (isMounted) {
-          onFinished(fullTextRef.current);
+          const chunk = decoder.decode(value, { stream: true });
+          fullText += chunk;
+          if (isMounted) setText(fullText);
         }
       } catch (error) {
-         if (isMounted && (!error || (error as Error).name !== 'AbortError')) {
-           console.error("Stream reading error:", error);
-         }
+        console.error("Stream reading error:", error);
+      } finally {
+        reader.releaseLock();
       }
-    }
+    };
     
-    processStream();
+    process();
 
     return () => {
       isMounted = false;
-      if (reader) {
-        reader.releaseLock();
-      }
-      if (stream.cancel) {
-        stream.cancel().catch(() => {});
-      }
     };
-  }, [stream, onFinished, decoder]);
+  }, [stream, onFinished]);
 
   return <p className="text-sm whitespace-pre-wrap">{text}</p>;
 };
