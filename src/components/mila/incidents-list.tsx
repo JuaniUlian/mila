@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -20,7 +19,6 @@ import { Logo } from '../layout/logo';
 import { DiscussionModal } from './discussion-modal';
 import { z } from 'zod';
 
-
 const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
   'Legal': { icon: Scale },
   'Redacción': { icon: FilePen },
@@ -31,7 +29,6 @@ const CATEGORY_META: Record<string, { icon: React.ElementType }> = {
   'Informativo': { icon: Lightbulb },
 };
 
-// MEJORA: Nuevos gradientes más profesionales y sutiles
 const SEVERITY_STYLES: Record<string, {
   gradient: string;
   hoverClass: string;
@@ -71,7 +68,6 @@ const SEVERITY_ORDER: Record<string, number> = {
     'Informativa': 4,
 };
 
-
 const TypingStream = ({
   stream,
   onFinished,
@@ -88,11 +84,11 @@ const TypingStream = ({
     async function process() {
       if (!stream) return;
       
-      reader = stream.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-
       try {
+        reader = stream.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+
         while (isMounted) {
           const { done, value } = await reader.read();
           if (done) {
@@ -105,6 +101,15 @@ const TypingStream = ({
         }
       } catch (error) {
         console.error("Stream reading error:", error);
+        if (isMounted) onFinished('Lo siento, ha ocurrido un error al procesar tu mensaje.');
+      } finally {
+        if (reader) {
+          try {
+            reader.releaseLock();
+          } catch (e) {
+            console.warn('Error releasing reader lock:', e);
+          }
+        }
       }
     }
 
@@ -113,7 +118,11 @@ const TypingStream = ({
     return () => {
       isMounted = false;
       if (reader) {
-        reader.releaseLock();
+        try {
+          reader.releaseLock();
+        } catch (e) {
+          console.warn('Error releasing reader lock in cleanup:', e);
+        }
       }
     };
   }, [stream, onFinished]);
@@ -126,15 +135,20 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [stream, setStream] = useState<ReadableStream<Uint8Array> | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const discussionEndRef = React.useRef<HTMLDivElement>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         const savedHistory = localStorage.getItem(`discussion_${finding.id}`);
         if (savedHistory) {
             try {
-                setHistory(JSON.parse(savedHistory));
-            } catch {
+                const parsed = JSON.parse(savedHistory);
+                setHistory(Array.isArray(parsed) ? parsed : []);
+            } catch (error) {
+                console.error('Error parsing saved discussion:', error);
                 localStorage.removeItem(`discussion_${finding.id}`);
+                setHistory([]);
             }
         } else {
             setHistory([]);
@@ -142,38 +156,86 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     }, [finding.id]);
 
     useEffect(() => {
-        discussionEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (discussionEndRef.current) {
+            discussionEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [history, stream]);
 
     const handleSendMessage = async () => {
         if (!userInput.trim() || isLoading) return;
 
-        const newUserMessage: DiscussionMessage = { role: 'user', content: userInput };
+        const newUserMessage: DiscussionMessage = { role: 'user', content: userInput.trim() };
         const updatedHistory = [...history, newUserMessage];
+        
         setHistory(updatedHistory);
         setUserInput('');
         setIsLoading(true);
+        setError(null);
         setStream(null);
 
         try {
-          const response = await fetch('/api/discuss-finding', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ history: updatedHistory, finding }),
+          console.log('Sending discussion request with:', { 
+            historyLength: updatedHistory.length, 
+            findingId: finding.id 
           });
 
-          if (!response.ok || !response.body) {
-            const errorData = await response.json().catch(() => ({ error: 'Streaming failed' }));
-            throw new Error(errorData.error);
+          const response = await fetch('/api/discuss-finding', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'text/plain'
+            },
+            body: JSON.stringify({ 
+              history: updatedHistory, 
+              finding: finding 
+            }),
+          });
+
+          console.log('Response status:', response.status);
+          console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+          if (!response.ok) {
+            let errorMessage = 'Error en la respuesta del servidor';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              errorMessage = `Error ${response.status}: ${response.statusText}`;
+            }
+            throw new Error(errorMessage);
+          }
+
+          if (!response.body) {
+            throw new Error('No se recibió respuesta del servidor');
           }
           
           setStream(response.body);
 
         } catch (error) {
             console.error("Error in discussion stream:", error);
-            const errorMessage: DiscussionMessage = { role: 'assistant', content: "Lo siento, ha ocurrido un error al procesar tu argumento. Por favor, intenta de nuevo." };
-            setHistory([...updatedHistory, errorMessage]);
+            setError(error instanceof Error ? error.message : 'Error desconocido');
+            
+            const errorMessage: DiscussionMessage = { 
+              role: 'assistant', 
+              content: "Lo siento, ha ocurrido un error al procesar tu argumento. Por favor, verifica tu conexión e intenta de nuevo." 
+            };
+            
+            const finalHistory = [...updatedHistory, errorMessage];
+            setHistory(finalHistory);
+            
+            // Save history even with error
+            try {
+              localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+            } catch (e) {
+              console.warn('Could not save discussion to localStorage:', e);
+            }
+            
             setIsLoading(false);
+            toast({
+              title: "Error en la discusión",
+              description: error instanceof Error ? error.message : 'Error desconocido',
+              variant: "destructive"
+            });
         }
     };
 
@@ -181,11 +243,26 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
         const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullText };
         setHistory(prevHistory => {
             const finalHistory = [...prevHistory, newAssistantMessage];
-            localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+            
+            // Save to localStorage with error handling
+            try {
+              localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
+            } catch (error) {
+              console.warn('Could not save discussion to localStorage:', error);
+            }
+            
             return finalHistory;
         });
         setIsLoading(false);
         setStream(null);
+        setError(null);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessage();
+      }
     };
 
     return (
@@ -203,7 +280,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                         </Button>
                     )}
                 </div>
-                 <div className="mt-4 bg-slate-200/70 border border-slate-300/80 rounded-lg p-3 text-sm space-y-2">
+                <div className="mt-4 bg-slate-200/70 border border-slate-300/80 rounded-lg p-3 text-sm space-y-2">
                     <div>
                         <p className="font-semibold text-slate-800">{finding.titulo_incidencia}</p>
                         <blockquote className="mt-1 text-slate-600 border-l-2 border-slate-400 pl-2 italic">
@@ -215,8 +292,16 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                     </p>
                 </div>
             </DialogHeader>
+            
             <div className="flex-1 min-h-0 overflow-y-auto">
                 <div className="p-6 space-y-4">
+                    {history.length === 0 && (
+                        <div className="text-center text-slate-500 py-8">
+                            <MessageSquareWarning className="h-12 w-12 mx-auto mb-3 text-slate-400" />
+                            <p>Inicia la discusión escribiendo tu argumento sobre esta incidencia.</p>
+                        </div>
+                    )}
+                    
                     {history.map((msg, index) => (
                         <div key={index} className={cn("flex items-start gap-3", msg.role === 'user' ? "justify-end" : "justify-start")}>
                             {msg.role === 'assistant' && (
@@ -239,14 +324,17 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                             )}
                         </div>
                     ))}
-                     {isLoading && !stream && (
+                    
+                    {isLoading && !stream && (
                         <div className="flex items-start gap-3 justify-start">
                              <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
                              <div className="max-w-md p-3 rounded-lg bg-muted border">
                                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                <span className="ml-2 text-sm text-muted-foreground">Procesando...</span>
                              </div>
                         </div>
                     )}
+                    
                     {stream && (
                         <div className="flex items-start gap-3 justify-start">
                             <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
@@ -255,32 +343,53 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
                             </div>
                         </div>
                     )}
+                    
+                    {error && (
+                        <div className="flex items-start gap-3 justify-start">
+                            <Avatar className="h-8 w-8 p-1"><Logo variant="color"/></Avatar>
+                            <div className="max-w-md p-3 rounded-lg bg-red-50 border border-red-200">
+                                <p className="text-sm text-red-700">Error: {error}</p>
+                            </div>
+                        </div>
+                    )}
+                    
                     <div ref={discussionEndRef} />
                 </div>
             </div>
+            
             <div className="p-6 border-t border-slate-200">
                 <div className="flex items-center gap-2">
                     <Textarea 
                         placeholder="Escribe tu argumento aquí..."
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                        onKeyDown={handleKeyDown}
                         rows={1}
                         className="flex-1 resize-none bg-slate-100"
                         disabled={isLoading}
+                        maxLength={1000}
                     />
                     <Button 
                         onClick={handleSendMessage} 
                         disabled={isLoading || !userInput.trim()}
+                        size="sm"
                     >
-                        <Send className="h-4 w-4" />
+                        {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <Send className="h-4 w-4" />
+                        )}
                     </Button>
                 </div>
+                {userInput.length > 900 && (
+                    <p className="text-xs text-slate-500 mt-1">
+                        {userInput.length}/1000 caracteres
+                    </p>
+                )}
             </div>
         </>
     );
 };
-
 
 const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, onOpenDiscussion }: {
   finding: FindingWithStatus;
@@ -376,7 +485,6 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
     );
   }
 
-
   return (
     <>
     <div className="flex-1 overflow-y-auto bg-slate-50/50">
@@ -447,7 +555,6 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
     </>
   )
 }
-
 
 export function IncidentsList({ 
   findings, 
