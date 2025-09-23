@@ -82,6 +82,7 @@ const TypingStream = ({
   const [text, setText] = useState('');
   const fullTextRef = useRef('');
   const decoder = new TextDecoder();
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -115,12 +116,15 @@ const TypingStream = ({
       }
     }
     
-    processStream();
+    if (stream && !isProcessingRef.current) {
+        isProcessingRef.current = true;
+        processStream();
+    }
 
     return () => {
       isMounted = false;
       if (stream.cancel) {
-        stream.cancel().catch(() => {}); // Prevent unhandled promise rejection
+        stream.cancel().catch(() => {});
       }
     };
   }, [stream, onFinished, decoder]);
@@ -619,4 +623,3 @@ export function IncidentsList({
     </div>
   );
 }
-
