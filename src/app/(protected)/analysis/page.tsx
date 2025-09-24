@@ -138,7 +138,7 @@ export default function AnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen">
       {/* Header simple */}
       <div className="glass-card m-4">
         <div className="max-w-7xl mx-auto p-4">
