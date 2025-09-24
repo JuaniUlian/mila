@@ -364,7 +364,7 @@ const WhyModal = ({ finding, onClose }: { finding: any, onClose: () => void }) =
           </div>
           <div>
               <h4 className="font-semibold text-gray-800 mb-2">Consecuencia Estimada:</h4>
-              <p className="text-base text-red-700 font-semibold bg-red-50/70 p-3 rounded-lg border border-red-200/80">{finding.consecuencia_estimada}</p>
+              <p className="text-base text-white font-semibold bg-red-600 p-3 rounded-lg border border-red-700">{finding.consecuencia_estimada}</p>
           </div>
       </div>
   </div>
