@@ -108,6 +108,25 @@ export default function AnalysisPage() {
     setActiveModal(null);
   }, [t, toast, setScore]);
 
+  const handleDownloadReport = () => {
+    try {
+        const reportData = {
+            documentTitle: validationResult.documentName,
+            findings: findings,
+            scoringReport: generateScoringReport(findings),
+        };
+        localStorage.setItem('milaReportData', JSON.stringify(reportData));
+        router.push('/report-preview');
+    } catch (error) {
+        console.error("Error preparing report data:", error);
+        toast({
+            title: t('analysisPage.toastReportError'),
+            description: t('analysisPage.toastReportErrorDesc'),
+            variant: "destructive",
+        });
+    }
+  };
+
   const severityFilters = useMemo(() => {
     if (!validationResult) return [];
     const allFindings = (validationResult.findings || []) as FindingWithStatus[];
@@ -319,10 +338,10 @@ export default function AnalysisPage() {
                   <span className="text-sm text-gray-600">Riesgo de impugnación</span>
                   <span className="font-medium text-red-600">Alto</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Tiempo estimado corrección</span>
-                  <span className="font-medium text-gray-800">3-5 días</span>
-                </div>
+                <Button onClick={handleDownloadReport} className="w-full mt-4 btn-neu-light">
+                  <Download className="w-4 h-4 mr-2" />
+                  Descargar Informe
+                </Button>
               </div>
 
               <div className="border-t border-gray-200/60 pt-4">
@@ -578,11 +597,3 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         </div>
     );
 };
-
-    
-
-    
-
-    
-
-    
