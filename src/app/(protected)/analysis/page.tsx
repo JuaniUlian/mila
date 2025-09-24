@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { useLayout } from '@/context/LayoutContext';
+import { cn } from '@/lib/utils';
 
 // Main Component
 export default function AnalysisPage() {
@@ -134,6 +135,12 @@ export default function AnalysisPage() {
       default: return 'text-gray-700 bg-gray-100';
     }
   };
+
+  const getScoreColor = (score: number) => {
+    if (score < 50) return "text-red-600";
+    if (score < 80) return "text-amber-600";
+    return "text-blue-600";
+  };
   
   if (!validationResult || !currentScoring) {
     return (
@@ -153,7 +160,7 @@ export default function AnalysisPage() {
             <div className="flex items-center space-x-8 text-sm">
               <div className="text-right w-48">
                 <div className="text-gray-600 font-semibold">Cumplimiento</div>
-                <div className="text-3xl font-bold text-blue-600">{currentScoring.complianceScore}%</div>
+                <div className={cn("text-3xl font-bold", getScoreColor(currentScoring.complianceScore))}>{currentScoring.complianceScore}%</div>
                 <Progress value={currentScoring.complianceScore} className="h-2 mt-1" />
               </div>
               <div className="text-right">
@@ -424,4 +431,3 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
   );
 };
 
-    
