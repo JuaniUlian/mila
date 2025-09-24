@@ -51,7 +51,7 @@ details > summary::-webkit-details-marker {
 
 /* Glassmorphism Card Style */
 .glass-card {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem; /* equivalent to rounded-2xl */
