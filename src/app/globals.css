@@ -48,6 +48,16 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 
+/* Glassmorphism Card Style */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem; /* equivalent to rounded-2xl */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
 /* Fondos de página */
 .bg-prepare-page {
   background-image: url('/background/home.jpeg');
