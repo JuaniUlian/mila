@@ -150,12 +150,13 @@ body.bg-analysis-validado::before {
 }
 
 .btn-neu-blue, .btn-neu-green, .btn-neu-orange {
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: -3px -3px 7px #ffffff, 3px 3px 5px rgba(94, 104, 121, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease-in-out;
 }
 .btn-neu-blue:hover, .btn-neu-green:hover, .btn-neu-orange:hover {
-  box-shadow: -1px -1px 3px #ffffff, 1px 1px 2px rgba(94, 104, 121, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 .btn-neu-blue {
   background-color: #DBEAFE; /* blue-100 */
