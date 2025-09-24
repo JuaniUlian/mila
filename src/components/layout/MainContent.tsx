@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation';
 import { MainHeader } from '@/components/layout/main-header';
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useLayout } from '@/context/LayoutContext';
 
@@ -15,45 +15,47 @@ export default function MainContent({ children }: { children: React.ReactNode })
 
   const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module'];
 
+  // State to hold the dynamic background class, applied only on the client
+  const [backgroundClass, setBackgroundClass] = useState('');
+
   useEffect(() => {
-    // This effect now correctly handles the client-side state for page load transitions.
+    // Determine the background class on the client side
+    let newBgClass = '';
+    if (pathname === '/home') {
+      newBgClass = 'bg-home-page';
+    } else if (pathname === '/loading') {
+      newBgClass = 'bg-loading-page';
+    } else if (PREPARE_PATHS.includes(pathname) || pathname === '/select-module') {
+      newBgClass = 'bg-prepare-page';
+    } else if (pathname === '/analysis') {
+      if (score === null) {
+          newBgClass = 'bg-prepare-page';
+      } else if (score <= 50) {
+          newBgClass = 'bg-analysis-grave';
+      } else if (score <= 79) {
+          newBgClass = 'bg-analysis-alerta';
+      } else { 
+          newBgClass = 'bg-analysis-validado';
+      }
+    }
+    setBackgroundClass(newBgClass);
+  }, [pathname, score, PREPARE_PATHS]);
+
+
+  useEffect(() => {
     if (pathname === '/analysis' && score !== null && isInitialPageLoad) {
         setIsInitialPageLoad(false);
     } else if (pathname !== '/analysis' && !isInitialPageLoad) {
-      // Reset for other pages to ensure correct background on navigation
       setIsInitialPageLoad(true);
     }
   }, [pathname, score, isInitialPageLoad, setIsInitialPageLoad]);
 
 
-  const bodyClassName = useMemo(() => {
-    let backgroundClass = ''; 
-
-    if (pathname === '/home') {
-      backgroundClass = 'bg-home-page';
-    } else if (pathname === '/loading') {
-      backgroundClass = 'bg-loading-page';
-    } else if (PREPARE_PATHS.includes(pathname) || pathname === '/select-module') {
-      backgroundClass = 'bg-prepare-page';
-    } else if (pathname === '/analysis') {
-      // During server-render or initial client-render before state is settled, use a default.
-      if (isInitialPageLoad || score === null) {
-          backgroundClass = 'bg-prepare-page';
-      } else if (score <= 50) {
-          backgroundClass = 'bg-analysis-grave';
-      } else if (score <= 79) {
-          backgroundClass = 'bg-analysis-alerta';
-      } else { 
-          backgroundClass = 'bg-analysis-validado';
-      }
-    }
-
-    return cn(
-      "flex flex-col min-h-screen",
-      backgroundClass, 
-      showHeader ? "pt-4" : ""
-    );
-  }, [pathname, score, isInitialPageLoad, showHeader]);
+  const bodyClassName = cn(
+    "flex flex-col min-h-screen",
+    backgroundClass, // Apply dynamic class on client
+    showHeader ? "pt-4" : ""
+  );
   
   return (
     <div className={bodyClassName}>
