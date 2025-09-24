@@ -272,7 +272,7 @@ export default function AnalysisPage() {
                       onClick={() => { setSelectedFinding(finding); setActiveModal('why'); }}
                       className="px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm font-semibold hover:bg-blue-200 flex items-center space-x-1.5"
                     >
-                      <FileText className="w-4 h-4" />
+                      <Search className="w-4 h-4" />
                       <span>Detalles</span>
                     </button>
                     
@@ -471,6 +471,8 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
         </div>
     );
 };
+
+    
 
     
 
