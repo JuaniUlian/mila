@@ -143,6 +143,14 @@ export default function AnalysisPage() {
     if (score < 80) return "text-amber-600";
     return "text-blue-600";
   };
+
+  const getTranslatedStatus = (status: FindingStatus) => {
+    const key = `reportPreviewPage.status.${status}`;
+    // @ts-ignore
+    const translated = t(key);
+    // @ts-ignore
+    return translated === key ? status : translated;
+  };
   
   if (!validationResult || !currentScoring) {
     return (
@@ -244,7 +252,7 @@ export default function AnalysisPage() {
                         {finding.gravedad}
                       </span>
                       <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
-                        {finding.status}
+                        {getTranslatedStatus(finding.status)}
                       </span>
                     </div>
                   </div>
