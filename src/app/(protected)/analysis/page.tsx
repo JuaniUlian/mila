@@ -23,6 +23,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Logo } from '@/components/layout/logo';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { saveAs } from 'file-saver';
 
 // Main Component
 export default function AnalysisPage() {
@@ -108,24 +110,135 @@ export default function AnalysisPage() {
     setActiveModal(null);
   }, [t, toast, setScore]);
 
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
+    if (!validationResult || !currentScoring) return;
+
+    const reportData = {
+        documentTitle: validationResult.documentName,
+        findings: findings,
+        scoringReport: generateScoringReport(findings),
+    };
+
     try {
-        const reportData = {
-            documentTitle: validationResult.documentName,
-            findings: findings,
-            scoringReport: generateScoringReport(findings),
+        const pdfDoc = await PDFDocument.create();
+        const page = pdfDoc.addPage();
+        const { width, height } = page.getSize();
+        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+        let y = height - 50;
+
+        const drawText = (text: string, x: number, yPos: number, options: { font?: any, size?: number, color?: any } = {}) => {
+            page.drawText(text, {
+                x,
+                y: yPos,
+                font: options.font || font,
+                size: options.size || 10,
+                color: options.color || rgb(0, 0, 0),
+            });
+            return (options.size || 10) + 2; // Return line height
         };
-        localStorage.setItem('milaReportData', JSON.stringify(reportData));
-        router.push('/report-preview');
+        
+        const drawWrappedText = (text: string, x: number, yPos: number, maxWidth: number, options: { font?: any, size?: number, color?: any } = {}) => {
+            const size = options.size || 10;
+            const currentFont = options.font || font;
+            const words = text.replace(/\n/g, ' \n ').split(' ');
+            let line = '';
+            let totalHeight = 0;
+
+            for (const word of words) {
+                if (word === '\n') {
+                    drawText(line, x, yPos - totalHeight, options);
+                    totalHeight += size + 2;
+                    line = '';
+                    continue;
+                }
+                const testLine = line + word + ' ';
+                const testWidth = currentFont.widthOfTextAtSize(testLine, size);
+                if (testWidth > maxWidth) {
+                    drawText(line, x, yPos - totalHeight, options);
+                    totalHeight += size + 2;
+                    line = word + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            drawText(line, x, yPos - totalHeight, options);
+            totalHeight += size + 2;
+            return totalHeight;
+        }
+
+        // Header
+        y -= drawText('Informe de Análisis Normativo - MILA', 50, y, { font: boldFont, size: 18 });
+        y -= 5;
+        y -= drawText(reportData.documentTitle, 50, y, { font: boldFont, size: 14 });
+        y -= 5;
+        y -= drawText(`Fecha de Generación: ${new Date().toLocaleDateString()}`, 50, y, { size: 10 });
+        y -= 20;
+
+        // Summary
+        page.drawLine({ start: { x: 50, y: y }, end: { x: width - 50, y: y }, thickness: 1 });
+        y -= 15;
+        y -= drawText('Resumen General', 50, y, { font: boldFont, size: 14 });
+        y -= 10;
+        y -= drawText(`Puntaje de Cumplimiento: ${reportData.scoringReport.summary.complianceScore.toFixed(0)}/100`, 70, y, { size: 12 });
+        y -= 15;
+        y -= drawText(`Nivel de Riesgo: ${reportData.scoringReport.summary.riskCategory.label}`, 70, y, { size: 12 });
+        y -= 15;
+         y -= drawText(`Hallazgos: ${reportData.findings.length} totales (${reportData.scoringReport.summary.progress.pending} pendientes, ${reportData.scoringReport.summary.progress.resolved} resueltos)`, 70, y, { size: 12 });
+        y -= 20;
+
+        // Findings
+        page.drawLine({ start: { x: 50, y: y }, end: { x: width - 50, y: y }, thickness: 1 });
+        y -= 15;
+        y -= drawText('Detalle de Hallazgos', 50, y, { font: boldFont, size: 14 });
+        y -= 10;
+        
+        for (const finding of reportData.findings) {
+            if (y < 150) {
+              const newPage = pdfDoc.addPage();
+              page.endText();
+              y = newPage.getSize().height - 50;
+              page.beginText();
+            }
+            
+            y -= 15;
+            y -= drawText(`${finding.titulo_incidencia}`, 60, y, { font: boldFont, size: 12 });
+            y -= 5;
+
+            const severityColor = finding.gravedad === 'Alta' ? rgb(0.7, 0, 0) : finding.gravedad === 'Media' ? rgb(0.7, 0.4, 0) : rgb(0.1, 0.4, 0.7);
+            const statusText = `Gravedad: ${finding.gravedad} | Estado: ${getTranslatedStatus(finding.status)}`;
+            y -= drawText(statusText, 70, y, { font: font, size: 10, color: severityColor });
+            y -= 10;
+            
+            y -= drawText('Evidencia:', 70, y, { font: boldFont, size: 10 });
+            y -= drawWrappedText(`"${finding.evidencia}"`, 80, y, width - 140, { size: 9 });
+            y -= 10;
+            
+            y -= drawText('Justificación Legal:', 70, y, { font: boldFont, size: 10 });
+            y -= drawWrappedText(finding.justificacion_legal, 80, y, width - 140, { size: 9 });
+            y -= 15;
+        }
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        saveAs(blob, `Informe-MILA-${reportData.documentTitle.replace(/ /g, '_')}.pdf`);
+
+        toast({
+            title: "Informe Generado",
+            description: "El PDF del informe se está descargando.",
+            variant: "success",
+        });
+
     } catch (error) {
-        console.error("Error preparing report data:", error);
+        console.error("Error generating PDF report:", error);
         toast({
             title: t('analysisPage.toastReportError'),
-            description: t('analysisPage.toastReportErrorDesc'),
+            description: "No se pudo generar el PDF. Por favor, intente de nuevo.",
             variant: "destructive",
         });
     }
-  };
+};
 
   const severityFilters = useMemo(() => {
     if (!validationResult) return [];
