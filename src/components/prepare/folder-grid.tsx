@@ -155,8 +155,8 @@ const FileItem: React.FC<{
   return (
     <div
       className={cn(
-        'group/fileitem flex items-center justify-between p-2 text-sm transition-all hover:bg-primary/10 rounded-lg border border-transparent',
-        isSelected && 'bg-primary/20 border-primary/50'
+        'group/fileitem flex items-center justify-between p-2 text-sm transition-all rounded-lg border border-slate-200/60 hover:bg-slate-100 hover:border-slate-300',
+        isSelected && 'bg-primary/10 border-primary/40'
       )}
     >
       <div
@@ -357,3 +357,5 @@ export function FolderGrid({
         </div>
     );
 }
+
+    
