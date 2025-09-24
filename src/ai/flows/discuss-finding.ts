@@ -133,7 +133,7 @@ INSTRUCCIONES DE RESPUESTA:
       
       `Tu argumento "${lastMessage.content}" es interesante, pero según ${input.finding.nombre_archivo_normativa}, artículo ${input.finding.articulo_o_seccion}, se requiere mayor sustento. ${input.finding.justificacion_legal} ¿Podrías proporcionar evidencia adicional?`,
       
-      `Entiendo tu punto sobre "${lastMessage.content}". No obstante, el hallazgo "${input.finding.titulo_incidencia}" se basa en criterios técnicos específicos. ${input.finding.justificacion_tecnica} ¿Qué elementos consideras que deberían modificar esta evaluación?`
+      `Entiendo tu punto sobre "${lastMessage.content}". No obstante, el hallazgo "${finding.titulo_incidencia}" se basa en criterios técnicos específicos. ${input.finding.justificacion_tecnica} ¿Qué elementos consideras que deberían modificar esta evaluación?`
     ];
 
     // Usar una respuesta aleatoria para variar
@@ -143,49 +143,40 @@ INSTRUCCIONES DE RESPUESTA:
   }
 }
 
-// Función para streaming usando Claude API
-export async function discussFindingAction(history: DiscussionMessage[], finding: FindingWithStatus): Promise<Response> {
-  try {
-    console.log('Starting discussFindingAction with Claude API');
+// Server Action for the client component
+export async function discussFindingAction(history: DiscussionMessage[], finding: FindingWithStatus): Promise<string> {
+    try {
+        console.log('Starting discussFindingAction with Claude API');
 
-    if (!history || history.length === 0) {
-      const response = "Para iniciar la discusión sobre este hallazgo, presenta tu argumento o punto de vista sobre por qué consideras que esta incidencia no debería aplicar o requiere modificación.";
-      return new Response(response, {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      });
-    }
+        if (!history || history.length === 0) {
+            return "Para iniciar la discusión sobre este hallazgo, presenta tu argumento o punto de vista sobre por qué consideras que esta incidencia no debería aplicar o requiere modificación.";
+        }
 
-    const lastUserMessage = history[history.length - 1];
-    if (lastUserMessage.role !== 'user') {
-      const response = "Espero tu argumento para poder responder y discutir este hallazgo contigo.";
-      return new Response(response, {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      });
-    }
+        const lastUserMessage = history[history.length - 1];
+        if (lastUserMessage.role !== 'user') {
+            return "Espero tu argumento para poder responder y discutir este hallazgo contigo.";
+        }
 
-    // Usar la función discussFinding en lugar de duplicar código
-    const result = await discussFinding({ history, finding });
-    
-    return new Response(result.reply, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    });
+        // Use the discussFinding function to get the reply
+        const result = await discussFinding({ history, finding });
+        
+        // Return only the string reply
+        return result.reply;
 
-  } catch (error: unknown) {
-    console.error('Error in discussFindingAction:', error);
-    
-    const lastMessage = history && history.length > 0 ? history[history.length - 1] : null;
-    const userContent = lastMessage && lastMessage.role === 'user' ? lastMessage.content : 'su argumento';
-    
-    const manualResponse = `Comprendo tu punto sobre "${userContent}". Sin embargo, el hallazgo "${finding.titulo_incidencia}" se mantiene válido según ${finding.nombre_archivo_normativa}, artículo ${finding.articulo_o_seccion}. 
+    } catch (error: unknown) {
+        console.error('Error in discussFindingAction:', error);
+        
+        const lastMessage = history && history.length > 0 ? history[history.length - 1] : null;
+        const userContent = lastMessage && lastMessage.role === 'user' ? lastMessage.content : 'su argumento';
+        
+        const manualResponse = `Comprendo tu punto sobre "${userContent}". Sin embargo, el hallazgo "${finding.titulo_incidencia}" se mantiene válido según ${finding.nombre_archivo_normativa}, artículo ${finding.articulo_o_seccion}. 
 
 ${finding.justificacion_legal}
 
 Para cambiar esta evaluación, necesito una base legal específica. ¿Puedes citar artículos de la normativa que respalden tu posición?`;
-    
-    return new Response(manualResponse, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-    });
-  }
+        
+        // In case of an error, return a simple string response.
+        return manualResponse;
+    }
 }
-
     

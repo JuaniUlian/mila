@@ -410,8 +410,27 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [attachedFile, setAttachedFile] = useState<File | null>(null);
+    const [discussionStarted, setDiscussionStarted] = useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+    const startDiscussion = async (initialMessage: string) => {
+        setDiscussionStarted(true);
+        const newHistory: DiscussionMessage[] = [{ role: 'user', content: initialMessage }];
+        setHistory(newHistory);
+        setIsLoading(true);
+
+        try {
+            const responseText = await discussFindingAction(newHistory, finding);
+            const assistantResponse: DiscussionMessage = { role: 'assistant', content: responseText };
+            setHistory(prev => [...prev, assistantResponse]);
+        } catch (error) {
+            console.error("Error starting discussion:", error);
+            setHistory(prev => [...prev, { role: 'assistant', content: "Lo siento, ocurrió un error al iniciar la discusión." }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
     const handleSend = async () => {
         if (!input.trim() && !attachedFile) return;
 
@@ -427,23 +446,12 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         setIsLoading(true);
 
         try {
-            const response = await discussFindingAction(newHistory, finding);
-            
-            if (response.body) {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let assistantResponse = '';
-                
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    assistantResponse += decoder.decode(value);
-                    setHistory([...newHistory, { role: 'assistant', content: assistantResponse }]);
-                }
-            }
+            const responseText = await discussFindingAction(newHistory, finding);
+            const assistantResponse: DiscussionMessage = { role: 'assistant', content: responseText };
+            setHistory(prev => [...prev, assistantResponse]);
         } catch (error) {
             console.error("Error discussing finding:", error);
-            setHistory([...newHistory, { role: 'assistant', content: "Lo siento, ocurrió un error al procesar tu mensaje." }]);
+            setHistory(prev => [...prev, { role: 'assistant', content: "Lo siento, ocurrió un error al procesar tu mensaje." }]);
         } finally {
             setIsLoading(false);
         }
@@ -484,65 +492,72 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                     </p>
                 </div>
 
-                <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gray-50/50 rounded-lg min-h-[200px]">
-                    {history.map((message, index) => (
-                        <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`p-3 rounded-lg max-w-md ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
-                                {message.content}
+                {!discussionStarted ? (
+                    <div className="space-y-3">
+                        <p className="text-sm text-gray-700">Selecciona un enfoque para iniciar la discusión:</p>
+                        <button onClick={() => startDiscussion("Quiero cuestionar este hallazgo porque tengo evidencia adicional para presentar.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Tengo evidencia adicional</button>
+                        <button onClick={() => startDiscussion("Quiero proponer un enfoque alternativo para solucionar este hallazgo.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Cambiar Enfoque</button>
+                        <button onClick={() => startDiscussion("Quiero generar un documento de objeción formal para este hallazgo.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Generar Documento de Objeción</button>
+                    </div>
+                ) : (
+                <>
+                    <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gray-50/50 rounded-lg min-h-[200px]">
+                        {history.map((message, index) => (
+                            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`p-3 rounded-lg max-w-md ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
+                                    {message.content}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                     {isLoading && (
-                        <div className="flex justify-start">
-                            <div className="p-3 rounded-lg bg-gray-200 text-gray-800">
-                                <Loader2 className="w-5 h-5 animate-spin" />
+                        ))}
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="p-3 rounded-lg bg-gray-200 text-gray-800">
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
 
-                <div className="flex items-center gap-2">
-                     <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handleFileChange} 
-                        className="hidden" 
-                     />
-                     <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="text-gray-500 hover:text-gray-700"
-                        aria-label="Adjuntar archivo"
-                    >
-                        <Paperclip className="w-5 h-5" />
-                    </Button>
-                    <Textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Escribe tu argumento..."
-                        className="w-full p-2 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white/50"
-                        rows={1}
-                        disabled={isLoading}
-                        onKeyDown={handleKeyDown}
-                    />
-                     <Button onClick={handleSend} disabled={isLoading || (!input.trim() && !attachedFile)} size="icon" className="rounded-full">
-                        <Send className="w-5 h-5" />
-                    </Button>
-                </div>
-                 {attachedFile && (
-                    <div className="text-sm text-gray-600">
-                        Archivo adjunto: {attachedFile.name}
-                        <Button variant="ghost" size="sm" onClick={() => setAttachedFile(null)} className="ml-2 text-red-500">
-                            <X className="w-3 h-3 mr-1" /> Quitar
+                    <div className="flex items-center gap-2">
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            className="hidden" 
+                        />
+                        <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="text-gray-500 hover:text-gray-700"
+                            aria-label="Adjuntar archivo"
+                        >
+                            <Paperclip className="w-5 h-5" />
+                        </Button>
+                        <Textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Escribe tu argumento..."
+                            className="w-full p-2 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white/50"
+                            rows={1}
+                            disabled={isLoading}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <Button onClick={handleSend} disabled={isLoading || (!input.trim() && !attachedFile)} size="icon" className="rounded-full">
+                            <Send className="w-5 h-5" />
                         </Button>
                     </div>
+                    {attachedFile && (
+                        <div className="text-sm text-gray-600">
+                            Archivo adjunto: {attachedFile.name}
+                            <Button variant="ghost" size="sm" onClick={() => setAttachedFile(null)} className="ml-2 text-red-500">
+                                <X className="w-3 h-3 mr-1" /> Quitar
+                            </Button>
+                        </div>
+                    )}
+                </>
                 )}
             </div>
         </div>
     );
 };
-
-    
-
-    
