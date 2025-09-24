@@ -542,8 +542,8 @@ const handleValidateInstructions = async () => {
       <div className={cn("max-w-7xl mx-auto items-start", isModuleView ? "grid lg:grid-cols-3 gap-8" : "space-y-8")}>
         
         <div className={cn("animate-in fade-in duration-500", isModuleView ? "lg:col-span-2" : "w-full")}>
-           <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
-              <CardHeader className='p-6 flex flex-row items-center justify-between border-b border-slate-200/80'>
+           <div className="bg-white/80 backdrop-blur-lg border border-slate-200/60 shadow-lg flex flex-col rounded-2xl">
+              <CardHeader className='p-6 flex flex-row items-center justify-between'>
                 <div className="flex items-center gap-3">
                   {isModuleView && (
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-foreground hover:bg-black/5" onClick={() => router.push('/select-module')}>
@@ -560,7 +560,7 @@ const handleValidateInstructions = async () => {
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <div className="relative flex-grow w-full">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-white/70 text-foreground placeholder:text-slate-500 rounded-lg border-slate-300 focus:bg-white" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                    <Input placeholder={t('preparePage.searchPlaceholder')} className="pl-12 py-6 w-full bg-white text-foreground placeholder:text-slate-500 rounded-lg border-slate-300 focus:bg-white" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                   </div>
                   {!isModuleView && (
                     <>
@@ -781,3 +781,5 @@ const handleValidateInstructions = async () => {
     </div>
   );
 }
+
+    

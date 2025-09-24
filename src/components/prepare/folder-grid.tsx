@@ -244,7 +244,7 @@ export function FolderGrid({
         if (!folder) return null;
 
         return (
-            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl">
+            <div className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm flex flex-col rounded-2xl">
                 <CardHeader className='pb-3 flex flex-row items-center justify-between'>
                     <div className='flex-1 flex items-center gap-4'>
                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setExpandedFolderId(null)}>
@@ -298,16 +298,16 @@ export function FolderGrid({
             {folders.map(folder => (
                 <div 
                     key={folder.id} 
-                    className="bg-slate-50/50 backdrop-blur-sm border-slate-200/80 shadow-sm hover:shadow-lg transition-shadow flex flex-col rounded-2xl cursor-pointer"
+                    className="bg-white/80 border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col rounded-2xl cursor-pointer"
                     onClick={() => setExpandedFolderId(folder.id)}
                 >
-                    <CardHeader className='pb-3 flex flex-row items-start justify-between'>
-                        <div className='flex-1'>
-                            <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                                <Folder className="h-6 w-6 text-primary" />
+                    <CardHeader className='pb-4 pt-5 px-5 flex flex-row items-start justify-between'>
+                        <div className='flex-1 space-y-1'>
+                            <CardTitle className="flex items-center gap-2.5 text-base font-semibold text-foreground">
+                                <Folder className="h-5 w-5 text-foreground/80" />
                                 {folder.name}
                             </CardTitle>
-                            <CardDescription className="text-muted-foreground">{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
+                            <CardDescription className="text-muted-foreground pl-8 text-xs">{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
                         </div>
                         <div className="flex items-center" onClick={e => e.stopPropagation()}>
                             <FileUploadButton
@@ -317,7 +317,7 @@ export function FolderGrid({
                                 className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
                                 title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
                             >
-                                <Plus className="h-5 w-5" />
+                                <Plus className="h-4 w-4" />
                                 <span className="sr-only">{t('preparePage.addFile')}</span>
                             </FileUploadButton>
                                 <DropdownMenu>
@@ -328,7 +328,7 @@ export function FolderGrid({
                                         className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
                                         onClick={(e) => e.stopPropagation()}
                                         >
-                                        <MoreVertical className="h-5 w-5" />
+                                        <MoreVertical className="h-4 w-4" />
                                         <span className="sr-only">{t('preparePage.folderOptions')}</span>
                                         </Button>
                                     </DropdownMenuTrigger>
@@ -349,9 +349,19 @@ export function FolderGrid({
                                 </DropdownMenu>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 space-y-1 p-3">
-                        {folder.files.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('preparePage.folderEmpty')}</p>}
-                    </CardContent>
+                    {folder.files.length > 0 && (
+                      <CardContent className="flex-1 space-y-1 p-3 border-t border-slate-200/80 bg-slate-50/50">
+                          {folder.files.slice(0, 3).map(file => (
+                              <div key={file.id} className="flex items-center gap-2 p-1 text-xs text-muted-foreground">
+                                  <FileText className="h-4 w-4" />
+                                  <span className="truncate">{file.name}</span>
+                              </div>
+                          ))}
+                          {folder.files.length > 3 && (
+                            <p className='text-xs text-center text-muted-foreground pt-1'>...y {folder.files.length-3} más</p>
+                          )}
+                      </CardContent>
+                    )}
                 </div>
             ))}
         </div>
