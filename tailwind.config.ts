@@ -160,17 +160,6 @@ export default {
           borderWidth: '1px',
           borderColor: 'hsl(var(--border) / 0.3)',
         },
-        '.btn-neu-light': {
-            backgroundColor: 'hsl(var(--background) / 0.8)',
-            border: '1px solid hsl(var(--border) / 0.5)',
-            color: 'hsl(var(--foreground))',
-            boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-            transition: 'all 0.2s ease-in-out',
-            '&:hover': {
-                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-                backgroundColor: 'hsl(var(--background))',
-            }
-        },
         '.btn-neu-green': {
             backgroundColor: 'hsl(142 71% 45% / 0.9)', // green-500
             border: '1px solid hsl(142 71% 35% / 0.5)', // green-600

@@ -55,7 +55,7 @@ export default function SelectModulePage() {
                 </div>
                 <div className="flex-1 flex flex-col text-center">
                   <p className="text-slate-600 mb-6 flex-1" dangerouslySetInnerHTML={{ __html: module.description }}></p>
-                  <Button className="w-full btn-neu-light mt-auto">
+                  <Button className="w-full btn-neu mt-auto">
                     Seleccionar
                   </Button>
                 </div>
