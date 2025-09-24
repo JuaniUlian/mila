@@ -43,6 +43,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
       document.body.classList.add(backgroundClass);
     }
     
+    // Cleanup function to remove class when component unmounts or path changes
     return () => {
        if (backgroundClass) {
          document.body.classList.remove(backgroundClass);
@@ -51,6 +52,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
   }, [pathname, score, isInitialPageLoad, PREPARE_PATHS]);
 
 
+  // Effect to reset the initial page load flag when navigating away from the analysis page
   useEffect(() => {
     if (pathname !== '/analysis' && !isInitialPageLoad) {
       setIsInitialPageLoad(true);
