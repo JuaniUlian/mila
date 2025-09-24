@@ -497,7 +497,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                         <p className="text-sm text-gray-700">Selecciona un enfoque para iniciar la discusión:</p>
                         <button onClick={() => startDiscussion("Quiero cuestionar este hallazgo porque tengo evidencia adicional para presentar.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Tengo evidencia adicional</button>
                         <button onClick={() => startDiscussion("Quiero proponer un enfoque alternativo para solucionar este hallazgo.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Cambiar Enfoque</button>
-                        <button onClick={() => startDiscussion("Quiero generar un documento de objeción formal para este hallazgo.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Generar Documento de Objeción</button>
+                        <button onClick={() => startDiscussion("Quiero argumentar que este hallazgo no aplica debido a un contexto operacional especial.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors">Contexto operacional especial</button>
                     </div>
                 ) : (
                 <>
