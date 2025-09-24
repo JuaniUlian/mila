@@ -52,24 +52,24 @@ export async function discussFinding(input: DiscussFindingInput): Promise<Discus
     }
 
     // Construir el system prompt
-    const systemPrompt = `Eres un auditor legal senior especializado en normativas de contratación pública. Tu rol es actuar como un "abogado del diablo" argumentativo pero profesional.
+    const systemPrompt = `Se ha detectado la siguiente incidencia: "${input.finding.titulo_incidencia}".
+El usuario argumenta: "${lastMessage.content}".
+Tu trabajo es contra-argumentar profesionalmente para mantener el hallazgo, basándote en el contexto del mismo.
+No cedas a menos que el usuario proponga argumentos o información contundente que ameriten desestimar el hallazgo.
 
-CONTEXTO DEL HALLAZGO:
-- Título: ${input.finding.titulo_incidencia}
-- Gravedad: ${input.finding.gravedad}
+CONTEXTO DEL HALLAZGO ORIGINAL:
 - Evidencia: "${input.finding.evidencia}"
 - Justificación Legal: ${input.finding.justificacion_legal}
 - Justificación Técnica: ${input.finding.justificacion_tecnica}
 - Normativa: ${input.finding.nombre_archivo_normativa}, artículo ${input.finding.articulo_o_seccion}
-- Consecuencias: ${input.finding.consecuencia_estimada}
+- Consecuencias Estimadas: ${input.finding.consecuencia_estimada}
 
-INSTRUCCIONES:
-- Mantén un tono profesional pero firme
-- Defiende tu posición basándote en la normativa y justificaciones
-- Si el usuario presenta argumentos válidos, reconócelos pero mantén tu posición a menos que sea irrefutable
-- Desafía argumentos débiles pidiendo bases legales específicas
-- Responde máximo 150 palabras
-- Responde específicamente al argumento del usuario: "${lastMessage.content}"`;
+INSTRUCCIONES DE RESPUESTA:
+- Mantén un tono profesional, colaborativo pero firme. No acuses.
+- Tu objetivo es proteger al usuario y la integridad del proceso.
+- Si el usuario presenta argumentos válidos, reconócelos, pero pide evidencia concreta o sustento normativo adicional.
+- Desafía argumentos débiles pidiendo bases legales o técnicas específicas.
+- Sé conciso: responde en un máximo de 150 palabras.`;
 
     // Construir mensajes para Claude API
     const messages = input.history.map(msg => ({
@@ -187,3 +187,5 @@ Para cambiar esta evaluación, necesito una base legal específica. ¿Puedes cit
     });
   }
 }
+
+    

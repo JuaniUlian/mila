@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Search, Filter, FileText, Scale, AlertTriangle, 
   MessageSquare, HelpCircle, Wrench, Eye, Download,
-  ChevronRight, X, Loader2, AlertOctagon, ShieldCheck
+  ChevronRight, X, Loader2, AlertOctagon, ShieldCheck, Send, Paperclip
 } from 'lucide-react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { calculateDynamicComplianceScore, generateScoringReport } from '@/ai/flows/compliance-scoring';
@@ -409,13 +409,21 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
     const [history, setHistory] = useState<DiscussionMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [attachedFile, setAttachedFile] = useState<File | null>(null);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const handleSend = async () => {
-        if (!input.trim()) return;
+        if (!input.trim() && !attachedFile) return;
 
-        const newHistory: DiscussionMessage[] = [...history, { role: 'user', content: input }];
+        let messageContent = input.trim();
+        if (attachedFile) {
+            messageContent += `\n\n(Se adjuntó el archivo: ${attachedFile.name})`;
+        }
+
+        const newHistory: DiscussionMessage[] = [...history, { role: 'user', content: messageContent }];
         setHistory(newHistory);
         setInput('');
+        setAttachedFile(null);
         setIsLoading(true);
 
         try {
@@ -441,6 +449,19 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         }
     };
     
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSend();
+        }
+    };
+    
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setAttachedFile(e.target.files[0]);
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl glass-card flex flex-col p-6 space-y-4">
@@ -463,7 +484,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                     </p>
                 </div>
 
-                <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gray-50/50 rounded-lg">
+                <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gray-50/50 rounded-lg min-h-[200px]">
                     {history.map((message, index) => (
                         <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`p-3 rounded-lg max-w-md ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
@@ -481,21 +502,47 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                 </div>
 
                 <div className="flex items-center gap-2">
+                     <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handleFileChange} 
+                        className="hidden" 
+                     />
+                     <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-gray-500 hover:text-gray-700"
+                        aria-label="Adjuntar archivo"
+                    >
+                        <Paperclip className="w-5 h-5" />
+                    </Button>
                     <Textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Escribe tu argumento..."
                         className="w-full p-2 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white/50"
-                        rows={2}
+                        rows={1}
                         disabled={isLoading}
+                        onKeyDown={handleKeyDown}
                     />
-                     <Button onClick={handleSend} disabled={isLoading} className="self-end">
-                        Enviar
+                     <Button onClick={handleSend} disabled={isLoading || (!input.trim() && !attachedFile)} size="icon" className="rounded-full">
+                        <Send className="w-5 h-5" />
                     </Button>
                 </div>
+                 {attachedFile && (
+                    <div className="text-sm text-gray-600">
+                        Archivo adjunto: {attachedFile.name}
+                        <Button variant="ghost" size="sm" onClick={() => setAttachedFile(null)} className="ml-2 text-red-500">
+                            <X className="w-3 h-3 mr-1" /> Quitar
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
+
+    
 
     
