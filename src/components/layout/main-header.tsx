@@ -84,7 +84,7 @@ export function MainHeader() {
             <TooltipProvider delayDuration={100}>
                 <header className={cn(
                     "sticky top-4 z-50 w-fit mx-auto",
-                    "bg-white/60 dark:bg-slate-800/60 backdrop-blur-md shadow-lg border border-white/20 dark:border-slate-700/50 rounded-full px-4 py-2"
+                    "bg-white/20 dark:bg-slate-900/20 backdrop-blur-md shadow-lg border border-white/30 dark:border-slate-700/50 rounded-full px-4 py-2"
                 )}>
                     <nav className="flex items-center justify-center gap-2">
                         {isClient && (
