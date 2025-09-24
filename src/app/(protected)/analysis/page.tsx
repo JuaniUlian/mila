@@ -16,6 +16,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 // Main Component
 export default function AnalysisPage() {
@@ -342,30 +343,31 @@ export default function AnalysisPage() {
 
 // Modal: ¿Por qué está mal?
 const WhyModal = ({ finding, onClose }: { finding: any, onClose: () => void }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div className="w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b bg-white/80 backdrop-blur-xl border-white/20">
-                <h3 className="text-lg font-semibold text-gray-800">Detalles de la Incidencia</h3>
-                <button onClick={onClose}>
-                    <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
-                </button>
-            </div>
-            <div className="p-6 space-y-6 overflow-y-auto bg-gradient-to-b from-white to-gray-100">
-                <div>
-                    <h4 className="font-medium mb-2 text-gray-700">Hallazgo:</h4>
-                    <p className="text-base text-gray-800 italic bg-gray-50/50 p-3 rounded-lg border border-gray-200/80">"{finding.evidencia}"</p>
-                </div>
-                <div>
-                    <h4 className="font-medium mb-2 text-gray-700">Explicación Legal:</h4>
-                    <p className="text-base text-gray-800">{finding.justificacion_legal}</p>
-                </div>
-                <div>
-                    <h4 className="font-medium mb-2 text-gray-700">Consecuencia Estimada:</h4>
-                    <p className="text-base text-red-600 font-semibold">{finding.consecuencia_estimada}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl glass-card flex flex-col p-6 space-y-4">
+          <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-800">Detalles de la Incidencia</h3>
+              <button onClick={onClose}>
+                  <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
+              </button>
+          </div>
+          
+          <Separator className="bg-gray-200/60" />
+
+          <div>
+              <h4 className="font-semibold text-gray-800 mb-2">Hallazgo:</h4>
+              <p className="text-base text-gray-800 italic bg-gray-50/50 p-3 rounded-lg border border-gray-200/80">"{finding.evidencia}"</p>
+          </div>
+          <div>
+              <h4 className="font-semibold text-gray-800 mb-2">Explicación Legal:</h4>
+              <p className="text-base text-gray-700">{finding.justificacion_legal}</p>
+          </div>
+          <div>
+              <h4 className="font-semibold text-gray-800 mb-2">Consecuencia Estimada:</h4>
+              <p className="text-base text-red-700 font-semibold bg-red-50/70 p-3 rounded-lg border border-red-200/80">{finding.consecuencia_estimada}</p>
+          </div>
+      </div>
+  </div>
 );
 
 // Modal: ¿Cómo lo arreglo?
@@ -467,3 +469,5 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
         </div>
     );
 };
+
+    
