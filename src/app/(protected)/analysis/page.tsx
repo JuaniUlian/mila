@@ -338,7 +338,7 @@ export default function AnalysisPage() {
                   <span className="text-sm text-gray-600">Riesgo de impugnación</span>
                   <span className="font-medium text-red-600">Alto</span>
                 </div>
-                <Button onClick={handleDownloadReport} className="w-full mt-4 btn-neu-light">
+                <Button onClick={handleDownloadReport} className="w-full mt-4 btn-bg-image">
                   <Download className="w-4 h-4 mr-2" />
                   Descargar Informe
                 </Button>
