@@ -342,9 +342,9 @@ export default function AnalysisPage() {
 
 // Modal: ¿Por qué está mal?
 const WhyModal = ({ finding, onClose }: { finding: any, onClose: () => void }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-      <div className="flex items-center justify-between p-4 border-b">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+      <div className="flex items-center justify-between p-4 border-b border-white/20">
         <h3 className="text-lg font-semibold text-gray-800">¿Por qué es problemático?</h3>
         <button onClick={onClose}>
           <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
@@ -353,7 +353,7 @@ const WhyModal = ({ finding, onClose }: { finding: any, onClose: () => void }) =
       <div className="p-6 space-y-6 overflow-y-auto">
         <div>
           <h4 className="font-medium mb-2 text-gray-700">Hallazgo:</h4>
-          <p className="text-base text-gray-800 italic bg-gray-50 p-3 rounded-lg border">"{finding.evidencia}"</p>
+          <p className="text-base text-gray-800 italic bg-gray-50/50 p-3 rounded-lg border border-gray-200/80">"{finding.evidencia}"</p>
         </div>
         <div>
           <h4 className="font-medium mb-2 text-gray-700">Explicación Legal:</h4>
@@ -370,9 +370,9 @@ const WhyModal = ({ finding, onClose }: { finding: any, onClose: () => void }) =
 
 // Modal: ¿Cómo lo arreglo?
 const HowToFixModal = ({ finding, onClose, onApply }: { finding: any, onClose: () => void, onApply: (id: string, status: FindingStatus) => void }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-      <div className="flex items-center justify-between p-4 border-b">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+      <div className="flex items-center justify-between p-4 border-b border-white/20">
         <h3 className="text-lg font-semibold text-gray-800">¿Cómo lo arreglo?</h3>
         <button onClick={onClose}>
           <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
@@ -384,7 +384,7 @@ const HowToFixModal = ({ finding, onClose, onApply }: { finding: any, onClose: (
           <p className="text-base mb-4 text-gray-800">{finding.propuesta_redaccion || finding.propuesta_procedimiento}</p>
         </div>
       </div>
-      <div className="p-4 bg-gray-50 border-t flex justify-end space-x-3">
+      <div className="p-4 bg-gray-50/50 border-t border-white/20 flex justify-end space-x-3">
         <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold">
           Cerrar
         </button>
@@ -408,16 +408,16 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div className="flex items-center justify-between p-4 border-b border-white/20">
           <h3 className="text-lg font-semibold text-gray-800">Cuestionar Hallazgo</h3>
           <button onClick={onClose}>
             <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
           </button>
         </div>
         <div className="p-6 space-y-6 overflow-y-auto">
-          <div className="bg-amber-50 border border-amber-200 rounded p-3">
+          <div className="bg-amber-50/50 border border-amber-200/80 rounded p-3">
             <p className="text-sm text-amber-800">"{finding.evidencia}"</p>
           </div>
           
@@ -429,7 +429,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
                   <button
                     key={type.id}
                     onClick={() => setArgumentType(type.id)}
-                    className="w-full p-4 text-left border rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-colors"
+                    className="w-full p-4 text-left border rounded-lg hover:bg-gray-100/50 hover:border-gray-300/80 transition-colors border-gray-200/80"
                   >
                     <div className="font-semibold text-gray-800">{type.label}</div>
                     <div className="text-sm text-gray-600">{type.description}</div>
@@ -446,7 +446,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
                 value={argument}
                 onChange={(e) => setArgument(e.target.value)}
                 placeholder="Explica tu argumento de manera clara y específica..."
-                className="w-full p-3 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white/50"
                 rows={5}
               />
               <div className="flex space-x-3 mt-4 justify-end">
@@ -467,8 +467,3 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
     </div>
   );
 };
-
-    
-    
-
-    
