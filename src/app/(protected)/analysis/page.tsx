@@ -257,7 +257,12 @@ export default function AnalysisPage() {
                     </div>
                   </div>
 
-                  <div className="mb-4 p-3 bg-gray-50/80 rounded border-l-4 border-amber-500">
+                  <div className={cn(
+                    "mb-4 p-3 bg-gray-50/80 rounded border-l-4",
+                    finding.gravedad === 'Alta' && 'border-red-500',
+                    finding.gravedad === 'Media' && 'border-amber-500',
+                    finding.gravedad === 'Baja' && 'border-blue-500',
+                  )}>
                     <p className="text-sm text-gray-800 italic">"{finding.evidencia}"</p>
                   </div>
 
@@ -464,4 +469,6 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
 };
 
     
+    
+
     
