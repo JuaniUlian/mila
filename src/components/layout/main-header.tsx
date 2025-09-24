@@ -86,7 +86,7 @@ export function MainHeader() {
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Link href="/home" className={commonButtonClasses}>
-                                        <Logo variant="color" className="h-full w-full p-1.5" />
+                                        <Logo variant="monochrome" className="h-full w-full p-1.5" />
                                     </Link>
                                 </TooltipTrigger>
                                 <TooltipContent>
