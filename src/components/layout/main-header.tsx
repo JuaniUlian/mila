@@ -129,7 +129,7 @@ export function MainHeader() {
             </header>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
             <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent className="glass-card">
                     <AlertDialogHeader>
                     <AlertDialogTitle>{t('confirmDialog.title')}</AlertDialogTitle>
                     <AlertDialogDescription>
