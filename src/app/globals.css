@@ -108,17 +108,17 @@ details > summary::-webkit-details-marker {
 }
 
 .bg-analysis-grave::before {
-  background-image: url('/background/Grave.png');
+  background-image: linear-gradient(135deg, hsl(0 70% 95%) 0%, hsl(0 80% 90%) 50%, hsl(0 90% 85%) 100%);
   opacity: 1;
 }
 
 .bg-analysis-alerta::before {
-  background-image: url('/background/Alerta.png');
+  background-image: linear-gradient(135deg, hsl(45 100% 95%) 0%, hsl(50 100% 90%) 50%, hsl(55 95% 80%) 100%);
   opacity: 1;
 }
 
 .bg-analysis-validado::before {
-  background-image: url('/background/Validado.png');
+  background-image: linear-gradient(135deg, hsl(130 80% 95%) 0%, hsl(140 80% 90%) 50%, hsl(150 75% 85%) 100%);
   opacity: 1;
 }
 

@@ -33,12 +33,10 @@ export default function MainContent({ children }: { children: React.ReactNode })
   }, [pathname, score, isInitialPageLoad, PREPARE_PATHS]);
 
   useEffect(() => {
-    if (pathname === '/analysis' && score !== null && isInitialPageLoad) {
-        setIsInitialPageLoad(false);
-    } else if (pathname !== '/analysis' && !isInitialPageLoad) {
+    if (pathname !== '/analysis' && !isInitialPageLoad) {
       setIsInitialPageLoad(true);
     }
-  }, [pathname, score, isInitialPageLoad, setIsInitialPageLoad]);
+  }, [pathname, isInitialPageLoad, setIsInitialPageLoad]);
 
   const bodyClassName = cn(
     "flex flex-col min-h-screen",
