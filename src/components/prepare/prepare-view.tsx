@@ -556,7 +556,7 @@ const handleValidateInstructions = async () => {
                   </h1>
                 </div>
               </CardHeader>
-              <div className="space-y-6 p-6">
+              <div className="p-6 pt-0 space-y-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <div className="relative flex-grow w-full">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -781,5 +781,3 @@ const handleValidateInstructions = async () => {
     </div>
   );
 }
-
-    

@@ -294,78 +294,61 @@ export function FolderGrid({
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {folders.map(folder => (
                 <div 
                     key={folder.id} 
-                    className="bg-white/80 border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col rounded-2xl cursor-pointer"
+                    className="relative group bg-slate-50/50 backdrop-blur-sm border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col rounded-2xl cursor-pointer aspect-square"
                     onClick={() => setExpandedFolderId(folder.id)}
                 >
-                    <CardHeader className='pb-4 pt-5 px-5 flex flex-row items-start justify-between'>
-                        <div className='flex-1 space-y-1'>
-                            <CardTitle className="flex items-center gap-2.5 text-base font-semibold text-foreground">
-                                <Folder className="h-5 w-5 text-foreground/80" />
-                                {folder.name}
-                            </CardTitle>
-                            <CardDescription className="text-muted-foreground pl-8 text-xs">{folder.files.filter(f => f.status === 'success').length} {folder.files.length === 1 ? t('preparePage.file') : t('preparePage.files')}</CardDescription>
-                        </div>
-                        <div className="flex items-center" onClick={e => e.stopPropagation()}>
-                            <FileUploadButton
-                                onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
+                    <div className="absolute top-2 right-2 flex items-center z-10" onClick={e => e.stopPropagation()}>
+                        <FileUploadButton
+                            onFileSelect={(file) => onFileUploadToFolder(file, folder.id)}
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:bg-black/10 hover:text-foreground"
+                            title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span className="sr-only">{t('preparePage.addFile')}</span>
+                        </FileUploadButton>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
-                                title={t('preparePage.addFileTo').replace('{folderName}', folder.name)}
-                            >
-                                <Plus className="h-4 w-4" />
-                                <span className="sr-only">{t('preparePage.addFile')}</span>
-                            </FileUploadButton>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:text-foreground"
-                                        onClick={(e) => e.stopPropagation()}
-                                        >
-                                        <MoreVertical className="h-4 w-4" />
-                                        <span className="sr-only">{t('preparePage.folderOptions')}</span>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
-                                        <DropdownMenuItem onSelect={() => onRenameFolder(folder)}>
-                                        <PenLine className="mr-2 h-4 w-4" />
-                                        <span>{t('preparePage.rename')}</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                        onSelect={() => onDeleteFolder(folder)}
-                                        className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                        >
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        <span>{t('preparePage.delete')}</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                        </div>
-                    </CardHeader>
-                    {folder.files.length > 0 && (
-                      <CardContent className="flex-1 space-y-1 p-3 border-t border-slate-200/80 bg-slate-50/50">
-                          {folder.files.slice(0, 3).map(file => (
-                              <div key={file.id} className="flex items-center gap-2 p-1 text-xs text-muted-foreground">
-                                  <FileText className="h-4 w-4" />
-                                  <span className="truncate">{file.name}</span>
-                              </div>
-                          ))}
-                          {folder.files.length > 3 && (
-                            <p className='text-xs text-center text-muted-foreground pt-1'>...y {folder.files.length-3} más</p>
-                          )}
-                      </CardContent>
-                    )}
+                                className="h-8 w-8 rounded-full flex-shrink-0 text-muted-foreground hover:bg-black/10 hover:text-foreground"
+                                onClick={(e) => e.stopPropagation()}
+                                >
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">{t('preparePage.folderOptions')}</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent onClick={(e) => e.stopPropagation()} className="w-48">
+                                <DropdownMenuItem onSelect={() => onRenameFolder(folder)}>
+                                <PenLine className="mr-2 h-4 w-4" />
+                                <span>{t('preparePage.rename')}</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                onSelect={() => onDeleteFolder(folder)}
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>{t('preparePage.delete')}</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                        <Folder className="h-16 w-16 text-primary mb-3" />
+                        <CardTitle className="text-base font-semibold text-foreground break-words w-full">
+                            {folder.name}
+                        </CardTitle>
+                    </div>
                 </div>
             ))}
         </div>
     );
 }
-
-    
