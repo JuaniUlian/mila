@@ -238,7 +238,7 @@ export default function LoadingPage() {
           );
           localStorage.removeItem('customInstructions');
 
-          setTimeout(() => { router.push('/analysis'); }, 1200);
+          setTimeout(() => { router.push('/analysis'); }, 1500);
 
         } catch (error) {
           console.error('❌ Error procesando resultados:', error);
@@ -254,32 +254,32 @@ export default function LoadingPage() {
   return (
     <>
       <div className="flex flex-col items-center justify-center flex-1 p-4">
-        <Card className="loading-card-neu w-full max-w-2xl">
+        <Card className="glass-card w-full max-w-2xl">
             <CardContent className="p-8">
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 flex items-center justify-center logo-neu">
+                            <div className="w-12 h-12 flex items-center justify-center bg-slate-100/80 rounded-xl shadow-inner">
                                 <Logo variant='monochrome' className="h-8 w-8"/>
                             </div>
                             <h2 className="text-xl font-semibold text-slate-800">Analizando Documento</h2>
                         </div>
                         <span className="text-sm font-medium text-slate-600">{Math.round(progress)}%</span>
                     </div>
-                    <Progress value={progress} className="h-3 progress-bar-neu" indicatorClassName="bg-gradient-to-r from-blue-400 to-blue-500" />
+                    <Progress value={progress} className="h-2 bg-slate-200/70" indicatorClassName="bg-gradient-to-r from-blue-400 to-blue-500" />
                 </div>
                 
-                <div className="mb-8 p-6 current-step-neu">
+                <div className="mb-8 p-6 bg-slate-100/50 border border-slate-200/50 rounded-xl">
                     <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 flex items-center justify-center text-slate-700 active-icon-neu">
+                        <div className="w-12 h-12 flex items-center justify-center text-slate-700 bg-white/80 rounded-xl shadow-md">
                             <currentStep.icon className="w-6 h-6"/>
                         </div>
                         <div className="flex-1">
                             <h3 className="font-semibold text-slate-800 text-lg">{currentStep.title}</h3>
                             <p className="text-slate-600 text-sm mt-1">{currentStep.description}</p>
                         </div>
-                        <div className="w-6 h-6 flex items-center justify-center status-dot-neu">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse status-dot-inner" />
+                        <div className="w-6 h-6 flex items-center justify-center">
+                            <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse shadow-[1px_1px_2px_rgba(0,0,0,0.2)]" />
                         </div>
                     </div>
                 </div>
@@ -294,8 +294,8 @@ export default function LoadingPage() {
                                 <React.Fragment key={index}>
                                     <div className="flex flex-col items-center text-center">
                                         <div className={cn(
-                                            "w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-2 transition-all duration-300",
-                                            isStepComplete ? "step-icon-complete" : isStepActive ? "step-icon-active" : "step-icon-pending"
+                                            "w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-2 transition-all duration-300 border",
+                                            isStepComplete ? "bg-green-100/80 border-green-200/80 text-green-600" : isStepActive ? "bg-blue-100/80 border-blue-200/80 text-blue-600" : "bg-slate-100/80 border-slate-200/80 text-slate-400"
                                         )}>
                                             {isStepComplete ? <CheckCircle className="w-6 h-6"/> : isStepActive ? <Loader2 className="w-6 h-6 animate-spin"/> : <step.icon className="w-6 h-6"/> }
                                         </div>

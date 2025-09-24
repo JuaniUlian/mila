@@ -139,61 +139,6 @@ body.bg-analysis-validado::before {
     box-shadow: inset -2px -2px 5px rgba(255, 255, 255, 0.8), inset 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Loading Page Neumorphism */
-.loading-card-neu {
-    background-color: #e0e7f1;
-    border-radius: 24px;
-    box-shadow: 20px 20px 40px #bdc5d0, -20px -20px 40px #ffffff;
-}
-.logo-neu {
-    background-color: #e0e7f1;
-    border-radius: 12px;
-    box-shadow: inset -4px -4px 8px #ffffff, inset 4px 4px 8px #bdc5d0;
-}
-.progress-bar-neu {
-    background-color: #e0e7f1;
-    border-radius: 9999px;
-    box-shadow: inset 4px 4px 8px #bdc5d0, inset -4px -4px 8px #ffffff;
-    overflow: hidden;
-}
-.current-step-neu {
-    background-color: #e0e7f1;
-    border-radius: 16px;
-    box-shadow: inset 8px 8px 16px #bdc5d0, inset -8px -8px 16px #ffffff;
-}
-.active-icon-neu {
-    background-color: #e0e7f1;
-    border-radius: 12px;
-    box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #bdc5d0;
-}
-.status-dot-neu {
-    background-color: #e0e7f1;
-    border-radius: 9999px;
-    box-shadow: inset 2px 2px 4px #bdc5d0, inset -2px -2px 4px #ffffff;
-}
-.status-dot-inner {
-    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
-.step-icon-pending {
-    background-color: #e0e7f1;
-    color: #64748b;
-    box-shadow: inset 3px 3px 6px #bdc5d0, inset -3px -3px 6px #ffffff;
-}
-
-.step-icon-active {
-    background-color: #e0e7f1;
-    color: #3b82f6;
-    box-shadow: -4px -4px 8px #ffffff, 4px 4px 8px #bdc5d0;
-}
-
-.step-icon-complete {
-    background-color: #e0e7f1;
-    color: #16a34a;
-    box-shadow: inset 3px 3px 6px rgba(22, 163, 74, 0.3), inset -3px -3px 6px #ffffff;
-}
-
-
 /* Animaciones */
 @keyframes subtle-breathing {
   from {
