@@ -16,43 +16,41 @@ export default function MainContent({ children }: { children: React.ReactNode })
   const PREPARE_PATHS = ['/prepare', '/operative-module', '/technical-module', '/strategic-module'];
 
   useEffect(() => {
+    // This effect now correctly handles the client-side state for page load transitions.
     if (pathname === '/analysis' && score !== null && isInitialPageLoad) {
-      // Small delay to allow the initial background to render before transitioning
-      const timer = setTimeout(() => {
         setIsInitialPageLoad(false);
-      }, 100);
-      return () => clearTimeout(timer);
     } else if (pathname !== '/analysis' && !isInitialPageLoad) {
-      // Reset for other pages
+      // Reset for other pages to ensure correct background on navigation
       setIsInitialPageLoad(true);
     }
   }, [pathname, score, isInitialPageLoad, setIsInitialPageLoad]);
 
 
   const bodyClassName = useMemo(() => {
-    let backgroundClasses = ''; 
+    let backgroundClass = ''; 
 
     if (pathname === '/home') {
-      backgroundClasses = 'bg-home-page';
+      backgroundClass = 'bg-home-page';
     } else if (pathname === '/loading') {
-      backgroundClasses = 'bg-loading-page';
+      backgroundClass = 'bg-loading-page';
     } else if (PREPARE_PATHS.includes(pathname) || pathname === '/select-module') {
-      backgroundClasses = 'bg-prepare-page';
+      backgroundClass = 'bg-prepare-page';
     } else if (pathname === '/analysis') {
+      // During server-render or initial client-render before state is settled, use a default.
       if (isInitialPageLoad || score === null) {
-          backgroundClasses = 'bg-prepare-page';
+          backgroundClass = 'bg-prepare-page';
       } else if (score <= 50) {
-          backgroundClasses = 'bg-analysis-grave';
+          backgroundClass = 'bg-analysis-grave';
       } else if (score <= 79) {
-          backgroundClasses = 'bg-analysis-alerta';
+          backgroundClass = 'bg-analysis-alerta';
       } else { 
-          backgroundClasses = 'bg-analysis-validado';
+          backgroundClass = 'bg-analysis-validado';
       }
     }
 
     return cn(
       "flex flex-col min-h-screen",
-      backgroundClasses, 
+      backgroundClass, 
       showHeader ? "pt-4" : ""
     );
   }, [pathname, score, isInitialPageLoad, showHeader]);
