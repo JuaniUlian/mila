@@ -423,3 +423,5 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
     </div>
   );
 };
+
+    
