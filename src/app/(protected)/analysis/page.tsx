@@ -345,7 +345,7 @@ const WhyModal = ({ finding, onClose }: { finding: any, onClose: () => void }) =
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b bg-white/80 backdrop-blur-xl border-white/20">
-                <h3 className="text-lg font-semibold text-gray-800">¿Por qué es problemático?</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Detalles de la Incidencia</h3>
                 <button onClick={onClose}>
                     <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
                 </button>
@@ -373,7 +373,7 @@ const HowToFixModal = ({ finding, onClose, onApply }: { finding: any, onClose: (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b bg-white/80 backdrop-blur-xl border-white/20">
-                <h3 className="text-lg font-semibold text-gray-800">¿Cómo lo arreglo?</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Soluciones</h3>
                 <button onClick={onClose}>
                     <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
                 </button>
