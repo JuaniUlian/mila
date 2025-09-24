@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Flujo de validación con scoring centralizado y tipado estricto
@@ -53,8 +54,10 @@ const FindingSchema = z.object({
   // <- este campo aparecía en tu error como parte del tipo esperado
   verificacion_interdocumental: z
     .object({
-      relacionado_con: z.string(),
-      motivo: z.string(),
+      estado: z.string(),
+      archivo_referencia: z.string().optional(),
+      ubicacion: z.string().optional(),
+      nota: z.string().optional(),
     })
     .optional(),
 });

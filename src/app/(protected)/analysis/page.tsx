@@ -17,6 +17,11 @@ import { useTranslations } from '@/lib/translations';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { discussFindingAction, type DiscussionMessage } from '@/ai/flows/discuss-finding';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Logo } from '@/components/layout/logo';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 // Main Component
 export default function AnalysisPage() {
@@ -400,21 +405,47 @@ const HowToFixModal = ({ finding, onClose, onApply }: { finding: any, onClose: (
 );
 
 // Modal: Quiero cuestionarlo
-const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => void }) => {
-  const [argumentType, setArgumentType] = useState('');
-  const [argument, setArgument] = useState('');
+const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onClose: () => void }) => {
+    const [history, setHistory] = useState<DiscussionMessage[]>([]);
+    const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-  const argumentTypes = [
-    { id: 'evidence', label: 'Tengo evidencia adicional', description: 'Documentos que no fueron considerados' },
-    { id: 'interpretation', label: 'Interpretación normativa diferente', description: 'La norma aplica de otra manera' },
-    { id: 'context', label: 'Contexto especial', description: 'Circunstancias que justifican la situación' }
-  ];
+    const handleSend = async () => {
+        if (!input.trim()) return;
 
-  return (
+        const newHistory: DiscussionMessage[] = [...history, { role: 'user', content: input }];
+        setHistory(newHistory);
+        setInput('');
+        setIsLoading(true);
+
+        try {
+            const response = await discussFindingAction(newHistory, finding);
+            
+            if (response.body) {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let assistantResponse = '';
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    assistantResponse += decoder.decode(value);
+                    setHistory([...newHistory, { role: 'assistant', content: assistantResponse }]);
+                }
+            }
+        } catch (error) {
+            console.error("Error discussing finding:", error);
+            setHistory([...newHistory, { role: 'assistant', content: "Lo siento, ocurrió un error al procesar tu mensaje." }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl glass-card flex flex-col p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-800">Cuestionar Hallazgo</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">Discutir Hallazgo</h3>
                     <button onClick={onClose}>
                         <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
                     </button>
@@ -422,58 +453,40 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
                 
                 <Separator className="bg-gray-200/60" />
 
-                <div className="bg-amber-50/50 border border-amber-200/80 rounded p-3">
-                    <p className="text-sm text-amber-800">"{finding.evidencia}"</p>
+                <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gray-50/50 rounded-lg">
+                    {history.map((message, index) => (
+                        <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`p-3 rounded-lg max-w-md ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
+                                {message.content}
+                            </div>
+                        </div>
+                    ))}
+                     {isLoading && (
+                        <div className="flex justify-start">
+                            <div className="p-3 rounded-lg bg-gray-200 text-gray-800">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {!argumentType ? (
-                    <div>
-                        <h4 className="font-medium mb-3 text-gray-700">¿En qué basas tu objeción?</h4>
-                        <div className="space-y-2">
-                            {argumentTypes.map((type) => (
-                                <button
-                                    key={type.id}
-                                    onClick={() => setArgumentType(type.id)}
-                                    className="w-full p-4 text-left border rounded-lg hover:bg-gray-100/50 hover:border-gray-300/80 transition-colors border-gray-200/80"
-                                >
-                                    <div className="font-semibold text-gray-800">{type.label}</div>
-                                    <div className="text-sm text-gray-600">{type.description}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    <div>
-                        <h4 className="font-medium mb-3 text-gray-700">
-                            {argumentTypes.find(t => t.id === argumentType)?.label}
-                        </h4>
-                        <textarea
-                            value={argument}
-                            onChange={(e) => setArgument(e.target.value)}
-                            placeholder="Explica tu argumento de manera clara y específica..."
-                            className="w-full p-3 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white/50"
-                            rows={5}
-                        />
-                        <div className="flex space-x-3 mt-4 justify-end">
-                            <button
-                                onClick={() => setArgumentType('')}
-                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-semibold"
-                            >
-                                Cambiar Enfoque
-                            </button>
-                            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
-                                Generar Documento de Objeción
-                            </button>
-                        </div>
-                    </div>
-                )}
+                <div className="flex items-center gap-2">
+                    <Textarea
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Escribe tu argumento..."
+                        className="w-full p-2 border rounded-lg resize-none border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white/50"
+                        rows={2}
+                        disabled={isLoading}
+                    />
+                     <Button onClick={handleSend} disabled={isLoading} className="self-end">
+                        Enviar
+                    </Button>
+                </div>
+                 <div className="text-center text-xs text-gray-500">
+                    Si ganas el debate, la incidencia se marcará como resuelta.
+                </div>
             </div>
         </div>
     );
 };
-
-    
-
-    
-
-    
