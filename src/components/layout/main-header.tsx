@@ -80,19 +80,17 @@ export function MainHeader() {
     return (
         <>
             <header className="sticky top-4 z-50 w-fit mx-auto bg-white/80 backdrop-blur-md shadow-lg rounded-full px-4 py-2">
-                {isClient && (
-                    <TooltipProvider delayDuration={100}>
-                        <nav className="flex items-center justify-center gap-2">
+                <nav className="flex items-center justify-center gap-2">
+                    {isClient && (
+                        <TooltipProvider delayDuration={100}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Link href="/home" className={commonButtonClasses}>
                                         <Logo variant="monochrome" className="h-full w-full p-1.5" />
                                     </Link>
                                 </TooltipTrigger>
-                                <TooltipContent>
-                                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
-                                        Inicio
-                                    </span>
+                                <TooltipContent className="bg-white text-foreground border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-sm font-semibold">
+                                    <p>Inicio</p>
                                 </TooltipContent>
                             </Tooltip>
 
@@ -120,16 +118,14 @@ export function MainHeader() {
                                             </button>
                                         )}
                                     </TooltipTrigger>
-                                    <TooltipContent>
-                                        <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-700/50 opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-50">
-                                        {action.name}
-                                        </span>
+                                    <TooltipContent className="bg-white text-foreground border border-gray-200 shadow-lg rounded-lg px-3 py-2 text-sm font-semibold">
+                                        <p>{action.name}</p>
                                     </TooltipContent>
                                 </Tooltip>
                             ))}
-                        </nav>
-                    </TooltipProvider>
-                )}
+                        </TooltipProvider>
+                    )}
+                </nav>
             </header>
             <SettingsDialog open={isSettingsModalOpen} onOpenChange={setIsSettingsModalOpen} />
             <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>

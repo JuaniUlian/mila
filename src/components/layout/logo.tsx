@@ -13,8 +13,8 @@ export function Logo({ className, variant = 'color' }: { className?: string, var
             alt="MILA Logo"
             width={512}
             height={512}
-            className={cn("h-full w-auto", className)}
-            unoptimized // Useful if the logo is an SVG or to prevent Next.js image optimization if not needed
+            className={cn("h-full w-full", className)}
+            unoptimized
         />
     );
 }
