@@ -259,7 +259,7 @@ export default function AnalysisPage() {
                       className="px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm font-semibold hover:bg-blue-200 flex items-center space-x-1.5"
                     >
                       <HelpCircle className="w-4 h-4" />
-                      <span>¿Por qué está mal?</span>
+                      <span>Detalles</span>
                     </button>
                     
                     <button 
@@ -267,7 +267,7 @@ export default function AnalysisPage() {
                       className="px-3 py-2 bg-green-100 text-green-800 rounded text-sm font-semibold hover:bg-green-200 flex items-center space-x-1.5"
                     >
                       <Wrench className="w-4 h-4" />
-                      <span>¿Cómo lo arreglo?</span>
+                      <span>Soluciones</span>
                     </button>
                     
                     <button 
@@ -455,4 +455,5 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
   );
 };
 
+    
     
