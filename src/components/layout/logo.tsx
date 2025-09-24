@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 export function Logo({ className, variant = 'color' }: { className?: string, variant?: 'color' | 'monochrome' }) {
     const logoSrc = variant === 'color' 
-        ? "/home/user/studio/public/logo/Logo MILA (sin fondo).png" 
-        : "/home/user/studio/public/logo/Logo MILA (sin fondo).png";
+        ? "/logo/Logo MILA (sin fondo).png" 
+        : "/logo/Logo MILA (sin fondo).png";
 
     return (
         <Image
