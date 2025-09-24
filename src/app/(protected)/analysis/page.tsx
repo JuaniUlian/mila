@@ -503,17 +503,26 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                 {!discussionStarted ? (
                     <div className="space-y-3">
                         <p className="text-sm text-gray-700">Selecciona un enfoque para iniciar la discusión:</p>
-                        <button onClick={() => startDiscussion("Quiero cuestionar este hallazgo porque tengo evidencia adicional para presentar.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-3">
-                            <FilePlus2 className="w-5 h-5 text-blue-700" />
-                            <span>Tengo evidencia adicional</span>
+                        <button onClick={() => startDiscussion("Quiero cuestionar este hallazgo porque tengo evidencia adicional para presentar.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <FilePlus2 className="w-5 h-5 text-blue-700" />
+                                <span>Tengo evidencia adicional</span>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-blue-700" />
                         </button>
-                        <button onClick={() => startDiscussion("Quiero proponer un enfoque alternativo para solucionar este hallazgo.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-3">
-                            <Shuffle className="w-5 h-5 text-blue-700" />
-                            <span>Cambiar Enfoque</span>
+                        <button onClick={() => startDiscussion("Quiero proponer una interpretación normativa diferente para solucionar este hallazgo.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <Shuffle className="w-5 h-5 text-blue-700" />
+                                <span>Interpretación normativa diferente</span>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-blue-700" />
                         </button>
-                        <button onClick={() => startDiscussion("Quiero argumentar que este hallazgo no aplica debido a un contexto operacional especial.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-3">
-                            <Briefcase className="w-5 h-5 text-blue-700" />
-                            <span>Contexto operacional especial</span>
+                        <button onClick={() => startDiscussion("Quiero argumentar que este hallazgo no aplica debido a un contexto operacional especial.")} className="w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <Briefcase className="w-5 h-5 text-blue-700" />
+                                <span>Contexto operacional especial</span>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-blue-700" />
                         </button>
                     </div>
                 ) : (
@@ -578,6 +587,8 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         </div>
     );
 };
+
+    
 
     
 
