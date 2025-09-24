@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Search, Filter, FileText, Scale, AlertTriangle, 
   MessageSquare, HelpCircle, Wrench, Eye, Download,
-  ChevronRight, X, Loader2
+  ChevronRight, X, Loader2, AlertOctagon, ShieldCheck
 } from 'lucide-react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { calculateDynamicComplianceScore, generateScoringReport } from '@/ai/flows/compliance-scoring';
@@ -26,7 +26,7 @@ export default function AnalysisPage() {
   const [selectedFinding, setSelectedFinding] = useState<FindingWithStatus | null>(null);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [activeSeverity, setActiveSeverity] = useState('Todos');
 
   const { toast } = useToast();
   const router = useRouter();
@@ -101,19 +101,21 @@ export default function AnalysisPage() {
     setActiveModal(null);
   }, [t, toast, setScore]);
 
-  const categories = useMemo(() => {
+  const severityFilters = useMemo(() => {
     if (!validationResult) return [];
     const allFindings = (validationResult.findings || []) as FindingWithStatus[];
-    const categoryCounts: Record<string, number> = allFindings.reduce((acc, f) => {
-      // @ts-ignore
-      const cat = f.macro_categoria || 'Otros';
-      acc[cat] = (acc[cat] || 0) + 1;
-      return acc;
-    }, {});
+    
+    const counts = {
+      'Alta': allFindings.filter(f => f.gravedad === 'Alta').length,
+      'Media': allFindings.filter(f => f.gravedad === 'Media').length,
+      'Baja': allFindings.filter(f => f.gravedad === 'Baja').length,
+    };
 
     return [
-      { name: 'Todos', count: allFindings.length },
-      ...Object.entries(categoryCounts).map(([name, count]) => ({ name, count }))
+      { name: 'Todos', count: allFindings.length, icon: Filter, color: 'text-gray-500' },
+      { name: 'Alta', count: counts['Alta'], icon: AlertOctagon, color: 'text-red-500' },
+      { name: 'Media', count: counts['Media'], icon: AlertTriangle, color: 'text-yellow-500' },
+      { name: 'Baja', count: counts['Baja'], icon: ShieldCheck, color: 'text-blue-500' },
     ];
   }, [validationResult]);
 
@@ -121,11 +123,11 @@ export default function AnalysisPage() {
     return (findings || []).filter(f => {
       const matchesSearch = f.titulo_incidencia.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             f.nombre_archivo_normativa.toLowerCase().includes(searchTerm.toLowerCase());
-      // @ts-ignore
-      const matchesCategory = activeCategory === 'Todos' || (f.macro_categoria || 'Otros') === activeCategory;
-      return matchesSearch && matchesCategory;
+      
+      const matchesSeverity = activeSeverity === 'Todos' || f.gravedad === activeSeverity;
+      return matchesSearch && matchesSeverity;
     });
-  }, [findings, searchTerm, activeCategory]);
+  }, [findings, searchTerm, activeSeverity]);
 
   const getSeverityColor = (severity: string) => {
     switch(severity) {
@@ -161,7 +163,11 @@ export default function AnalysisPage() {
               <div className="text-right w-48">
                 <div className="text-gray-600 font-semibold">Cumplimiento</div>
                 <div className={cn("text-3xl font-bold", getScoreColor(currentScoring.complianceScore))}>{currentScoring.complianceScore}%</div>
-                <Progress value={currentScoring.complianceScore} className="h-2 mt-1" />
+                <Progress value={currentScoring.complianceScore} className="h-2 mt-1" indicatorClassName={cn(
+                  currentScoring.complianceScore < 50 && "bg-red-500",
+                  currentScoring.complianceScore >= 50 && currentScoring.complianceScore < 80 && "bg-amber-500",
+                  currentScoring.complianceScore >= 80 && "bg-blue-500"
+                )} />
               </div>
               <div className="text-right">
                 <div className="text-gray-600 font-semibold">Hallazgos pendientes</div>
@@ -177,12 +183,27 @@ export default function AnalysisPage() {
           {/* Sidebar */}
           <div className="col-span-3">
             <div className="glass-card p-4 mb-6">
-              <h3 className="font-semibold mb-3 text-gray-800">Filtros</h3>
+              <h3 className="font-semibold mb-3 text-gray-800">Filtros por Gravedad</h3>
               <div className="space-y-1">
-                {categories.map((category) => (
-                  <button key={category.name} onClick={() => setActiveCategory(category.name)} className={`w-full flex items-center justify-between p-2 text-sm rounded-lg transition-colors ${activeCategory === category.name ? 'bg-blue-100 text-blue-800 font-semibold' : 'hover:bg-gray-200/50'}`}>
-                    <span>{category.name}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${activeCategory === category.name ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>{category.count}</span>
+                {severityFilters.map((filter) => (
+                  <button 
+                    key={filter.name} 
+                    onClick={() => setActiveSeverity(filter.name)} 
+                    className={cn(
+                      'w-full flex items-center justify-between p-2 text-sm rounded-lg transition-colors', 
+                      activeSeverity === filter.name ? 'bg-blue-100 text-blue-800 font-semibold' : 'hover:bg-gray-200/50'
+                    )}
+                  >
+                    <span className="flex items-center gap-2">
+                      <filter.icon className={cn("w-4 h-4", filter.color)} />
+                      <span>{filter.name}</span>
+                    </span>
+                    <span className={cn(
+                      'px-2 py-0.5 rounded-full text-xs',
+                      activeSeverity === filter.name ? 'bg-blue-600 text-white' : 'bg-gray-200'
+                    )}>
+                      {filter.count}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -216,7 +237,10 @@ export default function AnalysisPage() {
                       <p className="text-sm text-gray-600">{finding.nombre_archivo_normativa}</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded ${getSeverityColor(finding.gravedad)}`}>
+                      <span className={cn(
+                        `px-2 py-1 text-xs font-semibold rounded`, 
+                        getSeverityColor(finding.gravedad)
+                      )}>
                         {finding.gravedad}
                       </span>
                       <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">
@@ -431,3 +455,4 @@ const ChallengeModal = ({ finding, onClose }: { finding: any, onClose: () => voi
   );
 };
 
+    
