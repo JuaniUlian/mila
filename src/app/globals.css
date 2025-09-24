@@ -93,17 +93,17 @@ body.bg-loading-page::before {
 }
 
 body.bg-analysis-grave::before {
-  background-image: linear-gradient(to bottom, hsl(0, 70%, 50%) 0%, hsl(0, 80%, 80%) 100%);
+  background-image: linear-gradient(to bottom, hsl(0, 55%, 60%) 0%, hsl(0, 50%, 90%) 100%);
   opacity: 1;
 }
 
 body.bg-analysis-alerta::before {
-  background-image: linear-gradient(to bottom, hsl(45, 100%, 50%) 0%, hsl(50, 100%, 85%) 100%);
+  background-image: linear-gradient(to bottom, hsl(45, 100%, 70%) 0%, hsl(50, 100%, 92%) 100%);
   opacity: 1;
 }
 
 body.bg-analysis-validado::before {
-  background-image: linear-gradient(to bottom, hsl(140, 60%, 50%) 0%, hsl(140, 80%, 85%) 100%);
+  background-image: linear-gradient(to bottom, hsl(140, 60%, 70%) 0%, hsl(140, 80%, 95%) 100%);
   opacity: 1;
 }
 
