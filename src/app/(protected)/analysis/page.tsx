@@ -121,8 +121,8 @@ export default function AnalysisPage() {
 
     try {
         const pdfDoc = await PDFDocument.create();
-        const page = pdfDoc.addPage();
-        const { width, height } = page.getSize();
+        let page = pdfDoc.addPage();
+        let { width, height } = page.getSize();
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -195,11 +195,9 @@ export default function AnalysisPage() {
         y -= 10;
         
         for (const finding of reportData.findings) {
-            if (y < 150) {
-              const newPage = pdfDoc.addPage();
-              page.endText();
-              y = newPage.getSize().height - 50;
-              page.beginText();
+             if (y < 150) {
+                page = pdfDoc.addPage();
+                y = page.getSize().height - 50;
             }
             
             y -= 15;
