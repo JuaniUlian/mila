@@ -170,7 +170,7 @@ export default function LoadingPage() {
         // MODO DEMO: Usar datos simulados si el nombre del archivo coincide
         if (Object.keys(MOCK_FILES_TO_RESULTS).includes(documentName)) {
             console.log(`Modo simulación activado para: ${documentName}`);
-            await new Promise(r => setTimeout(r, 5000));
+            await new Promise(r => setTimeout(r, 10000));
             const mockResult = MOCK_FILES_TO_RESULTS[documentName];
             setValidationResults({ 
                 ...(mockResult as any), 
@@ -332,3 +332,5 @@ export default function LoadingPage() {
     </>
   );
 }
+
+    
