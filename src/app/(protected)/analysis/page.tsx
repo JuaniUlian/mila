@@ -453,6 +453,16 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                 
                 <Separator className="bg-gray-200/60" />
 
+                <div className="bg-gray-100/50 p-3 rounded-lg border border-gray-200/80 text-sm">
+                  <p className="font-semibold text-gray-800 mb-1">{finding.titulo_incidencia}</p>
+                  <blockquote className="text-gray-600 border-l-2 border-gray-400 pl-2 italic">
+                      "{finding.evidencia}"
+                  </blockquote>
+                   <p className="text-xs text-gray-500 mt-2">
+                        <span className="font-semibold">Normativa:</span> {finding.nombre_archivo_normativa} (Art. {finding.articulo_o_seccion})
+                    </p>
+                </div>
+
                 <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gray-50/50 rounded-lg">
                     {history.map((message, index) => (
                         <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -483,10 +493,9 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
                         Enviar
                     </Button>
                 </div>
-                 <div className="text-center text-xs text-gray-500">
-                    Si ganas el debate, la incidencia se marcará como resuelta.
-                </div>
             </div>
         </div>
     );
 };
+
+    
