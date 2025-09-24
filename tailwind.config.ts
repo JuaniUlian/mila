@@ -89,6 +89,9 @@ export default {
           foreground: 'hsl(var(--custom-severity-high-fg))',
         },
   		},
+      boxShadow: {
+        inner: 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
