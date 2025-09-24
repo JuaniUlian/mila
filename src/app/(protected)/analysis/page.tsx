@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
+import { useLayout } from '@/context/LayoutContext';
 
 // Main Component
 export default function AnalysisPage() {
@@ -30,6 +31,7 @@ export default function AnalysisPage() {
   const router = useRouter();
   const { language } = useLanguage();
   const t = useTranslations(language);
+  const { setScore, setIsInitialPageLoad } = useLayout();
 
   useEffect(() => {
     try {
@@ -38,6 +40,7 @@ export default function AnalysisPage() {
         const results = JSON.parse(storedResults);
         setValidationResult(results);
         setFindings(results.findings || []);
+        setIsInitialPageLoad(false); // Data is loaded, initial load is complete
       } else {
         toast({
           title: "Análisis no encontrado",
@@ -55,17 +58,19 @@ export default function AnalysisPage() {
       });
       router.push('/prepare');
     }
-  }, [router, toast]);
+  }, [router, toast, setIsInitialPageLoad]);
   
   useEffect(() => {
     if (findings.length > 0) {
       const dynamicScores = calculateDynamicComplianceScore(findings);
       setCurrentScoring(dynamicScores);
+      setScore(dynamicScores.complianceScore); // Update global score
     } else if (validationResult) {
        const dynamicScores = calculateDynamicComplianceScore([]);
        setCurrentScoring(dynamicScores);
+       setScore(dynamicScores.complianceScore); // Update global score
     }
-  }, [findings, validationResult]);
+  }, [findings, validationResult, setScore]);
 
   const handleFindingStatusChange = useCallback((findingId: string, newStatus: FindingStatus) => {
     setFindings(prevFindings => {
@@ -73,6 +78,7 @@ export default function AnalysisPage() {
         
         const dynamicScores = calculateDynamicComplianceScore(newFindings);
         setCurrentScoring(dynamicScores);
+        setScore(dynamicScores.complianceScore);
 
         // Toast notification
         if (newStatus === 'applied' || newStatus === 'modified') {
@@ -92,7 +98,7 @@ export default function AnalysisPage() {
         return newFindings;
     });
     setActiveModal(null);
-  }, [t, toast]);
+  }, [t, toast, setScore]);
 
   const categories = useMemo(() => {
     if (!validationResult) return [];
