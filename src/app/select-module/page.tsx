@@ -57,6 +57,7 @@ export default function SelectModulePage() {
                   <p className="text-slate-600 mb-6 flex-1" dangerouslySetInnerHTML={{ __html: module.description }}></p>
                   <Button className="w-full btn-neu mt-auto">
                     Seleccionar
+                    <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </div>
