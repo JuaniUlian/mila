@@ -7,36 +7,49 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useLayout } from '@/context/LayoutContext';
 
+const BACKGROUND_CLASSES = [
+  'bg-home-page',
+  'bg-loading-page',
+  'bg-prepare-page',
+  'bg-analysis-grave',
+  'bg-analysis-alerta',
+  'bg-analysis-validado',
+];
+
 export default function MainContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { score, isInitialPageLoad, setIsInitialPageLoad } = useLayout();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
+  
   const PREPARE_PATHS = useMemo(() => ['/prepare', '/operative-module', '/technical-module', '/strategic-module', '/select-module'], []);
 
-  const backgroundClass = useMemo(() => {
-    if (!isClient) {
-      return 'bg-prepare-page';
-    }
-    if (pathname === '/home') return 'bg-home-page';
-    if (pathname === '/loading') return 'bg-loading-page';
-    if (PREPARE_PATHS.includes(pathname)) {
-      return 'bg-prepare-page';
-    }
-    if (pathname === '/analysis') {
+  useEffect(() => {
+    let backgroundClass = '';
+    
+    if (pathname === '/home') backgroundClass = 'bg-home-page';
+    else if (pathname === '/loading') backgroundClass = 'bg-loading-page';
+    else if (PREPARE_PATHS.includes(pathname)) backgroundClass = 'bg-prepare-page';
+    else if (pathname === '/analysis') {
       if (score === null || isInitialPageLoad) {
-        return 'bg-prepare-page';
+        backgroundClass = 'bg-prepare-page';
+      } else {
+        if (score <= 50) backgroundClass = 'bg-analysis-grave';
+        else if (score <= 79) backgroundClass = 'bg-analysis-alerta';
+        else backgroundClass = 'bg-analysis-validado';
       }
-      if (score <= 50) return 'bg-analysis-grave';
-      if (score <= 79) return 'bg-analysis-alerta';
-      return 'bg-analysis-validado';
     }
-    return '';
-  }, [pathname, score, isInitialPageLoad, PREPARE_PATHS, isClient]);
+
+    document.body.classList.remove(...BACKGROUND_CLASSES);
+    if (backgroundClass) {
+      document.body.classList.add(backgroundClass);
+    }
+    
+    return () => {
+       if (backgroundClass) {
+         document.body.classList.remove(backgroundClass);
+       }
+    };
+  }, [pathname, score, isInitialPageLoad, PREPARE_PATHS]);
+
 
   useEffect(() => {
     if (pathname !== '/analysis' && !isInitialPageLoad) {
@@ -48,7 +61,6 @@ export default function MainContent({ children }: { children: React.ReactNode })
 
   const bodyClassName = cn(
     "flex flex-col min-h-screen",
-    backgroundClass,
     showHeader ? "pt-4" : ""
   );
   
