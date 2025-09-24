@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Search, Filter, FileText, Scale, AlertTriangle, 
   MessageSquare, HelpCircle, Wrench, Eye, Download,
-  ChevronRight, X, Loader2, AlertOctagon, ShieldCheck, Send, Paperclip
+  ChevronRight, X, Loader2, AlertOctagon, ShieldCheck, Send, Paperclip, ArrowLeft
 } from 'lucide-react';
 import type { FindingWithStatus, FindingStatus } from '@/ai/flows/compliance-scoring';
 import { calculateDynamicComplianceScore, generateScoringReport } from '@/ai/flows/compliance-scoring';
@@ -474,7 +474,14 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl glass-card flex flex-col p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-800">Discutir Hallazgo</h3>
+                    <div className="flex items-center gap-2">
+                        {discussionStarted && (
+                            <button onClick={() => setDiscussionStarted(false)} className="p-1 rounded-full hover:bg-gray-200">
+                                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                            </button>
+                        )}
+                        <h3 className="text-lg font-semibold text-gray-800">Discutir Hallazgo</h3>
+                    </div>
                     <button onClick={onClose}>
                         <X className="w-5 h-5 text-gray-500 hover:text-gray-800" />
                     </button>
@@ -561,3 +568,5 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         </div>
     );
 };
+
+    
