@@ -298,7 +298,7 @@ export function FolderGrid({
             {folders.map(folder => (
                 <div 
                     key={folder.id} 
-                    className="relative group bg-slate-50/50 backdrop-blur-sm border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col rounded-2xl cursor-pointer aspect-square"
+                    className="relative group bg-gradient-to-br from-slate-50/50 to-slate-100/50 backdrop-blur-sm border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col rounded-2xl cursor-pointer aspect-square"
                     onClick={() => setExpandedFolderId(folder.id)}
                 >
                     <div className="absolute top-2 right-2 flex items-center z-10" onClick={e => e.stopPropagation()}>
