@@ -270,7 +270,7 @@ export default function AnalysisPage() {
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => { setSelectedFinding(finding); setActiveModal('why'); }}
-                      className="px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm font-semibold hover:bg-blue-200 flex items-center space-x-1.5"
+                      className="px-3 py-2 rounded text-sm font-semibold flex items-center space-x-1.5 btn-neu-blue"
                     >
                       <Search className="w-4 h-4" />
                       <span>Detalles</span>
@@ -278,7 +278,7 @@ export default function AnalysisPage() {
                     
                     <button 
                       onClick={() => { setSelectedFinding(finding); setActiveModal('fix'); }}
-                      className="px-3 py-2 bg-green-100 text-green-800 rounded text-sm font-semibold hover:bg-green-200 flex items-center space-x-1.5"
+                      className="px-3 py-2 rounded text-sm font-semibold flex items-center space-x-1.5 btn-neu-green"
                     >
                       <Wrench className="w-4 h-4" />
                       <span>Soluciones</span>
@@ -286,7 +286,7 @@ export default function AnalysisPage() {
                     
                     <button 
                       onClick={() => { setSelectedFinding(finding); setActiveModal('challenge'); }}
-                      className="px-3 py-2 bg-orange-100 text-orange-800 rounded text-sm font-semibold hover:bg-orange-200 flex items-center space-x-1.5"
+                      className="px-3 py-2 rounded text-sm font-semibold flex items-center space-x-1.5 btn-neu-orange"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>Quiero cuestionarlo</span>
