@@ -9,7 +9,7 @@
 
 import { z } from 'zod';
 import sharp from 'sharp';
-import pdf from 'pdf-parse';
+import mammoth from 'mammoth';
 
 // ───────────────────────── schemas / tipos
 const InputSchema = z.object({
@@ -141,16 +141,6 @@ async function callAnthropicWithImage(buffer: Buffer, mime: string, prompt: stri
   return textBlock?.text || '';
 }
 
-async function extractPdfTextLocally(buffer: Buffer): Promise<string> {
-  try {
-    const data = await pdf(buffer);
-    return data.text || '';
-  } catch {
-    return '';
-  }
-}
-
-
 // ───────────────────────── entrypoint
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   const { fileDataUri } = InputSchema.parse(input);
@@ -158,25 +148,15 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
   const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
   const { mime, buffer } = parseDataUri(fileDataUri);
 
-  if (mime === 'application/pdf') {
-    try {
-      const fileId = await uploadAnthropicFile(buffer, 'document.pdf', mime);
-      const text = await callAnthropicWithAttachment(fileId, 'Extrae TODO el texto en orden de lectura. Devuelve solo texto plano UTF-8.', model);
-      if (text.trim()) return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_pdf' } };
-      // si vino vacío, pruebo local
-      const local = await extractPdfTextLocally(buffer);
-      if (local.trim()) return { ok: true, extractedText: local, meta: { model, strategy: 'local_pdf' } };
-      return { ok: false, error: 'No se pudo extraer texto del PDF.' };
-    } catch (e: any) {
-      // si Anthropic falló (incluido 404), salto directo a local
-      const local = await extractPdfTextLocally(buffer);
-      if (local.trim()) return { ok: true, extractedText: local, meta: { model, strategy: 'local_pdf' } };
-      return { ok: false, error: `Failed to extract text: ${e.message}` };
-    }
-  }
+  try {
+      if (mime === 'application/pdf') {
+        const fileId = await uploadAnthropicFile(buffer, 'document.pdf', mime);
+        const text = await callAnthropicWithAttachment(fileId, 'Extrae TODO el texto en orden de lectura. Devuelve solo texto plano UTF-8.', model);
+        if (text.trim()) return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_pdf' } };
+        return { ok: false, error: 'No se pudo extraer texto del PDF.' };
+      }
 
-  if (mime.startsWith('image/')) {
-    try {
+      if (mime.startsWith('image/')) {
         const text = await callAnthropicWithImage(
             buffer,
             mime,
@@ -184,23 +164,21 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
             model
         );
         return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_image' } };
-    } catch (err: any) {
-        console.error(`Error in extractTextFromFile (image) for mime type ${mime}:`, err);
-        return { ok: false, error: `Failed to extract text from image: ${err.message}` };
-    }
-  }
-  
-  if (mime.startsWith('text/')) {
-      return { ok: true, extractedText: buffer.toString('utf-8'), meta: { model, strategy: 'local_text' } };
-  }
+      }
+      
+      if (mime.startsWith('text/')) {
+          return { ok: true, extractedText: buffer.toString('utf-8'), meta: { model, strategy: 'local_text' } };
+      }
 
-  // Fallback for docx or other types if needed
-  if (mime.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
-      const mammoth = await import('mammoth');
-      const result = await mammoth.extractRawText({ buffer });
-      return { ok: true, extractedText: result.value, meta: { model, strategy: 'local_mammoth' } };
+      if (mime.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+          const result = await mammoth.extractRawText({ buffer });
+          return { ok: true, extractedText: result.value, meta: { model, strategy: 'local_mammoth' } };
+      }
+
+      return { ok: false, error: `Tipo de archivo no soportado: ${mime}` };
+
+  } catch (err: any) {
+      console.error(`Error in extractTextFromFile for mime type ${mime}:`, err);
+      return { ok: false, error: `Failed to extract text: ${err.message}` };
   }
-
-
-  return { ok: false, error: `Tipo de archivo no soportado: ${mime}` };
 }
