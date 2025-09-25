@@ -90,8 +90,11 @@ const FileItem: React.FC<{
     const isPaused = file.status === 'paused';
     const progressPercentage = (file.totalChunks && file.currentChunk) 
       ? ((file.currentChunk -1) / file.totalChunks) * 100
+      : (file.elapsedTime && file.totalEstimatedTime)
+      ? (file.elapsedTime / file.totalEstimatedTime) * 100
       : 0;
-    const remainingTime = (file.totalEstimatedTime || 0) - (file.elapsedTime || 0);
+
+    const remainingTime = Math.max(0, (file.totalEstimatedTime || 0) - (file.elapsedTime || 0));
 
     let statusText = 'Analizando Archivo...';
     if(isPaused) statusText = 'Proceso Pausado';
@@ -352,3 +355,4 @@ export function FolderGrid({
         </div>
     );
 }
+

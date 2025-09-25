@@ -204,6 +204,39 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
         }
     }
   }, [folders, regulations, customInstructions, loadedFromStorage, FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, INSTRUCTIONS_STORAGE_KEY, isModuleView]);
+  
+  useEffect(() => {
+      folders.forEach(folder => {
+          folder.files.forEach(file => {
+              if (file.status === 'processing' && !timerRef.current.has(file.id)) {
+                  const timer = setInterval(() => {
+                      setFolders(currentFolders => 
+                          currentFolders.map(f =>
+                              f.id === folder.id
+                                  ? {
+                                      ...f,
+                                      files: f.files.map(fi =>
+                                          fi.id === file.id
+                                              ? { ...fi, elapsedTime: (fi.elapsedTime || 0) + 1 }
+                                              : fi
+                                      ),
+                                  }
+                                  : f
+                          )
+                      );
+                  }, 1000);
+                  timerRef.current.set(file.id, timer);
+              } else if (file.status !== 'processing' && timerRef.current.has(file.id)) {
+                  clearInterval(timerRef.current.get(file.id));
+                  timerRef.current.delete(file.id);
+              }
+          });
+      });
+
+      return () => {
+          timerRef.current.forEach(timer => clearInterval(timer));
+      };
+  }, [folders]);
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
@@ -292,12 +325,15 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
       const tempId = `temp-${Date.now()}`;
+      
       const filePlaceholder: DocumentFile = {
         id: tempId,
         name: rawFile.name,
         content: '',
         status: 'uploading',
         startTime: Date.now(),
+        totalEstimatedTime: 30, // Default estimate
+        elapsedTime: 0,
       };
       
       setFolders(prevFolders =>
@@ -796,3 +832,4 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     </div>
   );
 }
+
