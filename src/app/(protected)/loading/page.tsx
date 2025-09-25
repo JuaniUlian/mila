@@ -40,7 +40,7 @@ const MOCK_FILES_TO_RESULTS: Record<string, any> = {
     'Póliza de Seguro.pdf': pliegoMockData,
     'Requisición de Compra.docx': upsMockData,
     'Cotización Proveedor A.pdf': pliegoMockData,
-    'Cotización Proveedor B.pdf': upsMockData,
+    'Cotización Proveedor B.pdf': pliegoMockData,
     'Solicitud de Permiso.pdf': pliegoMockData,
     'Certificado de Sanidad.pdf': upsMockData,
     'Mapa de Ubicación.pdf': pliegoMockData,
@@ -51,9 +51,9 @@ const MOCK_FILES_TO_RESULTS: Record<string, any> = {
     'Certificado de Idoneidad.pdf': upsMockData,
     'Pliego de Especificaciones Técnicas.docx': pliegoMockData,
     'Análisis de Mercado.pdf': upsMockData,
-    'Matriz de Riesgos.pdf': pliegoMockData,
+    'Matriz de Riesgos.pdf': upsMockData,
     'Requerimientos Técnicos.pdf': upsMockData,
-    'Certificaciones INVIMA.pdf': pliegoMockData,
+    'Certificaciones INVIMA.pdf': upsMockData,
     'Cronograma de Entrega.pdf': upsMockData,
 
     // Archivos de Módulo Estratégico
@@ -64,7 +64,7 @@ const MOCK_FILES_TO_RESULTS: Record<string, any> = {
     'Modelo Financiero.xlsx': pliegoMockData,
     'Análisis de Riesgos de Concesión.pdf': upsMockData,
     'Memorando de Solicitud.pdf': pliegoMockData,
-    'Plan de Inversiones.pdf': upsMockData,
+    'Plan de Inversiones.pdf': pliegoMockData,
     'Marco Legal del Proyecto.pdf': pliegoMockData,
 };
 
@@ -172,9 +172,10 @@ export default function LoadingPage() {
             console.log(`Modo simulación activado para: ${documentName}`);
             await new Promise(r => setTimeout(r, 10000));
             const mockResult = MOCK_FILES_TO_RESULTS[documentName];
+            // **Correction:** Prioritize the actual documentName selected by the user.
             setValidationResults({ 
                 ...(mockResult as any), 
-                documentName: mockResult.documentTitle || documentName,
+                documentName: documentName || mockResult.documentTitle,
             });
             return;
         }
@@ -332,5 +333,7 @@ export default function LoadingPage() {
     </>
   );
 }
+
+    
 
     
