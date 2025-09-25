@@ -33,23 +33,16 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
   const fileTypeMatch = fileDataUri.match(/^data:(.*?);/);
   const fileType = fileTypeMatch ? fileTypeMatch[1] : 'application/octet-stream';
   const fileName = `file_${Date.now()}`;
+  const fileSize = Buffer.from(fileDataUri.split(',')[1], 'base64').length;
 
   try {
-    // DOCX processing using mammoth for speed and efficiency
-    if (
-      fileType.includes('vnd.openxmlformats-officedocument.wordprocessingml.document') ||
-      fileName.endsWith('.docx')
-    ) {
+    if (fileType.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
       const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
-
-      // Plain text processing
     } else if (fileType.startsWith('text/')) {
       const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
       extractedText = buffer.toString('utf-8');
-
-      // PDF and other image-based formats require AI with a 2-level fallback
     } else if (fileType.includes('pdf') || fileType.startsWith('image/')) {
       console.log(`Attempting extraction with Gemini-Flash for ${fileName}`);
       try {
@@ -67,25 +60,15 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
         });
         
         extractedText = genkitResponse.text ?? '';
-        
-        logSuccess(
-          'gemini',
-          Buffer.from(fileDataUri.split(',')[1], 'base64').length,
-          Date.now() - startTime
-        );
-      } catch (geminiError) {
-        console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro.`, geminiError);
-        
-        logError(
-          'gemini',
-          Buffer.from(fileDataUri.split(',')[1], 'base64').length,
-          Date.now() - startTime,
-          geminiError instanceof Error ? geminiError.message : String(geminiError)
-        );
+        logSuccess('gemini', fileSize, Date.now() - startTime);
 
-        // Fallback 1: Gemini Pro
+      } catch (geminiError: any) {
+        logError('gemini', fileSize, Date.now() - startTime, geminiError.message || String(geminiError));
+        console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro. Error: ${geminiError.message}`);
+
         try {
-          const genkitResponse = await ai.generate({
+          console.log(`Retrying extraction with Gemini-Pro for ${fileName}`);
+          const genkitResponsePro = await ai.generate({
             prompt: [
               {
                 text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
@@ -94,20 +77,18 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
             ],
             model: 'googleai/gemini-1.5-pro',
             config: {
-              timeout: 1000 * 60 * 3, // 3 minutes
+              timeout: 1000 * 60 * 4, // 4 minutes for the more powerful model
             },
           });
           
-          extractedText = genkitResponse.text ?? '';
-          
-          logSuccess(
-            'gemini_pro_fallback',
-            Buffer.from(fileDataUri.split(',')[1], 'base64').length,
-            Date.now() - startTime
-          );
-        } catch (geminiProError) {
-          // If both Gemini models fail, throw the original error
-          throw geminiProError;
+          extractedText = genkitResponsePro.text ?? '';
+          logSuccess('gemini_pro_fallback', fileSize, Date.now() - startTime);
+
+        } catch (geminiProError: any) {
+          logError('gemini_pro_fallback', fileSize, Date.now() - startTime, geminiProError.message || String(geminiProError));
+          // If both models fail, construct a more informative error message
+          const errorMessage = `Primary extraction failed: ${geminiError.message}. Fallback extraction also failed: ${geminiProError.message}`;
+          throw new Error(errorMessage);
         }
       }
     } else {
@@ -120,21 +101,13 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
     }
 
     return { extractedText };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error processing file ${fileName}:`, error);
     
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    
+    let errorMessage = error.message || String(error);
     if (errorMessage.includes('deadline') || errorMessage.includes('timeout')) {
-      throw new Error('The document chunk is too complex to process within the time limit.');
+      errorMessage = 'The document chunk is too complex to process within the time limit, even with fallback.';
     }
-    
-    logError(
-      'gemini_pro_fallback',
-      Buffer.from(fileDataUri.split(',')[1], 'base64').length,
-      Date.now() - startTime,
-      errorMessage
-    );
     
     throw new Error(`Failed to extract text from ${fileName}. Reason: ${errorMessage}`);
   }

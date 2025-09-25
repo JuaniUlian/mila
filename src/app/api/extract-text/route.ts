@@ -37,16 +37,16 @@ export async function POST(request: NextRequest) {
     const buffer = await streamToBuffer(file.stream());
     const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
 
-    // Por ahora usar el extractTextFromFile original sin parámetros opcionales
     const result = await extractTextFromFile({ fileDataUri });
 
     return NextResponse.json(result);
 
   } catch (error: any) {
     console.error('Error in /api/extract-text:', error);
+    // Use the error message directly from the flow, which is now more informative
     const errorMessage = error.message || 'An unexpected error occurred on the server.';
     return NextResponse.json({ 
-        error: `Server-side extraction failed: ${errorMessage}` 
+        error: `Server-side extraction failed. ${errorMessage}` 
     }, { status: 500 });
   }
 }

@@ -257,9 +257,11 @@ const validateDocumentFlow = ai.defineFlow(
       console.log(`✅ Fallback completado en ${Date.now() - startTime} ms`);
       console.log(`📈 Puntaje: ${completed.complianceScore}% (${completed.riskCategory.label})`);
       return completed;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error en el flujo de validación (Fallback):', err);
-      throw new Error(`El análisis del documento falló: ${err instanceof Error ? err.message : String(err)}`);
+      // Ensure the error message is a string and propagate it.
+      const errorMessage = `El análisis del documento falló: ${err.message || String(err)}`;
+      throw new Error(errorMessage);
     }
   }
 );
