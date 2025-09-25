@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Flujo para extraer texto de un archivo (PDF, DOCX, TXT) usando Gemini.
@@ -58,7 +59,7 @@ const extractTextFlow = ai.defineFlow(
       
       if (mime === 'application/pdf') {
         const { output } = await extractTextPrompt({ fileDataUri });
-        const text = output();
+        const text = output;
         if (!text) {
              return { ok: false, error: 'No se pudo extraer texto del PDF con la IA.' };
         }
