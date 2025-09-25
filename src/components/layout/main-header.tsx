@@ -142,6 +142,7 @@ export function MainHeader() {
                     </AlertDialogCancel>
                     <AlertDialogAction 
                         onClick={handleConfirmNavigation}
+                        className="btn-neu-green"
                     >
                         {t('confirmDialog.continue')}
                     </AlertDialogAction>

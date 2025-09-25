@@ -440,7 +440,7 @@ const handleValidateInstructions = async () => {
             toast({ title: t('preparePage.zipErrorTitle'), description: t('preparePage.zipErrorDesc'), variant: 'destructive' });
         }
     } else {
-        await processSingleRegulation(rawFile);
+        await processSingleRegulation(file);
     }
   };
 
