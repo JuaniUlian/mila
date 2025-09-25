@@ -21,42 +21,28 @@ const ExtractTextFromFileOutputSchema = z.object({
 export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
 
 
-const extractTextFlow = ai.defineFlow(
-  {
-    name: 'extractTextFromFileFlow',
-    inputSchema: ExtractTextFromFileInputSchema,
-    outputSchema: ExtractTextFromFileOutputSchema,
-  },
-  async (input) => {
-    const { fileDataUri } = input;
-
-    try {
-      // Use AI for all file types for consistency and robustness
-      const request: GenerateRequest = {
-        model: 'googleai/gemini-1.5-pro',
-        prompt: [
-          { text: 'Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.' },
-          { media: { url: fileDataUri } }
-        ]
-      };
-
-      const { output } = await ai.generate(request);
-      
-      const text = output?.text;
-      
-      if (!text || text.trim() === '') {
-           return { ok: false, error: 'No se pudo extraer texto del documento con la IA.' };
-      }
-      
-      return { ok: true, text };
-
-    } catch (error: any) {
-        console.error("Error en extractTextFromFileFlow:", error);
-        return { ok: false, error: error.message || "Error inesperado durante la extracción." };
-    }
-  }
-);
+const extractTextPrompt = ai.definePrompt({
+    name: 'extractTextPrompt',
+    model: 'googleai/gemini-1.5-pro',
+    input: { schema: z.object({ fileDataUri: z.string() }) },
+    prompt: [
+        { text: 'Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.' },
+        { media: { url: '{{{fileDataUri}}}' } }
+    ],
+});
 
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  return await extractTextFlow(input);
+  try {
+    const { output } = await extractTextPrompt(input);
+    const text = output?.text;
+
+    if (!text || text.trim() === '') {
+      return { ok: false, error: 'No se pudo extraer texto del documento con la IA.' };
+    }
+
+    return { ok: true, text };
+  } catch (error: any) {
+    console.error("Error en extractTextFromFile:", error);
+    return { ok: false, error: error.message || "Error inesperado durante la extracción." };
+  }
 }
