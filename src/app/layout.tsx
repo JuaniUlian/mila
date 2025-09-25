@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: 'MILA | Gobernar bien es revisar bien',
   description: 'AI-Powered Normative Document Improvement',
   icons: {
-    icon: '/favicon.png',
+    icon: '/logo/favicon.ico',
   },
 };
 
