@@ -29,6 +29,7 @@ import JSZip from 'jszip';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { Textarea } from '../ui/textarea';
 import { validateCustomInstructions } from '@/ai/flows/validate-custom-instructions';
+import { PDFDocument } from 'pdf-lib';
 
 // Renombrar el tipo File local para evitar conflicto con el File global del DOM
 type DocumentFile = {
@@ -324,63 +325,94 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   };
   
   const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
-      const tempId = `temp-${Date.now()}`;
-      
-      const filePlaceholder: DocumentFile = {
-        id: tempId,
-        name: rawFile.name,
-        content: '',
-        status: 'uploading',
-        startTime: Date.now(),
-        totalEstimatedTime: 30, // Default estimate
-        elapsedTime: 0,
-      };
-      
-      setFolders(prevFolders =>
-          prevFolders.map(folder =>
-              folder.id === folderId ? { ...folder, files: [...folder.files, filePlaceholder] } : folder
-          )
-      );
+    const tempId = `temp-${Date.now()}`;
+    isPausedRef.current.set(tempId, false);
+    abortControllerRef.current.set(tempId, new AbortController());
 
-      const updateFileState = (update: Partial<DocumentFile>) => {
+    const updateFileState = (update: Partial<DocumentFile>) => {
         setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
-      };
+    };
 
-      try {
-          updateFileState({ status: 'processing' });
-          
-          const formData = new FormData();
-          formData.append('file', rawFile);
-          formData.append('contentType', rawFile.type);
+    updateFileState({ id: tempId, name: rawFile.name, status: 'uploading', startTime: Date.now(), elapsedTime: 0 });
 
+    try {
+        if (rawFile.type === 'application/pdf') {
+            const arrayBuffer = await rawFile.arrayBuffer();
+            const pdfDoc = await PDFDocument.load(arrayBuffer);
+            const numPages = pdfDoc.getPageCount();
+            const chunkSize = 10;
+            const numChunks = Math.ceil(numPages / chunkSize);
 
-          const response = await fetch('/api/extract-text', {
-              method: 'POST',
-              body: formData,
-          });
+            updateFileState({ status: 'processing', totalChunks: numChunks, currentChunk: 1, totalEstimatedTime: estimateChunkProcessingTime(numPages) });
 
-          const result = await response.json();
+            let combinedText = '';
 
-          if (!response.ok || !result.ok) {
-              throw new Error(result.error || 'Error desconocido en el servidor.');
-          }
+            for (let i = 0; i < numPages; i += chunkSize) {
+                if (isPausedRef.current.get(tempId)) {
+                    updateFileState({ status: 'paused' });
+                    await new Promise(resolve => {
+                        const interval = setInterval(() => {
+                            if (!isPausedRef.current.get(tempId)) {
+                                clearInterval(interval);
+                                resolve(true);
+                            }
+                        }, 100);
+                    });
+                    updateFileState({ status: 'processing' });
+                }
 
-          updateFileState({
-              status: 'success',
-              content: result.text,
-              processingTime: (Date.now() - (filePlaceholder.startTime || 0)) / 1000,
-          });
-          toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
-          
-      } catch (err: any) {
-          console.error("Error processing file:", err);
-          updateFileState({
-              status: 'error',
-              error: getFriendlyErrorMessage(err),
-              processingTime: (Date.now() - (filePlaceholder.startTime || 0)) / 1000,
-          });
-      }
-  };
+                if (abortControllerRef.current.get(tempId)?.signal.aborted) {
+                    throw new Error('Proceso cancelado por el usuario.');
+                }
+                
+                updateFileState({ currentChunk: Math.floor(i / chunkSize) + 1 });
+
+                const subDoc = await PDFDocument.create();
+                const pageIndices = Array.from({ length: Math.min(chunkSize, numPages - i) }, (_, k) => i + k);
+                const copiedPages = await subDoc.copyPages(pdfDoc, pageIndices);
+                copiedPages.forEach(page => subDoc.addPage(page));
+
+                const chunkBytes = await subDoc.save();
+                const chunkBlob = new Blob([chunkBytes], { type: 'application/pdf' });
+                const chunkFile = new File([chunkBlob], `chunk_${i}.pdf`, { type: 'application/pdf' });
+
+                const formData = new FormData();
+                formData.append('file', chunkFile);
+                formData.append('contentType', chunkFile.type);
+                
+                const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (!response.ok || !result.ok) throw new Error(result.error || 'Error en el chunk.');
+                combinedText += result.text + '\n\n';
+            }
+            updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (folders.find(f=>f.id === folderId)?.files.find(f=>f.id===tempId)?.startTime || 0)) / 1000 });
+            toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
+        } else {
+            // Handle non-PDF files
+            const formData = new FormData();
+            formData.append('file', rawFile);
+            formData.append('contentType', rawFile.type);
+            
+            updateFileState({ status: 'processing', totalEstimatedTime: 30 });
+            
+            const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (!response.ok || !result.ok) throw new Error(result.error || 'Error desconocido en el servidor.');
+
+            updateFileState({ status: 'success', content: result.text, processingTime: (Date.now() - (folders.find(f=>f.id === folderId)?.files.find(f=>f.id===tempId)?.startTime || 0)) / 1000 });
+            toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
+        }
+    } catch (err: any) {
+        console.error("Error processing file:", err);
+        updateFileState({ status: 'error', error: getFriendlyErrorMessage(err), processingTime: (Date.now() - (folders.find(f=>f.id === folderId)?.files.find(f=>f.id===tempId)?.startTime || 0)) / 1000 });
+    } finally {
+        isPausedRef.current.delete(tempId);
+        abortControllerRef.current.delete(tempId);
+    }
+};
+
 
   const handleFileUpload = async (rawFile: globalThis.File, folderId: string): Promise<void> => {
     if (rawFile.name.endsWith('.zip')) {
@@ -541,6 +573,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   const handleOpenCancelConfirm = (fileId: string, folderId: string) => { setFileToCancel({ fileId, folderId }); setIsCancelConfirmOpen(true); };
   const handleConfirmCancel = () => { if (fileToCancel) handleCancel(fileToCancel.fileId, fileToCancel.folderId); setIsCancelConfirmOpen(false); };
   const handleCancel = (fileId: string, folderId: string) => {
+     abortControllerRef.current.get(fileId)?.abort();
      setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f));
   }
   
@@ -553,7 +586,10 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     setIsDeleteModalOpen(false);
   };
   
-  const handleDismissFileError = (fileId: string, folderId: string) => setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: f.files.filter((fi: DocumentFile) => fi.id !== fileId) } : f));
+  const handleDismissFileError = (fileId: string, folderId: string) => {
+    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f));
+  };
+
 
   const handleOpenRenameRegulationModal = (regulation: Regulation) => { setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content }); setNewRegulationName(regulation.name); setIsRenameRegulationModalOpen(true); };
   const handleRenameRegulation = () => {
@@ -589,6 +625,11 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     setIsDeleteFolderModalOpen(false);
   };
   
+  const handlePauseOrResume = (fileId: string) => {
+    const isCurrentlyPaused = isPausedRef.current.get(fileId);
+    isPausedRef.current.set(fileId, !isCurrentlyPaused);
+  };
+
   const currentViewFolders = expandedFolderId ? folders.filter((f: FolderData) => f.id === expandedFolderId) : filteredFolders;
 
   return (
@@ -639,7 +680,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                     onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
                     onRenameFolder={handleOpenRenameFolderModal} 
                     onDeleteFolder={handleOpenDeleteFolderModal} 
-                    onPauseOrResume={() => {}}
+                    onPauseOrResume={handlePauseOrResume}
                     onCancel={handleOpenCancelConfirm}
                     expandedFolderId={expandedFolderId}
                     setExpandedFolderId={setExpandedFolderId}
