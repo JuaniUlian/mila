@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -28,6 +29,7 @@ import JSZip from 'jszip';
 import mammoth from 'mammoth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { Textarea } from '../ui/textarea';
+import { validateCustomInstructions } from '@/ai/flows/validate-custom-instructions';
 
 // Renombrar el tipo File local para evitar conflicto con el File global del DOM
 type DocumentFile = {
@@ -239,56 +241,30 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   };
 
   const handleValidateInstructions = async () => {
-    const currentDefault = defaultInstructions || '';
-    const currentCustom = customInstructions.trim();
-
-    if (!currentCustom || currentCustom === currentDefault) {
-        setIsInstructionsValidated(true);
-        setCustomInstructions(currentDefault);
-        toast({ title: "Instrucciones por Defecto", description: "Se usarán las instrucciones estándar para el análisis." });
-        return;
-    }
-
-    const defaultDirectives = currentDefault.match(/(\d\.|-)\s/g) || [];
-    const customDirectives = currentCustom.match(/(\d\.|-)\s/g) || [];
-
-    if (customDirectives.length < defaultDirectives.length) {
-        setCustomInstructions(currentDefault);
-        setIsInstructionsValidated(false); 
-        toast({
-            title: "Instrucciones Inválidas",
-            description: "No se pueden eliminar las directivas predefinidas, ya que son indispensables para un análisis correcto. Se han restaurado las instrucciones originales.",
-            variant: "destructive",
-            duration: 8000,
-        });
-        setTimeout(() => setIsInstructionsValidated(true), 100); 
-        return;
-    }
-
-    // Validación básica sin llamar a función externa
     setIsInstructionValidationLoading(true);
     try {
-        // Validar que las instrucciones tengan contenido relevante
-        const hasRelevantKeywords = customInstructions.toLowerCase().includes('cumplimiento') ||
-                                   customInstructions.toLowerCase().includes('normativ') ||
-                                   customInstructions.toLowerCase().includes('regulación') ||
-                                   customInstructions.toLowerCase().includes('análisis');
-
-        if (!hasRelevantKeywords) {
+        const result = await validateCustomInstructions({
+            customInstructions,
+            modulePurpose: modulePurpose || 'Análisis general de documentos.',
+        });
+        
+        if (result.isValid) {
+            setIsInstructionsValidated(true);
+            toast({
+                title: "Validación Exitosa",
+                description: result.feedback,
+                variant: "success",
+            });
+        } else {
             setIsInstructionsValidated(false);
             setCustomInstructions(defaultInstructions || '');
             toast({
                 title: "Instrucciones Inválidas",
-                description: "Las instrucciones deben estar relacionadas con análisis de cumplimiento normativo.",
+                description: result.feedback,
                 variant: "destructive",
                 duration: 8000,
             });
-        } else {
-            setIsInstructionsValidated(true);
-            toast({
-                title: "Validación Exitosa",
-                description: "Las instrucciones personalizadas han sido validadas correctamente.",
-            });
+             setTimeout(() => setIsInstructionsValidated(true), 100); 
         }
     } catch (error) {
         setIsInstructionsValidated(false);
@@ -305,75 +281,71 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     }
   };
 
-  const cleanupProcess = (fileId: string): void => {
-    isPausedRef.current.delete(fileId);
-    abortControllerRef.current.delete(fileId);
-    const timer = timerRef.current.get(fileId);
-    if (timer) {
-      clearInterval(timer);
-      timerRef.current.delete(fileId);
-    }
-  };
 
   const getFriendlyErrorMessage = (error: any): string => {
-    if (typeof error === 'string') {
-        if (error.includes('504') || error.includes('deadline')) return 'El servidor tardó demasiado en responder (timeout). El chunk del documento era demasiado complejo. Por favor, intente de nuevo.';
-        if (error.includes('API key')) return 'La clave de API para el servicio de IA no es válida o está ausente. Revise la configuración del servidor.';
-        return error;
-    }
-    if (error instanceof Error) return getFriendlyErrorMessage(error.message);
-    return 'Ocurrió un error inesperado durante el procesamiento.';
+      const defaultError = 'Ocurrió un error inesperado durante el procesamiento.';
+      if (!error) return defaultError;
+      if (typeof error === 'string') return error;
+      if (typeof error.error === 'string') return error.error;
+      if (error.message) return error.message;
+      return defaultError;
+  };
+  
+  const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
+      const tempId = `temp-${Date.now()}`;
+      const filePlaceholder: DocumentFile = {
+        id: tempId,
+        name: rawFile.name,
+        content: '',
+        status: 'uploading',
+        startTime: Date.now(),
+      };
+      
+      setFolders(prevFolders =>
+          prevFolders.map(folder =>
+              folder.id === folderId ? { ...folder, files: [...folder.files, filePlaceholder] } : folder
+          )
+      );
+
+      const updateFileState = (update: Partial<DocumentFile>) => {
+        setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
+      };
+
+      try {
+          updateFileState({ status: 'processing' });
+          
+          const formData = new FormData();
+          formData.append('file', rawFile);
+
+          const response = await fetch('/api/extract-text', {
+              method: 'POST',
+              body: formData,
+          });
+
+          const result = await response.json();
+
+          if (!response.ok || !result.ok) {
+              throw new Error(result.error || 'Error desconocido en el servidor.');
+          }
+
+          updateFileState({
+              status: 'success',
+              content: result.text,
+              processingTime: (Date.now() - (filePlaceholder.startTime || 0)) / 1000,
+          });
+          toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
+          
+      } catch (err: any) {
+          console.error("Error processing file:", err);
+          updateFileState({
+              status: 'error',
+              error: getFriendlyErrorMessage(err),
+              processingTime: (Date.now() - (filePlaceholder.startTime || 0)) / 1000,
+          });
+      }
   };
 
-  const handlePauseOrResume = (fileId: string) => {
-    isPausedRef.current.set(fileId, !isPausedRef.current.get(fileId));
-    setFolders(prev => prev.map((f: FolderData) => ({ ...f, files: f.files.map((file: DocumentFile) => file.id === fileId ? { ...file, status: isPausedRef.current.get(fileId) ? 'paused' : 'processing' } : file) })));
-  };
-
-  const handleCancel = (fileId: string, folderId: string) => {
-    isPausedRef.current.set(fileId, true);
-    abortControllerRef.current.get(fileId)?.abort();
-    cleanupProcess(fileId);
-    setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: f.files.filter((file: DocumentFile) => file.id !== fileId) } : f));
-    toast({ title: "Proceso Cancelado", description: "La carga del archivo ha sido cancelada.", variant: "destructive" });
-  };
-
-  const processSingleDocument = async (rawFile: File, folderId: string) => {
-    const tempId = `temp-${Date.now()}`;
-    const updateFileState = (update: Partial<DocumentFile>) => {
-      setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
-    };
-
-    updateFileState({ id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() });
-
-    try {
-        let extractedText = '';
-        if (rawFile.name.endsWith('.docx')) {
-            const arrayBuffer = await rawFile.arrayBuffer();
-            const result = await mammoth.extractRawText({ arrayBuffer });
-            extractedText = result.value;
-        } else {
-            extractedText = await rawFile.text();
-        }
-
-        updateFileState({
-            status: 'success',
-            content: extractedText,
-            processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000,
-        });
-
-        toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name) });
-
-    } catch (err: any) {
-        updateFileState({
-            status: 'error',
-            error: getFriendlyErrorMessage(err),
-            processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000,
-        });
-    }
-  };
-
-  const handleFileUpload = async (rawFile: File, folderId: string): Promise<void> => {
+  const handleFileUpload = async (rawFile: globalThis.File, folderId: string): Promise<void> => {
     if (rawFile.name.endsWith('.zip')) {
         const jszip = new JSZip();
         try {
@@ -410,35 +382,46 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     }
   };
   
-  const handleFileUploadedToRoot = (rawFile: File) => folders.length > 0 ? handleFileUpload(rawFile, folders[0].id) : toast({ title: t('preparePage.toastError'), description: t('preparePage.toastNoFolders'), variant: 'destructive' });
+  const handleFileUploadedToRoot = (rawFile: globalThis.File) => folders.length > 0 ? handleFileUpload(rawFile, folders[0].id) : toast({ title: t('preparePage.toastError'), description: t('preparePage.toastNoFolders'), variant: 'destructive' });
 
-  const processSingleRegulation = async (rawFile: File) => {
-    const tempId = `reg-${Date.now()}`;
-    const updateRegulationState = (id: string, update: Partial<Regulation>) => {
-        setRegulations(prev => prev.map(reg => reg.id === id ? { ...reg, ...update, processingTime: reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined } : reg));
-    };
+  const processSingleRegulation = async (rawFile: globalThis.File) => {
+      const tempId = `reg-${Date.now()}`;
+      const regulationPlaceholder: Regulation = {
+        id: tempId,
+        name: rawFile.name,
+        content: '',
+        status: 'processing',
+        startTime: Date.now(),
+      };
+      setRegulations(prev => [...prev, regulationPlaceholder]);
+      
+      const updateRegulationState = (id: string, update: Partial<Regulation>) => {
+          setRegulations(prev => prev.map(reg => reg.id === id ? { ...reg, ...update, processingTime: reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined } : reg));
+      };
+      
+      try {
+          const formData = new FormData();
+          formData.append('file', rawFile);
+          
+          const response = await fetch('/api/extract-text', {
+              method: 'POST',
+              body: formData,
+          });
+          
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+              throw new Error(result.error || 'Error desconocido en el servidor.');
+          }
+          
+          updateRegulationState(tempId, { content: result.text, status: 'success' });
+          toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
 
-    setRegulations(prev => [...prev, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }]);
-
-    try {
-        let extractedText = '';
-        if (rawFile.name.endsWith('.docx')) {
-            const arrayBuffer = await rawFile.arrayBuffer();
-            const result = await mammoth.extractRawText({ arrayBuffer });
-            extractedText = result.value;
-        } else {
-            extractedText = await rawFile.text();
-        }
-
-        updateRegulationState(tempId, { content: extractedText || 'No se pudo extraer contenido.', status: 'success' });
-        toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name) });
-
-    } catch (err) {
-        updateRegulationState(tempId, { status: 'error', error: getFriendlyErrorMessage(err) });
-    }
+      } catch (err: any) {
+          updateRegulationState(tempId, { status: 'error', error: getFriendlyErrorMessage(err) });
+      }
   };
 
-  const handleRegulationUpload = async (rawFile: File): Promise<void> => {
+  const handleRegulationUpload = async (rawFile: globalThis.File): Promise<void> => {
      if (rawFile.name.endsWith('.zip')) {
         const jszip = new JSZip();
         try {
@@ -519,7 +502,10 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   
   const handleOpenCancelConfirm = (fileId: string, folderId: string) => { setFileToCancel({ fileId, folderId }); setIsCancelConfirmOpen(true); };
   const handleConfirmCancel = () => { if (fileToCancel) handleCancel(fileToCancel.fileId, fileToCancel.folderId); setIsCancelConfirmOpen(false); };
-
+  const handleCancel = (fileId: string, folderId: string) => {
+     setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f));
+  }
+  
   const handleOpenDeleteModal = (file: DocumentFile, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setIsDeleteModalOpen(true); };
   const handleDeleteFile = () => {
     if (!fileToAction) return;
@@ -615,7 +601,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                     onDismissError={(file, folderId) => handleDismissFileError(file.id, folderId)} 
                     onRenameFolder={handleOpenRenameFolderModal} 
                     onDeleteFolder={handleOpenDeleteFolderModal} 
-                    onPauseOrResume={handlePauseOrResume} 
+                    onPauseOrResume={() => {}}
                     onCancel={handleOpenCancelConfirm}
                     expandedFolderId={expandedFolderId}
                     setExpandedFolderId={setExpandedFolderId}

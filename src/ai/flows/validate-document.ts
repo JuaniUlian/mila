@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview Flujo de validación con scoring centralizado y tipado estricto
- * - Usa Gemini 1.5 Pro como modelo principal.
+ * - Usa Claude 3.5 Sonnet como modelo principal.
  * - Tipado explícito para entrada y salida.
  * - Normalización defensiva del output (scoringBreakdown y findings).
  */
@@ -14,6 +14,7 @@ import {
   getRiskCategory,
   type Finding as FindingTypeFromScoring,
 } from './compliance-scoring';
+import {claude} from 'genkitx-anthropic';
 
 /* =========================
    Esquemas de entrada
@@ -118,26 +119,24 @@ function normalizeOutput(raw: any, calculatedScores?: any): ValidateDocumentOutp
 }
 
 /* =========================
-   Prompt para Gemini
+   Prompt para Claude
    ========================= */
 
-const prompt = ai.definePrompt({
-  name: 'validateDocumentPromptWithGemini',
-  model: 'googleai/gemini-1.5-pro',
-  input: { schema: ValidateDocumentInputSchema },
-  output: {
-    schema: z.object({
-      isRelevantDocument: z.boolean(),
-      relevancyReasoning: z.string(),
-      findings: z.array(FindingSchema),
+const validateDocumentWithClaude = ai.defineFlow(
+  {
+    name: 'validateDocumentWithClaude',
+    inputSchema: ValidateDocumentInputSchema,
+    outputSchema: z.object({
+        isRelevantDocument: z.boolean(),
+        relevancyReasoning: z.string(),
+        findings: z.array(FindingSchema),
     }),
   },
-  prompt: `Eres un auditor experto en administración pública. Analiza el documento y devuelve hallazgos **sin** calcular puntajes.
-
-{{#if customInstructions}}
-INSTRUCCIONES ADICIONALES DEL USUARIO (aplican con alta prioridad):
-{{{customInstructions}}}
-{{/if}}
+  async (input) => {
+    
+    const model = claude(process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620');
+    
+    let systemPrompt = `Eres un auditor experto en administración pública. Analiza el documento y devuelve hallazgos **sin** calcular puntajes.
 
 Paso 1 (relevancia):
 - Si NO es un documento administrativo/gubernamental, responde isRelevantDocument=false, explica en relevancyReasoning y devuelve findings=[].
@@ -149,25 +148,47 @@ Paso 2 (hallazgos):
 - Usa propuesta_redaccion para cambios de texto; propuesta_procedimiento para acciones administrativas.
 - Puedes usar "verificacion_interdocumental" si el hallazgo depende de contrastar con otro archivo.
 
-Contexto:
-DOCUMENTO: {{{documentName}}}
+Devuelve **solo JSON**.`;
+
+    if (input.customInstructions) {
+        systemPrompt += `\n\nINSTRUCCIONES ADICIONALES DEL USUARIO (aplican con alta prioridad):\n${input.customInstructions}`;
+    }
+
+    const regulationsText = input.regulations.map(r => `- ${r.name}\n\`\`\`\n${r.content}\n\`\`\``).join('\n\n');
+    
+    const userPrompt = `Contexto:
+DOCUMENTO: ${input.documentName}
 \`\`\`
-{{{documentContent}}}
+${input.documentContent}
 \`\`\`
 
 NORMAS:
-{{#each regulations}}
-- {{this.name}}
-\`\`\`
-{{{this.content}}}
-\`\`\`
-{{/each}}
+${regulationsText}
+`;
 
-Devuelve **solo JSON**.`,
-});
+    const { output } = await ai.generate({
+      model: model,
+      prompt: userPrompt,
+      config: {
+        system: systemPrompt,
+        temperature: 0.1,
+      },
+      output: {
+          schema: z.object({
+            isRelevantDocument: z.boolean(),
+            relevancyReasoning: z.string(),
+            findings: z.array(FindingSchema),
+          })
+      }
+    });
+    
+    return output()!;
+  }
+);
+
 
 /* =========================
-   Flujo Principal (usando Gemini)
+   Flujo Principal
    ========================= */
 
 const validateDocumentFlow = ai.defineFlow(
@@ -179,8 +200,8 @@ const validateDocumentFlow = ai.defineFlow(
   async (input) => {
     const startTime = Date.now();
     try {
-      console.log('🤖 Ejecutando análisis con Gemini 1.5 Pro...');
-      const { output: aiOutput } = await prompt(input);
+      console.log('🤖 Ejecutando análisis con Claude...');
+      const aiOutput = await validateDocumentWithClaude(input);
       if (!aiOutput) throw new Error('La IA no devolvió ningún resultado');
 
       if (!aiOutput.isRelevantDocument) {
@@ -193,7 +214,7 @@ const validateDocumentFlow = ai.defineFlow(
         return irrelevant;
       }
 
-      console.log(`📊 Gemini Pro devolvió ${aiOutput.findings.length} hallazgos`);
+      console.log(`📊 Claude devolvió ${aiOutput.findings.length} hallazgos`);
       console.log('🧮 Calculando puntajes con sistema centralizado...');
       
       const scoring = calculateBaseComplianceScore(aiOutput.findings as FindingTypeFromScoring[]);
@@ -205,7 +226,7 @@ const validateDocumentFlow = ai.defineFlow(
       return completed;
 
     } catch (err: any) {
-      console.error('Error en el flujo de validación (Gemini):', err);
+      console.error('Error en el flujo de validación:', err);
       const errorMessage = `El análisis del documento falló: ${err.message || String(err)}`;
       throw new Error(errorMessage);
     }
@@ -217,6 +238,6 @@ const validateDocumentFlow = ai.defineFlow(
    ========================= */
 
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
-  console.log('🔍 Iniciando validación con Gemini...');
+  console.log('🔍 Iniciando validación...');
   return validateDocumentFlow(input);
 }
