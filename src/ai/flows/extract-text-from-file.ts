@@ -6,6 +6,7 @@
 
 import {z} from 'genkit';
 import {ai} from '@/ai/genkit';
+import {GenerateRequest} from 'genkit/generate';
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z.string().describe("El archivo como un data URI. Formato: 'data:<mimetype>;base64,<encoded_data>'."),
@@ -20,21 +21,18 @@ const ExtractTextFromFileOutputSchema = z.object({
 });
 export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
 
-
-const extractTextPrompt = ai.definePrompt({
-    name: 'extractTextPrompt',
-    model: 'googleai/gemini-1.5-pro',
-    input: { schema: z.object({ fileDataUri: z.string(), contentType: z.string() }) },
-    prompt: [
-        { text: 'Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.' },
-        { media: { url: '{{{fileDataUri}}}', contentType: '{{{contentType}}}' } }
-    ],
-});
-
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   try {
-    const { output } = await extractTextPrompt(input);
-    const text = output?.text;
+    const request: GenerateRequest = {
+      model: 'googleai/gemini-1.5-pro',
+      prompt: [
+        {text: 'Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.'},
+        {media: {url: input.fileDataUri, contentType: input.contentType}},
+      ],
+    };
+
+    const response = await ai.generate(request);
+    const text = response.text;
 
     if (!text || text.trim() === '') {
       return { ok: false, error: 'No se pudo extraer texto del documento con la IA.' };
