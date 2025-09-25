@@ -330,7 +330,18 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     abortControllerRef.current.set(tempId, new AbortController());
 
     const updateFileState = (update: Partial<DocumentFile>) => {
-        setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
+        setFolders(prev => prev.map(f => {
+            if (f.id === folderId) {
+                const fileExists = f.files.some(file => file.id === tempId);
+                if (fileExists) {
+                    return { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) };
+                } else {
+                    // This is for the initial update
+                    return { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', ...update }] };
+                }
+            }
+            return f;
+        }));
     };
 
     updateFileState({ id: tempId, name: rawFile.name, status: 'uploading', startTime: Date.now(), elapsedTime: 0 });
@@ -399,7 +410,9 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
             const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
             const result = await response.json();
 
-            if (!response.ok || !result.ok) throw new Error(result.error || 'Error desconocido en el servidor.');
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || 'Error desconocido en el servidor.');
+            }
 
             updateFileState({ status: 'success', content: result.text, processingTime: (Date.now() - (folders.find(f=>f.id === folderId)?.files.find(f=>f.id===tempId)?.startTime || 0)) / 1000 });
             toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
