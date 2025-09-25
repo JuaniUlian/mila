@@ -110,7 +110,7 @@ export default function AnalysisPage() {
     setActiveModal(null);
   }, [t, toast, setScore]);
 
-  const handleDownloadReport = async () => {
+const handleDownloadReport = async () => {
     if (!validationResult || !currentScoring) return;
 
     const reportData = {
@@ -125,6 +125,12 @@ export default function AnalysisPage() {
         let { width, height } = page.getSize();
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+        
+        // Cargar el logo de MILA
+        const logoUrl = '/logo/Logo MILA (sin fondo).png';
+        const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
+        const logoImage = await pdfDoc.embedPng(logoImageBytes);
+        const logoDims = logoImage.scale(0.05); // Escalar el logo al 5%
 
         let y = height - 50;
 
@@ -167,13 +173,27 @@ export default function AnalysisPage() {
             totalHeight += size + 2;
             return totalHeight;
         }
+        
+        // Dibujar el logo
+        page.drawImage(logoImage, {
+            x: width - 50 - logoDims.width,
+            y: height - 30 - logoDims.height,
+            width: logoDims.width,
+            height: logoDims.height,
+        });
+
+        // Dibujar información del revisor
+        const generationDate = new Date().toLocaleDateString();
+        y -= drawText('Revisor: Juan Ignacio Ulian', 50, y, { font: font, size: 8 });
+        y -= drawText('Dirección de Procurement - Gobierno de México', 50, y, { font: font, size: 8 });
+        y -= drawText(`Fecha de Informe: ${generationDate}`, 50, y, { font: font, size: 8 });
+        
+        y -= 30; // Espacio adicional después del encabezado
 
         // Header
         y -= drawText('Informe de Análisis Normativo - MILA', 50, y, { font: boldFont, size: 18 });
         y -= 5;
         y -= drawText(reportData.documentTitle, 50, y, { font: boldFont, size: 14 });
-        y -= 5;
-        y -= drawText(`Fecha de Generación: ${new Date().toLocaleDateString()}`, 50, y, { size: 10 });
         y -= 20;
 
         // Summary
@@ -185,7 +205,7 @@ export default function AnalysisPage() {
         y -= 15;
         y -= drawText(`Nivel de Riesgo: ${reportData.scoringReport.summary.riskCategory.label}`, 70, y, { size: 12 });
         y -= 15;
-         y -= drawText(`Hallazgos: ${reportData.findings.length} totales (${reportData.scoringReport.summary.progress.pending} pendientes, ${reportData.scoringReport.summary.progress.resolved} resueltos)`, 70, y, { size: 12 });
+        y -= drawText(`Hallazgos: ${reportData.findings.length} totales (${reportData.scoringReport.summary.progress.pending} pendientes, ${reportData.scoringReport.summary.progress.resolved} resueltos)`, 70, y, { size: 12 });
         y -= 20;
 
         // Findings
@@ -195,9 +215,9 @@ export default function AnalysisPage() {
         y -= 10;
         
         for (const finding of reportData.findings) {
-             if (y < 150) {
-                page = pdfDoc.addPage();
-                y = page.getSize().height - 50;
+             if (y < 150) { // Check if space is running out
+                page = pdfDoc.addPage(); // Add a new page
+                y = page.getSize().height - 50; // Reset Y position for new page
             }
             
             y -= 15;
