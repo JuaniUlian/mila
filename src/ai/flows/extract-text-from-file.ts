@@ -1,120 +1,199 @@
 'use server';
 /**
- * @fileOverview A flow to extract text from various file formats with fallback.
- *
- * - extractTextFromFile - A function that handles file text extraction.
- * - ExtractTextFromFileInput - The input type for the function.
- * - ExtractTextFromFileOutput - The return type for the function.
+ * Extrae texto de PDFs, imágenes y documentos.
+ * - Claude Sonnet primario:
+ *    - PDF: /v1/files + messages.attachments (tools: document)
+ *    - Imágenes: messages con content[type=input_image]
+ * - Fallback local básico para PDF si hiciera falta (pdf-lib texto incrustado)
  */
-import { ai } from '@/ai/genkit';
+
 import { z } from 'zod';
+import sharp from 'sharp';
+import { PDFDocument } from 'pdf-lib';
 import mammoth from 'mammoth';
-import { logError, logSuccess } from './monitoring';
-import Anthropic from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+// ───────────────────────── schemas / tipos
+const InputSchema = z.object({
+  fileDataUri: z.string().min(10, 'fileDataUri requerido'),
 });
+type ExtractTextFromFileInput = z.infer<typeof InputSchema>;
 
-const ExtractTextFromFileInputSchema = z.object({
-  fileDataUri: z
-    .string()
-    .describe(
-      "The file content as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
-    ),
-});
-export type ExtractTextFromFileInput = z.infer<typeof ExtractTextFromFileInputSchema>;
+export type ExtractTextFromFileOutput = {
+  ok: boolean;
+  extractedText?: string;
+  error?: string;
+  meta?: { model: string; strategy: 'anthropic_pdf' | 'anthropic_image' | 'local_mammoth' | 'local_text' };
+};
 
-const ExtractTextFromFileOutputSchema = z.object({
-  extractedText: z.string().describe('The full text content extracted from the file.'),
-});
-export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
+// ───────────────────────── helpers
+function parseDataUri(dataUri: string): { mime: string; base64: string; buffer: Buffer } {
+  const match = /^data:(.+);base64,(.*)$/.exec(dataUri);
+  if (!match) throw new Error('Data URI inválida');
+  const [, mime, base64] = match;
+  return { mime, base64, buffer: Buffer.from(base64, 'base64') };
+}
 
-export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
-  const { fileDataUri } = input;
-  const startTime = Date.now();
-  let extractedText = '';
+async function uploadAnthropicFile(buffer: Buffer, filename: string, mime: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error('ANTHROPIC_API_KEY no configurada');
 
-  const fileTypeMatch = fileDataUri.match(/^data:(.*?);/);
-  const fileType = fileTypeMatch ? fileTypeMatch[1] : 'application/octet-stream';
-  const fileName = `file_${Date.now()}`;
-  const fileSize = Buffer.from(fileDataUri.split(',')[1], 'base64').length;
+  const form = new FormData();
+  form.append('file', new Blob([buffer], { type: mime }), filename);
+  form.append('purpose', 'messages');
 
-  try {
-    if (fileType.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
-      const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
-      const result = await mammoth.extractRawText({ buffer });
-      extractedText = result.value;
-      logSuccess('gemini', fileSize, Date.now() - startTime); // Still log as 'gemini' for consistency
-    } else if (fileType.startsWith('text/')) {
-      const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
-      extractedText = buffer.toString('utf-8');
-      logSuccess('gemini', fileSize, Date.now() - startTime);
-    } else if (fileType.includes('pdf') || fileType.startsWith('image/')) {
-      console.log(`Attempting extraction with Anthropic Claude for ${fileName}`);
-      try {
-        const base64Data = fileDataUri.split(',')[1];
-        
-        let content;
-        if (fileType.startsWith('image/')) {
-            content = [{
-                type: 'image',
-                source: {
-                    type: 'base64',
-                    media_type: fileType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
-                    data: base64Data,
-                },
-            },
+  const res = await fetch('https://api.anthropic.com/v1/files', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: form,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Upload a Anthropic falló: ${res.status} ${errText}`);
+  }
+
+  const json = await res.json() as { id: string };
+  return json.id;
+}
+
+async function callAnthropicWithAttachment(fileId: string, prompt: string, model: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY!;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 4000,
+      attachments: [
+        {
+          file_id: fileId,
+          tools: [{ type: 'document' }],
+        },
+      ],
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
+          ],
+        },
+      ],
+    }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(`Anthropic messages error: ${res.status} ${JSON.stringify(json)}`);
+  }
+
+  const blocks = json?.content ?? [];
+  const textBlock = blocks.find((b: any) => b.type === 'text') || blocks.find((b: any) => b.text);
+  return textBlock?.text || '';
+}
+
+async function callAnthropicWithImage(buffer: Buffer, mime: string, prompt: string, model: string): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY!;
+  const allowed = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+  let mediaType = mime;
+  let out = buffer;
+
+  if (!allowed.has(mime)) {
+    out = await sharp(buffer).png().toBuffer();
+    mediaType = 'image/png';
+  }
+
+  const base64 = out.toString('base64');
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 4000,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: prompt },
             {
-                type: 'text',
-                text: 'Extract all text content from this image. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears.',
-            }]
-        } else if (fileType.includes('pdf')) {
-             content = [{
-                type: 'text',
-                text: `Here is a document. Please extract all text content from it. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.\n\nDOCUMENT_CONTENT:\n${base64Data}`,
-            }]
-        } else {
-            throw new Error(`Unsupported media type for Anthropic processing: ${fileType}`);
-        }
-
-        const response = await anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20240620',
-          max_tokens: 4000,
-          messages: [
-            {
-              role: 'user',
-              content: content,
+              type: 'input_image',
+              source: {
+                type: 'base64',
+                media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
+                data: base64,
+              },
             },
           ],
-        });
+        },
+      ],
+    }),
+  });
 
-        extractedText = response.content.map(block => block.type === 'text' ? block.text : '').join('\n');
-        logSuccess('gemini', fileSize, Date.now() - startTime); // Log as gemini for consistency in monitoring
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(`Anthropic image error: ${res.status} ${JSON.stringify(json)}`);
+  }
 
-      } catch (claudeError: any) {
-        logError('gemini', fileSize, Date.now() - startTime, claudeError.message || String(claudeError));
-        const errorMessage = `Primary extraction with Claude failed: ${claudeError.message}.`;
-        throw new Error(errorMessage);
+  const blocks = json?.content ?? [];
+  const textBlock = blocks.find((b: any) => b.type === 'text') || blocks.find((b: any) => b.text);
+  return textBlock?.text || '';
+}
+
+
+// ───────────────────────── entrypoint
+export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
+  const { fileDataUri } = InputSchema.parse(input);
+
+  const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620';
+  const { mime, buffer } = parseDataUri(fileDataUri);
+
+  try {
+    if (mime.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+        const result = await mammoth.extractRawText({ buffer });
+        return { ok: true, extractedText: result.value, meta: { model, strategy: 'local_mammoth' } };
+    }
+
+    if (mime === 'application/pdf') {
+      const fileId = await uploadAnthropicFile(buffer, 'document.pdf', mime);
+      const text = await callAnthropicWithAttachment(
+        fileId,
+        'Extrae TODO el texto del PDF en orden de lectura. Devuelve únicamente texto plano UTF-8, sin notas ni resumen.',
+        model
+      );
+      if (text && text.trim().length > 0) {
+        return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_pdf' } };
       }
-    } else {
-      throw new Error(`Unsupported file type: ${fileType}`);
+      return { ok: false, error: 'No se pudo extraer texto del PDF con Claude.', meta: { model, strategy: 'anthropic_pdf' } };
     }
 
-    if (!extractedText || extractedText.trim().length === 0) {
-      console.warn(`No text extracted from ${fileName}`);
-      return { extractedText: '' };
+    if (mime.startsWith('image/')) {
+      const text = await callAnthropicWithImage(
+        buffer,
+        mime,
+        'Lee el texto presente en la imagen y devuélvelo como texto plano.',
+        model
+      );
+      return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_image' } };
     }
 
-    return { extractedText };
-  } catch (error: any) {
-    console.error(`Error processing file ${fileName}:`, error);
-    
-    let errorMessage = error.message || String(error);
-    if (errorMessage.includes('deadline') || errorMessage.includes('timeout')) {
-      errorMessage = 'The document chunk is too complex to process within the time limit, even with fallback.';
+    if (mime.startsWith('text/')) {
+      return { ok: true, extractedText: buffer.toString('utf-8'), meta: { model, strategy: 'local_text' } };
     }
-    
-    throw new Error(`Failed to extract text from ${fileName}. Reason: ${errorMessage}`);
+
+    return { ok: false, error: `Tipo de archivo no soportado: ${mime}` };
+  } catch (err: any) {
+    console.error(`Error in extractTextFromFile for mime type ${mime}:`, err);
+    return { ok: false, error: `Failed to extract text: ${err.message}` };
   }
 }

@@ -39,11 +39,14 @@ export async function POST(request: NextRequest) {
 
     const result = await extractTextFromFile({ fileDataUri });
 
-    return NextResponse.json(result);
+    if (result.ok) {
+        return NextResponse.json({ extractedText: result.extractedText });
+    } else {
+        return NextResponse.json({ error: result.error }, { status: 500 });
+    }
 
   } catch (error: any) {
     console.error('Error in /api/extract-text:', error);
-    // Use the error message directly from the flow, which is now more informative
     const errorMessage = error.message || 'An unexpected error occurred on the server.';
     return NextResponse.json({ 
         error: `Server-side extraction failed. ${errorMessage}` 
