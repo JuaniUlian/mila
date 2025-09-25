@@ -44,7 +44,6 @@ async function uploadAnthropicFile(buffer: Buffer, filename: string, mime: strin
     headers: {
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'pdfs-2024-09-24', // ← habilita adjuntos de PDF
     },
     body: form,
   });
@@ -65,7 +64,6 @@ async function callAnthropicWithAttachment(fileId: string, prompt: string, model
       'content-type': 'application/json',
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'pdfs-2024-09-24',
     },
     body: JSON.stringify({
       model,
