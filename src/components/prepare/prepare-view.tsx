@@ -25,6 +25,7 @@ import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import JSZip from 'jszip';
+import mammoth from 'mammoth';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { Textarea } from '../ui/textarea';
 
@@ -339,47 +340,36 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   const processSingleDocument = async (rawFile: File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
-    isPausedRef.current.set(tempId, false);
-    abortControllerRef.current.set(tempId, new AbortController());
+    const updateFileState = (update: Partial<DocumentFile>) => {
+      setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
+    };
 
-    const updateFileState = (update: Partial<DocumentFile>) => setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: f.files.map((file: DocumentFile) => file.id === tempId ? { ...file, ...update } : file) } : f));
-    
-    setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }] } : f));
-    
+    updateFileState({ id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() });
+
     try {
-        const formData = new FormData();
-        formData.append('file', rawFile);
-
-        const response = await fetch('/api/extract-text', { 
-            method: 'POST', 
-            body: formData,
-            signal: abortControllerRef.current.get(tempId)?.signal 
-        });
-
-        if (!response.ok) {
-            throw new Error(getFriendlyErrorMessage(await response.text().catch(() => `Server error: ${response.status}`)));
+        let extractedText = '';
+        if (rawFile.name.endsWith('.docx')) {
+            const arrayBuffer = await rawFile.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            extractedText = result.value;
+        } else {
+            extractedText = await rawFile.text();
         }
 
-        const result = await response.json();
-        
-        updateFileState({ 
-            status: 'success', 
-            content: result.extractedText, 
-            processingTime: (Date.now() - (folders.find((f: FolderData) => f.id === folderId)?.files.find((fi: DocumentFile) => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
+        updateFileState({
+            status: 'success',
+            content: extractedText,
+            processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000,
         });
-        
+
         toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name) });
 
     } catch (err: any) {
-        if (err.name !== 'AbortError' && err.message !== 'Cancelled') {
-            updateFileState({ 
-                status: 'error', 
-                error: getFriendlyErrorMessage(err), 
-                processingTime: (Date.now() - (folders.find((f: FolderData) => f.id === folderId)?.files.find((fi: DocumentFile) => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
-            });
-        }
-    } finally {
-        cleanupProcess(tempId);
+        updateFileState({
+            status: 'error',
+            error: getFriendlyErrorMessage(err),
+            processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000,
+        });
     }
   };
 
@@ -424,15 +414,25 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
 
   const processSingleRegulation = async (rawFile: File) => {
     const tempId = `reg-${Date.now()}`;
-    setRegulations((prev: Regulation[]) => [...prev, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }]);
-    const updateRegulationState = (id: string, update: Partial<Regulation>) => setRegulations((prev: Regulation[]) => prev.map((reg: Regulation) => reg.id === id ? { ...reg, ...update, processingTime: reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined } : reg));
+    const updateRegulationState = (id: string, update: Partial<Regulation>) => {
+        setRegulations(prev => prev.map(reg => reg.id === id ? { ...reg, ...update, processingTime: reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined } : reg));
+    };
+
+    setRegulations(prev => [...prev, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }]);
+
     try {
-        const formData = new FormData();
-        formData.append('file', rawFile);
-        const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
-        if (!response.ok) throw new Error(getFriendlyErrorMessage(await response.text().catch(() => `Server error: ${response.status}`)));
-        updateRegulationState(tempId, { content: (await response.json()).extractedText || 'No se pudo extraer contenido.', status: 'success' });
+        let extractedText = '';
+        if (rawFile.name.endsWith('.docx')) {
+            const arrayBuffer = await rawFile.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            extractedText = result.value;
+        } else {
+            extractedText = await rawFile.text();
+        }
+
+        updateRegulationState(tempId, { content: extractedText || 'No se pudo extraer contenido.', status: 'success' });
         toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name) });
+
     } catch (err) {
         updateRegulationState(tempId, { status: 'error', error: getFriendlyErrorMessage(err) });
     }
