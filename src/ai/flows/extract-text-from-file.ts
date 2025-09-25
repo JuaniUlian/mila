@@ -10,6 +10,11 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import mammoth from 'mammoth';
 import { logError, logSuccess } from './monitoring';
+import Anthropic from '@anthropic-ai/sdk';
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z
@@ -40,56 +45,47 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
       const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
+      logSuccess('gemini', fileSize, Date.now() - startTime); // Still log as 'gemini' for consistency
     } else if (fileType.startsWith('text/')) {
       const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
       extractedText = buffer.toString('utf-8');
+      logSuccess('gemini', fileSize, Date.now() - startTime);
     } else if (fileType.includes('pdf') || fileType.startsWith('image/')) {
-      console.log(`Attempting extraction with Gemini-Flash for ${fileName}`);
+      console.log(`Attempting extraction with Anthropic Claude for ${fileName}`);
       try {
-        const genkitResponse = await ai.generate({
-          prompt: [
-            {
-              text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
-            },
-            { media: { url: fileDataUri } },
-          ],
-          model: 'googleai/gemini-1.5-flash',
-          config: {
-            timeout: 1000 * 60 * 2, // 2 minutes
-          },
-        });
+        const base64Data = fileDataUri.split(',')[1];
         
-        extractedText = genkitResponse.text ?? '';
-        logSuccess('gemini', fileSize, Date.now() - startTime);
-
-      } catch (geminiError: any) {
-        logError('gemini', fileSize, Date.now() - startTime, geminiError.message || String(geminiError));
-        console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro. Error: ${geminiError.message}`);
-
-        try {
-          console.log(`Retrying extraction with Gemini-Pro for ${fileName}`);
-          const genkitResponsePro = await ai.generate({
-            prompt: [
-              {
-                text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
-              },
-              { media: { url: fileDataUri } },
-            ],
-            model: 'googleai/gemini-1.5-pro',
-            config: {
-              timeout: 1000 * 60 * 4, // 4 minutes for the more powerful model
+        const response = await anthropic.messages.create({
+          model: 'claude-3-5-sonnet-20240620',
+          max_tokens: 4000,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image',
+                  source: {
+                    type: 'base64',
+                    media_type: fileType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' | 'application/pdf',
+                    data: base64Data,
+                  },
+                },
+                {
+                  type: 'text',
+                  text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
+                },
+              ],
             },
-          });
-          
-          extractedText = genkitResponsePro.text ?? '';
-          logSuccess('gemini_pro_fallback', fileSize, Date.now() - startTime);
+          ],
+        });
 
-        } catch (geminiProError: any) {
-          logError('gemini_pro_fallback', fileSize, Date.now() - startTime, geminiProError.message || String(geminiProError));
-          // If both models fail, construct a more informative error message
-          const errorMessage = `Primary extraction failed: ${geminiError.message}. Fallback extraction also failed: ${geminiProError.message}`;
-          throw new Error(errorMessage);
-        }
+        extractedText = response.content.map(block => block.type === 'text' ? block.text : '').join('\n');
+        logSuccess('gemini', fileSize, Date.now() - startTime); // Log as gemini for consistency in monitoring
+
+      } catch (claudeError: any) {
+        logError('gemini', fileSize, Date.now() - startTime, claudeError.message || String(claudeError));
+        const errorMessage = `Primary extraction with Claude failed: ${claudeError.message}.`;
+        throw new Error(errorMessage);
       }
     } else {
       throw new Error(`Unsupported file type: ${fileType}`);
