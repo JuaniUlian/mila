@@ -55,26 +55,36 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
       try {
         const base64Data = fileDataUri.split(',')[1];
         
+        let content;
+        if (fileType.startsWith('image/')) {
+            content = [{
+                type: 'image',
+                source: {
+                    type: 'base64',
+                    media_type: fileType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp',
+                    data: base64Data,
+                },
+            },
+            {
+                type: 'text',
+                text: 'Extract all text content from this image. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears.',
+            }]
+        } else if (fileType.includes('pdf')) {
+             content = [{
+                type: 'text',
+                text: `Here is a document. Please extract all text content from it. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.\n\nDOCUMENT_CONTENT:\n${base64Data}`,
+            }]
+        } else {
+            throw new Error(`Unsupported media type for Anthropic processing: ${fileType}`);
+        }
+
         const response = await anthropic.messages.create({
           model: 'claude-3-5-sonnet-20240620',
           max_tokens: 4000,
           messages: [
             {
               role: 'user',
-              content: [
-                {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: fileType as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' | 'application/pdf',
-                    data: base64Data,
-                  },
-                },
-                {
-                  type: 'text',
-                  text: 'Extract all text content from this document. Do not summarize, interpret, or add any commentary. Return only the raw text exactly as it appears in the document. If there are tables, preserve their structure using appropriate spacing.',
-                },
-              ],
+              content: content,
             },
           ],
         });
