@@ -6,6 +6,7 @@
 
 import {z} from 'genkit';
 import {ai} from '@/ai/genkit';
+import { GenerateRequest } from 'genkit';
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z.string().describe("El archivo como un data URI. Formato: 'data:<mimetype>;base64,<encoded_data>'."),
@@ -46,15 +47,16 @@ const extractTextFlow = ai.defineFlow(
       }
       
       // Use AI for PDF, DOCX, and other complex formats
-      const { output } = await ai.generate({
-          model: 'googleai/gemini-1.5-pro',
-          prompt: `Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.
+      const request: GenerateRequest = {
+        model: 'googleai/gemini-1.5-pro',
+        prompt: [
+          { text: 'Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.' },
+          { media: { url: fileDataUri } }
+        ]
+      };
 
-Documento:
-{{media url=fileDataUri}}
-`,
-      });
-
+      const { output } = await ai.generate(request);
+      
       const text = output?.text;
       
       if (!text || text.trim() === '') {
