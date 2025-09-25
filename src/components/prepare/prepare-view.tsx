@@ -314,6 +314,18 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
       try {
           updateFileState({ status: 'processing' });
           
+          if (rawFile.name.endsWith('.docx')) {
+              const arrayBuffer = await rawFile.arrayBuffer();
+              const result = await mammoth.extractRawText({ arrayBuffer });
+              updateFileState({
+                status: 'success',
+                content: result.value,
+                processingTime: (Date.now() - (filePlaceholder.startTime || 0)) / 1000,
+              });
+              toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
+              return;
+          }
+
           const formData = new FormData();
           formData.append('file', rawFile);
 
@@ -400,6 +412,17 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
       };
       
       try {
+          if (rawFile.name.endsWith('.docx')) {
+              const arrayBuffer = await rawFile.arrayBuffer();
+              const result = await mammoth.extractRawText({ arrayBuffer });
+              updateRegulationState(tempId, {
+                status: 'success',
+                content: result.value,
+              });
+              toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name), variant: 'success' });
+              return;
+          }
+
           const formData = new FormData();
           formData.append('file', rawFile);
           
