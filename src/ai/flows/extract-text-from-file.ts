@@ -29,6 +29,11 @@ const extractTextPrompt = ai.definePrompt({
             fileDataUri: z.string(),
         }),
     },
+    output: {
+        schema: z.object({
+            text: z.string(),
+        }),
+    },
     prompt: `Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.
 
 Documento:
@@ -59,7 +64,7 @@ const extractTextFlow = ai.defineFlow(
       
       if (mime === 'application/pdf') {
         const { output } = await extractTextPrompt({ fileDataUri });
-        const text = output;
+        const text = output?.text;
         if (!text) {
              return { ok: false, error: 'No se pudo extraer texto del PDF con la IA.' };
         }
