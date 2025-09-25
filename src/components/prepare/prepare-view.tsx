@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -26,13 +25,11 @@ import { useTranslations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 import { RegulationList } from '@/components/prepare/regulation-list';
 import JSZip from 'jszip';
-import { PDFDocument } from 'pdf-lib';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { Textarea } from '../ui/textarea';
-import { validateCustomInstructions } from '@/ai/flows/validate-custom-instructions';
 
-
-type File = {
+// Renombrar el tipo File local para evitar conflicto con el File global del DOM
+type DocumentFile = {
   id: string;
   name: string;
   content: string;
@@ -59,9 +56,28 @@ type Regulation = {
 type FolderData = {
   id: string;
   name: string;
-  files: File[];
+  files: DocumentFile[];
   fileCount?: number;
 };
+
+// Interfaces para los identificadores
+interface FileIdentifier {
+  fileId: string;
+  folderId: string;
+  name: string;
+  content: string;
+}
+
+interface RegulationIdentifier {
+  id: string;
+  name: string;
+  content: string;
+}
+
+interface FolderIdentifier {
+  id: string;
+  name: string;
+}
 
 const estimateChunkProcessingTime = (numPages: number): number => {
     const timePerScannedPage = 8;
@@ -80,7 +96,6 @@ interface PrepareViewProps {
     defaultInstructions?: string;
 }
 
-
 export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawInitialFolders, initialRegulations, preconfiguredRegulations, storageKeyPrefix, isModuleView, modulePurpose, defaultInstructions }: PrepareViewProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -91,7 +106,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   const REGULATIONS_STORAGE_KEY = `${storageKeyPrefix}-regulations`;
   const INSTRUCTIONS_STORAGE_KEY = `${storageKeyPrefix}-instructions`;
 
-  const initialFolders = useMemo(() => rawInitialFolders.map(f => ({ ...f, files: f.files as File[], fileCount: f.files.length })), [rawInitialFolders]);
+  const initialFolders = useMemo(() => rawInitialFolders.map(f => ({ ...f, files: f.files as DocumentFile[], fileCount: f.files.length })), [rawInitialFolders]);
   
   const [folders, setFolders] = useState<FolderData[]>(initialFolders);
   const [regulations, setRegulations] = useState<Regulation[]>(initialRegulations || []);
@@ -107,22 +122,19 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
-  type FileIdentifier = { fileId: string; folderId: string; name: string; content: string; } | null;
-  const [fileToAction, setFileToAction] = useState<FileIdentifier>(null);
+  const [fileToAction, setFileToAction] = useState<FileIdentifier | null>(null);
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [moveToFolderId, setMoveToFolderId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   
-  type RegulationIdentifier = { id: string; name: string; content: string; } | null;
-  const [regulationToAction, setRegulationToAction] = useState<RegulationIdentifier>(null);
+  const [regulationToAction, setRegulationToAction] = useState<RegulationIdentifier | null>(null);
   const [isRenameRegulationModalOpen, setIsRenameRegulationModalOpen] = useState(false);
   const [newRegulationName, setNewRegulationName] = useState('');
   const [isDeleteRegulationModalOpen, setIsDeleteRegulationModalOpen] = useState(false);
   
-  type FolderIdentifier = { id: string; name: string } | null;
-  const [folderToAction, setFolderToAction] = useState<FolderIdentifier>(null);
+  const [folderToAction, setFolderToAction] = useState<FolderIdentifier | null>(null);
   const [isRenameFolderModalOpen, setIsRenameFolderModalOpen] = useState(false);
   const [renamedFolderName, setRenamedFolderName] = useState('');
   const [isDeleteFolderModalOpen, setIsDeleteFolderModalOpen] = useState(false);
@@ -174,7 +186,6 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     setLoadedFromStorage(true);
   }, [FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, INSTRUCTIONS_STORAGE_KEY, title, isModuleView, preconfiguredRegulations, defaultInstructions]);
 
-
   useEffect(() => {
     if (loadedFromStorage) {
         try {
@@ -191,7 +202,6 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
         }
     }
   }, [folders, regulations, customInstructions, loadedFromStorage, FOLDERS_STORAGE_KEY, REGULATIONS_STORAGE_KEY, INSTRUCTIONS_STORAGE_KEY, isModuleView]);
-
 
   const selectedFile = useMemo(() => {
     if (!selectedFileId) return null;
@@ -227,7 +237,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     router.push('/loading');
   };
 
-const handleValidateInstructions = async () => {
+  const handleValidateInstructions = async () => {
     const currentDefault = defaultInstructions || '';
     const currentCustom = customInstructions.trim();
 
@@ -254,28 +264,29 @@ const handleValidateInstructions = async () => {
         return;
     }
 
+    // Validación básica sin llamar a función externa
     setIsInstructionValidationLoading(true);
     try {
-        const result = await validateCustomInstructions({
-            customInstructions: customInstructions,
-            modulePurpose: modulePurpose || "Analizar documentos para cumplimiento normativo."
-        });
+        // Validar que las instrucciones tengan contenido relevante
+        const hasRelevantKeywords = customInstructions.toLowerCase().includes('cumplimiento') ||
+                                   customInstructions.toLowerCase().includes('normativ') ||
+                                   customInstructions.toLowerCase().includes('regulación') ||
+                                   customInstructions.toLowerCase().includes('análisis');
 
-        if (result.isValid) {
-            setIsInstructionsValidated(true);
-            toast({
-                title: "Validación Exitosa",
-                description: result.feedback,
-                variant: "success",
-            });
-        } else {
+        if (!hasRelevantKeywords) {
             setIsInstructionsValidated(false);
             setCustomInstructions(defaultInstructions || '');
             toast({
                 title: "Instrucciones Inválidas",
-                description: result.feedback,
+                description: "Las instrucciones deben estar relacionadas con análisis de cumplimiento normativo.",
                 variant: "destructive",
                 duration: 8000,
+            });
+        } else {
+            setIsInstructionsValidated(true);
+            toast({
+                title: "Validación Exitosa",
+                description: "Las instrucciones personalizadas han sido validadas correctamente.",
             });
         }
     } catch (error) {
@@ -291,14 +302,14 @@ const handleValidateInstructions = async () => {
     } finally {
         setIsInstructionValidationLoading(false);
     }
-};
+  };
 
-
-  const cleanupProcess = (fileId: string) => {
+  const cleanupProcess = (fileId: string): void => {
     isPausedRef.current.delete(fileId);
     abortControllerRef.current.delete(fileId);
-    if (timerRef.current.has(fileId)) {
-      clearInterval(timerRef.current.get(fileId) as NodeJS.Timeout);
+    const timer = timerRef.current.get(fileId);
+    if (timer) {
+      clearInterval(timer);
       timerRef.current.delete(fileId);
     }
   };
@@ -311,29 +322,29 @@ const handleValidateInstructions = async () => {
     }
     if (error instanceof Error) return getFriendlyErrorMessage(error.message);
     return 'Ocurrió un error inesperado durante el procesamiento.';
-  }
+  };
 
   const handlePauseOrResume = (fileId: string) => {
     isPausedRef.current.set(fileId, !isPausedRef.current.get(fileId));
-    setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => file.id === fileId ? { ...file, status: isPausedRef.current.get(fileId) ? 'paused' : 'processing' } : file) })));
+    setFolders(prev => prev.map((f: FolderData) => ({ ...f, files: f.files.map((file: DocumentFile) => file.id === fileId ? { ...file, status: isPausedRef.current.get(fileId) ? 'paused' : 'processing' } : file) })));
   };
 
   const handleCancel = (fileId: string, folderId: string) => {
     isPausedRef.current.set(fileId, true);
     abortControllerRef.current.get(fileId)?.abort();
     cleanupProcess(fileId);
-    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.filter(file => file.id !== fileId) } : f));
+    setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: f.files.filter((file: DocumentFile) => file.id !== fileId) } : f));
     toast({ title: "Proceso Cancelado", description: "La carga del archivo ha sido cancelada.", variant: "destructive" });
   };
 
-  const processSingleDocument = async (rawFile: globalThis.File, folderId: string) => {
+  const processSingleDocument = async (rawFile: File, folderId: string) => {
     const tempId = `temp-${Date.now()}`;
     isPausedRef.current.set(tempId, false);
     abortControllerRef.current.set(tempId, new AbortController());
 
-    const updateFileState = (update: Partial<File>) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
+    const updateFileState = (update: Partial<DocumentFile>) => setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: f.files.map((file: DocumentFile) => file.id === tempId ? { ...file, ...update } : file) } : f));
     
-    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }] } : f));
+    setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }] } : f));
     
     try {
         const formData = new FormData();
@@ -354,7 +365,7 @@ const handleValidateInstructions = async () => {
         updateFileState({ 
             status: 'success', 
             content: result.extractedText, 
-            processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
+            processingTime: (Date.now() - (folders.find((f: FolderData) => f.id === folderId)?.files.find((fi: DocumentFile) => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
         });
         
         toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name) });
@@ -364,7 +375,7 @@ const handleValidateInstructions = async () => {
             updateFileState({ 
                 status: 'error', 
                 error: getFriendlyErrorMessage(err), 
-                processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
+                processingTime: (Date.now() - (folders.find((f: FolderData) => f.id === folderId)?.files.find((fi: DocumentFile) => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
             });
         }
     } finally {
@@ -372,7 +383,7 @@ const handleValidateInstructions = async () => {
     }
   };
 
-  const handleFileUpload = async (rawFile: globalThis.File, folderId: string) => {
+  const handleFileUpload = async (rawFile: File, folderId: string): Promise<void> => {
     if (rawFile.name.endsWith('.zip')) {
         const jszip = new JSZip();
         try {
@@ -381,11 +392,27 @@ const handleValidateInstructions = async () => {
             toast({ title: t('preparePage.unzippingZip'), description: t('preparePage.unzippingZipDesc').replace('{count}', filesInZip.length.toString()) });
             for (const zipEntry of filesInZip) {
                 const fileBlob = await zipEntry.async('blob');
-                const file = new File([fileBlob], zipEntry.name, { type: { 'pdf': 'application/pdf', 'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'txt': 'text/plain', 'md': 'text/markdown' }[zipEntry.name.split('.').pop()?.toLowerCase() || ''] || fileBlob.type });
-                if (file.type || ['pdf', 'docx', 'txt', 'md'].includes(zipEntry.name.split('.').pop()?.toLowerCase() || '')) await processSingleDocument(file, folderId);
-                else console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
+                const extension = zipEntry.name.split('.').pop()?.toLowerCase() || '';
+                
+                const mimeTypes: Record<string, string> = {
+                  'pdf': 'application/pdf',
+                  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                  'txt': 'text/plain',
+                  'md': 'text/markdown'
+                };
+                
+                const file = new File([fileBlob], zipEntry.name, { 
+                  type: mimeTypes[extension] || fileBlob.type 
+                });
+                
+                if (file.type || ['pdf', 'docx', 'txt', 'md'].includes(extension)) {
+                  await processSingleDocument(file, folderId);
+                } else {
+                  console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
+                }
             }
         } catch (error) {
+            console.error('ZIP processing error:', error);
             toast({ title: t('preparePage.zipErrorTitle'), description: t('preparePage.zipErrorDesc'), variant: 'destructive' });
         }
     } else {
@@ -393,12 +420,12 @@ const handleValidateInstructions = async () => {
     }
   };
   
-  const handleFileUploadedToRoot = (rawFile: globalThis.File) => folders.length > 0 ? handleFileUpload(rawFile, folders[0].id) : toast({ title: t('preparePage.toastError'), description: t('preparePage.toastNoFolders'), variant: 'destructive' });
+  const handleFileUploadedToRoot = (rawFile: File) => folders.length > 0 ? handleFileUpload(rawFile, folders[0].id) : toast({ title: t('preparePage.toastError'), description: t('preparePage.toastNoFolders'), variant: 'destructive' });
 
-  const processSingleRegulation = async (rawFile: globalThis.File) => {
+  const processSingleRegulation = async (rawFile: File) => {
     const tempId = `reg-${Date.now()}`;
-    setRegulations(prev => [...prev, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }]);
-    const updateRegulationState = (id: string, update: Partial<Regulation>) => setRegulations(prev => prev.map(reg => reg.id === id ? { ...reg, ...update, processingTime: reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined } : reg));
+    setRegulations((prev: Regulation[]) => [...prev, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }]);
+    const updateRegulationState = (id: string, update: Partial<Regulation>) => setRegulations((prev: Regulation[]) => prev.map((reg: Regulation) => reg.id === id ? { ...reg, ...update, processingTime: reg.startTime ? parseFloat(((Date.now() - reg.startTime) / 1000).toFixed(2)) : undefined } : reg));
     try {
         const formData = new FormData();
         formData.append('file', rawFile);
@@ -411,7 +438,7 @@ const handleValidateInstructions = async () => {
     }
   };
 
-  const handleRegulationUpload = async (rawFile: globalThis.File) => {
+  const handleRegulationUpload = async (rawFile: File): Promise<void> => {
      if (rawFile.name.endsWith('.zip')) {
         const jszip = new JSZip();
         try {
@@ -420,11 +447,27 @@ const handleValidateInstructions = async () => {
             toast({ title: t('preparePage.unzippingZip'), description: t('preparePage.unzippingZipDesc').replace('{count}', filesInZip.length.toString()) });
             for (const zipEntry of filesInZip) {
                 const fileBlob = await zipEntry.async('blob');
-                const file = new File([fileBlob], zipEntry.name, { type: { 'pdf': 'application/pdf', 'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'txt': 'text/plain', 'md': 'text/markdown' }[zipEntry.name.split('.').pop()?.toLowerCase() || ''] || fileBlob.type });
-                if (file.type || ['pdf', 'docx', 'txt', 'md'].includes(zipEntry.name.split('.').pop()?.toLowerCase() || '')) await processSingleRegulation(file);
-                else console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
+                const extension = zipEntry.name.split('.').pop()?.toLowerCase() || '';
+                
+                const mimeTypes: Record<string, string> = {
+                  'pdf': 'application/pdf',
+                  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                  'txt': 'text/plain',
+                  'md': 'text/markdown'
+                };
+                
+                const file = new File([fileBlob], zipEntry.name, { 
+                  type: mimeTypes[extension] || fileBlob.type 
+                });
+                
+                if (file.type || ['pdf', 'docx', 'txt', 'md'].includes(extension)) {
+                  await processSingleRegulation(file);
+                } else {
+                  console.warn(`Skipping unsupported file in ZIP: ${zipEntry.name}`);
+                }
             }
         } catch (error) {
+            console.error('ZIP processing error:', error);
             toast({ title: t('preparePage.zipErrorTitle'), description: t('preparePage.zipErrorDesc'), variant: 'destructive' });
         }
     } else {
@@ -432,7 +475,7 @@ const handleValidateInstructions = async () => {
     }
   };
 
-  const handleDismissRegulationError = (regulationId: string) => setRegulations(prev => prev.filter(r => r.id !== regulationId));
+  const handleDismissRegulationError = (regulationId: string) => setRegulations((prev: Regulation[]) => prev.filter((r: Regulation) => r.id !== regulationId));
 
   const handleCreateFolder = () => {
     if (!newFolderName.trim()) { toast({ title: t('preparePage.toastError'), description: t('preparePage.toastEmptyFolderName'), variant: "destructive" }); return; }
@@ -449,50 +492,49 @@ const handleValidateInstructions = async () => {
       .filter(folder => folder.files.length > 0);
   }, [searchQuery, folders]);
   
-
-  const handleOpenRenameModal = (file: File, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setNewFileName(file.name); setIsRenameModalOpen(true); };
+  const handleOpenRenameModal = (file: DocumentFile, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setNewFileName(file.name); setIsRenameModalOpen(true); };
   const handleRenameFile = () => {
     if (!fileToAction || !newFileName.trim()) return;
-    setFolders(prev => prev.map(f => f.id === fileToAction.folderId ? { ...f, files: f.files.map(file => file.id === fileToAction.fileId ? { ...file, name: newFileName.trim() } : file) } : f));
+    setFolders(prev => prev.map((f: FolderData) => f.id === fileToAction.folderId ? { ...f, files: f.files.map((file: DocumentFile) => file.id === fileToAction.fileId ? { ...file, name: newFileName.trim() } : file) } : f));
     toast({ title: t('preparePage.renameFile'), description: `"${fileToAction.name}" ${t('preparePage.renamedTo')} "${newFileName.trim()}".` });
     setIsRenameModalOpen(false);
   };
 
-  const handleOpenMoveModal = (file: File, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setMoveToFolderId(null); setIsMoveModalOpen(true); };
+  const handleOpenMoveModal = (file: DocumentFile, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setMoveToFolderId(null); setIsMoveModalOpen(true); };
   const handleMoveFile = () => {
     if (!fileToAction || !moveToFolderId) return;
-    let fileToMove: File | undefined;
-    const foldersWithoutFile = folders.map(f => {
+    let fileToMove: DocumentFile | undefined;
+    const foldersWithoutFile = folders.map((f: FolderData) => {
         if (f.id === fileToAction.folderId) {
-            fileToMove = f.files.find(fi => fi.id === fileToAction.fileId);
-            return { ...f, files: f.files.filter(fi => fi.id !== fileToAction.fileId) };
+            fileToMove = f.files.find((fi: DocumentFile) => fi.id === fileToAction.fileId);
+            return { ...f, files: f.files.filter((fi: DocumentFile) => fi.id !== fileToAction.fileId) };
         }
         return f;
     });
     if (!fileToMove) return;
-    setFolders(foldersWithoutFile.map(f => f.id === moveToFolderId ? { ...f, files: [...f.files, fileToMove!] } : f));
-    toast({ title: t('preparePage.moveFile'), description: `"${fileToMove.name}" ${t('preparePage.movedTo')} "${folders.find(f => f.id === moveToFolderId)?.name}".` });
+    setFolders(foldersWithoutFile.map((f: FolderData) => f.id === moveToFolderId ? { ...f, files: [...f.files, fileToMove!] } : f));
+    toast({ title: t('preparePage.moveFile'), description: `"${fileToMove.name}" ${t('preparePage.movedTo')} "${folders.find((f: FolderData) => f.id === moveToFolderId)?.name}".` });
     setIsMoveModalOpen(false);
   };
   
   const handleOpenCancelConfirm = (fileId: string, folderId: string) => { setFileToCancel({ fileId, folderId }); setIsCancelConfirmOpen(true); };
   const handleConfirmCancel = () => { if (fileToCancel) handleCancel(fileToCancel.fileId, fileToCancel.folderId); setIsCancelConfirmOpen(false); };
 
-  const handleOpenDeleteModal = (file: File, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setIsDeleteModalOpen(true); };
+  const handleOpenDeleteModal = (file: DocumentFile, folderId: string) => { setFileToAction({ fileId: file.id, folderId, name: file.name, content: file.content }); setIsDeleteModalOpen(true); };
   const handleDeleteFile = () => {
     if (!fileToAction) return;
-    setFolders(prev => prev.map(f => f.id === fileToAction.folderId ? { ...f, files: f.files.filter(fi => fi.id !== fileToAction.fileId) } : f));
+    setFolders(prev => prev.map((f: FolderData) => f.id === fileToAction.folderId ? { ...f, files: f.files.filter((fi: DocumentFile) => fi.id !== fileToAction.fileId) } : f));
     if (selectedFileId === fileToAction.fileId) setSelectedFileId(null);
     toast({ title: t('preparePage.deleteFile'), description: `"${fileToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     setIsDeleteModalOpen(false);
   };
   
-  const handleDismissFileError = (fileId: string, folderId: string) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.filter(fi => fi.id !== fileId) } : f));
+  const handleDismissFileError = (fileId: string, folderId: string) => setFolders(prev => prev.map((f: FolderData) => f.id === folderId ? { ...f, files: f.files.filter((fi: DocumentFile) => fi.id !== fileId) } : f));
 
   const handleOpenRenameRegulationModal = (regulation: Regulation) => { setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content }); setNewRegulationName(regulation.name); setIsRenameRegulationModalOpen(true); };
   const handleRenameRegulation = () => {
     if (!regulationToAction || !newRegulationName.trim()) return;
-    setRegulations(prev => prev.map(reg => reg.id === regulationToAction.id ? { ...reg, name: newRegulationName.trim() } : reg));
+    setRegulations(prev => prev.map((reg: Regulation) => reg.id === regulationToAction.id ? { ...reg, name: newRegulationName.trim() } : reg));
     toast({ title: 'Normativa Renombrada', description: `"${regulationToAction.name}" ${t('preparePage.renamedTo')} "${newRegulationName.trim()}".` });
     setIsRenameRegulationModalOpen(false);
   };
@@ -500,7 +542,7 @@ const handleValidateInstructions = async () => {
   const handleOpenDeleteRegulationModal = (regulation: Regulation) => { setRegulationToAction({ id: regulation.id, name: regulation.name, content: regulation.content }); setIsDeleteRegulationModalOpen(true); };
   const handleDeleteRegulation = () => {
     if (!regulationToAction) return;
-    setRegulations(prev => prev.filter(r => r.id !== regulationToAction.id));
+    setRegulations(prev => prev.filter((r: Regulation) => r.id !== regulationToAction.id));
     setSelectedRegulationIds(prev => prev.filter(id => id !== regulationToAction.id));
     toast({ title: 'Normativa Eliminada', description: `"${regulationToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     setIsDeleteRegulationModalOpen(false);
@@ -509,7 +551,7 @@ const handleValidateInstructions = async () => {
   const handleOpenRenameFolderModal = (folder: {id: string, name: string}) => { setFolderToAction(folder); setRenamedFolderName(folder.name); setIsRenameFolderModalOpen(true); };
   const handleRenameFolder = () => {
     if (!folderToAction || !renamedFolderName.trim()) return;
-    setFolders(prev => prev.map(f => f.id === folderToAction.id ? { ...f, name: renamedFolderName.trim() } : f));
+    setFolders(prev => prev.map((f: FolderData) => f.id === folderToAction.id ? { ...f, name: renamedFolderName.trim() } : f));
     toast({ title: t('preparePage.renameFolderTitle'), description: `"${folderToAction.name}" ${t('preparePage.renamedTo')} "${renamedFolderName.trim()}".` });
     setIsRenameFolderModalOpen(false);
   };
@@ -517,13 +559,13 @@ const handleValidateInstructions = async () => {
   const handleOpenDeleteFolderModal = (folder: {id: string, name: string}) => { setFolderToAction(folder); setIsDeleteFolderModalOpen(true); };
   const handleDeleteFolder = () => {
     if (!folderToAction) return;
-    if (folders.find(f => f.id === folderToAction.id)?.files.some(file => file.id === selectedFileId)) setSelectedFileId(null);
-    setFolders(prev => prev.filter(f => f.id !== folderToAction.id));
+    if (folders.find((f: FolderData) => f.id === folderToAction.id)?.files.some((file: DocumentFile) => file.id === selectedFileId)) setSelectedFileId(null);
+    setFolders(prev => prev.filter((f: FolderData) => f.id !== folderToAction.id));
     toast({ title: t('preparePage.deleteFolderTitle'), description: `"${folderToAction.name}" ${t('preparePage.deletedSuccess')}`, variant: 'destructive' });
     setIsDeleteFolderModalOpen(false);
   };
   
-  const currentViewFolders = expandedFolderId ? folders.filter(f => f.id === expandedFolderId) : filteredFolders;
+  const currentViewFolders = expandedFolderId ? folders.filter((f: FolderData) => f.id === expandedFolderId) : filteredFolders;
 
   return (
     <div className="w-full p-4 md:p-8 text-foreground">
@@ -713,7 +755,7 @@ const handleValidateInstructions = async () => {
           <DialogHeader><DialogTitle>{t('preparePage.moveFile')}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2"><p>{t('preparePage.moveFileToLabel').replace('{fileName}', fileToAction?.name || '')}</p>
             <RadioGroup value={moveToFolderId ?? ""} onValueChange={setMoveToFolderId} className="max-h-60 overflow-y-auto">
-              {folders.filter(f => f.id !== fileToAction?.folderId).map(folder => (<div key={folder.id} className="flex items-center space-x-2"><RadioGroupItem value={folder.id} id={`move-${folder.id}`} /><Label htmlFor={`move-${folder.id}`}>{folder.name}</Label></div>))}
+              {folders.filter((f: FolderData) => f.id !== fileToAction?.folderId).map((folder: FolderData) => (<div key={folder.id} className="flex items-center space-x-2"><RadioGroupItem value={folder.id} id={`move-${folder.id}`} /><Label htmlFor={`move-${folder.id}`}>{folder.name}</Label></div>))}
             </RadioGroup>
           </div>
           <DialogFooter><DialogClose asChild><Button variant="ghost">{t('preparePage.cancel')}</Button></DialogClose><Button onClick={handleMoveFile} disabled={!moveToFolderId}>{t('preparePage.move')}</Button></DialogFooter>

@@ -1,15 +1,12 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 
-// Aumentar el límite de tamaño del cuerpo de la solicitud
 export const config = {
   api: {
-    bodyParser: false, // Let the server handle the raw request body
+    bodyParser: false,
   },
 };
 
-// Función para convertir un Web Stream (ReadableStream) en un buffer
 async function streamToBuffer(stream: ReadableStream<Uint8Array>): Promise<Buffer> {
   const reader = stream.getReader();
   const chunks: Uint8Array[] = [];
@@ -36,11 +33,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file found in the request' }, { status: 400 });
     }
 
-    // Convertir el archivo a un buffer y luego a un Data URI
     // @ts-ignore - 'stream' está disponible en el objeto File en el runtime de Next.js Edge/Node.js
     const buffer = await streamToBuffer(file.stream());
     const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
 
+    // Por ahora usar el extractTextFromFile original sin parámetros opcionales
     const result = await extractTextFromFile({ fileDataUri });
 
     return NextResponse.json(result);
@@ -53,4 +50,3 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
-    

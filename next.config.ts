@@ -1,23 +1,11 @@
-
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
-  api: {
-    // Deshabilitar bodyParser para esta ruta específica para manejar streaming de archivos grandes
-    bodyParser: false,
-  },
-  experimental: {
-    // Aumentar el tiempo de espera para todas las funciones a 5 minutos
-    // Esto es crucial para el procesamiento de documentos largos
-    maxDuration: 300,
   },
   env: {
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
@@ -38,7 +26,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Mover serverComponentsExternalPackages fuera de experimental
   serverComponentsExternalPackages: ['sharp', 'mammoth'],
 };
 

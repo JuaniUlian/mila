@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A flow to extract text from various file formats with fallback.
@@ -70,20 +69,18 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
         extractedText = genkitResponse.text ?? '';
         
         logSuccess(
-          'gemini' as const,
+          'gemini',
           Buffer.from(fileDataUri.split(',')[1], 'base64').length,
-          Date.now() - startTime,
-          { fileName }
+          Date.now() - startTime
         );
       } catch (geminiError) {
         console.warn(`Gemini-Flash extraction failed for ${fileName}, falling back to Gemini-Pro.`, geminiError);
         
         logError(
-          'gemini' as const,
+          'gemini',
           Buffer.from(fileDataUri.split(',')[1], 'base64').length,
           Date.now() - startTime,
-          geminiError instanceof Error ? geminiError.message : String(geminiError),
-          { fileName }
+          geminiError instanceof Error ? geminiError.message : String(geminiError)
         );
 
         // Fallback 1: Gemini Pro
@@ -104,10 +101,9 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
           extractedText = genkitResponse.text ?? '';
           
           logSuccess(
-            'gemini_pro_fallback' as const,
+            'gemini_pro_fallback',
             Buffer.from(fileDataUri.split(',')[1], 'base64').length,
-            Date.now() - startTime,
-            { fileName }
+            Date.now() - startTime
           );
         } catch (geminiProError) {
           // If both Gemini models fail, throw the original error
@@ -134,11 +130,10 @@ export async function extractTextFromFile(input: ExtractTextFromFileInput): Prom
     }
     
     logError(
-      'gemini_pro_fallback' as const,
+      'gemini_pro_fallback',
       Buffer.from(fileDataUri.split(',')[1], 'base64').length,
       Date.now() - startTime,
-      errorMessage,
-      { fileName }
+      errorMessage
     );
     
     throw new Error(`Failed to extract text from ${fileName}. Reason: ${errorMessage}`);
