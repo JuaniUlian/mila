@@ -6,7 +6,6 @@
 
 import {z} from 'genkit';
 import {ai} from '@/ai/genkit';
-import mammoth from 'mammoth';
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z.string().describe("El archivo como un data URI. Formato: 'data:<mimetype>;base64,<encoded_data>'."),
@@ -21,26 +20,6 @@ const ExtractTextFromFileOutputSchema = z.object({
 export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutputSchema>;
 
 
-const extractTextPrompt = ai.definePrompt({
-    name: 'extractTextPrompt',
-    model: 'googleai/gemini-1.5-pro',
-    input: {
-        schema: z.object({
-            fileDataUri: z.string(),
-        }),
-    },
-    output: {
-        schema: z.object({
-            text: z.string(),
-        }),
-    },
-    prompt: `Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.
-
-Documento:
-{{media url=fileDataUri}}
-`,
-});
-
 const extractTextFlow = ai.defineFlow(
   {
     name: 'extractTextFromFileFlow',
@@ -50,28 +29,39 @@ const extractTextFlow = ai.defineFlow(
   async (input) => {
     const { fileDataUri } = input;
 
-    try {
-      const {mime, buffer} = parseDataUri(fileDataUri);
+    function parseDataUri(dataUri: string): { mime: string; base64: string; buffer: Buffer } {
+        const match = /^data:(.+);base64,(.*)$/.exec(dataUri);
+        if (!match) throw new Error('Data URI inválida');
+        const [, mime, base64] = match;
+        return { mime, base64, buffer: Buffer.from(base64, 'base64') };
+    }
 
+    try {
+      const { mime } = parseDataUri(fileDataUri);
+
+      // Handle plain text files directly
       if (mime.startsWith('text/')) {
+        const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
         return { ok: true, text: buffer.toString('utf-8') };
       }
       
-      if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-          const mammothResult = await mammoth.extractRawText({ buffer });
-          return { ok: true, text: mammothResult.value };
+      // Use AI for PDF, DOCX, and other complex formats
+      const { output } = await ai.generate({
+          model: 'googleai/gemini-1.5-pro',
+          prompt: `Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.
+
+Documento:
+{{media url=fileDataUri}}
+`,
+      });
+
+      const text = output?.text;
+      
+      if (!text || text.trim() === '') {
+           return { ok: false, error: 'No se pudo extraer texto del documento con la IA.' };
       }
       
-      if (mime === 'application/pdf') {
-        const { output } = await extractTextPrompt({ fileDataUri });
-        const text = output?.text;
-        if (!text) {
-             return { ok: false, error: 'No se pudo extraer texto del PDF con la IA.' };
-        }
-        return { ok: true, text };
-      }
-
-      return { ok: false, error: `Tipo de archivo no soportado: ${mime}` };
+      return { ok: true, text };
 
     } catch (error: any) {
         console.error("Error en extractTextFromFileFlow:", error);
@@ -79,14 +69,6 @@ const extractTextFlow = ai.defineFlow(
     }
   }
 );
-
-
-function parseDataUri(dataUri: string): { mime: string; base64: string; buffer: Buffer } {
-  const match = /^data:(.+);base64,(.*)$/.exec(dataUri);
-  if (!match) throw new Error('Data URI inválida');
-  const [, mime, base64] = match;
-  return { mime, base64, buffer: Buffer.from(base64, 'base64') };
-}
 
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   return await extractTextFlow(input);
