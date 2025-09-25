@@ -2,8 +2,9 @@
 'use server';
 /**
  * @fileOverview Flujo de validación con scoring centralizado y tipado estricto
- * - Tipado explícito del retorno de Claude para evitar incompatibilidades en `return claudeResult`
- * - Normalización defensiva del output (scoringBreakdown y findings)
+ * - Usa Gemini 1.5 Pro como modelo principal.
+ * - Tipado explícito para entrada y salida.
+ * - Normalización defensiva del output (scoringBreakdown y findings).
  */
 
 import { ai } from '@/ai/genkit';
@@ -34,7 +35,6 @@ export type ValidateDocumentInput = z.infer<typeof ValidateDocumentInputSchema>;
 
 /* =========================
    Esquema de hallazgo
-   (alineado a compliance-scoring.ts)
    ========================= */
 
 const FindingSchema = z.object({
@@ -51,7 +51,6 @@ const FindingSchema = z.object({
   justificacion_legal: z.string(),
   justificacion_tecnica: z.string(),
   consecuencia_estimada: z.string(),
-  // <- este campo aparecía en tu error como parte del tipo esperado
   verificacion_interdocumental: z
     .object({
       estado: z.string(),
@@ -70,22 +69,14 @@ const ValidateDocumentOutputSchema = z.object({
   isRelevantDocument: z.boolean(),
   relevancyReasoning: z.string(),
   findings: z.array(FindingSchema),
-
   complianceScore: z.number().min(0).max(100),
   legalRiskScore: z.number().min(0).max(100),
-
   scoringBreakdown: z.object({
     totalFindings: z.number(),
     criticalFindings: z.number(),
     totalPenalty: z.number(),
-    penaltiesByGravity: z.record(
-      z.object({
-        count: z.number(),
-        penalty: z.number(),
-      })
-    ),
+    penaltiesByGravity: z.record(z.object({ count: z.number(), penalty: z.number() })),
   }),
-
   riskCategory: z.object({
     category: z.string(),
     label: z.string(),
@@ -101,53 +92,37 @@ export type Finding = z.infer<typeof FindingSchema>;
    Normalización defensiva
    ========================= */
 
-function normalizeOutput(raw: any): ValidateDocumentOutput {
-  // Asegurar findings como arreglo tipado
+function normalizeOutput(raw: any, calculatedScores?: any): ValidateDocumentOutput {
   const findings: Finding[] = Array.isArray(raw?.findings) ? (raw.findings as Finding[]) : [];
+  const complianceScore = calculatedScores?.complianceScore ?? Number(raw?.complianceScore ?? 100);
+  const riskCategory = calculatedScores ? getRiskCategory(complianceScore) : (raw?.riskCategory ?? getRiskCategory(100));
 
-  // Asegurar scoringBreakdown con forma de objeto (nunca array)
-  const sb = raw?.scoringBreakdown ?? {};
   const scoringBreakdown = {
-    totalFindings: Number(sb.totalFindings ?? findings.length),
-    criticalFindings: Number(sb.criticalFindings ?? findings.filter(f => f.gravedad === 'Alta').length),
-    totalPenalty: Number(sb.totalPenalty ?? 0),
-    penaltiesByGravity:
-      typeof sb.penaltiesByGravity === 'object' && sb.penaltiesByGravity !== null && !Array.isArray(sb.penaltiesByGravity)
-        ? sb.penaltiesByGravity
-        : {},
+    totalFindings: calculatedScores?.breakdown?.totalFindings ?? Number(raw?.scoringBreakdown?.totalFindings ?? 0),
+    criticalFindings: calculatedScores?.breakdown?.criticalFindings ?? Number(raw?.scoringBreakdown?.criticalFindings ?? 0),
+    totalPenalty: calculatedScores?.breakdown?.totalPenalty ?? Number(raw?.scoringBreakdown?.totalPenalty ?? 0),
+    penaltiesByGravity: calculatedScores?.breakdown?.penaltiesByGravity ?? (raw?.scoringBreakdown?.penaltiesByGravity ?? {}),
   };
-
-  // Asegurar riskCategory con strings
-  const rc = raw?.riskCategory ?? {};
-  const riskCategory = {
-    category: String(rc.category ?? 'UNKNOWN'),
-    label: String(rc.label ?? 'Desconocido'),
-    color: String(rc.color ?? '#999999'),
-    description: String(rc.description ?? ''),
-  };
-
+  
   const out: ValidateDocumentOutput = {
     isRelevantDocument: Boolean(raw?.isRelevantDocument),
     relevancyReasoning: String(raw?.relevancyReasoning ?? ''),
     findings,
-
-    complianceScore: Number(raw?.complianceScore ?? 100),
-    legalRiskScore: Number(raw?.legalRiskScore ?? 0),
-
+    complianceScore,
+    legalRiskScore: 100 - complianceScore,
     scoringBreakdown,
     riskCategory,
   };
 
-  // Validación final contra Zod (lanza si algo quedó fuera de forma)
   return ValidateDocumentOutputSchema.parse(out);
 }
 
 /* =========================
-   Fallback Prompt (Gemini)
+   Prompt para Gemini
    ========================= */
 
 const prompt = ai.definePrompt({
-  name: 'validateDocumentPromptWithGeminiPro',
+  name: 'validateDocumentPromptWithGemini',
   model: 'googleai/gemini-1.5-pro',
   input: { schema: ValidateDocumentInputSchema },
   output: {
@@ -192,7 +167,7 @@ Devuelve **solo JSON**.`,
 });
 
 /* =========================
-   Flow Fallback (Gemini)
+   Flujo Principal (usando Gemini)
    ========================= */
 
 const validateDocumentFlow = ai.defineFlow(
@@ -204,62 +179,33 @@ const validateDocumentFlow = ai.defineFlow(
   async (input) => {
     const startTime = Date.now();
     try {
-      console.log('🤖 Ejecutando análisis con Mila (Gemini 1.5 Pro Fallback)...');
+      console.log('🤖 Ejecutando análisis con Gemini 1.5 Pro...');
       const { output: aiOutput } = await prompt(input);
       if (!aiOutput) throw new Error('La IA no devolvió ningún resultado');
 
       if (!aiOutput.isRelevantDocument) {
-        // Documento irrelevante: devolver estructura completa, sin penalización
         const irrelevant = normalizeOutput({
           isRelevantDocument: false,
           relevancyReasoning: aiOutput.relevancyReasoning ?? 'Documento no pertinente.',
           findings: [],
-          complianceScore: 100,
-          legalRiskScore: 0,
-          scoringBreakdown: {
-            totalFindings: 0,
-            criticalFindings: 0,
-            totalPenalty: 0,
-            penaltiesByGravity: {},
-          },
-          riskCategory: getRiskCategory(100),
         });
-
         console.log('❌ Documento marcado como no relevante');
         return irrelevant;
       }
 
       console.log(`📊 Gemini Pro devolvió ${aiOutput.findings.length} hallazgos`);
       console.log('🧮 Calculando puntajes con sistema centralizado...');
+      
       const scoring = calculateBaseComplianceScore(aiOutput.findings as FindingTypeFromScoring[]);
-      const rc = getRiskCategory(scoring.complianceScore);
+      
+      const completed = normalizeOutput(aiOutput, scoring);
 
-      const completed = normalizeOutput({
-        isRelevantDocument: true,
-        relevancyReasoning: '',
-        findings: aiOutput.findings,
-        complianceScore: scoring.complianceScore,
-        legalRiskScore: scoring.legalRiskScore,
-        scoringBreakdown: {
-          totalFindings: scoring.breakdown.totalFindings,
-          criticalFindings: scoring.breakdown.criticalFindings,
-          totalPenalty: scoring.breakdown.totalPenalty,
-          penaltiesByGravity: scoring.breakdown.penaltiesByGravity,
-        },
-        riskCategory: {
-          category: rc.category,
-          label: rc.label,
-          color: rc.color,
-          description: rc.description,
-        },
-      });
-
-      console.log(`✅ Fallback completado en ${Date.now() - startTime} ms`);
+      console.log(`✅ Análisis completado en ${Date.now() - startTime} ms`);
       console.log(`📈 Puntaje: ${completed.complianceScore}% (${completed.riskCategory.label})`);
       return completed;
+
     } catch (err: any) {
-      console.error('Error en el flujo de validación (Fallback):', err);
-      // Ensure the error message is a string and propagate it.
+      console.error('Error en el flujo de validación (Gemini):', err);
       const errorMessage = `El análisis del documento falló: ${err.message || String(err)}`;
       throw new Error(errorMessage);
     }
@@ -271,22 +217,6 @@ const validateDocumentFlow = ai.defineFlow(
    ========================= */
 
 export async function validateDocument(input: ValidateDocumentInput): Promise<ValidateDocumentOutput> {
-  console.log('🔍 Iniciando validación con Mila...');
-  try {
-    // Tipado explícito del import dinámico para que TS conozca el tipo de retorno
-    const { validateWithClaude } = (await import('./claude-validation')) as {
-      validateWithClaude: (input: ValidateDocumentInput) => Promise<ValidateDocumentOutput>;
-    };
-
-    const raw = await validateWithClaude(input);
-    console.log('✅ Validación completada con Mila (Claude primario).');
-
-    // Normaliza y valida contra Zod para garantizar la forma
-    const claudeResult = normalizeOutput(raw);
-    return claudeResult;
-  } catch (claudeError) {
-    console.warn('⚠️ Fallback: Claude falló, ejecutando Mila con Gemini. Error:', claudeError);
-    // validateDocumentFlow ya devuelve ValidateDocumentOutput verificado por Zod
-    return validateDocumentFlow(input);
-  }
+  console.log('🔍 Iniciando validación con Gemini...');
+  return validateDocumentFlow(input);
 }
