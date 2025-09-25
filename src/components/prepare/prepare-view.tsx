@@ -351,7 +351,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
             const arrayBuffer = await rawFile.arrayBuffer();
             const pdfDoc = await PDFDocument.load(arrayBuffer);
             const numPages = pdfDoc.getPageCount();
-            const chunkSize = 10;
+            const chunkSize = 5;
             const numChunks = Math.ceil(numPages / chunkSize);
 
             updateFileState({ status: 'processing', totalChunks: numChunks, currentChunk: 1, totalEstimatedTime: estimateChunkProcessingTime(numPages) });
@@ -394,7 +394,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
                 const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
                 const result = await response.json();
 
-                if (!response.ok || !result.ok) throw new Error(result.error || 'Error en el chunk.');
+                if (!response.ok || !result.ok) throw new Error(result.error || 'Error desconocido en el servidor.');
                 combinedText += result.text + '\n\n';
             }
             updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (folders.find(f=>f.id === folderId)?.files.find(f=>f.id===tempId)?.startTime || 0)) / 1000 });
