@@ -148,12 +148,12 @@ const handleDownloadReport = async () => {
         const drawWrappedText = (text: string, x: number, yPos: number, maxWidth: number, options: { font?: any, size?: number, color?: any } = {}) => {
             const size = options.size || 10;
             const currentFont = options.font || font;
-            const words = text.replace(/\n/g, ' \n ').split(' ');
+            const words = text.replace(/\\n/g, ' \\n ').split(' ');
             let line = '';
             let totalHeight = 0;
 
             for (const word of words) {
-                if (word === '\n') {
+                if (word === '\\n') {
                     drawText(line, x, yPos - totalHeight, options);
                     totalHeight += size + 2;
                     line = '';
@@ -215,9 +215,9 @@ const handleDownloadReport = async () => {
         y -= 10;
         
         for (const finding of reportData.findings) {
-             if (y < 150) { // Check if space is running out
-                page = pdfDoc.addPage(); // Add a new page
-                y = page.getSize().height - 50; // Reset Y position for new page
+            if (y < 250) { // Aumentar el umbral para asegurar más espacio
+                page = pdfDoc.addPage();
+                y = page.getSize().height - 50;
             }
             
             y -= 15;
@@ -232,6 +232,17 @@ const handleDownloadReport = async () => {
             y -= drawText('Evidencia:', 70, y, { font: boldFont, size: 10 });
             y -= drawWrappedText(`"${finding.evidencia}"`, 80, y, width - 140, { size: 9 });
             y -= 10;
+
+            if (finding.propuesta_redaccion || finding.propuesta_procedimiento) {
+                y -= drawText('Propuesta de Solución:', 70, y, { font: boldFont, size: 10 });
+                if (finding.propuesta_redaccion) {
+                    y -= drawWrappedText(`Redacción: ${finding.propuesta_redaccion}`, 80, y, width - 140, { size: 9 });
+                }
+                if (finding.propuesta_procedimiento) {
+                    y -= drawWrappedText(`Procedimiento: ${finding.propuesta_procedimiento}`, 80, y, width - 140, { size: 9 });
+                }
+                y -= 10;
+            }
             
             y -= drawText('Justificación Legal:', 70, y, { font: boldFont, size: 10 });
             y -= drawWrappedText(finding.justificacion_legal, 80, y, width - 140, { size: 9 });
@@ -587,7 +598,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
 
         let messageContent = input.trim();
         if (attachedFile) {
-            messageContent += `\n\n(Se adjuntó el archivo: ${attachedFile.name})`;
+            messageContent += `\\n\\n(Se adjuntó el archivo: ${attachedFile.name})`;
         }
 
         const newHistory: DiscussionMessage[] = [...history, { role: 'user', content: messageContent }];
