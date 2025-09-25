@@ -1,27 +1,31 @@
 
-console.error('🚨🚨🚨 ROUTE API LLAMADO 🚨🚨🚨');
 import { NextRequest, NextResponse } from 'next/server';
 import { discussFindingAction } from '@/ai/flows/discuss-finding';
 
-console.log('🚀 ROUTE.TS CARGADO');
-
 export async function POST(request: NextRequest) {
-  console.log('📨 API ENDPOINT LLAMADO');
+  console.log('API Route /api/discuss-finding called.');
   
   try {
-    const { history, finding } = await request.json();
-    console.log('📝 Data recibida:', { historyLength: history?.length, findingId: finding?.id });
+    const body = await request.json();
+    const { history, finding } = body;
+    
+    console.log('Received data:', { 
+        historyLength: history?.length, 
+        findingId: finding?.id,
+        lastMessage: history?.[history.length - 1] 
+    });
 
     if (!history || !finding) {
-      console.log('❌ Missing data in request');
+      console.error('Missing data in request body:', body);
       return NextResponse.json({ error: 'Missing history or finding in request body' }, { status: 400 });
     }
 
-    console.log('✅ Calling discussFindingAction...');
-    const result = await discussFindingAction(history, finding);
-    console.log('✅ Response ready');
+    console.log('Calling discussFindingAction...');
+    const resultText = await discussFindingAction(history, finding);
+    console.log('Action response received, sending back to client.');
     
-    return result;
+    // Respond with a simple JSON object containing the text
+    return NextResponse.json({ reply: resultText });
 
   } catch (error: unknown) {
     console.error('💥 Error in /api/discuss-finding:', error);

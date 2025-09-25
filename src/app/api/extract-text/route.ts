@@ -3,6 +3,7 @@ import { extractTextFromFile, ExtractTextFromFileOutput } from '@/ai/flows/extra
 
 export const runtime = 'nodejs';
 
+// CONFIGURACIÓN CRÍTICA: Deshabilitar bodyParser solo para esta ruta
 export const config = {
   api: {
     bodyParser: false,

@@ -9,11 +9,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // CONFIGURACIÓN CRÍTICA PARA ARCHIVOS GRANDES
-  api: {
-    // Deshabilitar bodyParser para esta ruta específica para manejar streaming de archivos grandes
-    bodyParser: false,
-  },
   // Aumentar el tiempo de espera para todas las funciones a 5 minutos
   // Esto es crucial para el procesamiento de documentos largos
   maxDuration: 300,
@@ -37,7 +32,7 @@ const nextConfig: NextConfig = {
     ],
   },
   // Mover serverComponentsExternalPackages fuera de experimental
-  serverComponentsExternalPackages: ['sharp', 'mammoth'],
+  serverComponentsExternalPackages: ['sharp', 'pdf-lib'],
 };
 
 export default nextConfig;
