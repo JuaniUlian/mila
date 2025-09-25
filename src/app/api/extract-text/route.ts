@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const buffer = await streamToBuffer(file.stream());
     const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
 
-    const result = await extractTextFromFile({ fileDataUri, fileType: file.type, fileName: file.name });
+    const result = await extractTextFromFile({ fileDataUri });
 
     return NextResponse.json(result);
 
@@ -53,5 +53,4 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
-
     

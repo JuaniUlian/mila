@@ -333,51 +333,39 @@ const handleValidateInstructions = async () => {
 
     const updateFileState = (update: Partial<File>) => setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: f.files.map(file => file.id === tempId ? { ...file, ...update } : file) } : f));
     
-    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'uploading' }] } : f));
-
+    setFolders(prev => prev.map(f => f.id === folderId ? { ...f, files: [...f.files, { id: tempId, name: rawFile.name, content: '', status: 'processing', startTime: Date.now() }] } : f));
+    
     try {
-        if (rawFile.name.endsWith('.pdf')) {
-            const fileBuffer = await rawFile.arrayBuffer();
-            const pdfDoc = await PDFDocument.load(fileBuffer);
-            const totalPages = pdfDoc.getPageCount();
-            const chunkSize = 3;
-            const numChunks = Math.ceil(totalPages / chunkSize);
-            let combinedText = '';
+        const formData = new FormData();
+        formData.append('file', rawFile);
 
-            const totalEstimatedTime = estimateChunkProcessingTime(totalPages);
-            updateFileState({ totalChunks: numChunks, currentChunk: 0, totalEstimatedTime, elapsedTime: 0, status: 'processing', currentChunk: 1 });
-            
-            const intervalId = setInterval(() => setFolders(prev => prev.map(f => ({ ...f, files: f.files.map(file => (file.id === tempId && file.status === 'processing') ? { ...file, elapsedTime: (file.elapsedTime || 0) + 1 } : file) }))), 1000);
-            timerRef.current.set(tempId, intervalId);
+        const response = await fetch('/api/extract-text', { 
+            method: 'POST', 
+            body: formData,
+            signal: abortControllerRef.current.get(tempId)?.signal 
+        });
 
-            for (let i = 0; i < numChunks; i++) {
-                while (isPausedRef.current.get(tempId)) { await new Promise(res => setTimeout(res, 500)); }
-                if (abortControllerRef.current.get(tempId)?.signal.aborted) throw new Error('Cancelled');
-                updateFileState({ currentChunk: i + 1 });
-                const chunkDoc = await PDFDocument.create();
-                const pageIndices = Array.from({ length: Math.min(chunkSize, totalPages - i * chunkSize) }, (_, k) => i * chunkSize + k);
-                const copiedPages = await chunkDoc.copyPages(pdfDoc, pageIndices);
-                copiedPages.forEach(page => chunkDoc.addPage(page));
-                const chunkBytes = await chunkDoc.save();
-                const chunkFile = new File([chunkBytes], `chunk_${i + 1}.pdf`, { type: 'application/pdf' });
-                const formData = new FormData();
-                formData.append('file', chunkFile);
-                const response = await fetch('/api/extract-text', { method: 'POST', body: formData, signal: abortControllerRef.current.get(tempId)?.signal });
-                if (!response.ok) throw new Error(getFriendlyErrorMessage(await response.text().catch(() => `Server error: ${response.status}`)));
-                combinedText += (await response.json()).extractedText + '\n\n';
-            }
-            updateFileState({ status: 'success', content: combinedText, processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? 0)) / 1000 });
-        } else {
-            const formData = new FormData();
-            formData.append('file', rawFile);
-            const response = await fetch('/api/extract-text', { method: 'POST', body: formData });
-            if (!response.ok) throw new Error(getFriendlyErrorMessage(await response.text().catch(() => `Server error: ${response.status}`)));
-            updateFileState({ status: 'success', content: (await response.json()).extractedText, processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? 0)) / 1000 });
+        if (!response.ok) {
+            throw new Error(getFriendlyErrorMessage(await response.text().catch(() => `Server error: ${response.status}`)));
         }
+
+        const result = await response.json();
+        
+        updateFileState({ 
+            status: 'success', 
+            content: result.extractedText, 
+            processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
+        });
+        
         toast({ title: t('preparePage.toastFileUploaded'), description: t('preparePage.toastFileAdded').replace('{fileName}', rawFile.name) });
+
     } catch (err: any) {
         if (err.name !== 'AbortError' && err.message !== 'Cancelled') {
-            updateFileState({ status: 'error', error: getFriendlyErrorMessage(err), processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? 0)) / 1000 });
+            updateFileState({ 
+                status: 'error', 
+                error: getFriendlyErrorMessage(err), 
+                processingTime: (Date.now() - (folders.find(f => f.id === folderId)?.files.find(fi => fi.id === tempId)?.startTime ?? Date.now())) / 1000 
+            });
         }
     } finally {
         cleanupProcess(tempId);
@@ -440,7 +428,7 @@ const handleValidateInstructions = async () => {
             toast({ title: t('preparePage.zipErrorTitle'), description: t('preparePage.zipErrorDesc'), variant: 'destructive' });
         }
     } else {
-        await processSingleRegulation(file);
+        await processSingleRegulation(rawFile);
     }
   };
 
