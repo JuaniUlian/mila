@@ -6,10 +6,10 @@
 
 import {z} from 'genkit';
 import {ai} from '@/ai/genkit';
-import { GenerateRequest } from 'genkit';
 
 const ExtractTextFromFileInputSchema = z.object({
   fileDataUri: z.string().describe("El archivo como un data URI. Formato: 'data:<mimetype>;base64,<encoded_data>'."),
+  contentType: z.string().describe("El tipo MIME del archivo."),
 });
 export type ExtractTextFromFileInput = z.infer<typeof ExtractTextFromFileInputSchema>;
 
@@ -24,10 +24,10 @@ export type ExtractTextFromFileOutput = z.infer<typeof ExtractTextFromFileOutput
 const extractTextPrompt = ai.definePrompt({
     name: 'extractTextPrompt',
     model: 'googleai/gemini-1.5-pro',
-    input: { schema: z.object({ fileDataUri: z.string() }) },
+    input: { schema: z.object({ fileDataUri: z.string(), contentType: z.string() }) },
     prompt: [
         { text: 'Extrae el texto completo y en orden del siguiente documento. Devuelve únicamente el texto plano, sin formato adicional.' },
-        { media: { url: '{{{fileDataUri}}}' } }
+        { media: { url: '{{{fileDataUri}}}', contentType: '{{{contentType}}}' } }
     ],
 });
 

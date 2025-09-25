@@ -351,6 +351,8 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
           
           const formData = new FormData();
           formData.append('file', rawFile);
+          formData.append('contentType', rawFile.type);
+
 
           const response = await fetch('/api/extract-text', {
               method: 'POST',
@@ -437,6 +439,7 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
       try {
           const formData = new FormData();
           formData.append('file', rawFile);
+          formData.append('contentType', rawFile.type);
           
           const response = await fetch('/api/extract-text', {
               method: 'POST',
@@ -832,4 +835,3 @@ export function PrepareView({ title, titleIcon: TitleIcon, initialFolders: rawIn
     </div>
   );
 }
-
