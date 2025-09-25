@@ -9,8 +9,7 @@
 
 import { z } from 'zod';
 import sharp from 'sharp';
-import { PDFDocument } from 'pdf-lib';
-import mammoth from 'mammoth';
+import pdf from 'pdf-parse';
 
 // ───────────────────────── schemas / tipos
 const InputSchema = z.object({
@@ -22,7 +21,7 @@ export type ExtractTextFromFileOutput = {
   ok: boolean;
   extractedText?: string;
   error?: string;
-  meta?: { model: string; strategy: 'anthropic_pdf' | 'anthropic_image' | 'local_mammoth' | 'local_text' };
+  meta?: { model: string; strategy: 'anthropic_pdf' | 'anthropic_image' | 'local_mammoth' | 'local_pdf' | 'local_text' };
 };
 
 // ───────────────────────── helpers
@@ -34,30 +33,29 @@ function parseDataUri(dataUri: string): { mime: string; base64: string; buffer: 
 }
 
 async function uploadAnthropicFile(buffer: Buffer, filename: string, mime: string): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY no configurada');
-
+  const apiKey = process.env.ANTHROPIC_API_KEY!;
   const form = new FormData();
+
   form.append('file', new Blob([buffer], { type: mime }), filename);
-  form.append('purpose', 'messages');
+  form.append('purpose', 'message'); // ← singular
 
   const res = await fetch('https://api.anthropic.com/v1/files', {
     method: 'POST',
     headers: {
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'pdfs-2024-09-24', // ← habilita adjuntos de PDF
     },
     body: form,
   });
 
   if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Upload a Anthropic falló: ${res.status} ${errText}`);
+    throw new Error(`Upload a Anthropic falló: ${res.status} ${await res.text()}`);
   }
-
   const json = await res.json() as { id: string };
   return json.id;
 }
+
 
 async function callAnthropicWithAttachment(fileId: string, prompt: string, model: string): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY!;
@@ -67,24 +65,17 @@ async function callAnthropicWithAttachment(fileId: string, prompt: string, model
       'content-type': 'application/json',
       'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'pdfs-2024-09-24',
     },
     body: JSON.stringify({
       model,
       max_tokens: 4000,
       attachments: [
-        {
-          file_id: fileId,
-          tools: [{ type: 'document' }],
-        },
+        { file_id: fileId, tools: [{ type: 'document' }] }
       ],
       messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-          ],
-        },
-      ],
+        { role: 'user', content: [{ type: 'text', text: 'Extrae TODO el texto en orden de lectura. Devuelve solo texto plano UTF-8.' }] }
+      ]
     }),
   });
 
@@ -150,50 +141,66 @@ async function callAnthropicWithImage(buffer: Buffer, mime: string, prompt: stri
   return textBlock?.text || '';
 }
 
+async function extractPdfTextLocally(buffer: Buffer): Promise<string> {
+  try {
+    const data = await pdf(buffer);
+    return data.text || '';
+  } catch {
+    return '';
+  }
+}
+
 
 // ───────────────────────── entrypoint
 export async function extractTextFromFile(input: ExtractTextFromFileInput): Promise<ExtractTextFromFileOutput> {
   const { fileDataUri } = InputSchema.parse(input);
 
-  const model = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20240620';
+  const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
   const { mime, buffer } = parseDataUri(fileDataUri);
 
-  try {
-    if (mime.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
-        const result = await mammoth.extractRawText({ buffer });
-        return { ok: true, extractedText: result.value, meta: { model, strategy: 'local_mammoth' } };
-    }
-
-    if (mime === 'application/pdf') {
+  if (mime === 'application/pdf') {
+    try {
       const fileId = await uploadAnthropicFile(buffer, 'document.pdf', mime);
-      const text = await callAnthropicWithAttachment(
-        fileId,
-        'Extrae TODO el texto del PDF en orden de lectura. Devuelve únicamente texto plano UTF-8, sin notas ni resumen.',
-        model
-      );
-      if (text && text.trim().length > 0) {
-        return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_pdf' } };
-      }
-      return { ok: false, error: 'No se pudo extraer texto del PDF con Claude.', meta: { model, strategy: 'anthropic_pdf' } };
+      const text = await callAnthropicWithAttachment(fileId, 'Extrae TODO el texto en orden de lectura. Devuelve solo texto plano UTF-8.', model);
+      if (text.trim()) return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_pdf' } };
+      // si vino vacío, pruebo local
+      const local = await extractPdfTextLocally(buffer);
+      if (local.trim()) return { ok: true, extractedText: local, meta: { model, strategy: 'local_pdf' } };
+      return { ok: false, error: 'No se pudo extraer texto del PDF.' };
+    } catch (e: any) {
+      // si Anthropic falló (incluido 404), salto directo a local
+      const local = await extractPdfTextLocally(buffer);
+      if (local.trim()) return { ok: true, extractedText: local, meta: { model, strategy: 'local_pdf' } };
+      return { ok: false, error: `Failed to extract text: ${e.message}` };
     }
-
-    if (mime.startsWith('image/')) {
-      const text = await callAnthropicWithImage(
-        buffer,
-        mime,
-        'Lee el texto presente en la imagen y devuélvelo como texto plano.',
-        model
-      );
-      return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_image' } };
-    }
-
-    if (mime.startsWith('text/')) {
-      return { ok: true, extractedText: buffer.toString('utf-8'), meta: { model, strategy: 'local_text' } };
-    }
-
-    return { ok: false, error: `Tipo de archivo no soportado: ${mime}` };
-  } catch (err: any) {
-    console.error(`Error in extractTextFromFile for mime type ${mime}:`, err);
-    return { ok: false, error: `Failed to extract text: ${err.message}` };
   }
+
+  if (mime.startsWith('image/')) {
+    try {
+        const text = await callAnthropicWithImage(
+            buffer,
+            mime,
+            'Lee el texto presente en la imagen y devuélvelo como texto plano.',
+            model
+        );
+        return { ok: true, extractedText: text, meta: { model, strategy: 'anthropic_image' } };
+    } catch (err: any) {
+        console.error(`Error in extractTextFromFile (image) for mime type ${mime}:`, err);
+        return { ok: false, error: `Failed to extract text from image: ${err.message}` };
+    }
+  }
+  
+  if (mime.startsWith('text/')) {
+      return { ok: true, extractedText: buffer.toString('utf-8'), meta: { model, strategy: 'local_text' } };
+  }
+
+  // Fallback for docx or other types if needed
+  if (mime.includes('vnd.openxmlformats-officedocument.wordprocessingml.document')) {
+      const mammoth = await import('mammoth');
+      const result = await mammoth.extractRawText({ buffer });
+      return { ok: true, extractedText: result.value, meta: { model, strategy: 'local_mammoth' } };
+  }
+
+
+  return { ok: false, error: `Tipo de archivo no soportado: ${mime}` };
 }

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractTextFromFile } from '@/ai/flows/extract-text-from-file';
 
+export const runtime = 'nodejs';
+
 export const config = {
   api: {
     bodyParser: false,
@@ -30,7 +32,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file found in the request' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: 'No file found in the request' }, { status: 400 });
     }
 
     // @ts-ignore - 'stream' está disponible en el objeto File en el runtime de Next.js Edge/Node.js
@@ -40,15 +42,16 @@ export async function POST(request: NextRequest) {
     const result = await extractTextFromFile({ fileDataUri });
 
     if (result.ok) {
-        return NextResponse.json({ extractedText: result.extractedText });
+        return NextResponse.json({ ok: true, extractedText: result.extractedText });
     } else {
-        return NextResponse.json({ error: result.error }, { status: 500 });
+        return NextResponse.json({ ok: false, error: result.error }, { status: 500 });
     }
 
   } catch (error: any) {
     console.error('Error in /api/extract-text:', error);
     const errorMessage = error.message || 'An unexpected error occurred on the server.';
     return NextResponse.json({ 
+        ok: false,
         error: `Server-side extraction failed. ${errorMessage}` 
     }, { status: 500 });
   }
