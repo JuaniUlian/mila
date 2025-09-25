@@ -30,23 +30,8 @@ const extractTextFlow = ai.defineFlow(
   async (input) => {
     const { fileDataUri } = input;
 
-    function parseDataUri(dataUri: string): { mime: string; base64: string; buffer: Buffer } {
-        const match = /^data:(.+);base64,(.*)$/.exec(dataUri);
-        if (!match) throw new Error('Data URI inválida');
-        const [, mime, base64] = match;
-        return { mime, base64, buffer: Buffer.from(base64, 'base64') };
-    }
-
     try {
-      const { mime } = parseDataUri(fileDataUri);
-
-      // Handle plain text files directly
-      if (mime.startsWith('text/')) {
-        const buffer = Buffer.from(fileDataUri.split(',')[1], 'base64');
-        return { ok: true, text: buffer.toString('utf-8') };
-      }
-      
-      // Use AI for PDF, DOCX, and other complex formats
+      // Use AI for all file types for consistency and robustness
       const request: GenerateRequest = {
         model: 'googleai/gemini-1.5-pro',
         prompt: [
