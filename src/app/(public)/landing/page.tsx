@@ -22,6 +22,7 @@ import {
 import { PRICING_TIERS, calculateROI, type TierType } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { PricingModular } from '@/components/landing/pricing-modular';
 
 export default function LandingPage() {
   const [documentsPerMonth, setDocumentsPerMonth] = useState(10);
@@ -291,76 +292,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="max-w-7xl mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Elige tu plan
-          </h2>
-          <p className="text-xl text-gray-600">
-            Desde gratis hasta enterprise. Sin sorpresas.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-4 gap-6">
-          {Object.values(PRICING_TIERS).map((tier) => (
-            <Card
-              key={tier.name}
-              className={cn(
-                'relative',
-                tier.popular && 'border-4 border-blue-500 shadow-2xl scale-105'
-              )}
-            >
-              {tier.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-blue-500 text-white px-4 py-1">
-                    Más Popular
-                  </Badge>
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle className="text-2xl">{tier.displayName}</CardTitle>
-                <div className="mt-4">
-                  {tier.price === -1 ? (
-                    <div className="text-3xl font-bold">Personalizado</div>
-                  ) : tier.price === 0 ? (
-                    <div className="text-3xl font-bold">Gratis</div>
-                  ) : (
-                    <>
-                      <div className="text-4xl font-bold">
-                        ${tier.price}
-                        <span className="text-lg text-gray-600 font-normal">/mes</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Link href={tier.name === 'free' ? '/signup' : '/contact'}>
-                  <Button
-                    className={cn(
-                      'w-full mb-6',
-                      tier.popular && 'btn-bg-image'
-                    )}
-                    variant={tier.popular ? 'default' : 'outline'}
-                  >
-                    {tier.cta}
-                  </Button>
-                </Link>
-
-                <div className="space-y-3">
-                  {tier.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+      {/* Pricing Section - New Modular Model */}
+      <PricingModular />
 
       {/* Use Cases */}
       <section className="bg-slate-100 py-20">

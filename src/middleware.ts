@@ -1,11 +1,11 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 
-// This middleware redirects the root path ("/") to the "/home" page.
+// This middleware redirects the root path ("/") to the login page.
 export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === '/') {
-    const homeUrl = new URL('/home', request.url);
-    return NextResponse.redirect(homeUrl);
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
   return NextResponse.next();
 }
