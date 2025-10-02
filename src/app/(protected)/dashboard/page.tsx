@@ -22,6 +22,7 @@ import { getCurrentUser, logout, hasModule } from '@/lib/auth/mock-auth';
 import { getUserMetrics, getAccuracyRate, getTimeSaved } from '@/lib/metrics';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -84,12 +85,18 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-home-page">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Shield className="h-8 w-8 text-blue-600" />
+            <Image
+              src="/logo/Logo MILA (sin fondo).png"
+              alt="MILA Logo"
+              width={80}
+              height={80}
+              className="h-12 w-auto"
+            />
             <div>
               <h1 className="text-xl font-bold text-gray-900">MILA</h1>
               <p className="text-xs text-gray-600">{user.name}</p>
@@ -97,13 +104,19 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link href="/admin/clients">
+            <Link href="/biblioteca-normativa">
               <Button variant="ghost" size="sm">
                 <Database className="h-4 w-4 mr-2" />
                 Biblioteca Normativa
               </Button>
             </Link>
-            <Link href="/settings">
+            <Link href="/select-module">
+              <Button variant="ghost" size="sm" className="btn-bg-image">
+                <Target className="h-4 w-4 mr-2" />
+                Ir a Módulos
+              </Button>
+            </Link>
+            <Link href="/configuracion">
               <Button variant="ghost" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
                 Configuración
@@ -160,50 +173,27 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Modules Section */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">Tus Módulos</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {modules.map((module) => (
-              <Card
-                key={module.id}
-                className={`relative overflow-hidden hover:shadow-xl transition-shadow ${
-                  !module.active ? 'opacity-60' : ''
-                }`}
-              >
-                <div className={`absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${module.color}`} />
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-lg bg-gradient-to-r ${module.color} text-white`}>
-                      {module.icon}
-                    </div>
-                    {module.active ? (
-                      <Badge className="bg-green-100 text-green-800">Activo</Badge>
-                    ) : (
-                      <Badge className="bg-gray-100 text-gray-600">No disponible</Badge>
-                    )}
-                  </div>
-                  <CardTitle className="text-xl">{module.name}</CardTitle>
-                  <p className="text-sm text-gray-600 mt-2">{module.description}</p>
-                </CardHeader>
-                <CardContent>
-                  {module.active ? (
-                    <Link href={module.route}>
-                      <Button className="w-full btn-bg-image">
-                        Abrir módulo
-                        <ChevronRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button className="w-full" variant="outline" disabled>
-                      Contacta a tu administrador
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        {/* Quick Access Banner */}
+        <Card className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white mb-8">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold mb-2">
+                  Comienza a analizar documentos
+                </h3>
+                <p className="text-blue-100">
+                  Accede a los módulos de MILA para validar tus documentos con IA
+                </p>
+              </div>
+              <Link href="/select-module">
+                <Button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold">
+                  Ir a Módulos
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Quick Actions */}
         <Card className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
