@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { useTranslations } from '@/lib/translations';
 import { Label } from '../ui/label';
-import { discussFinding, type DiscussionMessage, discussFindingAction } from '@/ai/flows/discuss-finding';
+import { type DiscussionMessage, discussFindingAction } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { ScrollArea } from '../ui/scroll-area';
 import { Logo } from '../layout/logo';
@@ -98,6 +98,7 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
     const [isLoading, setIsLoading] = useState(false);
     const [currentResponse, setCurrentResponse] = useState('');
     const discussionEndRef = React.useRef<HTMLDivElement>(null);
+    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -121,6 +122,15 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
             discussionEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [history, currentResponse]);
+
+    // Cleanup timeout on unmount to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     const handleSendMessage = async () => {
         if (!userInput.trim() || isLoading) return;
@@ -183,22 +193,23 @@ export const DiscussionPanel = ({ finding, onClose }: { finding: FindingWithStat
 
           // Una vez que tenemos la respuesta completa, simular typing
           setCurrentResponse(fullResponse);
-          
+
           // Después de mostrar la respuesta, agregar al historial
-          setTimeout(() => {
+          timeoutRef.current = setTimeout(() => {
             const newAssistantMessage: DiscussionMessage = { role: 'assistant', content: fullResponse };
             const finalHistory = [...updatedHistory, newAssistantMessage];
             setHistory(finalHistory);
-            
+
             // Guardar en localStorage
             try {
               localStorage.setItem(`discussion_${finding.id}`, JSON.stringify(finalHistory));
             } catch (e) {
               console.warn('Could not save discussion to localStorage:', e);
             }
-            
+
             setCurrentResponse('');
             setIsLoading(false);
+            timeoutRef.current = null;
           }, fullResponse.length * 15 + 300); // Ajustado para la nueva velocidad
 
         } catch (error) {
@@ -392,6 +403,7 @@ const IncidentItemContent = ({ finding, onFindingStatusChange, onDialogClose, on
     onFindingStatusChange: (findingId: string, newStatus: FindingStatus, userModifications?: any) => void;
     onDialogClose: () => void;
   }) => {
+      const { toast } = useToast();
       const [editForm, setEditForm] = useState({
         propuesta_redaccion: finding.userModifications?.propuesta_redaccion || finding.propuesta_redaccion || '',
         propuesta_procedimiento: finding.userModifications?.propuesta_procedimiento || finding.propuesta_procedimiento || '',
@@ -543,7 +555,6 @@ export function IncidentsList({
     const grouped: Record<string, { findings: FindingWithStatus[], highestSeverity: string }> = {};
     
     pendingFindings.forEach(finding => {
-      // @ts-ignore
       const categoryLabel = finding.category || 'Otros';
       if (!grouped[categoryLabel]) {
         grouped[categoryLabel] = { findings: [], highestSeverity: 'Informativa' };
@@ -574,9 +585,8 @@ export function IncidentsList({
   }
 
   const getTranslatedStatus = (status: FindingStatus) => {
-    const statusKey = `reportPreviewPage.status.${status}`;
-    // @ts-ignore
-    const translated = t(statusKey);
+    const statusKey = `reportPreviewPage.status.${status}` as const;
+    const translated = t(statusKey as any);
     return translated === statusKey ? status : translated;
   };
 

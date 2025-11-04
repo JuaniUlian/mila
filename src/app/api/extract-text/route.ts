@@ -37,17 +37,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Convertir el archivo a un buffer y luego a un Data URI
-    // @ts-ignore - 'stream' está disponible en el objeto File en el runtime de Next.js Edge/Node.js
-    const buffer = await streamToBuffer(file.stream());
+    const buffer = await streamToBuffer(file.stream() as ReadableStream<Uint8Array>);
     const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
 
     const result = await extractTextFromFile({ fileDataUri, fileType: file.type, fileName: file.name });
 
     return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in /api/extract-text:', error);
-    const errorMessage = error.message || 'An unexpected error occurred on the server.';
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred on the server.';
     return NextResponse.json({ 
         error: `Server-side extraction failed: ${errorMessage}` 
     }, { status: 500 });

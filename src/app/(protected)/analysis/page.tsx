@@ -20,7 +20,7 @@ import {
   type FindingStatus 
 } from '@/ai/flows/compliance-scoring';
 
-function determineCategory(finding: any): string {
+function determineCategory(finding: FindingWithStatus): string {
   const titulo = finding.titulo_incidencia.toLowerCase();
   const justificacion = finding.justificacion_legal.toLowerCase();
   const tecnica = finding.justificacion_tecnica.toLowerCase();
@@ -113,7 +113,7 @@ export default function PlanillaVivaPage() {
       const data = JSON.parse(storedData);
       setDocumentName(data.documentName || 'Documento sin título');
       
-      const findingsWithStatus = (data.findings || []).map((f: any) => ({
+      const findingsWithStatus = (data.findings || []).map((f: FindingWithStatus) => ({
           ...f,
           category: determineCategory(f)
       }));

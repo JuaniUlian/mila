@@ -1,5 +1,4 @@
 'use server';
-console.error('🔥🔥🔥 DISCUSS-FINDING EJECUTÁNDOSE 🔥🔥🔥');
 import { z } from 'zod';
 import { type FindingWithStatus } from './compliance-scoring';
 
@@ -11,7 +10,7 @@ const DiscussionMessageSchema = z.object({
 export type DiscussionMessage = z.infer<typeof DiscussionMessageSchema>;
 
 const DiscussFindingInputSchema = z.object({
-  finding: z.any().describe("The full finding object that is being discussed."),
+  finding: z.custom<FindingWithStatus>().describe("The full finding object that is being discussed."),
   history: z.array(DiscussionMessageSchema).describe("The history of the conversation so far."),
 });
 export type DiscussFindingInput = z.infer<typeof DiscussFindingInputSchema>;
@@ -121,9 +120,13 @@ INSTRUCCIONES:
 
   } catch (error: unknown) {
     console.error('=== ERROR in discussFinding ===');
-    console.error('Error type:', error?.constructor?.name);
-    console.error('Error message:', error instanceof Error ? error.message : String(error));
-    console.error('Full error:', error);
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    } else {
+      console.error('Non-Error thrown:', String(error));
+    }
     
     // Fallback con respuesta contextual DIFERENTE
     const lastMessage = input.history[input.history.length - 1];
