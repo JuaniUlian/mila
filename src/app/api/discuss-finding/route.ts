@@ -1,8 +1,5 @@
-console.error('🚨🚨🚨 ROUTE API LLAMADO 🚨🚨🚨');
 import { NextRequest, NextResponse } from 'next/server';
 import { discussFindingAction } from '@/ai/flows/discuss-finding';
-
-console.log('🚀 ROUTE.TS CARGADO');
 
 export async function POST(request: NextRequest) {
   console.log('📨 API ENDPOINT LLAMADO');

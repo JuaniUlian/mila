@@ -65,20 +65,14 @@ export function ReportPreview({ data }: ReportPreviewProps) {
   };
 
   const getTranslatedStatus = (status: FindingStatus) => {
-    // @ts-ignore
-    const key = `reportPreviewPage.status.${status}`;
-    // @ts-ignore
-    const translated = t(key);
-    // @ts-ignore
+    const key = `reportPreviewPage.status.${status}` as const;
+    const translated = t(key as any);
     return translated === key ? status : translated;
   }
 
   const getTranslatedSeverity = (severity: FindingWithStatus['gravedad']) => {
-    // @ts-ignore
-    const key = `reportPreviewPage.severity.${severity}`;
-    // @ts-ignore
-    const translated = t(key);
-    // @ts-ignore
+    const key = `reportPreviewPage.severity.${severity}` as const;
+    const translated = t(key as any);
     return translated === key ? severity : translated;
   }
 
