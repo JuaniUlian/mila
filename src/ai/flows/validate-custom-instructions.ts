@@ -24,13 +24,14 @@ const ValidateCustomInstructionsOutputSchema = z.object({
 });
 export type ValidateCustomInstructionsOutput = z.infer<typeof ValidateCustomInstructionsOutputSchema>;
 
-// Prompt
-const prompt = ai.definePrompt({
-  name: 'validateCustomInstructionsPrompt',
-  model: 'googleai/gemini-1.5-pro',
-  input: { schema: ValidateCustomInstructionsInputSchema },
-  output: { schema: ValidateCustomInstructionsOutputSchema },
-  prompt: `Eres un supervisor de seguridad de IA. Tu tarea es validar las instrucciones personalizadas de un usuario para asegurar que no comprometan la integridad del sistema de auditoría.
+// Model configuration
+const MODELS = {
+  primary: 'anthropic/claude-sonnet-4-5-20250929',
+  fallback: 'googleai/gemini-2.5-pro',
+} as const;
+
+// Shared prompt text
+const VALIDATION_PROMPT = `Eres un supervisor de seguridad de IA. Tu tarea es validar las instrucciones personalizadas de un usuario para asegurar que no comprometan la integridad del sistema de auditoría.
 
 El propósito principal del sistema es:
 "Analizar documentos administrativos para proteger a los funcionarios, identificando hallazgos objetivos alineados con la normativa y las mejores prácticas de control interno. El sistema debe ser objetivo, imparcial y constructivo."
@@ -56,7 +57,24 @@ Evalúa las instrucciones del usuario según las reglas y responde en formato JS
     -   **REGLA DE ORO:** NUNCA sugieras cómo el usuario podría reformular su instrucción. No des ejemplos de cómo corregirlo. Simplemente informa la regla que se violó.
     -   Ejemplo de feedback inválido (NO HACER): "La instrucción es inválida. En su lugar, solicite que..."
     -   **Ejemplo de feedback VÁLIDO (HACER):** "La instrucción es inválida porque viola la regla de 'NO CONTRADECIR EL PROPÓSITO'."
-`,
+`;
+
+// Primary prompt (Claude)
+const prompt = ai.definePrompt({
+  name: 'validateCustomInstructionsPrompt',
+  model: MODELS.primary,
+  input: { schema: ValidateCustomInstructionsInputSchema },
+  output: { schema: ValidateCustomInstructionsOutputSchema },
+  prompt: VALIDATION_PROMPT,
+});
+
+// Fallback prompt (Gemini)
+const fallbackPrompt = ai.definePrompt({
+  name: 'validateCustomInstructionsFallbackPrompt',
+  model: MODELS.fallback,
+  input: { schema: ValidateCustomInstructionsInputSchema },
+  output: { schema: ValidateCustomInstructionsOutputSchema },
+  prompt: VALIDATION_PROMPT,
 });
 
 // Flow
@@ -68,18 +86,28 @@ const validateCustomInstructionsFlow = ai.defineFlow(
   },
   async (input) => {
     try {
+      // Try primary model (Claude)
       const { output } = await prompt(input);
       if (!output) {
         throw new Error('The AI model did not return a valid response.');
       }
       return output;
-    } catch (error) {
-      console.error('Error in validateCustomInstructionsFlow:', error);
-      // Return a safe default in case of an unexpected flow error
-      return {
-        isValid: false,
-        feedback: 'Ocurrió un error inesperado al validar las instrucciones. Por favor, intente de nuevo. Se han restaurado las instrucciones originales.',
-      };
+    } catch (primaryError) {
+      console.warn('Primary model (Claude) failed, trying fallback (Gemini):', primaryError);
+      try {
+        // Fallback to Gemini
+        const { output } = await fallbackPrompt(input);
+        if (!output) {
+          throw new Error('Fallback model did not return a valid response.');
+        }
+        return output;
+      } catch (fallbackError) {
+        console.error('Both models failed:', fallbackError);
+        return {
+          isValid: false,
+          feedback: 'Ocurrió un error inesperado al validar las instrucciones. Por favor, intente de nuevo. Se han restaurado las instrucciones originales.',
+        };
+      }
     }
   }
 );

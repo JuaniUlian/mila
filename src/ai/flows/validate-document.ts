@@ -2,7 +2,7 @@
 'use server';
 /**
  * @fileOverview Flujo de validación con scoring centralizado y tipado estricto
- * - Usa Gemini 1.5 Pro como modelo principal.
+ * - Usa Claude 4.5 Sonnet como modelo principal (fallback: Gemini 2.5 Pro).
  * - Tipado explícito para entrada y salida.
  * - Normalización defensiva del output (scoringBreakdown y findings).
  */
@@ -14,6 +14,12 @@ import {
   getRiskCategory,
   type Finding as FindingTypeFromScoring,
 } from './compliance-scoring';
+
+// Model configuration
+const MODELS = {
+  primary: 'anthropic/claude-sonnet-4-5-20250929',
+  fallback: 'googleai/gemini-2.5-pro',
+} as const;
 
 /* =========================
    Esquemas de entrada
@@ -118,22 +124,10 @@ function normalizeOutput(raw: any, calculatedScores?: any): ValidateDocumentOutp
 }
 
 /* =========================
-   Prompt para Gemini
+   Prompt para validación
    ========================= */
 
-const validateDocumentPromptWithGemini = ai.definePrompt(
-  {
-    name: 'validateDocumentPromptWithGemini',
-    model: 'googleai/gemini-1.5-pro',
-    input: { schema: ValidateDocumentInputSchema },
-    output: {
-      schema: z.object({
-        isRelevantDocument: z.boolean(),
-        relevancyReasoning: z.string(),
-        findings: z.array(FindingSchema),
-      })
-    },
-    prompt: `Eres un auditor experto en administración pública. Analiza el documento y devuelve hallazgos **sin** calcular puntajes.
+const VALIDATION_PROMPT = `Eres un auditor experto en administración pública. Analiza el documento y devuelve hallazgos **sin** calcular puntajes.
 
 Paso 1 (relevancia):
 - Si NO es un documento administrativo/gubernamental, responde isRelevantDocument=false, explica en relevancyReasoning y devuelve findings=[].
@@ -164,7 +158,33 @@ NORMAS:
 \`\`\`
 {{/each}}
 
-Devuelve **solo JSON**.`,
+Devuelve **solo JSON**.`;
+
+const outputSchema = z.object({
+  isRelevantDocument: z.boolean(),
+  relevancyReasoning: z.string(),
+  findings: z.array(FindingSchema),
+});
+
+// Primary prompt (Claude)
+const validateDocumentPrompt = ai.definePrompt(
+  {
+    name: 'validateDocumentPrompt',
+    model: MODELS.primary,
+    input: { schema: ValidateDocumentInputSchema },
+    output: { schema: outputSchema },
+    prompt: VALIDATION_PROMPT,
+  }
+);
+
+// Fallback prompt (Gemini)
+const validateDocumentFallbackPrompt = ai.definePrompt(
+  {
+    name: 'validateDocumentFallbackPrompt',
+    model: MODELS.fallback,
+    input: { schema: ValidateDocumentInputSchema },
+    output: { schema: outputSchema },
+    prompt: VALIDATION_PROMPT,
   }
 );
 
@@ -181,13 +201,9 @@ const validateDocumentFlow = ai.defineFlow(
   },
   async (input) => {
     const startTime = Date.now();
-    try {
-      console.log('🤖 Ejecutando análisis con Gemini...');
-      const { output } = await validateDocumentPromptWithGemini(input);
-      const aiOutput = output;
 
-      if (!aiOutput) throw new Error('La IA no devolvió ningún resultado');
-
+    // Helper function to process AI output
+    const processOutput = (aiOutput: z.infer<typeof outputSchema>) => {
       if (!aiOutput.isRelevantDocument) {
         const irrelevant = normalizeOutput({
           isRelevantDocument: false,
@@ -198,21 +214,39 @@ const validateDocumentFlow = ai.defineFlow(
         return irrelevant;
       }
 
-      console.log(`📊 Gemini devolvió ${aiOutput.findings.length} hallazgos`);
+      console.log(`📊 IA devolvió ${aiOutput.findings.length} hallazgos`);
       console.log('🧮 Calculando puntajes con sistema centralizado...');
-      
+
       const scoring = calculateBaseComplianceScore(aiOutput.findings as FindingTypeFromScoring[]);
-      
       const completed = normalizeOutput(aiOutput, scoring);
 
       console.log(`✅ Análisis completado en ${Date.now() - startTime} ms`);
       console.log(`📈 Puntaje: ${completed.complianceScore}% (${completed.riskCategory.label})`);
       return completed;
+    };
 
-    } catch (err: any) {
-      console.error('Error en el flujo de validación:', err);
-      const errorMessage = `El análisis del documento falló: ${err.message || String(err)}`;
-      throw new Error(errorMessage);
+    try {
+      // Try primary model (Claude)
+      console.log('🤖 Ejecutando análisis con Claude...');
+      const { output } = await validateDocumentPrompt(input);
+      if (!output) throw new Error('La IA no devolvió ningún resultado');
+      return processOutput(output);
+
+    } catch (primaryError: any) {
+      console.warn('Primary model (Claude) failed, trying fallback (Gemini):', primaryError.message);
+
+      try {
+        // Fallback to Gemini
+        console.log('🔄 Ejecutando análisis con Gemini (fallback)...');
+        const { output } = await validateDocumentFallbackPrompt(input);
+        if (!output) throw new Error('El modelo fallback no devolvió ningún resultado');
+        return processOutput(output);
+
+      } catch (fallbackError: any) {
+        console.error('Both models failed:', fallbackError);
+        const errorMessage = `El análisis del documento falló: ${fallbackError.message || String(fallbackError)}`;
+        throw new Error(errorMessage);
+      }
     }
   }
 );

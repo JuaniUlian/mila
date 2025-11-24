@@ -6,6 +6,12 @@ import { type FindingWithStatus } from './compliance-scoring';
 import { ai } from '@/ai/genkit';
 import { type GenerateRequest } from 'genkit';
 
+// Model configuration
+const MODELS = {
+  primary: 'anthropic/claude-sonnet-4-5-20250929',
+  fallback: 'googleai/gemini-2.5-pro',
+} as const;
+
 // Schemas
 const DiscussionMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -27,10 +33,28 @@ const DiscussFindingOutputSchema = z.object({
 });
 export type DiscussFindingOutput = z.infer<typeof DiscussFindingOutputSchema>;
 
-// Función principal usando Genkit con Gemini
+// Helper function to generate with fallback
+async function generateWithFallback(request: GenerateRequest): Promise<string> {
+  try {
+    // Try primary model (Claude)
+    const primaryRequest = { ...request, model: MODELS.primary };
+    console.log('Calling Claude API...');
+    const response = await ai.generate(primaryRequest);
+    return response.text;
+  } catch (primaryError) {
+    console.warn('Primary model (Claude) failed, trying fallback (Gemini):', primaryError);
+    // Fallback to Gemini
+    const fallbackRequest = { ...request, model: MODELS.fallback };
+    console.log('Calling Gemini API (fallback)...');
+    const response = await ai.generate(fallbackRequest);
+    return response.text;
+  }
+}
+
+// Función principal usando Claude con fallback a Gemini
 export async function discussFinding(input: DiscussFindingInput): Promise<DiscussFindingOutput> {
   try {
-    console.log('=== DEBUGGING discussFinding (Gemini) ===');
+    console.log('=== DEBUGGING discussFinding (Claude) ===');
     console.log('History length:', input.history?.length);
 
     if (!input.history || input.history.length === 0) {
@@ -49,8 +73,6 @@ export async function discussFinding(input: DiscussFindingInput): Promise<Discus
 
     const systemPrompt = `Se ha detectado la siguiente incidencia: "${input.finding.titulo_incidencia}".
 El usuario argumenta: "${lastMessage.content}".
-Tu trabajo es contra-argumentar profesionalmente para mantener el hallazgo, basándote en el contexto del mismo.
-No cedas a menos que el usuario proponga argumentos o información contundente que ameriten desestimar el hallazgo.
 
 CONTEXTO DEL HALLAZGO ORIGINAL:
 - Evidencia: "${input.finding.evidencia}"
@@ -59,52 +81,59 @@ CONTEXTO DEL HALLAZGO ORIGINAL:
 - Normativa: ${input.finding.nombre_archivo_normativa}, artículo ${input.finding.articulo_o_seccion}
 - Consecuencias Estimadas: ${input.finding.consecuencia_estimada}
 
+TU ROL:
+Eres un auditor profesional que evalúa argumentos de forma objetiva e imparcial. Tu objetivo NO es defender el hallazgo a toda costa, sino determinar si el argumento del usuario tiene mérito.
+
+CRITERIOS PARA ACEPTAR EL ARGUMENTO DEL USUARIO (si cumple AL MENOS UNO):
+1. Presenta evidencia documental concreta que contradice el hallazgo
+2. Cita artículos específicos de normativa que excepcionan el caso
+3. Demuestra un contexto operacional especial legalmente justificado
+4. Presenta jurisprudencia o doctrina aplicable que respalda su posición
+5. Identifica un error factual en el hallazgo original
+
 INSTRUCCIONES DE RESPUESTA:
-- Mantén un tono profesional, colaborativo pero firme. No acuses.
-- Tu objetivo es proteger al usuario y la integridad del proceso.
-- Si el usuario presenta argumentos válidos, reconócelos, pero pide evidencia concreta o sustento normativo adicional.
-- Desafía argumentos débiles pidiendo bases legales o técnicas específicas.
+- Mantén un tono profesional y colaborativo.
+- Si el argumento del usuario es SÓLIDO y cumple alguno de los criterios anteriores, RECONÓCELO claramente y acepta que el hallazgo debe ser eliminado.
+- Si el argumento es parcialmente válido pero incompleto, indica qué información adicional necesitas.
+- Si el argumento es débil o sin fundamento, explica por qué el hallazgo se mantiene.
 - Sé conciso: responde en un máximo de 150 palabras.`;
 
     const messagesForApi = input.history.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user', // Map to Gemini roles
+      role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }));
 
     const request: GenerateRequest = {
-      model: 'googleai/gemini-1.5-pro',
-      prompt: '', // Prompt is constructed from history and system instruction
+      model: MODELS.primary, // Will be overwritten by generateWithFallback
+      prompt: '',
       config: {
         temperature: 0.7,
         maxOutputTokens: 300,
       },
-      history: messagesForApi.slice(0, -1), // All but the last message
+      history: messagesForApi.slice(0, -1),
       systemInstruction: systemPrompt,
     };
-    
-    // Add the last user message to the prompt itself
+
     const lastUserMsg = messagesForApi[messagesForApi.length-1];
     if(lastUserMsg) {
       request.prompt = lastUserMsg.parts[0].text || '';
     }
 
-    console.log('Calling Gemini API...');
-    const response = await ai.generate(request);
-    const reply = response.text;
-    
-    console.log('Gemini response length:', reply.length);
-    console.log('Gemini response preview:', reply.substring(0, 100) + '...');
+    const reply = await generateWithFallback(request);
+
+    console.log('Response length:', reply.length);
+    console.log('Response preview:', reply.substring(0, 100) + '...');
 
     return { reply };
 
   } catch (error: unknown) {
-    console.error('=== ERROR in discussFinding (Gemini) ===');
+    console.error('=== ERROR in discussFinding ===');
     console.error('Error type:', error?.constructor?.name);
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     console.error('Full error:', error);
-    
+
     const fallbackResponse = `Ocurrió un error al contactar al asistente de IA. Por favor, revisa la configuración y tu conexión a internet.`;
-    
+
     return { reply: `[FALLBACK] ${fallbackResponse}` };
   }
 }
@@ -129,13 +158,16 @@ HALLAZGO ORIGINAL:
 ARGUMENTO DEL USUARIO:
 "${userArgument}"
 
-Evalúa si el argumento del usuario es suficientemente sólido para DESESTIMAR el hallazgo.
+Evalúa si el argumento del usuario es suficientemente sólido para DESESTIMAR y ELIMINAR el hallazgo.
 
-Criterios para que el usuario gane:
+CRITERIOS PARA QUE EL USUARIO GANE (si cumple AL MENOS UNO, userWins=true):
 1. Presenta evidencia documental concreta que contradice el hallazgo
 2. Cita artículos específicos de normativa que excepcionan el caso
 3. Demuestra un contexto operacional especial legalmente justificado
-4. Presenta jurisprudencia aplicable que respalda su posición
+4. Presenta jurisprudencia o doctrina aplicable que respalda su posición
+5. Identifica un error factual en el hallazgo original
+
+IMPORTANTE: Sé justo y objetivo. Si el usuario presenta un argumento válido y bien fundamentado, reconócelo con userWins=true y confidence alta.
 
 Responde en JSON:
 {
@@ -144,8 +176,8 @@ Responde en JSON:
   "reason": "explicación breve de por qué gana o no el usuario"
 }`;
 
-    const response = await ai.generate({
-      model: 'googleai/gemini-1.5-pro',
+    const reply = await generateWithFallback({
+      model: MODELS.primary,
       prompt: evaluationPrompt,
       config: {
         temperature: 0.3,
@@ -153,7 +185,7 @@ Responde en JSON:
       },
     });
 
-    const result = JSON.parse(response.text);
+    const result = JSON.parse(reply);
     return {
       userWins: result.userWins || false,
       confidence: result.confidence || 0,
@@ -193,8 +225,8 @@ Ejemplo:
 
 Genera solo la instrucción, sin preámbulos.`;
 
-    const response = await ai.generate({
-      model: 'googleai/gemini-1.5-pro',
+    const reply = await generateWithFallback({
+      model: MODELS.primary,
       prompt: instructionPrompt,
       config: {
         temperature: 0.4,
@@ -202,7 +234,7 @@ Genera solo la instrucción, sin preámbulos.`;
       },
     });
 
-    return response.text.trim();
+    return reply.trim();
   } catch (error) {
     console.error('Error generating module instruction:', error);
     return '';
@@ -268,15 +300,12 @@ export async function discussFindingAction(
         if (userMessages.length >= 2) {
             const evaluation = await evaluateUserArgument(finding, lastUserMessage.content);
 
-            if (evaluation.userWins && evaluation.confidence > 0.7) {
-                // El usuario ganó la discusión
+            if (evaluation.userWins && evaluation.confidence > 0.6) {
+                // El usuario ganó la discusión - el hallazgo será eliminado
                 const instruction = await generateModuleInstruction(finding, lastUserMessage.content);
 
-                // Guardar la instrucción (por ahora en localStorage, luego en BD)
-                // saveModuleInstruction se ejecutará en el cliente
-
                 return {
-                    reply: `Tienes razón. Después de evaluar tu argumento, reconozco que este hallazgo no aplica en este caso específico.\n\n**Razón:** ${evaluation.reason}\n\nHe generado una nueva instrucción para el módulo que evitará este tipo de falsos positivos en futuros análisis.`,
+                    reply: `**Hallazgo eliminado.** Tu argumento es válido y bien fundamentado.\n\n**Razón:** ${evaluation.reason}\n\nEste hallazgo ha sido removido del análisis. Además, se ha generado una nueva instrucción para el módulo que evitará este tipo de falsos positivos en futuros análisis.`,
                     outcome: 'user_wins',
                     suggestedModuleInstruction: instruction,
                 };
