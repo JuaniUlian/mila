@@ -582,8 +582,8 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         setIsLoading(true);
 
         try {
-            const responseText = await discussFindingAction(newHistory, finding);
-            const assistantResponse: DiscussionMessage = { role: 'assistant', content: responseText };
+            const response = await discussFindingAction(newHistory, finding);
+            const assistantResponse: DiscussionMessage = { role: 'assistant', content: response.reply };
             setHistory(prev => [...prev, assistantResponse]);
         } catch (error) {
             console.error("Error starting discussion:", error);
@@ -592,7 +592,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
             setIsLoading(false);
         }
     };
-    
+
     const handleSend = async () => {
         if (!input.trim() && !attachedFile) return;
 
@@ -608,8 +608,8 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         setIsLoading(true);
 
         try {
-            const responseText = await discussFindingAction(newHistory, finding);
-            const assistantResponse: DiscussionMessage = { role: 'assistant', content: responseText };
+            const response = await discussFindingAction(newHistory, finding);
+            const assistantResponse: DiscussionMessage = { role: 'assistant', content: response.reply };
             setHistory(prev => [...prev, assistantResponse]);
         } catch (error) {
             console.error("Error discussing finding:", error);
