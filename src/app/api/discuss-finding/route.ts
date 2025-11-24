@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Calling discussFindingAction...');
-    const resultText = await discussFindingAction(history, finding);
+    const result = await discussFindingAction(history, finding);
     console.log('Action response received, sending back to client.');
-    
-    // Respond with a simple JSON object containing the text
-    return NextResponse.json({ reply: resultText });
+
+    // Return the result directly (already contains {reply, outcome, suggestedModuleInstruction})
+    return NextResponse.json(result);
 
   } catch (error: unknown) {
     console.error('💥 Error in /api/discuss-finding:', error);
