@@ -1,6 +1,5 @@
 
 'use server';
-console.error('🔥🔥🔥 DISCUSS-FINDING EJECUTÁNDOSE 🔥🔥🔥');
 import { z } from 'zod';
 import { type FindingWithStatus } from './compliance-scoring';
 import { ai } from '@/ai/genkit';
@@ -20,7 +19,7 @@ const DiscussionMessageSchema = z.object({
 export type DiscussionMessage = z.infer<typeof DiscussionMessageSchema>;
 
 const DiscussFindingInputSchema = z.object({
-  finding: z.any().describe("The full finding object that is being discussed."),
+  finding: z.custom<FindingWithStatus>().describe("The full finding object that is being discussed."),
   history: z.array(DiscussionMessageSchema).describe("The history of the conversation so far."),
 });
 export type DiscussFindingInput = z.infer<typeof DiscussFindingInputSchema>;

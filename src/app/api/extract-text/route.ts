@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: 'No file or content type found in the request' }, { status: 400 });
     }
 
-    // @ts-ignore Next.js runtime exposes .stream()
-    const buffer = await streamToBuffer(file.stream());
+    // Convertir el archivo a un buffer y luego a un Data URI
+    const buffer = await streamToBuffer(file.stream() as ReadableStream<Uint8Array>);
     const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
 
     const result: ExtractTextFromFileOutput = await extractTextFromFile({ fileDataUri, contentType });
@@ -42,12 +42,13 @@ export async function POST(request: NextRequest) {
     } else {
         return NextResponse.json({ ok: false, error: result.error }, { status: 500 });
     }
-    
-  } catch (error: any) {
+
+  } catch (error: unknown) {
     console.error('Error in /api/extract-text:', error);
-    return NextResponse.json(
-      { ok: false, error: `Server-side extraction failed: ${error.message || 'Unexpected error'}` },
-      { status: 500 }
-    );
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred on the server.';
+    return NextResponse.json({
+        ok: false,
+        error: `Server-side extraction failed: ${errorMessage}`
+    }, { status: 500 });
   }
 }

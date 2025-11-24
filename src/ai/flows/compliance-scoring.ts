@@ -61,6 +61,7 @@ export type FindingStatus = 'pending' | 'applied' | 'discarded' | 'modified';
 export interface FindingWithStatus extends Finding {
   id: string;
   status: FindingStatus;
+  category?: string; // Category assigned at runtime by determineCategory function
   userModifications?: {
     propuesta_procedimiento?: string;
     propuesta_redaccion?: string;
