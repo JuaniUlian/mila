@@ -18,7 +18,7 @@ import { useTranslations } from '@/lib/translations';
 import { useLayout } from '@/context/LayoutContext';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { discussFindingAction, type DiscussionMessage } from '@/ai/flows/discuss-finding';
+import { type DiscussionMessage } from '@/ai/flows/discuss-finding';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Logo } from '@/components/layout/logo';
 import { Textarea } from '@/components/ui/textarea';
@@ -582,8 +582,21 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         setIsLoading(true);
 
         try {
-            const response = await discussFindingAction(newHistory, finding);
-            const assistantResponse: DiscussionMessage = { role: 'assistant', content: response.reply };
+            console.log('Calling /api/discuss-finding with:', { historyLength: newHistory.length, findingId: finding.id });
+            const res = await fetch('/api/discuss-finding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history: newHistory, finding })
+            });
+            const response = await res.json();
+            console.log('/api/discuss-finding response:', response);
+
+            if (!res.ok) {
+                throw new Error(response.error || 'Error del servidor');
+            }
+
+            const replyText = response?.reply || '[Sin respuesta del servidor]';
+            const assistantResponse: DiscussionMessage = { role: 'assistant', content: replyText };
             setHistory(prev => [...prev, assistantResponse]);
         } catch (error) {
             console.error("Error starting discussion:", error);
@@ -598,7 +611,7 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
 
         let messageContent = input.trim();
         if (attachedFile) {
-            messageContent += `\\n\\n(Se adjuntó el archivo: ${attachedFile.name})`;
+            messageContent += `\n\n(Se adjuntó el archivo: ${attachedFile.name})`;
         }
 
         const newHistory: DiscussionMessage[] = [...history, { role: 'user', content: messageContent }];
@@ -608,8 +621,21 @@ const ChallengeModal = ({ finding, onClose }: { finding: FindingWithStatus, onCl
         setIsLoading(true);
 
         try {
-            const response = await discussFindingAction(newHistory, finding);
-            const assistantResponse: DiscussionMessage = { role: 'assistant', content: response.reply };
+            console.log('Calling /api/discuss-finding with:', { historyLength: newHistory.length, findingId: finding.id });
+            const res = await fetch('/api/discuss-finding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history: newHistory, finding })
+            });
+            const response = await res.json();
+            console.log('/api/discuss-finding response:', response);
+
+            if (!res.ok) {
+                throw new Error(response.error || 'Error del servidor');
+            }
+
+            const replyText = response?.reply || '[Sin respuesta del servidor]';
+            const assistantResponse: DiscussionMessage = { role: 'assistant', content: replyText };
             setHistory(prev => [...prev, assistantResponse]);
         } catch (error) {
             console.error("Error discussing finding:", error);
